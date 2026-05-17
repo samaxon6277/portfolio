@@ -1,0 +1,98 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Inter", "Poppins", sans-serif;
+  --font-display: "Space Grotesk", "Orbitron", sans-serif;
+  --color-neo-bg: #0F1117;
+  --color-neo-surface: #171A22;
+  --color-neo-elevated: #1D212C;
+  --color-neo-text: #FFFFFF;
+  --color-neo-text-dim: #A9B0C3;
+  --color-neo-text-disabled: #5F6678;
+  --color-neo-accent: #4DA8FF;
+  --color-neo-purple: #7A5CFF;
+  --color-neo-cyan: #00D9FF;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-neo-bg);
+    color: var(--color-neo-text);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .geo-shadow {
+    box-shadow: 8px 8px 16px #090a0e, -8px -8px 16px #15181c;
+  }
+  .geo-shadow-sm {
+    box-shadow: 4px 4px 8px #090a0e, -4px -4px 8px #15181c;
+  }
+  .geo-shadow-hover:hover {
+    box-shadow: 12px 12px 24px #090a0e, -12px -12px 24px #15181c;
+    transform: translateY(-2px);
+  }
+  .geo-inner-shadow {
+    box-shadow: inset 6px 6px 12px #090a0e, inset -6px -6px 12px #15181c;
+  }
+  .geo-gradient-text {
+    background: linear-gradient(to right, var(--color-neo-accent), var(--color-neo-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .geo-glow-text {
+    text-shadow: 0 0 10px rgba(77, 168, 255, 0.5);
+  }
+  .geo-btn {
+    background: var(--color-neo-surface);
+    box-shadow: 6px 6px 12px #090a0e, -6px -6px 12px #1f232e;
+    transition: all 0.3s ease;
+  }
+  .geo-btn-elevated {
+    background: var(--color-neo-elevated);
+    box-shadow: 6px 6px 12px #090a0e, -6px -6px 12px #272c3b;
+    transition: all 0.3s ease;
+  }
+  .geo-btn:hover, .geo-btn-elevated:hover {
+    box-shadow: inset 4px 4px 8px #090a0e, inset -4px -4px 8px #1f232e;
+    color: var(--color-neo-accent);
+  }
+  .geo-input {
+    background: var(--color-neo-surface);
+    box-shadow: inset 4px 4px 8px #090a0e, inset -4px -4px 8px #1f232e;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  .geo-input:focus {
+    box-shadow: inset 6px 6px 12px #090a0e, inset -6px -6px 12px #1f232e, 0 0 8px rgba(77, 168, 255, 0.3);
+  }
+  .geo-card {
+    background: var(--color-neo-surface);
+    border-radius: 24px;
+    box-shadow: 12px 12px 24px #090a0e, -12px -12px 24px #1f232e;
+    transition: all 0.3s ease;
+  }
+}
+
+/* Fix for auto-fill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: inset 4px 4px 8px #090a0e, inset -4px -4px 8px #1f232e, 0 0 0 1000px #171A22 inset !important;
+    -webkit-text-fill-color: var(--color-neo-text) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Fix for Recharts focus outline */
+.recharts-wrapper *:focus, .recharts-surface *:focus {
+  outline: none !important;
+}

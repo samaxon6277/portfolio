@@ -1,0 +1,167 @@
+{
+  "entities": {
+    "Blog": {
+      "title": "Blog",
+      "description": "Blog posts and articles",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "content": { "type": "string" },
+        "tags": { "type": "string" },
+        "status": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "views": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "slug", "content", "status", "updatedAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "A portfolio project",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string" },
+        "views": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "status", "views", "createdAt", "updatedAt"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "A service offering",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "pricing": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "pricing", "status", "createdAt", "updatedAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Contact form submission",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "subject": { "type": "string" },
+        "content": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "subject", "content", "status", "createdAt", "updatedAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "System and user notifications",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "read": { "type": "boolean" },
+        "actionUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "description", "type", "status", "read", "actionUrl", "createdAt", "updatedAt"]
+    },
+    "AdminProfile": {
+      "title": "Admin Profile",
+      "description": "Admin user profile data",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "username": { "type": "string" },
+        "bio": { "type": "string" },
+        "role": { "type": "string" },
+        "phone": { "type": "string" },
+        "social": { "type": "object" },
+        "preferences": { "type": "object" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "username", "updatedAt"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Global portfolio settings",
+      "type": "object",
+      "properties": {
+        "portfolioName": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "shortBio": { "type": "string" },
+        "metaTitle": { "type": "string" },
+        "keywords": { "type": "string" },
+        "metaDescription": { "type": "string" },
+        "linkedinUrl": { "type": "string" },
+        "githubUrl": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["portfolioName", "contactEmail", "updatedAt"]
+    },
+    "Media": {
+      "title": "Media",
+      "description": "Uploaded media files metadata",
+      "type": "object",
+      "properties": {
+        "filename": { "type": "string" },
+        "url": { "type": "string" },
+        "type": { "type": "string" },
+        "size": { "type": "number" },
+        "folder": { "type": "string" },
+        "tags": { "type": "string" },
+        "uploader": { "type": "string" },
+        "isFavorite": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["filename", "url", "type", "size", "folder", "uploader", "isFavorite", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/blogs/{blogId}": {
+      "schema": { "$ref": "#/entities/Blog" },
+      "description": "Blog posts collection"
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Portfolio projects collection"
+    },
+    "/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/Service" },
+      "description": "Services offerings collection"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Contact form messages collection"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Admin notifications collection"
+    },
+    "/admin_profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/AdminProfile" },
+      "description": "Admin profiles collection"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Global settings singleton"
+    },
+    "/media/{mediaId}": {
+      "schema": { "$ref": "#/entities/Media" },
+      "description": "Media uploads collection"
+    }
+  }
+}

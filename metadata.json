@@ -1,0 +1,6 @@
+{
+  "name": "SamaXon Agency Portfolio",
+  "description": "A high-quality portfolio and showcase for SamaXon. Features a modern dark neumorphism aesthetic, custom animations, and a responsive layout designed to generate freelance leads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
