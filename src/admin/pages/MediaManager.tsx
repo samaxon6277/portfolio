@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, Search, Image as ImageIcon, Video, FileText as File, Trash, Link as LinkIcon, Download, X, Copy, Check, Filter } from "lucide-react";
+import { Upload, Search, Image as ImageIcon, Video, FileText as FileIcon, Trash, Link as LinkIcon, Download, X, Copy, Check, Filter } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/AuthContext";
 import { motion, AnimatePresence } from "motion/react";
@@ -285,7 +285,7 @@ export default function MediaManager() {
                            ) : item.media_type?.startsWith('video/') ? (
                               <Video className="w-10 h-10 text-[#A8AFBD]" />
                            ) : (
-                              <File className="w-10 h-10 text-[#A8AFBD]" />
+                              <FileIcon className="w-10 h-10 text-[#A8AFBD]" />
                            )}
                            <div className={`absolute inset-0 bg-black/60 transition-opacity flex flex-col items-center justify-center gap-2 ${selectedItem?.id === item.id ? 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               <div className="flex gap-2">
@@ -332,7 +332,7 @@ export default function MediaManager() {
                      ) : selectedItem.media_type?.startsWith('video/') ? (
                         <video src={selectedItem.public_url} controls className="w-full h-full" />
                      ) : (
-                        <File className="w-12 h-12 text-[#A8AFBD]" />
+                        <FileIcon className="w-12 h-12 text-[#A8AFBD]" />
                      )}
                   </div>
                   

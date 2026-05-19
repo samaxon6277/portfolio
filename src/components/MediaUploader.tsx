@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X, Image as ImageIcon, Video, File, Loader } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Video, File as FileIcon, Loader } from "lucide-react";
 import ImageCropper from "./ImageCropper";
 import { supabase } from "../lib/supabase";
 import { motion, AnimatePresence } from "motion/react";
@@ -157,7 +157,7 @@ export default function MediaUploader({
           {value.match(/\.(mp4|webm)$/i) ? (
              <video src={value} controls className="w-full h-full object-contain" />
           ) : value.match(/\.(pdf)$/i) ? (
-             <File className="w-12 h-12 text-[#A8AFBD]" />
+             <FileIcon className="w-12 h-12 text-[#A8AFBD]" />
           ) : (
              <img src={value} alt="Uploaded Media" className="w-full h-full object-cover" />
           )}

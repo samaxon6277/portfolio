@@ -31,38 +31,97 @@ export function useSettings() {
   useEffect(() => {
     let mounted = true;
     const fetchSettings = async () => {
-      const { data, error } = await supabase
-        .from('settings')
-        .select('*')
-        .limit(1)
-        .single();
-        
-      if (mounted) {
-        if (!error && data) {
-           const mappedData: SettingsData = {
-             ...data,
-             avatarUrl: data.logo_url // Mapping logo_url to avatarUrl for About component
-           };
-           setSettings(mappedData);
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('*')
+          .limit(1);
+          
+        if (mounted) {
+           if (!error && data && data.length > 0) {
+             const settingsData = data[0];
+             const mappedData: SettingsData = {
+               ...settingsData,
+               avatarUrl: settingsData.logo_url 
+             };
+             setSettings(mappedData);
+             
+             // Update document head
+             if (settingsData.favicon_url) {
+               let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+               if (!link) {
+                 link = document.createElement('link');
+                 link.rel = 'icon';
+                 document.head.appendChild(link);
+               }
+               link.href = settingsData.favicon_url;
+             }
+             if (settingsData.meta_title || settingsData.company_name) {
+               document.title = settingsData.meta_title || settingsData.company_name;
+             }
+             if (settingsData.meta_description) {
+               let meta = document.querySelector("meta[name='description']");
+               if (!meta) {
+                 meta = document.createElement('meta');
+                 meta.setAttribute("name", "description");
+                 document.head.appendChild(meta);
+               }
+               meta.setAttribute("content", settingsData.meta_description);
+             }
+          }
+          setLoading(false);
         }
-        setLoading(false);
+      } catch (err) {
+        console.error("Fetch settings error:", err);
+        if (mounted) setLoading(false);
       }
     };
     
     fetchSettings();
     
-    const channel = supabase
-      .channel(`realtime:settings_${Math.random().toString(36).substring(7)}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
-        if (mounted) {
-          setSettings(payload.new as any);
-        }
-      })
-      .subscribe();
+    let channel: any = null;
+    try {
+      const channelId = `settings_${Math.random().toString(36).substring(7)}`;
+      channel = supabase
+        .channel(channelId)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
+          if (mounted && payload.new) {
+            const newSettings = payload.new as any;
+            setSettings(prev => ({
+              ...prev,
+              ...newSettings,
+              avatarUrl: newSettings.logo_url || prev?.avatarUrl
+            }));
+            
+            // Update document head in realtime
+            if (newSettings.favicon_url) {
+               let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+               if (!link) {
+                 link = document.createElement('link');
+                 link.rel = 'icon';
+                 document.head.appendChild(link);
+               }
+               link.href = newSettings.favicon_url;
+            }
+            if (newSettings.meta_title || newSettings.company_name) {
+               document.title = newSettings.meta_title || newSettings.company_name;
+            }
+          }
+        })
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR') {
+            console.error('Supabase channel error');
+          }
+        });
+    } catch (err) {
+      console.error("Realtime subscription error:", err);
+    }
 
     return () => {
       mounted = false;
-      supabase.removeChannel(channel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, []);
 

@@ -26,64 +26,84 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    async function getSession() {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error.message);
+    const getSession = async () => {
+      try {
+        // Use a 4-second timeout for the initial session fetch
+        const { data, error } = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Session timeout')), 4000))
+        ]) as any;
+        
+        const session = data?.session;
+        
+        if (error) {
+          console.error('Error getting session:', error.message);
+        }
+        
+        if (mounted) {
+          setUser(session?.user ?? null);
+          updateRole(session?.user);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Session fetch failed or timed out:', err);
+        if (mounted) {
+          // If it timed out, we still want to show the app (likely unauthenticated)
+          setLoading(false);
+        }
       }
-      
-      if (mounted) {
-        setUser(session?.user ?? null);
-        await updateRole(session?.user);
-        setLoading(false);
-      }
-    }
+    };
 
     getSession();
+
+    // Fallback: Ensure loading falls off after 5 seconds no matter what
+    const fallbackTimer = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn('Auth loading timeout fallback triggered');
+        setLoading(false);
+      }
+    }, 5000);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setUser(session?.user ?? null);
-        await updateRole(session?.user);
+        updateRole(session?.user);
       }
     );
 
     return () => {
       mounted = false;
+      clearTimeout(fallbackTimer);
       subscription.unsubscribe();
     };
   }, []);
 
-  const updateRole = async (currentUser?: User | null) => {
+  const updateRole = (currentUser?: User | null) => {
      if (currentUser && currentUser.email) {
-       try {
-         const { data, error } = await supabase
-           .from('profiles')
-           .select('role')
-           .eq('id', currentUser.id)
-           .single();
-
-         let currentRole: UserRole = 'none';
-
-         if (data && !error) {
-           currentRole = data.role as UserRole || 'none';
-         } else {
-            // Fallback for primary admins
-            const superAdmins = ['samkhan4562@gmail.com'];
-            if (currentUser.email === 'samkhan4562@gmail.com') {
-              currentRole = 'super_admin';
-            }
-         }
-
-         setRole(currentRole);
-         // Only true admins (super_admin or editor) should be treated as isAdmin for protected routes
-         setIsAdmin(['super_admin', 'editor'].includes(currentRole));
-       } catch (error) {
-         console.error("Error fetching user role:", error);
-         setIsAdmin(false);
-         setRole('none');
+       let currentRole: UserRole = 'none';
+       
+       // Priority 1: Hardcoded fallback for the owner (immediate)
+       if (currentUser.email === 'samkhan4562@gmail.com') {
+         currentRole = 'super_admin';
        }
+
+       setRole(currentRole);
+       setIsAdmin(['super_admin', 'editor'].includes(currentRole));
+
+       // Priority 2: Check database in background (don't block)
+       supabase
+         .from('profiles')
+         .select('role')
+         .eq('id', currentUser.id)
+         .maybeSingle()
+         .then(({ data, error }) => {
+           if (data && !error && data.role) {
+             const newRole = data.role as UserRole;
+             setRole(newRole);
+             setIsAdmin(['super_admin', 'editor'].includes(newRole));
+           }
+         })
+         .catch(err => console.error("Error fetching user role:", err));
      } else {
        setIsAdmin(false);
        setRole('none');
@@ -126,7 +146,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithPassword, signInWithOtp, logOut, isAdmin, role }}>
-      {!loading && children}
+      {loading ? (
+        <div className="min-h-screen bg-[#1E2029] flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-neo-cyan border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : children}
     </AuthContext.Provider>
   );
 };

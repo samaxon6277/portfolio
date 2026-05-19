@@ -28,9 +28,28 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!isAdmin) {
     return (
        <div className="flex flex-col items-center justify-center min-h-screen bg-neo-bg text-neo-text px-4 text-center">
-         <h1 className="text-4xl font-display text-neo-red mb-4">403 Forbidden</h1>
-         <p className="text-neo-text opacity-70 mb-8 max-w-md">You do not have administrative privileges to access this area.</p>
-         <Navigate to="/" replace />
+         <div className="w-20 h-20 bg-neo-red/10 rounded-full flex items-center justify-center mb-6 border border-neo-red/20 text-neo-red">
+           <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+         </div>
+         <h1 className="text-4xl font-display text-neo-red mb-4">ADMIN ACCESS DENIED</h1>
+         <p className="text-neo-text/70 mb-8 max-w-md">
+           Your account ({user.email}) does not have administrative privileges. 
+           Please contact the site owner if you believe this is an error.
+         </p>
+         <div className="flex gap-4">
+           <button 
+             onClick={() => window.location.href = '/'}
+             className="px-6 py-3 bg-neo-cyan/10 border border-neo-cyan/30 text-neo-cyan font-bold tracking-widest hover:bg-neo-cyan/20 transition-all uppercase"
+           >
+             Return Home
+           </button>
+           <button 
+             onClick={() => window.location.href = '/login'}
+             className="px-6 py-3 bg-neo-accent text-neo-bg font-bold tracking-widest hover:brightness-110 transition-all uppercase"
+           >
+             Try Different Account
+           </button>
+         </div>
        </div>
     );
   }

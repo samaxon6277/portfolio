@@ -36,13 +36,26 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="flex items-center">
-                {settings?.logo_url ? (
+              <Link to="/" className="flex items-center gap-3">
+                {(!settings?.logo_type || settings?.logo_type === 'image' || settings?.logo_type === 'both') && settings?.logo_url ? (
                   <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-neo-surface" />
-                ) : (
+                ) : (!settings?.logo_type || settings?.logo_type === 'image' || settings?.logo_type === 'both') ? (
                   <div className="w-12 h-12 rounded-full bg-neo-surface flex items-center justify-center border-2 border-neo-surface text-neo-heading font-display">
                     {settings?.company_name?.[0] || "S"}
                   </div>
+                ) : null}
+                
+                {(settings?.logo_type === 'text' || settings?.logo_type === 'both') && (
+                  <span className="text-xl font-bold font-display tracking-widest text-white">
+                    {settings?.logo_text || settings?.company_name || "SAMAXON"}
+                  </span>
+                )}
+                
+                {/* Fallback if logo_type is missing but we want to show text natively for old settings */}
+                {!settings?.logo_type && (
+                  <span className="text-xl font-bold font-display tracking-widest text-white ml-3">
+                    {settings?.company_name || "SAMAXON"}
+                  </span>
                 )}
               </Link>
             </div>

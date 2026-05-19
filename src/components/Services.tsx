@@ -8,23 +8,26 @@ export default function Services() {
   const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     let mounted = true;
 
     const fetchServices = async () => {
       try {
+        setError(null);
         const { data, error } = await supabase
           .from('services')
           .select('*')
-          .eq('status', 'Active')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
         if (mounted && data) {
           setServices(data);
         }
-      } catch (err) {
-        console.error("Failed to fetch services", err);
+      } catch (err: any) {
+        console.error("Failed to fetch services:", err.message || err);
+        if (mounted) setError(err.message || 'Connection error');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -71,6 +74,14 @@ export default function Services() {
         {loading ? (
            <div className="flex justify-center items-center py-20">
              <Loader2 className="w-8 h-8 text-neo-accent animate-spin" />
+           </div>
+        ) : error ? (
+           <div className="text-center py-20">
+             <div className="text-neo-red mb-4 font-mono uppercase tracking-[0.2em]">Data Link Failure</div>
+             <p className="text-neo-text-dim text-sm max-w-xs mx-auto mb-6">{error}</p>
+             <button onClick={() => window.location.reload()} className="px-6 py-2 bg-neo-cyan/10 border border-neo-cyan/30 text-neo-cyan text-xs uppercase tracking-widest hover:bg-neo-cyan/20 transition-all">
+               Reset Connection
+             </button>
            </div>
         ) : services.length === 0 ? (
            <div className="text-center text-neo-text-dim py-20">

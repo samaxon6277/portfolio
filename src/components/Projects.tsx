@@ -8,22 +8,33 @@ export default function Projects() {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
     let mounted = true;
 
     const fetchProjects = async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('status', 'Published')
-        .order('created_at', { ascending: false })
-        .limit(4);
+      try {
+        setError(null);
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(4);
 
-      if (mounted) {
-        if (!error && data) {
-          setProjects(data);
+        if (mounted) {
+          if (error) throw error;
+          if (data) {
+            setProjects(data);
+          }
+          setLoading(false);
         }
-        setLoading(false);
+      } catch (err: any) {
+        console.error("Fetch projects error:", err.message || err);
+        if (mounted) {
+          setError(err.message || 'Connection error');
+          setLoading(false);
+        }
       }
     };
 
@@ -62,6 +73,14 @@ export default function Projects() {
         {loading ? (
            <div className="flex justify-center items-center py-20">
              <Loader2 className="w-8 h-8 text-neo-cyan animate-spin" />
+           </div>
+        ) : error ? (
+           <div className="text-center py-20">
+             <div className="text-neo-red mb-4 font-mono uppercase tracking-[0.2em]">Inventory Access Failure</div>
+             <p className="text-neo-text-dim text-sm max-w-xs mx-auto mb-6">{error}</p>
+             <button onClick={() => window.location.reload()} className="px-10 py-3 border border-neo-cyan/30 text-neo-cyan text-xs uppercase tracking-widest hover:bg-neo-cyan/10 transition-all">
+               Retry Sync
+             </button>
            </div>
         ) : projects.length === 0 ? (
            <div className="text-center text-neo-text-dim py-20">

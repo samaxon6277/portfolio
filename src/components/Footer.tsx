@@ -54,7 +54,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="text-center">
           <p className="text-neo-text-dim text-xs font-mono uppercase tracking-widest mb-2">
-            &copy; {new Date().getFullYear()} {settings?.portfolioName || "CORY HUGHART"}
+            &copy; {new Date().getFullYear()} {settings?.company_name || "SamaXon"}
           </p>
           <p className="text-neo-text-disabled text-xs font-mono">
             Proudly powered by AI Studio

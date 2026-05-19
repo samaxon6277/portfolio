@@ -10,10 +10,10 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
 import { useVisitorTracker } from "./lib/useVisitorTracker";
-import { useSettings } from "./lib/useSettings";
+import { useGlobalSettings } from "./lib/SettingsContext";
 
 function Preloader({ onComplete }: { onComplete: () => void }) {
-  const { settings } = useSettings();
+  const settings = useGlobalSettings();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,9 +38,17 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="text-4xl font-bold font-display tracking-widest geo-gradient-text uppercase"
+        className="flex flex-col items-center gap-4"
       >
-        {settings?.company_name || 'SAMAXON'}
+        {settings?.logo_url ? (
+          <img src={settings.logo_url} alt="Logo" className="w-24 h-24 object-contain" />
+        ) : null}
+        
+        {(!settings?.logo_url || settings?.logo_type === 'text' || settings?.logo_type === 'both') && (
+          <div className="text-4xl font-bold font-display tracking-widest geo-gradient-text uppercase text-center">
+            {settings?.logo_text || settings?.company_name || 'SAMAXON'}
+          </div>
+        )}
       </motion.div>
       <div className="mt-8 w-48 h-1 geo-inner-shadow rounded-full overflow-hidden">
         <motion.div

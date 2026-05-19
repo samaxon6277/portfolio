@@ -3,9 +3,12 @@ import { LayoutDashboard, FolderKanban, Component, FileText, MessageSquare, BarC
 import { useAuth } from "../../lib/AuthContext";
 import { useEffect } from "react";
 
+import { useGlobalSettings } from "../../lib/SettingsContext";
+
 export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { logOut } = useAuth();
   const navigate = useNavigate();
+  const settings = useGlobalSettings();
 
   const navItems = [
     { icon: LayoutDashboard, label: "Overview", path: "/dashboard", exact: true, shortcut: "O" },
@@ -49,9 +52,16 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
       
       <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#1B1B1B] border-r border-white/5 flex flex-col h-full transform transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-20 flex flex-shrink-0 items-center justify-between px-6 border-b border-white/5">
-          <span className="font-display font-bold text-xl tracking-wider uppercase text-[#2984FF]">
-            SamaXon
-          </span>
+          <Link to="/dashboard" className="flex items-center gap-3">
+            {(!settings?.logo_type || settings?.logo_type === 'image' || settings?.logo_type === 'both') && settings?.logo_url && (
+              <img src={settings.logo_url} alt="Logo" className="w-8 h-8 rounded-full object-cover" />
+            )}
+            {(!settings?.logo_url || settings?.logo_type === 'text' || settings?.logo_type === 'both') && (
+              <span className="font-display font-bold text-xl tracking-wider uppercase text-[#2984FF]">
+                {settings?.logo_text || settings?.company_name || 'SAMAXON'}
+              </span>
+            )}
+          </Link>
           <button className="md:hidden text-[#A8AFBD] hover:text-white" onClick={onClose}>
             <X className="w-6 h-6" />
           </button>

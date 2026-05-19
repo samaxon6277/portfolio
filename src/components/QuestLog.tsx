@@ -6,23 +6,33 @@ import { Loader2 } from "lucide-react"
 export default function QuestLog() {
   const [blogs, setBlogs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true;
 
     const fetchBlogs = async () => {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
+      try {
+        setError(null);
+        const { data, error } = await supabase
+          .from('blogs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(3);
 
-      if (mounted) {
-        if (!error && data) {
-          setBlogs(data);
+        if (mounted) {
+          if (error) throw error;
+          if (data) {
+            setBlogs(data);
+          }
+          setLoading(false);
         }
-        setLoading(false);
+      } catch (err: any) {
+        console.error("Fetch blogs error:", err.message || err);
+        if (mounted) {
+          setError(err.message || 'Connection error');
+          setLoading(false);
+        }
       }
     };
 
@@ -53,6 +63,14 @@ export default function QuestLog() {
           <div className="flex justify-center items-center py-20">
             <Loader2 className="w-8 h-8 text-neo-cyan animate-spin" />
           </div>
+        ) : error ? (
+           <div className="text-center py-20">
+             <div className="text-neo-red mb-4 font-mono uppercase tracking-[0.2em]">Log Access Denied</div>
+             <p className="text-neo-text-dim text-sm max-w-xs mx-auto mb-6">{error}</p>
+             <button onClick={() => window.location.reload()} className="px-6 py-2 bg-neo-accent/10 border border-neo-accent/30 text-neo-accent text-xs uppercase tracking-widest hover:bg-neo-accent/20 transition-all">
+               Reconnect
+             </button>
+           </div>
         ) : blogs.length === 0 ? (
           <div className="text-center text-neo-text-dim py-20 font-mono">
             No active quests found.
