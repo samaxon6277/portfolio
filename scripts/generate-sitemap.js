@@ -12,50 +12,49 @@ const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
 const SITE_URL = "https://samaxon.site";
 
 async function generateSitemap() {
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.warn("Supabase URL or Key not found. Skipping dynamic sitemap generation.");
-    return;
-  }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-  
   const urls = [
     { loc: "/", changefreq: "daily", priority: "1.0" },
     { loc: "/about", changefreq: "monthly", priority: "0.8" },
     { loc: "/projects", changefreq: "weekly", priority: "0.9" },
-    { loc: "/quests", changefreq: "weekly", priority: "0.9" },
+    { loc: "/services", changefreq: "weekly", priority: "0.8" },
     { loc: "/contact", changefreq: "monthly", priority: "0.7" }
   ];
 
-  try {
-    // Fetch Projects
-    const { data: projects } = await supabase.from("projects").select("id, updated_at");
-    if (projects) {
-      projects.forEach((row) => {
-        urls.push({
-          loc: `/projects/${row.id}`,
-          changefreq: "monthly",
-          priority: "0.8",
-          lastmod: new Date(row.updated_at || Date.now()).toISOString()
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.warn("Supabase URL or Key not found. Generating static sitemap only.");
+  } else {
+    try {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+      
+      // Fetch Projects
+      const { data: projects } = await supabase.from("projects").select("id, updated_at");
+      if (projects) {
+        projects.forEach((row) => {
+          urls.push({
+            loc: `/projects/${row.id}`,
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: new Date(row.updated_at || Date.now()).toISOString()
+          });
         });
-      });
-    }
+      }
 
-    // Fetch Blogs / Quests
-    const { data: blogs } = await supabase.from("blogs").select("slug, id, updated_at").eq('status', 'published');
-    if (blogs) {
-      blogs.forEach((row) => {
-        urls.push({
-          loc: `/blog/${row.slug || row.id}`,
-          changefreq: "monthly",
-          priority: "0.8",
-          lastmod: new Date(row.updated_at || Date.now()).toISOString()
+      // Fetch Blogs
+      const { data: blogs } = await supabase.from("blogs").select("slug, id, updated_at").eq('status', 'published');
+      if (blogs) {
+        blogs.forEach((row) => {
+          urls.push({
+            loc: `/blog/${row.slug || row.id}`,
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: new Date(row.updated_at || Date.now()).toISOString()
+          });
         });
-      });
-    }
+      }
 
-  } catch (error) {
-    console.error("Error fetching dynamic data for sitemap:", error);
+    } catch (error) {
+      console.error("Error fetching dynamic data for sitemap:", error);
+    }
   }
 
   const sitemapXML = `<?xml version="1.0" encoding="UTF-8"?>
