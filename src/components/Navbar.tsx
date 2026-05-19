@@ -5,11 +5,11 @@ import { useGlobalSettings } from "../lib/SettingsContext"
 import { Link, useLocation } from "react-router-dom"
 
 const navLinks = [
-  { main: "Restart", sub: "Home Page", href: "/#home" },
-  { main: "Status", sub: "About", href: "/#about" },
-  { main: "Inventory", sub: "Portfolio", href: "/#projects" },
-  { main: "Quest Log", sub: "Blog", href: "/#quests" },
-  { main: "Summon", sub: "Contact", href: "/#contact" },
+  { main: "Restart", sub: "Home Page", href: "/" },
+  { main: "Status", sub: "About", href: "/about" },
+  { main: "Inventory", sub: "Portfolio", href: "/projects" },
+  { main: "Quest Log", sub: "Blog", href: "/quests" },
+  { main: "Summon", sub: "Contact", href: "/contact" },
 ]
 
 export default function Navbar() {
@@ -27,17 +27,8 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    if (hash) {
-      setTimeout(() => {
-        const element = document.getElementById(hash.replace('#', ''));
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    } else if (pathname === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [pathname, hash]);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
 
   return (
     <>
@@ -45,7 +36,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/#home" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 {settings?.logoImageUrl ? (
                   <img src={settings.logoImageUrl} alt="Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-neo-surface" />
                 ) : (

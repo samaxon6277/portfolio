@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import App, { MainSite } from './App.tsx';
+import App, { PublicLayout } from './App.tsx';
 import AdminLayout from './admin/AdminLayout.tsx';
 import AdminDashboard from './admin/pages/AdminDashboard.tsx';
 import ProjectsManager from './admin/pages/ProjectsManager.tsx';
@@ -15,6 +15,10 @@ import MediaManager from './admin/pages/MediaManager.tsx';
 import ProjectsPage from './pages/ProjectsPage.tsx';
 import ProjectDetailsPage from './pages/ProjectDetailsPage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
+import HomePage from './pages/HomePage.tsx';
+import AboutPage from './pages/AboutPage.tsx';
+import QuestLogPage from './pages/QuestLogPage.tsx';
+import ContactPage from './pages/ContactPage.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import { AuthProvider } from './lib/AuthContext.tsx';
@@ -28,16 +32,33 @@ const router = createBrowserRouter([
     errorElement: <ErrorBoundary />,
     children: [
       {
-        path: "/",
-        element: <MainSite />
-      },
-      {
-        path: "projects",
-        element: <ProjectsPage />
-      },
-      {
-        path: "projects/:id",
-        element: <ProjectDetailsPage />
+        element: <PublicLayout />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />
+          },
+          {
+            path: "about",
+            element: <AboutPage />
+          },
+          {
+            path: "projects",
+            element: <ProjectsPage />
+          },
+          {
+            path: "projects/:id",
+            element: <ProjectDetailsPage />
+          },
+          {
+            path: "quests",
+            element: <QuestLogPage />
+          },
+          {
+            path: "contact",
+            element: <ContactPage />
+          }
+        ]
       },
       {
         path: "login",

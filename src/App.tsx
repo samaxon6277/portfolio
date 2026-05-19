@@ -13,6 +13,8 @@ import { useVisitorTracker } from "./lib/useVisitorTracker";
 import { useSettings } from "./lib/useSettings";
 
 function Preloader({ onComplete }: { onComplete: () => void }) {
+  const { settings } = useSettings();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
@@ -38,7 +40,7 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
         }}
         className="text-4xl font-bold font-display tracking-widest geo-gradient-text uppercase"
       >
-        SAMAXON
+        {settings?.company_name || 'SAMAXON'}
       </motion.div>
       <div className="mt-8 w-48 h-1 geo-inner-shadow rounded-full overflow-hidden">
         <motion.div
@@ -52,7 +54,7 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-export function MainSite() {
+export function PublicLayout() {
   const [loading, setLoading] = useState(() => {
     return !sessionStorage.getItem('samaxon_preloader_shown');
   });
@@ -86,12 +88,8 @@ export function MainSite() {
             style={{ scaleX }}
           />
           <Navbar />
-          <main>
-            <Hero />
-            <QuestLog />
-            <Projects />
-            <About />
-            <Contact />
+          <main className="min-h-screen">
+            <Outlet />
           </main>
           <Footer />
         </>

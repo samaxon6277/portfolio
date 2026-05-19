@@ -46,9 +46,8 @@ export default function ProjectsPage() {
   }, []);
 
   return (
-    <div className="bg-neo-bg text-neo-text font-sans min-h-screen">
-      <Navbar />
-      <main className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
+    <>
+      <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Link to="/" className="inline-flex items-center text-neo-cyan font-mono text-sm tracking-widest uppercase hover:underline">
             ← Return to Base
@@ -144,8 +143,7 @@ export default function ProjectsPage() {
             ))}
           </div>
         )}
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </>
   )
 }

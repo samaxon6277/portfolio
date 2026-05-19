@@ -55,33 +55,26 @@ export default function ProjectDetailsPage() {
 
   if (loading) {
     return (
-      <div className="bg-neo-bg text-neo-text font-sans min-h-screen">
-         <Navbar />
-         <div className="flex justify-center items-center h-screen">
-           <Loader2 className="w-12 h-12 text-neo-accent animate-spin" />
-         </div>
+      <div className="flex justify-center items-center py-40">
+        <Loader2 className="w-12 h-12 text-neo-accent animate-spin" />
       </div>
     )
   }
 
   if (!project) {
     return (
-      <div className="bg-neo-bg text-neo-text font-sans min-h-screen">
-         <Navbar />
-         <div className="flex flex-col justify-center items-center h-screen space-y-4">
-           <h1 className="text-3xl font-display font-bold">Project not found</h1>
-           <Link to="/projects" className="text-neo-accent hover:underline flex items-center gap-2">
-             <ArrowLeft className="w-4 h-4"/> Back to Projects
-           </Link>
-         </div>
+      <div className="flex flex-col justify-center items-center py-40 space-y-4">
+        <h1 className="text-3xl font-display font-bold">Project not found</h1>
+        <Link to="/projects" className="text-neo-accent hover:underline flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4"/> Back to Projects
+        </Link>
       </div>
     )
   }
 
   return (
-    <div className="bg-neo-bg text-neo-text font-sans min-h-screen">
-      <Navbar />
-      <main className="pt-32 pb-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
+    <>
+      <div className="pt-32 pb-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link to="/projects" className="inline-flex items-center text-neo-cyan font-mono text-sm tracking-widest uppercase hover:underline mb-10">
           ← Return to Inventory
         </Link>
@@ -144,8 +137,7 @@ export default function ProjectDetailsPage() {
             </div>
           )}
         </motion.div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </>
   )
 }

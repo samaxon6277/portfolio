@@ -88,13 +88,17 @@ export default function Contact() {
           >
             <div>
               <h3 className="text-xs font-mono text-neo-cyan tracking-widest uppercase mb-2">Direct Line</h3>
-              <p className="text-white hover:text-neo-text-dim transition-colors text-lg"><a href="tel:+918076874034">+91 80768 74034</a></p>
+              <p className="text-white hover:text-neo-text-dim transition-colors text-lg">
+                 <a href={`tel:${settings?.phone || "+918076874034"}`}>{settings?.phone || "+91 80768 74034"}</a>
+              </p>
             </div>
             <div className="w-px h-12 bg-neo-surface hidden md:block"></div>
             <div className="h-px w-32 bg-neo-surface md:hidden"></div>
             <div>
               <h3 className="text-xs font-mono text-neo-cyan tracking-widest uppercase mb-2">Transmission Email</h3>
-              <p className="text-white hover:text-neo-text-dim transition-colors text-lg"><a href="mailto:samaxon6277@gmail.com">samaxon6277@gmail.com</a></p>
+              <p className="text-white hover:text-neo-text-dim transition-colors text-lg">
+                 <a href={`mailto:${settings?.email || "samaxon6277@gmail.com"}`}>{settings?.email || "samaxon6277@gmail.com"}</a>
+              </p>
             </div>
           </motion.div>
 

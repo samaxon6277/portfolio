@@ -44,7 +44,7 @@ export default function About() {
             className="w-full text-left space-y-6 text-white mb-16"
           >
             <p className="text-lg leading-relaxed">
-              {settings?.aboutBio || "I am Samar, a passionate creative Full-Stack Developer bridging the gap between beautiful design and robust engineering. I build tools for SamaXon to craft digital products that not only look stunning but perform flawlessly."}
+              {settings?.about_text || "I am Samar, a passionate creative Full-Stack Developer bridging the gap between beautiful design and robust engineering. I build tools for SamaXon to craft digital products that not only look stunning but perform flawlessly."}
             </p>
           </motion.div>
 
