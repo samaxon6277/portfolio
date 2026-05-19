@@ -1,8 +1,7 @@
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { ExternalLink, Loader2, ArrowLeft } from "lucide-react"
 import { useState, useEffect } from "react"
-import { doc, onSnapshot } from "firebase/firestore"
-import { db } from "../lib/firebase"
+import { supabase } from "../lib/supabase"
 import { useParams, Link } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
@@ -15,19 +14,43 @@ export default function ProjectDetailsPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!id) return;
-    const docRef = doc(db, "projects", id);
-    const unsub = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setProject({ id: docSnap.id, ...docSnap.data() });
-      } else {
-        setProject(null);
+    let mounted = true;
+
+    const fetchProject = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+             // Not found
+             if (mounted) setProject(null);
+          } else {
+             throw error;
+          }
+        } else if (mounted && data) {
+          setProject(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
-    }, (error) => {
-      console.error(error);
-      setLoading(false);
-    });
-    return () => unsub();
+    };
+
+    fetchProject();
+
+    const sub = supabase.channel(`public:projects:id=eq.${id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects', filter: `id=eq.${id}` }, fetchProject)
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(sub);
+    };
   }, [id]);
 
   if (loading) {
@@ -59,61 +82,64 @@ export default function ProjectDetailsPage() {
     <div className="bg-neo-bg text-neo-text font-sans min-h-screen">
       <Navbar />
       <main className="pt-32 pb-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
-        <Link to="/projects" className="inline-flex items-center gap-2 text-neo-text-dim hover:text-neo-text transition-colors mb-10">
-          <ArrowLeft className="w-4 h-4"/> Back to Projects
+        <Link to="/projects" className="inline-flex items-center text-neo-cyan font-mono text-sm tracking-widest uppercase hover:underline mb-10">
+          ← Return to Inventory
         </Link>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-4xl md:text-5xl font-bold font-display mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold font-display tracking-[0.1em] uppercase text-white mb-6">
             {project.title}
           </h1>
           
-          <div className="flex flex-wrap gap-4 text-sm text-neo-text-dim mb-10">
+          <div className="flex flex-wrap gap-4 text-xs font-mono tracking-widest uppercase text-neo-text-dim mb-10">
             {project.client && (
-              <div className="bg-neo-surface px-4 py-2 rounded-xl geo-inner-shadow">
-                <span className="font-bold block text-xs uppercase opacity-70">Client</span>
+              <div className="bg-[#15171E] border border-neo-surface px-4 py-2">
+                <span className="text-neo-cyan block mb-1">Client / Target</span>
                 <span className="text-white">{project.client}</span>
               </div>
             )}
             {project.role && (
-              <div className="bg-neo-surface px-4 py-2 rounded-xl geo-inner-shadow">
-                <span className="font-bold block text-xs uppercase opacity-70">Role</span>
+              <div className="bg-[#15171E] border border-neo-surface px-4 py-2">
+                <span className="text-neo-cyan block mb-1">Role / Class</span>
                 <span className="text-white">{project.role}</span>
               </div>
             )}
             {project.timeline && (
-              <div className="bg-neo-surface px-4 py-2 rounded-xl geo-inner-shadow">
-                <span className="font-bold block text-xs uppercase opacity-70">Timeline</span>
+              <div className="bg-[#15171E] border border-neo-surface px-4 py-2">
+                <span className="text-neo-cyan block mb-1">Stardate / Timeline</span>
                 <span className="text-white">{project.timeline}</span>
               </div>
             )}
           </div>
 
-          <div className="w-full h-[400px] md:h-[500px] mb-12 rounded-3xl overflow-hidden geo-card">
+          <div className="w-full h-[400px] md:h-[500px] mb-12 border-2 border-neo-surface">
             <img 
-               src={project.clientLogo || "https://res.cloudinary.com/demo/image/upload/w_1200,q_80/sample.jpg"} 
+               src={project.thumbnail_url || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1200"} 
                alt={project.title}
-               className="w-full h-full object-cover" 
+               className="w-full h-full object-cover grayscale" 
              />
           </div>
 
           <div className="prose prose-invert max-w-none text-neo-text-dim pt-4">
-             <h2 className="text-2xl font-display font-bold text-white mb-4">Overview</h2>
-             <p className="whitespace-pre-wrap text-lg leading-relaxed">{project.description}</p>
+             <h2 className="text-2xl font-display font-bold text-neo-cyan mb-4 uppercase tracking-widest">Mission Overview</h2>
+             <p className="whitespace-pre-wrap text-lg leading-relaxed text-white">{project.description}</p>
+             {project.content && (
+               <div className="mt-8 text-white" dangerouslySetInnerHTML={{ __html: project.content }} />
+             )}
           </div>
 
           <div className="mt-12 flex flex-wrap gap-4">
-            {project.techStack?.map((tech: string, i: number) => (
-               <span key={i} className="px-4 py-2 text-sm font-mono rounded-xl geo-inner-shadow bg-neo-surface text-neo-text">
+            {project.tech_stack?.map((tech: string, i: number) => (
+               <span key={i} className="px-3 py-1 text-xs font-mono border border-neo-surface bg-[#1E2029] text-neo-text-dim uppercase">
                  {tech}
                </span>
             ))}
           </div>
 
           {project.url && (
-            <div className="mt-16">
-              <a href={project.url} target="_blank" rel="noopener noreferrer" className="geo-btn inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold bg-neo-accent text-white">
-                 Visit Live Site <ExternalLink className="w-5 h-5"/>
+            <div className="mt-16 text-center">
+              <a href={project.url} target="_blank" rel="noopener noreferrer" className="inline-block px-10 py-4 bg-neo-cyan text-[#1E2029] font-bold rounded-full hover:opacity-90 transition-opacity tracking-widest uppercase text-sm geo-shadow">
+                 Execute Link / Live Site
               </a>
             </div>
           )}

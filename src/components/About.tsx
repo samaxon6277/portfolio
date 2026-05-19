@@ -1,5 +1,4 @@
-import { motion } from "framer-motion"
-import { Download, Code, Palette, Zap, Globe } from "lucide-react"
+import { motion } from "motion/react"
 import { useGlobalSettings } from "../lib/SettingsContext";
 
 export default function About() {
@@ -7,84 +6,111 @@ export default function About() {
   
   return (
     <section id="about" className="py-24 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold font-display inline-block relative">
-            <span className="geo-gradient-text z-10 relative">About Me</span>
-            <span className="absolute -bottom-4 left-0 w-full h-1 bg-neo-elevated rounded-full overflow-hidden">
-               <motion.span 
-                 initial={{ width: 0 }}
-                 whileInView={{ width: "100%" }}
-                 transition={{ duration: 1 }}
-                 className="block h-full bg-gradient-to-r from-neo-accent to-neo-purple"
-               />
-            </span>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div 
+          initial={{ opacity: 0, x: -50, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-display inline-block relative text-white tracking-[0.2em] uppercase">
+            Status
           </h2>
-        </div>
+          <p className="text-neo-text-dim uppercase tracking-widest text-sm mt-4 font-mono">Current Identity</p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Main Bio Card */}
+        <div className="flex flex-col items-center">
+          {/* Large circular photo */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            className="md:col-span-2 geo-card p-8 md:p-10"
+            className="w-48 h-48 rounded-full border-4 border-neo-surface p-1 mb-10 overflow-hidden relative"
           >
-            <h3 className="text-2xl font-bold font-display mb-4">{settings?.aboutTitle || "My Journey"}</h3>
-            <p className="text-neo-text-dim text-lg leading-relaxed mb-8">
-              {settings?.aboutBio || "I am a passionate creative developer bridging the gap between beautiful design and robust engineering. With a deep focus on neumorphism, modern interfaces, and scalable architectures, I craft digital products that not only look stunning but perform flawlessly."}
-            </p>
-            
-            {settings?.resumeUrl && (
-               <a href={settings.resumeUrl} target="_blank" rel="noreferrer" className="inline-flex items-center space-x-2 geo-btn px-6 py-3 rounded-xl font-medium text-neo-accent hover:text-neo-cyan transition-colors">
-                 <Download className="w-5 h-5" />
-                 <span>Download CV</span>
-               </a>
+            {settings?.avatarUrl ? (
+              <img src={settings.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full filter grayscale hover:grayscale-0 transition-all duration-500" />
+            ) : (
+              <div className="w-full h-full rounded-full bg-neo-surface flex items-center justify-center font-mono text-neo-text-dim text-sm">NO IMAGE</div>
             )}
-
+            <div className="absolute inset-0 border-2 border-neo-cyan rounded-full mix-blend-overlay"></div>
           </motion.div>
 
-          {/* Stats Bento */}
+          {/* Text heavy, left-aligned standard paragraphs */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 gap-4 md:flex md:flex-col"
+            className="w-full text-left space-y-6 text-white mb-16"
           >
-            <div className="geo-card p-6 flex flex-col items-center justify-center text-center h-full">
-              <span className="text-4xl font-bold font-display text-neo-purple mb-2">3+</span>
-              <span className="text-sm font-medium text-neo-text-dim uppercase tracking-wider">Years Exp.</span>
-            </div>
-            
-            <div className="geo-card p-6 flex flex-col items-center justify-center text-center h-full">
-              <span className="text-4xl font-bold font-display text-neo-cyan mb-2">50+</span>
-              <span className="text-sm font-medium text-neo-text-dim uppercase tracking-wider">Projects</span>
-            </div>
+            <p className="text-lg leading-relaxed">
+              {settings?.aboutBio || "I am Samar, a passionate creative Full-Stack Developer bridging the gap between beautiful design and robust engineering. I build tools for SamaXon to craft digital products that not only look stunning but perform flawlessly."}
+            </p>
           </motion.div>
 
-          {/* Mini Skill Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="md:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-6"
-          >
-             {[
-               { icon: <Code />, title: "Frontend" },
-               { icon: <Palette />, title: "UI/UX" },
-               { icon: <Zap />, title: "Optimization" },
-               { icon: <Globe />, title: "Responsive" }
-             ].map((item, i) => (
-               <div key={i} className="geo-inner-shadow bg-neo-surface p-6 rounded-2xl flex flex-col items-center text-center group hover:-translate-y-1 transition-transform">
-                 <div className="w-12 h-12 rounded-full geo-btn flex items-center justify-center mb-4 text-neo-text-dim group-hover:text-neo-accent transition-colors">
-                   {item.icon}
-                 </div>
-                 <span className="font-semibold">{item.title}</span>
-               </div>
-             ))}
-          </motion.div>
+          {/* Resume/Skills formatting: Centered text, using thin horizontal lines */}
+          <div className="w-full">
+            <motion.div 
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: 0.1 }}
+              className="border-t border-neo-text-disabled/30 pt-8 pb-8 text-center"
+            >
+              <h3 className="text-neo-cyan font-mono tracking-widest uppercase mb-4 text-sm">Freelance & Contract</h3>
+              <p className="text-white">Full-Stack Developer, SamaXon</p>
+              <p className="text-neo-text-dim text-sm mt-1">2020 - Present</p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: 0.2 }}
+              className="border-t border-neo-text-disabled/30 pt-8 pb-8 text-center"
+            >
+              <h3 className="text-neo-cyan font-mono tracking-widest uppercase mb-4 text-sm">Employment</h3>
+              <p className="text-white">Senior Software Engineer, TechCorp</p>
+              <p className="text-neo-text-dim text-sm mt-1">2018 - 2020</p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: 0.3 }}
+              className="border-t border-neo-text-disabled/30 pt-8 pb-8 text-center"
+            >
+              <h3 className="text-neo-cyan font-mono tracking-widest uppercase mb-4 text-sm">Skills</h3>
+              <div className="flex flex-wrap justify-center gap-4 text-white">
+                {(settings?.skills || ["React", "TypeScript", "Node.js", "TailwindCSS"]).map((skill: string, i: number) => (
+                  <motion.span 
+                    key={i} 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + (i * 0.1) }}
+                    className="px-4 py-2 border border-neo-surface rounded-full text-sm hover:border-neo-cyan transition-colors"
+                  >
+                    {skill}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ y: 30, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: 0.4 }}
+              className="border-t border-neo-text-disabled/30 pt-8 pb-8 text-center"
+            >
+              <h3 className="text-neo-cyan font-mono tracking-widest uppercase mb-4 text-sm">Education</h3>
+              <p className="text-white">B.S. in Computer Science</p>
+              <p className="text-neo-text-dim text-sm mt-1">University of Technology</p>
+            </motion.div>
+          </div>
+
         </div>
       </div>
     </section>

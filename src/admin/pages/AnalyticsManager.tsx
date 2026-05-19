@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { BarChart2, TrendingUp, Users, Clock, Globe, Laptop, Smartphone } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Sector, Label } from "recharts";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import CustomSelect from "../components/CustomSelect";
-import { collection, onSnapshot, query, where, Timestamp } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 
 const COLORS = ['#2984FF', '#FE774E', '#10B981', '#F59E0B'];
 
@@ -45,38 +44,35 @@ export default function AnalyticsManager() {
 
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - daysToSubtract);
+    const startIso = startDate.toISOString();
 
-    // Watch visitor_logs
-    const qLogs = query(collection(db, "visitor_logs"), where("createdAt", ">=", Timestamp.fromDate(startDate)));
-    const unsubLogs = onSnapshot(qLogs, (snapshot) => {
-      setTotalVisitors(snapshot.size);
-      
-      const logs = snapshot.docs.map(doc => doc.data());
-      
+    const fetchAnalytics = async () => {
+      // For now, load visitor_logs since it tracks sessions
+      const { data: logs, error } = await supabase
+        .from('visitor_logs')
+        .select('*')
+        .gte('created_at', startIso);
+
+      if (error) {
+        console.error("Failed to fetch analytics", error);
+        return;
+      }
+
+      const validLogs = logs || [];
+      setTotalVisitors(validLogs.length);
+      setPageViews(validLogs.length); // Assume 1 session = 1 pageview unless tracked further
+
       // Compute Traffic Data
       const trafficMap = new Map();
-      logs.forEach(log => {
-         if(log.createdAt) {
-            const date = log.createdAt.toDate().toLocaleDateString('en-US', { weekday: 'short' });
-            if(!trafficMap.has(date)) trafficMap.set(date, { views: 0, visitors: 0 });
-            trafficMap.get(date).visitors += 1;
-         }
+      validLogs.forEach(log => {
+        if (log.created_at) {
+          const date = new Date(log.created_at).toLocaleDateString('en-US', { weekday: 'short' });
+          if (!trafficMap.has(date)) trafficMap.set(date, { views: 0, visitors: 0 });
+          trafficMap.get(date).visitors += 1;
+          trafficMap.get(date).views += 1;
+        }
       });
 
-      // Simple source aggregation
-      const srcMap = new Map();
-      logs.forEach(log => {
-         const source = log.source || 'Direct';
-         srcMap.set(source, (srcMap.get(source) || 0) + 1);
-      });
-      
-      const sData = Array.from(srcMap.entries()).map(([name, value]) => ({ name, value }));
-      setSourceData(sData.length ? sData : [
-        { name: 'Direct', value: 0 },
-        { name: 'Social', value: 0 },
-        { name: 'Referral', value: 0 }
-      ]);
-      
       // Convert traffic map
       const tData = Array.from(trafficMap.entries()).map(([name, data]) => ({ name, ...data }));
       setTrafficData(tData.length ? tData : [
@@ -84,33 +80,42 @@ export default function AnalyticsManager() {
         { name: 'Tue', views: 0, visitors: 0 },
         { name: 'Wed', views: 0, visitors: 0 },
       ]);
-    });
 
-    // Watch page views
-    const qViews = query(collection(db, "page_views"), where("createdAt", ">=", Timestamp.fromDate(startDate)));
-    const unsubViews = onSnapshot(qViews, (snapshot) => {
-      setPageViews(snapshot.size);
-      
-      setTrafficData(prev => {
-         const newMap = new Map<string, any>(prev.map(p => [p.name, { ...p, views: 0 }]));
-         snapshot.docs.forEach(doc => {
-            const data = doc.data();
-            if(data.createdAt) {
-               const date = data.createdAt.toDate().toLocaleDateString('en-US', { weekday: 'short' });
-               if(newMap.has(date)) {
-                  const existing = newMap.get(date);
-                  newMap.set(date, { ...existing, views: (existing.views || 0) + 1 });
-               }
-            }
-         });
-         return Array.from(newMap.values());
+      // Simple source aggregation
+      const srcMap = new Map();
+      validLogs.forEach(log => {
+        let source = log.referer || 'Direct';
+        if (source.includes('google')) source = 'Google';
+        else if (source.includes('t.co') || source.includes('twitter')) source = 'Twitter';
+        else if (source.includes('linkedin')) source = 'LinkedIn';
+        else if (source.length > 20) source = 'Referral'; // shorten generic long referers
+        srcMap.set(source, (srcMap.get(source) || 0) + 1);
       });
-    });
+      
+      const sData = Array.from(srcMap.entries()).map(([name, value]) => ({ name, value }));
+      setSourceData(sData.length ? sData : [
+        { name: 'Direct', value: 0 },
+        { name: 'Google', value: 0 },
+        { name: 'Referral', value: 0 }
+      ]);
+    };
+
+    fetchAnalytics();
+
+    // Listeners for realtime logs
+    const logsSubscription = supabase.channel('public:visitor_logs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'visitor_logs' }, payload => {
+        setTotalVisitors(prev => prev + 1);
+        setPageViews(prev => prev + 1);
+        // We could incrementally update the charts too
+        fetchAnalytics(); // Simplest is to just re-fetch or incrementally add
+      })
+      .subscribe();
 
     return () => {
-      unsubLogs();
-      unsubViews();
+      supabase.removeChannel(logsSubscription);
     };
+
   }, [filter]);
 
   return (
@@ -260,7 +265,7 @@ export default function AnalyticsManager() {
                   onMouseLeave={() => setActiveIndex(undefined)}
                 >
                   <div className="flex items-center gap-2">
-                     <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: COLORS[i], boxShadow: `0 0 8px ${COLORS[i]}80` }}></div>
+                     <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: COLORS[i % COLORS.length], boxShadow: `0 0 8px ${COLORS[i % COLORS.length]}80` }}></div>
                      <span className="text-sm text-[#A8AFBD]">{d.name}</span>
                   </div>
                   <span className="text-sm font-medium text-white">{d.value}</span>

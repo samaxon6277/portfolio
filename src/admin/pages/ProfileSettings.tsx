@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { UserCircle, Shield, Moon, Bell, Save, RefreshCw, CheckCircle, AlignLeft } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 import CustomSelect from "../components/CustomSelect";
 import MediaUploader from "../../components/MediaUploader";
 
@@ -17,8 +16,8 @@ export default function ProfileSettings() {
   const [saved, setSaved] = useState(false);
 
   const [formData, setFormData] = useState({
-    fullName: user?.displayName || "",
-    avatarUrl: user?.photoURL || "",
+    fullName: user?.user_metadata?.full_name || "",
+    avatarUrl: user?.user_metadata?.avatar_url || "",
     username: "",
     bio: "",
     phone: "",
@@ -34,21 +33,39 @@ export default function ProfileSettings() {
   });
 
   useEffect(() => {
+    let mounted = true;
     const fetchProfile = async () => {
       if (!user) return;
       try {
-        const docRef = doc(db, "admin_profiles", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setFormData(prev => ({ ...prev, ...docSnap.data() as any }));
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (error) throw error;
+        if (mounted && data) {
+          setFormData({
+            fullName: data.full_name || user?.user_metadata?.full_name || "",
+            avatarUrl: data.avatar_url || user?.user_metadata?.avatar_url || "",
+            username: "", // Not stored explicitly yet
+            bio: "", // Not stored explicitly
+            phone: data.phone || "",
+            social: {
+              github: "",
+              linkedin: "",
+              telegram: ""
+            },
+            preferences: {
+              theme: "dark",
+              density: "comfortable"
+            }
+          });
         }
       } catch (error) {
         console.error("Fetch profile error", error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchProfile();
+
+    return () => { mounted = false };
   }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -69,16 +86,20 @@ export default function ProfileSettings() {
     setSaving(true);
     setSaved(false);
     try {
-      await setDoc(doc(db, "admin_profiles", user.uid), {
-        ...formData,
-        fullName: formData.fullName || user.displayName || "Admin User",
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      const payload = {
+        full_name: formData.fullName || user?.user_metadata?.full_name || "Admin User",
+        avatar_url: formData.avatarUrl,
+        phone: formData.phone,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { error } = await supabase.from('profiles').upsert({ id: user.id, ...payload });
+      if (error) throw error;
+
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error(error);
-      try { handleFirestoreError(error, OperationType.WRITE, "admin_profiles"); } catch(e) {}
     } finally {
       setSaving(false);
     }

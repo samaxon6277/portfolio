@@ -1,8 +1,7 @@
 import { Users, Eye, FileText, CheckCircle } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useState, useEffect } from "react";
-import { collection, query, orderBy, limit, getDocs, onSnapshot } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 import { Link } from "react-router-dom";
 import CustomSelect from "../components/CustomSelect";
 
@@ -16,77 +15,99 @@ export default function AdminDashboard() {
   const [trafficData, setTrafficData] = useState<any[]>([]);
 
   useEffect(() => {
-    // Real-time messages
-    const msgsQuery = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(4));
-    const unsubMsgs = onSnapshot(msgsQuery, (snapshot) => {
-      const leads = snapshot.docs.map(doc => {
-        const d = doc.data();
-        let timeStr = "recently";
-        if (d.createdAt) {
-           const date = d.createdAt.toDate();
-           timeStr = date.toLocaleDateString();
-        }
-        return {
-          id: doc.id,
-          name: d.name,
-          project: d.subject || "No Subject",
-          time: timeStr,
-          status: d.status || "New"
-        };
-      });
-      setRecentLeads(leads);
-    });
+    let mounted = true;
 
-    // Real-time projects count
-    const unsubProjects = onSnapshot(collection(db, "projects"), (snapshot) => {
-      const activeProjs = snapshot.docs.filter(d => d.data().status === "Published").length;
-      setActiveProjects(activeProjs);
-    });
-
-    // Real-time messages count
-    const unsubAllMsgs = onSnapshot(collection(db, "messages"), (snapshot) => {
-      setTotalMessages(snapshot.size);
-    });
-
-    // Real-time blogs for total views
-    const unsubBlogs = onSnapshot(collection(db, "blogs"), (snapshot) => {
-      let views = 0;
-      snapshot.docs.forEach(doc => {
-         views += (doc.data().views || 0);
-      });
-      setBlogViews(views);
-    });
-
-    // Mock logs for visitors if no real logs. (Waiting for frontend tracker)
-    const unsubLogs = onSnapshot(collection(db, "visitor_logs"), (snapshot) => {
-      const logs = snapshot.docs.map(doc => doc.data());
-      setTotalVisitors(logs.length);
+    const fetchDashboardData = async () => {
+      // 1. Recent Leads
+      const { data: messagesData } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(4);
       
-      // Generate chart data based on logs
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      let counts = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
+      if (mounted && messagesData) {
+        setRecentLeads(messagesData.map(d => {
+          let timeStr = "recently";
+          if (d.created_at) {
+             const date = new Date(d.created_at);
+             timeStr = date.toLocaleDateString();
+          }
+          return {
+            id: d.id,
+            name: d.name,
+            project: d.subject || "No Subject",
+            time: timeStr,
+            status: d.status || "New"
+          };
+        }));
+      }
+
+      // 2. Active Projects count
+      const { count: projCount } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'Published');
+      if (mounted && projCount !== null) setActiveProjects(projCount);
+
+      // 3. Total Messages count
+      const { count: msgsCount } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true });
+      if (mounted && msgsCount !== null) setTotalMessages(msgsCount);
+
+      // 4. Total Blog Views (aggregate)
+      const { data: blogsData } = await supabase.from('blogs').select('views');
+      if (mounted && blogsData) {
+         setBlogViews(blogsData.reduce((acc, curr) => acc + (curr.views || 0), 0));
+      }
+
+      // 5. Traffic Data (visitor_logs)
+      const currentWeek = new Date();
+      currentWeek.setDate(currentWeek.getDate() - 7);
       
-      logs.forEach(log => {
-         if (log.createdAt) {
-            const date = log.createdAt.toDate();
-            // Just basic demo implementation for traffic logic
-            const currentWeek = new Date().getTime() - (7 * 24 * 60 * 60 * 1000);
-            if (date.getTime() > currentWeek) {
-               counts[days[date.getDay()] as keyof typeof counts]++;
-            }
-         }
-      });
+      const { data: visitorLogs } = await supabase
+        .from('visitor_logs')
+        .select('*')
+        .gte('created_at', currentWeek.toISOString());
+
+      if (mounted && visitorLogs) {
+        setTotalVisitors(visitorLogs.length);
+        
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let counts = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
+        
+        visitorLogs.forEach(log => {
+           if (log.created_at) {
+              const date = new Date(log.created_at);
+              counts[days[date.getDay()] as keyof typeof counts]++;
+           }
+        });
+        
+        const newTrafficData = days.map(d => ({ name: d, visitors: counts[d as keyof typeof counts] }));
+        setTrafficData(newTrafficData);
+      }
+    };
+
+    fetchDashboardData();
+
+    // Subscribe to realtime changes
+    const msgSub = supabase.channel('public:dashboard_messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, fetchDashboardData)
+      .subscribe();
       
-      const newTrafficData = days.map(d => ({ name: d, visitors: counts[d as keyof typeof counts] }));
-      setTrafficData(newTrafficData);
-    });
+    const projSub = supabase.channel('public:dashboard_projects')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, fetchDashboardData)
+      .subscribe();
+      
+    const logSub = supabase.channel('public:dashboard_logs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'visitor_logs' }, fetchDashboardData)
+      .subscribe();
 
     return () => {
-      unsubMsgs();
-      unsubProjects();
-      unsubAllMsgs();
-      unsubBlogs();
-      unsubLogs();
+      mounted = false;
+      supabase.removeChannel(msgSub);
+      supabase.removeChannel(projSub);
+      supabase.removeChannel(logSub);
     };
   }, []);
 
@@ -130,7 +151,7 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl font-bold font-display">Traffic Overview</h2>
-              <p className="text-[#A8AFBD] text-sm mt-1">Weekly visitor statistics (Mocked)</p>
+              <p className="text-[#A8AFBD] text-sm mt-1">Weekly visitor statistics</p>
             </div>
             <CustomSelect 
               value={filter}

@@ -1,18 +1,19 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@100;200;300;400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @theme {
-  --font-sans: "Inter", "Poppins", sans-serif;
-  --font-display: "Space Grotesk", "Orbitron", sans-serif;
-  --color-neo-bg: #0F1117;
-  --color-neo-surface: #171A22;
-  --color-neo-elevated: #1D212C;
-  --color-neo-text: #FFFFFF;
-  --color-neo-text-dim: #A9B0C3;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --color-neo-bg: #1E2029;
+  --color-neo-surface: #252836;
+  --color-neo-elevated: #2A2D3C;
+  --color-neo-text: #D1D5DB;
+  --color-neo-heading: #F3F4F6;
+  --color-neo-text-dim: #9CA3AF;
   --color-neo-text-disabled: #5F6678;
-  --color-neo-accent: #4DA8FF;
-  --color-neo-purple: #7A5CFF;
-  --color-neo-cyan: #00D9FF;
+  --color-neo-accent: #4A6BFF;
+  --color-neo-cyan: #72C0A7;
 }
 
 @layer base {
@@ -21,63 +22,73 @@
     color: var(--color-neo-text);
     font-family: var(--font-sans);
     overflow-x: hidden;
+    background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    color: var(--color-neo-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
   }
 }
 
 @layer utilities {
   .geo-shadow {
-    box-shadow: 8px 8px 16px #090a0e, -8px -8px 16px #15181c;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   .geo-shadow-sm {
-    box-shadow: 4px 4px 8px #090a0e, -4px -4px 8px #15181c;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
   .geo-shadow-hover:hover {
-    box-shadow: 12px 12px 24px #090a0e, -12px -12px 24px #15181c;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     transform: translateY(-2px);
   }
   .geo-inner-shadow {
-    box-shadow: inset 6px 6px 12px #090a0e, inset -6px -6px 12px #15181c;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   }
   .geo-gradient-text {
-    background: linear-gradient(to right, var(--color-neo-accent), var(--color-neo-cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-neo-accent);
   }
   .geo-glow-text {
-    text-shadow: 0 0 10px rgba(77, 168, 255, 0.5);
+    text-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
   }
   .geo-btn {
-    background: var(--color-neo-surface);
-    box-shadow: 6px 6px 12px #090a0e, -6px -6px 12px #1f232e;
+    background: var(--color-neo-cyan);
+    color: var(--color-neo-bg);
+    border-radius: 9999px;
+    font-weight: 600;
     transition: all 0.3s ease;
   }
   .geo-btn-elevated {
-    background: var(--color-neo-elevated);
-    box-shadow: 6px 6px 12px #090a0e, -6px -6px 12px #272c3b;
+    background: transparent;
+    border: 2px solid var(--color-neo-cyan);
+    color: #FFFFFF;
+    border-radius: 9999px;
+    font-weight: 600;
     transition: all 0.3s ease;
   }
-  .geo-btn:hover, .geo-btn-elevated:hover {
-    box-shadow: inset 4px 4px 8px #090a0e, inset -4px -4px 8px #1f232e;
-    color: var(--color-neo-accent);
+  .geo-btn:hover {
+    opacity: 0.9;
+  }
+  .geo-btn-elevated:hover {
+    background: rgba(114, 192, 167, 0.1);
   }
   .geo-input {
-    background: var(--color-neo-surface);
-    box-shadow: inset 4px 4px 8px #090a0e, inset -4px -4px 8px #1f232e;
+    background: #15171E;
+    border-radius: 8px;
+    color: var(--color-neo-text);
     border: none;
     outline: none;
     transition: all 0.3s ease;
   }
   .geo-input:focus {
-    box-shadow: inset 6px 6px 12px #090a0e, inset -6px -6px 12px #1f232e, 0 0 8px rgba(77, 168, 255, 0.3);
+    box-shadow: 0 0 0 2px var(--color-neo-cyan);
   }
   .geo-card {
     background: var(--color-neo-surface);
-    border-radius: 24px;
-    box-shadow: 12px 12px 24px #090a0e, -12px -12px 24px #1f232e;
+    border-radius: 12px;
     transition: all 0.3s ease;
   }
 }
@@ -87,7 +98,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active{
-    -webkit-box-shadow: inset 4px 4px 8px #090a0e, inset -4px -4px 8px #1f232e, 0 0 0 1000px #171A22 inset !important;
+    -webkit-box-shadow: inset 0 0 0 1000px #15171E !important;
     -webkit-text-fill-color: var(--color-neo-text) !important;
     transition: background-color 5000s ease-in-out 0s;
 }

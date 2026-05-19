@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Save, RefreshCw, CheckCircle, Mail, Phone, MapPin } from "lucide-react";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 import MediaUploader from "../../components/MediaUploader";
 
 const SOCIAL_PLATFORMS = [
@@ -13,28 +12,26 @@ export default function SettingsManager() {
   const [activeTab, setActiveTab] = useState("General");
   
   const [formData, setFormData] = useState({
-    portfolioName: "SamaXon Agency",
+    businessName: "SamaXon",
     tagline: "",
     logoType: "text",
     logoText: "SAMAXON",
     logoImageUrl: "",
     faviconUrl: "",
-    contactPhone: "8076874034",
+    contactPhone: "",
     whatsappNumber: "",
-    contactEmail: "samaxon6277@gmail.com",
+    contactEmail: "",
     contactLocation: "",
-    businessName: "SamaXon",
     aboutTitle: "",
     aboutSubtitle: "",
     aboutBio: "",
-    skills: ["React", "Firebase", "Tailwind CSS"],
-    experience: [],
-    avatarUrl: "",
+    skills: [] as string[],
     resumeUrl: "",
     socialLinks: SOCIAL_PLATFORMS.map(p => ({ platform: p, url: "", enabled: false })),
     metaTitle: "SamaXon - Digital Portfolio",
-    keywords: "portfolio, web dev",
-    metaDescription: "A high-quality portfolio.",
+    keywords: "",
+    metaDescription: "",
+    id: "" // To track the singleton row id
   });
 
   const [loading, setLoading] = useState(true);
@@ -42,25 +39,64 @@ export default function SettingsManager() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchSettings = async () => {
       try {
-        const docRef = doc(db, "settings", "global");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setFormData(prev => ({
-             ...prev, 
-             ...data,
-             socialLinks: data.socialLinks || prev.socialLinks
-          }));
+        // Fetch Settings
+        const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').limit(1).single();
+        
+        // Fetch Social Links
+        const { data: socialData, error: socialError } = await supabase.from('social_links').select('*');
+
+        if (mounted) {
+          if (!settingsError && settingsData) {
+            setFormData(prev => ({
+              ...prev,
+              id: settingsData.id,
+              businessName: settingsData.company_name || prev.businessName,
+              tagline: settingsData.tagline || "",
+              logoType: settingsData.logo_type || prev.logoType,
+              logoText: settingsData.logo_text || prev.logoText,
+              logoImageUrl: settingsData.logo_url || "",
+              faviconUrl: settingsData.favicon_url || "",
+              contactPhone: settingsData.phone || "",
+              whatsappNumber: settingsData.whatsapp_number || "",
+              contactEmail: settingsData.email || "",
+              contactLocation: settingsData.address || "",
+              aboutTitle: settingsData.about_title || "",
+              aboutSubtitle: settingsData.about_subtitle || "",
+              aboutBio: settingsData.about_text || "",
+              skills: settingsData.skills || prev.skills,
+              resumeUrl: settingsData.resume_url || "",
+              metaTitle: settingsData.meta_title || prev.metaTitle,
+              keywords: settingsData.meta_keywords || "",
+              metaDescription: settingsData.meta_description || ""
+            }));
+          }
+
+          if (!socialError && socialData) {
+            setFormData(prev => {
+              const newSocialLinks = [...prev.socialLinks];
+              socialData.forEach(item => {
+                const idx = newSocialLinks.findIndex(s => s.platform.toLowerCase() === item.platform.toLowerCase());
+                if (idx !== -1) {
+                  newSocialLinks[idx] = { ...newSocialLinks[idx], url: item.url, enabled: item.is_active };
+                }
+              });
+              return { ...prev, socialLinks: newSocialLinks };
+            });
+          }
         }
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchSettings();
+
+    return () => { mounted = false; };
   }, []);
 
   const handleChange = (e: any) => {
@@ -82,10 +118,48 @@ export default function SettingsManager() {
     setSaving(true);
     setSaved(false);
     try {
-      await setDoc(doc(db, "settings", "global"), {
-        ...formData,
-        updatedAt: serverTimestamp()
-      });
+      // 1. Update Settings
+      const settingsPayload = {
+        company_name: formData.businessName,
+        tagline: formData.tagline,
+        logo_type: formData.logoType,
+        logo_text: formData.logoText,
+        logo_url: formData.logoImageUrl,
+        favicon_url: formData.faviconUrl,
+        phone: formData.contactPhone,
+        whatsapp_number: formData.whatsappNumber,
+        email: formData.contactEmail,
+        address: formData.contactLocation,
+        about_title: formData.aboutTitle,
+        about_subtitle: formData.aboutSubtitle,
+        about_text: formData.aboutBio,
+        skills: formData.skills,
+        resume_url: formData.resumeUrl,
+        meta_title: formData.metaTitle,
+        meta_keywords: formData.keywords,
+        meta_description: formData.metaDescription,
+        updated_at: new Date().toISOString()
+      };
+
+      if (formData.id) {
+        await supabase.from('settings').update(settingsPayload).eq('id', formData.id);
+      } else {
+        const { data } = await supabase.from('settings').insert([settingsPayload]).select().single();
+        if (data) setFormData(p => ({...p, id: data.id}));
+      }
+
+      // 2. Update Social Links
+      // Fast clear and insert
+      await supabase.from('social_links').delete().neq('platform', 'unknown'); // clear all
+      
+      const socialPayload = formData.socialLinks.map((s, index) => ({
+        platform: s.platform,
+        url: s.url,
+        is_active: s.enabled,
+        order_index: index
+      }));
+      await supabase.from('social_links').insert(socialPayload);
+
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
@@ -136,14 +210,10 @@ export default function SettingsManager() {
              <h2 className="text-xl font-bold border-b border-white/5 pb-2">General Settings</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-[#A8AFBD] mb-2">Portfolio Name</label>
-                  <input type="text" name="portfolioName" value={formData.portfolioName} onChange={handleChange} className="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#2984FF]" />
-                </div>
-                <div>
                   <label className="block text-sm font-medium text-[#A8AFBD] mb-2">Business Name</label>
                   <input type="text" name="businessName" value={formData.businessName} onChange={handleChange} className="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#2984FF]" />
                 </div>
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-medium text-[#A8AFBD] mb-2">Tagline</label>
                   <input type="text" name="tagline" value={formData.tagline} onChange={handleChange} className="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#2984FF]" />
                 </div>
@@ -223,10 +293,6 @@ export default function SettingsManager() {
           <div className="space-y-6 animate-in fade-in">
              <h2 className="text-xl font-bold border-b border-white/5 pb-2">About Section</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2 md:col-span-2">
-                   <label className="block text-sm font-medium text-[#A8AFBD]">Profile Avatar (1:1)</label>
-                   <MediaUploader value={formData.avatarUrl} onUploadSuccess={(url) => setFormData({...formData, avatarUrl: url})} onClear={() => setFormData({...formData, avatarUrl: ""})} accept={{"image/*": [".png", ".jpg", ".jpeg", ".webp"]}} aspectRatio={1} folder="portfolio/profile" buttonText="Upload Avatar" />
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-[#A8AFBD] mb-2">Title</label>
                   <input type="text" name="aboutTitle" value={formData.aboutTitle} onChange={handleChange} className="w-full bg-[#101010] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#2984FF]" placeholder="e.g. Creative Developer" />

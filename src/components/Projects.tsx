@@ -1,8 +1,7 @@
-import { motion } from "framer-motion"
-import { ExternalLink, Github, Loader2 } from "lucide-react"
+import { motion } from "motion/react"
+import { ExternalLink, Loader2, Code2 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { collection, onSnapshot, query, orderBy, limit, where } from "firebase/firestore"
-import { db } from "../lib/firebase"
+import { supabase } from "../lib/supabase"
 import { Link } from "react-router-dom"
 
 export default function Projects() {
@@ -10,45 +9,66 @@ export default function Projects() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const q = query(collection(db, "projects"), where("status", "==", "Published"), orderBy("createdAt", "desc"), limit(4));
-    const unsub = onSnapshot(q, (snapshot) => {
-      setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    }, (error) => {
-      console.error("Failed to load projects:", error);
-      setLoading(false);
-    });
-    return () => unsub();
+    let mounted = true;
+
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('status', 'Published')
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (mounted) {
+        if (!error && data) {
+          setProjects(data);
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+
+    const subscription = supabase
+      .channel('public:projects')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, payload => {
+        fetchProjects();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   return (
     <section id="projects" className="py-24 relative min-h-[50vh]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold font-display inline-block relative">
-            <span className="geo-gradient-text z-10 relative">Featured Work</span>
-            <span className="absolute -bottom-4 left-0 w-full h-1 bg-neo-elevated rounded-full overflow-hidden">
-               <motion.span 
-                 initial={{ width: 0 }}
-                 whileInView={{ width: "100%" }}
-                 transition={{ duration: 1 }}
-                 className="block h-full bg-gradient-to-r from-neo-accent to-neo-purple"
-               />
-            </span>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-display inline-block relative text-white tracking-[0.2em] uppercase">
+            Inventory
           </h2>
-        </div>
+          <p className="text-neo-text-dim uppercase tracking-widest text-sm mt-4 font-mono">Select an artifact</p>
+        </motion.div>
 
         {loading ? (
            <div className="flex justify-center items-center py-20">
-             <Loader2 className="w-8 h-8 text-neo-accent animate-spin" />
+             <Loader2 className="w-8 h-8 text-neo-cyan animate-spin" />
            </div>
         ) : projects.length === 0 ? (
            <div className="text-center text-neo-text-dim py-20">
-             No projects found.
+             Inventory is empty.
            </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8">
             {projects.map((proj, idx) => (
               <motion.div
                 key={proj.id}
@@ -56,54 +76,52 @@ export default function Projects() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="geo-card group overflow-hidden flex flex-col"
+                className="bg-neo-surface rounded-md relative flex flex-col group border border-neo-surface hover:border-neo-cyan transition-colors"
+                /* Dark background #252836, slightly rounded, sharp aesthetic */
               >
-                {/* Image Container */}
-                <div className="relative h-64 w-full overflow-hidden rounded-t-2xl">
-                  <div className="absolute inset-0 bg-neo-surface mix-blend-color z-10 opacity-40 group-hover:opacity-0 transition-opacity duration-500" />
+                {/* Rectangular thumbnail */}
+                <div className="relative h-56 w-full overflow-hidden rounded-t-md">
+                  <div className="absolute inset-0 bg-neo-bg/20 z-10 group-hover:bg-transparent transition-colors duration-500" />
                   <img 
-                    src={proj.clientLogo || "https://res.cloudinary.com/demo/image/upload/w_800,q_80/sample.jpg"} 
+                    src={proj.image_url || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80"} 
                     alt={proj.title}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" 
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0" 
                   />
-                  {/* Hover overlay actions */}
-                  <div className="absolute inset-0 bg-neo-bg/80 backdrop-blur-sm z-20 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {proj.url && (
-                      <a href={proj.url} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full geo-btn flex items-center justify-center text-neo-text hover:text-neo-accent">
-                        <ExternalLink className="w-5 h-5" />
-                      </a>
-                    )}
-                    <Link to={`/projects/${proj.id}`} className="px-4 h-12 rounded-full geo-btn flex items-center justify-center text-neo-text hover:text-neo-purple font-bold">
-                      View Details
-                    </Link>
-                  </div>
+                </div>
+                
+                {/* Circular logo/icon overlapping the border */}
+                <div className="absolute top-48 left-8 w-16 h-16 bg-[#1E2029] border-4 border-neo-surface rounded-full flex items-center justify-center z-20 group-hover:border-neo-cyan transition-colors">
+                  <Code2 className="w-6 h-6 text-white" />
                 </div>
                 
                 {/* Content Box */}
-                <div className="p-8 flex-1 flex flex-col">
-                  <div className="text-sm font-bold text-neo-purple uppercase tracking-wider mb-2">
-                    {proj.timeline || "Completed"}
+                <div className="p-8 pt-12 flex-1 flex flex-col">
+                  <div className="text-xs font-mono text-neo-text-dim mb-3 uppercase flex items-center justify-between">
+                    <span>{new Date(proj.created_at).toLocaleDateString()}</span>
+                    <span>{proj.category || "Class: Unidentified"}</span>
                   </div>
-                  <h3 className="text-2xl font-bold font-display mb-3">
-                    {proj.title}
-                  </h3>
-                  <p className="text-neo-text-dim mb-6 flex-1 line-clamp-3">
-                    {proj.role} - {proj.description || "No description available."}
+                  
+                  <Link to={`/projects/${proj.id}`} className="hover:opacity-80 transition-opacity">
+                    <h3 className="text-xl font-bold font-display text-neo-accent mb-4 tracking-[0.1em] uppercase">
+                      {proj.title}
+                    </h3>
+                  </Link>
+
+                  <p className="text-white mb-6 flex-1 line-clamp-3 text-sm">
+                    {proj.description || "No description available."}
                   </p>
-                  <div className="flex flex-wrap gap-3 mt-auto">
-                    {proj.techStack?.slice(0, 3).map((tag: string, tIdx: number) => (
-                      <span 
-                        key={tIdx}
-                        className="px-3 py-1 text-xs font-mono rounded-lg geo-inner-shadow bg-neo-surface text-neo-text-dim"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {proj.techStack && proj.techStack.length > 3 && (
-                      <span className="px-3 py-1 text-xs font-mono rounded-lg geo-inner-shadow bg-neo-surface text-neo-text-dim">
-                        +{proj.techStack.length - 3} more
-                      </span>
-                    )}
+                  
+                  <div className="flex items-center justify-between mt-auto">
+                     <div className="flex gap-2">
+                       {proj.live_link && (
+                         <a href={proj.live_link} target="_blank" rel="noopener noreferrer" className="text-neo-text-dim hover:text-neo-cyan transition-colors">
+                           <ExternalLink className="w-5 h-5" />
+                         </a>
+                       )}
+                     </div>
+                     <Link to={`/projects/${proj.id}`} className="text-xs font-mono text-neo-cyan uppercase hover:underline">
+                        Examine &rarr;
+                     </Link>
                   </div>
                 </div>
               </motion.div>
@@ -112,11 +130,12 @@ export default function Projects() {
         )}
 
         <div className="mt-16 text-center">
-          <Link to="/projects" className="inline-flex geo-btn px-8 py-4 rounded-xl font-bold text-neo-text hover:text-neo-accent transition-colors">
-            View All Projects
+          <Link to="/projects" className="inline-block px-10 py-4 bg-transparent border-2 border-neo-cyan text-white font-bold rounded-full hover:bg-neo-cyan/10 transition-colors tracking-widest uppercase text-sm">
+            View Full Inventory
           </Link>
         </div>
       </div>
     </section>
   )
 }
+

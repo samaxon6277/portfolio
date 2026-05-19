@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash, RefreshCw, Eye } from "lucide-react";
-import { collection, onSnapshot, query, orderBy, getDocs, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 import CustomSelect from "../components/CustomSelect";
+import MediaUploader from "../../components/MediaUploader";
 
 interface Service {
   id: string;
@@ -11,10 +11,12 @@ interface Service {
   pricing: string;
   status: string;
   imageUrl?: string;
-  createdAt: any;
+  created_at: any;
+  description?: string;
+  timeline?: string;
+  features?: string;
+  faqs?: string;
 }
-
-import MediaUploader from "../../components/MediaUploader";
 
 export default function ServicesManager() {
   const [services, setServices] = useState<Service[]>([]);
@@ -28,29 +30,43 @@ export default function ServicesManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, "services"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const svcs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Service[];
-      setServices(svcs);
-      setLoading(false);
-    }, (error) => {
-      console.error(error);
-      try { handleFirestoreError(error, OperationType.GET, "services"); } catch (e) {}
-      setLoading(false);
-    });
+    let mounted = true;
 
-    return () => unsub();
+    const fetchServices = async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (mounted) {
+        if (!error && data) {
+          setServices(data as any[]);
+        }
+        setLoading(false);
+      }
+    };
+    
+    fetchServices();
+
+    const subscription = supabase
+      .channel('services_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, payload => {
+        fetchServices();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this service?")) {
       try {
-        await deleteDoc(doc(db, "services", id));
+        await supabase.from('services').delete().eq('id', id);
       } catch (error) {
-        try { handleFirestoreError(error, OperationType.DELETE, `services/${id}`); } catch (e) {}
+        console.error(error);
       }
     }
   };
@@ -69,53 +85,45 @@ export default function ServicesManager() {
       const payload = {
         title: formData.title,
         category: formData.category,
-        pricing: formData.pricing,
-        status: formData.status,
+        price_type: formData.pricing, // map to Supabase column
+        status: formData.status,     // note: we may need to add status to schema, using existing ones mainly
         description: formData.description,
         timeline: formData.timeline,
-        features: formData.features,
+        features: formData.features ? formData.features.split(',').map(f => f.trim()) : [],
         faqs: formData.faqs,
-        imageUrl: formData.imageUrl,
+        icon: formData.imageUrl,      // map to Supabase column (icon)
       };
 
       if (editingId) {
-        await updateDoc(doc(db, "services", editingId), {
-          ...payload,
-          updatedAt: serverTimestamp()
-        });
+        await supabase.from('services').update(payload).eq('id', editingId);
       } else {
-        await addDoc(collection(db, "services"), {
-          ...payload,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
+        await supabase.from('services').insert([payload]);
       }
       setShowModal(false);
       handleResetForm();
     } catch (error) {
       console.error(error);
-      try { handleFirestoreError(error, OperationType.WRITE, "services"); } catch(e) {}
     }
   };
 
-  const openEditModal = (svc: Service | any) => {
+  const openEditModal = (svc: any) => {
     setEditingId(svc.id);
     setFormData({ 
       title: svc.title || "", 
       category: svc.category || "", 
-      pricing: svc.pricing || "", 
+      pricing: svc.price_type || svc.pricing || "", // fallback to prev db naming
       status: svc.status || "Active",
       description: svc.description || "",
       timeline: svc.timeline || "",
-      features: svc.features || "",
+      features: Array.isArray(svc.features) ? svc.features.join(", ") : (svc.features || ""),
       faqs: svc.faqs || "",
-      imageUrl: svc.imageUrl || ""
+      imageUrl: svc.icon || svc.imageUrl || ""
     });
     setShowModal(true);
   };
 
   const filteredServices = services.filter(s => {
-    const matchesSearch = s.title.toLowerCase().includes(searchQuery.toLowerCase()) || s.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = s.title?.toLowerCase().includes(searchQuery.toLowerCase()) || s.category?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
 
@@ -184,7 +192,7 @@ export default function ServicesManager() {
                         ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
                         : 'bg-[#A8AFBD]/10 text-[#A8AFBD] border border-[#A8AFBD]/20'
                       }`}>
-                        {svc.status}
+                        {svc.status || 'Active'}
                       </span>
                     </td>
                     <td className="px-6 py-4">

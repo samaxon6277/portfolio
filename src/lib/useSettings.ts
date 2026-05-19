@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "./firebase";
+import { supabase } from "./supabase";
 
 export interface SettingsData {
   portfolioName?: string;
@@ -32,15 +31,38 @@ export function useSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "settings", "global"), (doc) => {
-      if (doc.exists()) {
-        setSettings(doc.data() as SettingsData);
+    let mounted = true;
+    const fetchSettings = async () => {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('*')
+        .limit(1)
+        .single();
+        
+      if (mounted) {
+        if (!error && data) {
+           // map your fields from supabase logic to this interface if needed, or just set it
+           setSettings(data as any);
+        }
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+    
+    fetchSettings();
+    
+    const subscription = supabase
+      .channel('settings_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
+        setSettings(payload.new as any);
+      })
+      .subscribe();
 
-    return () => unsub();
+    return () => {
+      mounted = false;
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   return { settings, loading };
 }
+

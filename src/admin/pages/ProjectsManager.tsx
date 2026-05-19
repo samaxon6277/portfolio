@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search, MoreVertical, Edit, Trash, RefreshCw, Eye } from "lucide-react";
-import { collection, onSnapshot, query, orderBy, getDocs, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 import CustomSelect from "../components/CustomSelect";
 import MediaUploader from "../../components/MediaUploader";
 
@@ -11,7 +10,18 @@ interface Project {
   category: string;
   status: string;
   views: number;
-  createdAt: any;
+  created_at: any;
+  slug?: string;
+  shortDescription?: string;
+  description?: string;
+  imageUrl?: string;
+  galleryUrls?: string[];
+  technologies?: string;
+  githubUrl?: string;
+  liveUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string;
 }
 
 export default function ProjectsManager() {
@@ -39,29 +49,43 @@ export default function ProjectsManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const projs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Project[];
-      setProjects(projs);
-      setLoading(false);
-    }, (error) => {
-      console.error(error);
-      try { handleFirestoreError(error, OperationType.GET, "projects"); } catch (e) {}
-      setLoading(false);
-    });
+    let mounted = true;
+
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (mounted) {
+        if (!error && data) {
+          setProjects(data as any[]);
+        }
+        setLoading(false);
+      }
+    };
     
-    return () => unsub();
+    fetchProjects();
+
+    const subscription = supabase
+      .channel('projects_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, payload => {
+        fetchProjects(); // simple refetch on any change
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
       try {
-        await deleteDoc(doc(db, "projects", id));
+        await supabase.from('projects').delete().eq('id', id);
       } catch (error) {
-        try { handleFirestoreError(error, OperationType.DELETE, `projects/${id}`); } catch (e) {}
+        console.error(error);
       }
     }
   };
@@ -82,41 +106,27 @@ export default function ProjectsManager() {
           title: formData.title,
           slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
           category: formData.category,
-          shortDescription: formData.shortDescription,
           description: formData.description,
-          imageUrl: formData.imageUrl,
-          gallery: formData.galleryUrls,
-          technologies: formData.technologies,
-          githubUrl: formData.githubUrl,
-          liveUrl: formData.liveUrl,
-          metaTitle: formData.metaTitle,
-          metaDescription: formData.metaDescription,
-          keywords: formData.keywords,
+          image_url: formData.imageUrl,
+          live_link: formData.liveUrl,
+          github_link: formData.githubUrl,
           status: formData.status,
+          // note: some fields might need schema updates if they don't map directly
       };
 
       if (editingId) {
-        await updateDoc(doc(db, "projects", editingId), {
-          ...savePayload,
-          updatedAt: serverTimestamp()
-        });
+        await supabase.from('projects').update(savePayload).eq('id', editingId);
       } else {
-        await addDoc(collection(db, "projects"), {
-          ...savePayload,
-          views: 0,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
+        await supabase.from('projects').insert([savePayload]);
       }
       setShowModal(false);
       handleResetForm();
     } catch (error) {
       console.error(error);
-      try { handleFirestoreError(error, OperationType.WRITE, "projects"); } catch(e) {}
     }
   };
 
-  const openEditModal = (proj: Project | any) => {
+  const openEditModal = (proj: any) => {
     setEditingId(proj.id);
     setFormData({ 
       title: proj.title || "", 
@@ -124,11 +134,11 @@ export default function ProjectsManager() {
       category: proj.category || "", 
       shortDescription: proj.shortDescription || "",
       description: proj.description || "",
-      imageUrl: proj.imageUrl || "",
-      galleryUrls: proj.gallery || [],
+      imageUrl: proj.image_url || "",
+      galleryUrls: proj.galleryUrls || [],
       technologies: proj.technologies || "",
-      githubUrl: proj.githubUrl || "",
-      liveUrl: proj.liveUrl || "",
+      githubUrl: proj.github_link || "",
+      liveUrl: proj.live_link || "",
       metaTitle: proj.metaTitle || "",
       metaDescription: proj.metaDescription || "",
       keywords: proj.keywords || "",
@@ -138,7 +148,7 @@ export default function ProjectsManager() {
   };
 
   const filteredProjects = projects.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === "All Status" || p.status === filterStatus;
     return matchesSearch && matchesStatus;
   });

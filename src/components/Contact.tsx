@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion"
-import { Mail, Instagram, MessageCircle, Send, CheckCircle, Linkedin, Github } from "lucide-react"
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
-import { db, handleFirestoreError, OperationType } from "../lib/firebase"
+import { motion } from "motion/react"
+import { Send, CheckCircle } from "lucide-react"
+import { supabase } from "../lib/supabase"
 import { useGlobalSettings } from "../lib/SettingsContext";
 
 export default function Contact() {
@@ -19,7 +18,7 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
-      setError("Please fill in all required fields.");
+      setError("COMMUNICATION ERROR: Missing required parameters.");
       return;
     }
     
@@ -28,26 +27,24 @@ export default function Contact() {
     setSuccess(false);
 
     try {
-      const msgRef = await addDoc(collection(db, "messages"), {
+      const { error: msgErr } = await supabase.from('messages').insert({
         name: formData.name,
         email: formData.email,
         subject: formData.projectType || "General Inquiry",
         content: formData.message,
-        status: "New",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        status: "New"
       });
+
+      if (msgErr) throw msgErr;
       
       try {
-        await addDoc(collection(db, "notifications"), {
-           title: `New Inquiry from ${formData.name}`,
-           description: formData.message.substring(0, 50) + (formData.message.length > 50 ? '...' : ''),
+        await supabase.from('notifications').insert({
+           title: `Transmission from ${formData.name}`,
+           message: formData.message.substring(0, 50) + (formData.message.length > 50 ? '...' : ''),
            type: "inquiry",
            status: "New",
            read: false,
-           actionUrl: "/dashboard/messages",
-           createdAt: serverTimestamp(),
-           updatedAt: serverTimestamp()
+           link: "/dashboard/messages"
         });
       } catch (notifErr) {
         console.error("Failed to create notification", notifErr);
@@ -55,17 +52,9 @@ export default function Contact() {
 
       setSuccess(true);
       setFormData({ name: "", email: "", projectType: "", message: "" });
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error(err);
-      try {
-        handleFirestoreError(err, OperationType.CREATE, "messages");
-      } catch (firebaseErr: unknown) {
-        if (firebaseErr instanceof Error) {
-           setError("Failed to send message: " + firebaseErr.message);
-        } else {
-           setError("Failed to send message.");
-        }
-      }
+      setError("TRANSMISSION FAILED: " + (err.message || 'Unknown network error.'));
     } finally {
       setLoading(false);
       setTimeout(() => setSuccess(false), 5000);
@@ -74,77 +63,54 @@ export default function Contact() {
 
   return (
     <section id="contact" className="py-24 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold font-display inline-block relative">
-            <span className="geo-gradient-text z-10 relative">Let's Connect</span>
-            <span className="absolute -bottom-4 left-0 w-full h-1 bg-neo-elevated rounded-full overflow-hidden">
-               <motion.span 
-                 initial={{ width: 0 }}
-                 whileInView={{ width: "100%" }}
-                 transition={{ duration: 1 }}
-                 className="block h-full bg-gradient-to-r from-neo-purple to-neo-accent"
-               />
-            </span>
+        <motion.div 
+          initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-display inline-block relative text-white tracking-[0.2em] uppercase">
+            Summon
           </h2>
-          <p className="mt-8 text-neo-text-dim text-lg max-w-2xl mx-auto">
-            Have a project in mind or just want to chat? Drop me a message below.
-          </p>
-        </div>
+          <p className="text-neo-text-dim uppercase tracking-widest text-sm mt-4 font-mono">Establish Connection</p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="flex flex-col items-center justify-center">
           {/* Contact Info */}
           <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="space-y-8"
+            className="flex flex-col md:flex-row items-center justify-center gap-12 mb-16 text-center w-full max-w-2xl bg-[#1E2029] p-8 border border-neo-surface"
           >
-            <div className="geo-card p-8 flex items-center space-x-6 hover:-translate-y-1 transition-transform cursor-pointer group hover:shadow-[0_0_20px_rgba(77,168,255,0.2)]">
-              <div className="w-16 h-16 rounded-2xl geo-inner-shadow flex items-center justify-center text-neo-accent group-hover:text-white group-hover:bg-[#2984FF] group-hover:shadow-[0_0_20px_rgba(77,168,255,0.6)] transition-all">
-                <Mail className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold font-display mb-1 text-neo-text-dim">Email Us</h3>
-                <p className="font-semibold text-lg hover:text-neo-accent transition-colors"><a href={`mailto:${settings?.contactEmail || "hello@samaxon.com"}`}>{settings?.contactEmail || "hello@samaxon.com"}</a></p>
-              </div>
+            <div>
+              <h3 className="text-xs font-mono text-neo-cyan tracking-widest uppercase mb-2">Direct Line</h3>
+              <p className="text-white hover:text-neo-text-dim transition-colors text-lg"><a href="tel:+918076874034">+91 80768 74034</a></p>
             </div>
-
-            <div className="geo-card p-8 flex items-center space-x-6 hover:-translate-y-1 transition-transform cursor-pointer group hover:shadow-[0_0_20px_rgba(37,211,102,0.2)]">
-              <div className="w-16 h-16 rounded-2xl geo-inner-shadow flex items-center justify-center text-[#25D366] group-hover:text-white group-hover:bg-[#25D366] group-hover:shadow-[0_0_20px_rgba(37,211,102,0.6)] transition-all">
-                <MessageCircle className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold font-display mb-1 text-neo-text-dim">WhatsApp</h3>
-                <p className="font-semibold text-lg hover:text-[#25D366] transition-colors"><a href={`https://wa.me/${settings?.whatsappNumber?.replace(/\D/g, '') || "12345678900"}`} target="_blank" rel="noopener noreferrer">{settings?.whatsappNumber || "+1 (234) 567-8900"}</a></p>
-              </div>
+            <div className="w-px h-12 bg-neo-surface hidden md:block"></div>
+            <div className="h-px w-32 bg-neo-surface md:hidden"></div>
+            <div>
+              <h3 className="text-xs font-mono text-neo-cyan tracking-widest uppercase mb-2">Transmission Email</h3>
+              <p className="text-white hover:text-neo-text-dim transition-colors text-lg"><a href="mailto:samaxon6277@gmail.com">samaxon6277@gmail.com</a></p>
             </div>
-
-            {settings?.socialLinks && settings.socialLinks.find(s => s.platform === 'Instagram' && s.enabled && s.url) && (
-              <div className="geo-card p-8 flex items-center space-x-6 hover:-translate-y-1 transition-transform cursor-pointer group hover:shadow-[0_0_20px_rgba(225,48,108,0.2)]">
-                <div className="w-16 h-16 rounded-2xl geo-inner-shadow flex items-center justify-center text-[#E1306C] group-hover:text-white group-hover:bg-gradient-to-tr from-[#F56040] to-[#E1306C] group-hover:shadow-[0_0_20px_rgba(225,48,108,0.6)] transition-all">
-                  <Instagram className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold font-display mb-1 text-neo-text-dim">Instagram</h3>
-                  <p className="font-semibold text-lg hover:text-[#E1306C] transition-colors"><a href={settings.socialLinks.find(s => s.platform === 'Instagram')?.url} target="_blank" rel="noopener noreferrer">@samar.designs</a></p>
-                </div>
-              </div>
-            )}
           </motion.div>
 
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="geo-card p-8 md:p-10 relative overflow-hidden"
+            className="w-full max-w-2xl bg-[#1E2029] border-2 border-neo-surface p-8 relative"
+            /* No rounded corners, sharp */
           >
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="absolute top-0 right-0 p-2 text-xs font-mono text-neo-text-disabled">COMMS LINK: SECURE</div>
+            <form className="space-y-6 mt-4" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label htmlFor="contact-name" className="text-sm font-medium text-neo-text-dim ml-2 uppercase tracking-wide">Name *</label>
+                  <label htmlFor="contact-name" className="text-xs font-mono text-neo-cyan uppercase tracking-widest">Operator Name</label>
                   <input 
                     id="contact-name"
                     type="text" 
@@ -152,13 +118,13 @@ export default function Contact() {
                     autoComplete="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="John Doe"
+                    placeholder="ENTER NAME"
                     required
-                    className="w-full px-6 py-4 rounded-xl geo-input text-neo-text placeholder:text-neo-text-disabled"
+                    className="w-full px-4 py-3 bg-[#15171E] text-white placeholder:text-neo-text-disabled rounded-sm border-none outline-none focus:ring-1 focus:ring-neo-cyan font-mono"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="contact-email" className="text-sm font-medium text-neo-text-dim ml-2 uppercase tracking-wide">Email *</label>
+                  <label htmlFor="contact-email" className="text-xs font-mono text-neo-cyan uppercase tracking-widest">Network ID (Email)</label>
                   <input 
                     id="contact-email"
                     type="email"
@@ -166,15 +132,15 @@ export default function Contact() {
                     autoComplete="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="john@example.com"
+                    placeholder="ENTER EMAIL"
                     required
-                    className="w-full px-6 py-4 rounded-xl geo-input text-neo-text placeholder:text-neo-text-disabled"
+                    className="w-full px-4 py-3 bg-[#15171E] text-white placeholder:text-neo-text-disabled rounded-sm border-none outline-none focus:ring-1 focus:ring-neo-cyan font-mono"
                   />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="contact-project-type" className="text-sm font-medium text-neo-text-dim ml-2 uppercase tracking-wide">Project Type</label>
+                <label htmlFor="contact-project-type" className="text-xs font-mono text-neo-cyan uppercase tracking-widest">Mission Type</label>
                 <input 
                   id="contact-project-type"
                   type="text"
@@ -182,39 +148,39 @@ export default function Contact() {
                   autoComplete="off"
                   value={formData.projectType}
                   onChange={handleChange}
-                  placeholder="Website Design, Development..."
-                  className="w-full px-6 py-4 rounded-xl geo-input text-neo-text placeholder:text-neo-text-disabled"
+                  placeholder="(OPTIONAL)"
+                  className="w-full px-4 py-3 bg-[#15171E] text-white placeholder:text-neo-text-disabled rounded-sm border-none outline-none focus:ring-1 focus:ring-neo-cyan font-mono"
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="contact-message" className="text-sm font-medium text-neo-text-dim ml-2 uppercase tracking-wide">Message *</label>
+                <label htmlFor="contact-message" className="text-xs font-mono text-neo-cyan uppercase tracking-widest">Transmission Payload</label>
                 <textarea 
                   id="contact-message"
-                  rows={4}
+                  rows={5}
                   name="message"
                   autoComplete="off"
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  placeholder="Tell me about your project..."
-                  className="w-full px-6 py-4 rounded-xl geo-input text-neo-text placeholder:text-neo-text-disabled resize-none"
+                  placeholder="AWAITING INPUT..."
+                  className="w-full px-4 py-3 bg-[#15171E] text-white placeholder:text-neo-text-disabled rounded-sm border-none outline-none focus:ring-1 focus:ring-neo-cyan font-mono resize-none"
                 ></textarea>
               </div>
 
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && <p className="text-red-400 text-sm font-mono">{error}</p>}
 
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full geo-btn py-4 rounded-xl font-bold text-neo-text hover:text-neo-cyan flex justify-center items-center gap-2 mt-4 transition-all hover:geo-inner-shadow hover:scale-[0.99] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-full font-bold bg-neo-cyan text-[#1E2029] hover:opacity-90 flex justify-center items-center gap-2 mt-4 transition-opacity uppercase tracking-widest text-sm geo-shadow disabled:opacity-50"
               >
                 {loading ? (
-                  <span>Sending...</span>
+                  <span>TRANSMITTING...</span>
                 ) : success ? (
-                  <><span>Message Sent!</span><CheckCircle className="w-5 h-5 text-green-500" /></>
+                  <><span>PAYLOAD DELIVERED</span><CheckCircle className="w-4 h-4" /></>
                 ) : (
-                  <><span>Send Message</span><Send className="w-5 h-5" /></>
+                  <><span>TRANSMIT</span><Send className="w-4 h-4" /></>
                 )}
               </button>
             </form>

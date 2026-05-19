@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
-import Skills from "./components/Skills";
-import Services from "./components/Services";
 import Projects from "./components/Projects";
-import Testimonials from "./components/Testimonials";
+import QuestLog from "./components/QuestLog";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
@@ -55,7 +53,15 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
 }
 
 export function MainSite() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    return !sessionStorage.getItem('samaxon_preloader_shown');
+  });
+  
+  const handlePreloaderComplete = () => {
+    sessionStorage.setItem('samaxon_preloader_shown', 'true');
+    setLoading(false);
+  };
+  
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -68,7 +74,7 @@ export function MainSite() {
   return (
     <div className="bg-neo-bg min-h-screen text-neo-text selection:bg-neo-accent selection:text-neo-bg">
       <AnimatePresence>
-        {loading && <Preloader onComplete={() => setLoading(false)} />}
+        {loading && <Preloader onComplete={handlePreloaderComplete} />}
       </AnimatePresence>
 
       <CustomCursor />
@@ -82,11 +88,9 @@ export function MainSite() {
           <Navbar />
           <main>
             <Hero />
-            <About />
-            <Skills />
-            <Services />
+            <QuestLog />
             <Projects />
-            <Testimonials />
+            <About />
             <Contact />
           </main>
           <Footer />

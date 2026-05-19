@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Search, Mail, Filter, Trash, Inbox, RefreshCw, X } from "lucide-react";
-import { collection, onSnapshot, query, orderBy, getDocs, doc, deleteDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 
 interface Message {
   id: string;
   name: string;
   email: string;
   subject: string;
-  content: string;
+  content: string; // we'll map message -> content for compat
   status: string;
-  createdAt: any;
+  created_at: any;
   dateStr: string;
 }
 
@@ -28,59 +27,74 @@ export default function MessagesManager() {
   }, [selectedMsgId]);
 
   useEffect(() => {
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(doc => {
-        const data = doc.data();
-        let dateStr = "Unknown time";
-        if (data.createdAt) {
-          const d = data.createdAt.toDate();
-          dateStr = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-        return {
-          id: doc.id,
-          name: data.name,
-          email: data.email,
-          subject: data.subject,
-          content: data.content,
-          status: data.status,
-          createdAt: data.createdAt,
-          dateStr
-        } as Message;
-      });
-      setMessages(msgs);
-      if (!initialSelectRef.current && msgs.length > 0) {
-        setSelectedMsgId(msgs[0].id);
-        initialSelectRef.current = true;
-      }
-      setLoading(false);
-    }, (error) => {
-      console.error(error);
-      try {
-        handleFirestoreError(error, OperationType.GET, "messages");
-      } catch (e) {}
-      setLoading(false);
-    });
+    let mounted = true;
 
-    return () => unsub();
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (mounted) {
+        if (!error && data) {
+          const msgs = data.map(doc => {
+            let dateStr = "Unknown time";
+            if (doc.created_at) {
+              const d = new Date(doc.created_at);
+              dateStr = d.toLocaleDateString() + " " + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+            return {
+              id: doc.id,
+              name: doc.name,
+              email: doc.email,
+              subject: doc.subject,
+              content: doc.message, // mapped from db col "message"
+              status: doc.status,
+              created_at: doc.created_at,
+              dateStr
+            } as Message;
+          });
+          setMessages(msgs);
+          if (!initialSelectRef.current && msgs.length > 0) {
+            setSelectedMsgId(msgs[0].id);
+            initialSelectRef.current = true;
+          }
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
+
+    const subscription = supabase
+      .channel('messages_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+        fetchMessages();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
-        await deleteDoc(doc(db, "messages", id));
+        await supabase.from('messages').delete().eq('id', id);
         if (selectedMsgId === id) setSelectedMsgId(null);
       } catch (error) {
-        try { handleFirestoreError(error, OperationType.DELETE, `messages/${id}`); } catch (e) {}
+        console.error(error);
       }
     }
   };
 
   const filteredMessages = messages.filter(m => 
-    m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    m.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.email.toLowerCase().includes(searchQuery.toLowerCase())
+    m.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    m.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    m.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const selectedMsg = messages.find(m => m.id === selectedMsgId);

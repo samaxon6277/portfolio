@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase";
+import { supabase } from "./supabase";
 
 export function useVisitorTracker() {
   useEffect(() => {
@@ -8,13 +7,11 @@ export function useVisitorTracker() {
       try {
         const sessionKey = "samaxon_visitor_session";
         if (!sessionStorage.getItem(sessionKey)) {
-          sessionStorage.setItem(sessionKey, "true");
+          const sessionId = crypto.randomUUID();
+          sessionStorage.setItem(sessionKey, sessionId);
 
-          // Note: Full IP tracking in frontend is tricky without an API due to CORS.
-          // We can use a free IP API or just log the browser data.
           let ip = "unknown";
           try {
-             // Example simple IP fetch
              const res = await fetch("https://api.ipify.org?format=json");
              if (res.ok) {
                 const data = await res.json();
@@ -22,21 +19,14 @@ export function useVisitorTracker() {
              }
           } catch(e) {}
 
-          await addDoc(collection(db, "visitor_logs"), {
-            ip,
-            userAgent: navigator.userAgent,
-            timestamp: Date.now(),
-            createdAt: serverTimestamp(),
-            source: document.referrer || "Direct"
+          await supabase.from("visitor_logs").insert({
+            session_id: sessionId,
+            ip_address: ip,
+            user_agent: navigator.userAgent,
+            referer: document.referrer || "Direct",
+            page_path: window.location.pathname
           });
         }
-        
-        // Track page view
-        await addDoc(collection(db, "page_views"), {
-           path: window.location.pathname,
-           timestamp: Date.now(),
-           createdAt: serverTimestamp()
-        });
         
       } catch (error) {
         console.error("Failed to track visitor:", error);
@@ -46,3 +36,4 @@ export function useVisitorTracker() {
     trackVisitor();
   }, []);
 }
+

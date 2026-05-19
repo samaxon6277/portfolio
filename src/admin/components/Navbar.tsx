@@ -1,11 +1,10 @@
 import { Bell, Search, Menu, UserCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../../lib/AuthContext";
 import NotificationDropdown from "./NotificationDropdown";
 import ProfileDropdown from "./ProfileDropdown";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 
 export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -29,14 +28,35 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
 
   // Fetch unread count for bell icon
   useEffect(() => {
+    let mounted = true;
     const fetchUnreadCount = async () => {
       try {
-        const q = query(collection(db, "notifications"), where("read", "==", false));
-        const snapshot = await getDocs(q);
-        setUnreadCount(snapshot.docs.length);
-      } catch(e) {}
+        const { count, error } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('read', false);
+        
+        if (error) throw error;
+        if (mounted && count !== null) {
+          setUnreadCount(count);
+        }
+      } catch (e) {
+        console.error("Error fetching unread notifications count:", e);
+      }
     };
     fetchUnreadCount();
+
+    // Subscribe to new notifications
+    const sub = supabase.channel('public:notifications_count')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
+        fetchUnreadCount();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   return (
@@ -95,13 +115,13 @@ export default function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
             }}
           >
             <div className="hidden md:block text-right">
-              <div className="text-sm font-semibold text-white">{user?.displayName || "Admin"}</div>
+              <div className="text-sm font-semibold text-white">{user?.user_metadata?.full_name || "Admin"}</div>
               <div className="text-xs text-[#A8AFBD]">Super Admin</div>
             </div>
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#2984FF] to-[#FE774E] p-[2px]">
               <div className="w-full h-full bg-[#1B1B1B] rounded-full border border-[#1B1B1B] overflow-hidden flex items-center justify-center">
-                {user?.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName || "Admin"} className="w-full h-full object-cover" />
+                {user?.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt={user?.user_metadata?.full_name || "Admin"} className="w-full h-full object-cover" />
                 ) : (
                   <UserCircle className="w-6 h-6 text-[#A8AFBD]" />
                 )}

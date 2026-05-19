@@ -2,9 +2,8 @@ import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, Image as ImageIcon, Video, File, Loader } from "lucide-react";
 import ImageCropper from "./ImageCropper";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db, auth, handleFirestoreError, OperationType } from "../lib/firebase";
-import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "../lib/supabase";
+import { motion, AnimatePresence } from "motion/react";
 
 interface MediaUploaderProps {
   value?: string;
@@ -27,7 +26,7 @@ export default function MediaUploader({
   accept,
   maxSizeInMB = 10,
   aspectRatio,
-  folder = "portfolio",
+  folder = "media-library",
   buttonText = "Upload Media",
   className = ""
 }: MediaUploaderProps) {
@@ -39,75 +38,56 @@ export default function MediaUploader({
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  const uploadToCloudinary = async (file: File) => {
+  const uploadToSupabase = async (file: File) => {
     setIsUploading(true);
     setProgress(0);
     setErrorDetails(null);
 
-    let cloudinaryData = null;
-
     try {
-      console.log("Uploading file to backend:", file);
-      
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", folder || "portfolio_uploads");
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("User must be authenticated to upload media.");
+      }
 
       setProgress(30);
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('media-library') // Assuming we use a unified bucket 'media-library'
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        throw error;
+      }
+      setProgress(60);
+
+      const { data: publicData } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      const publicUrl = publicData.publicUrl;
+
+      // Save to Supabase Media Table
+      await supabase.from('media').insert({
+        file_name: file.name,
+        public_url: publicUrl,
+        storage_path: filePath,
+        media_type: file.type,
+        size: file.size,
+        bucket_name: 'media-library',
+        uploaded_by: session.user.id,
+        tags: [],
       });
 
-      const data = await response.json();
-      console.log("Backend response:", data);
+      setProgress(100);
+      onUploadSuccess(publicUrl, { ...data, secure_url: publicUrl });
 
-      if (response.ok && data.success) {
-        setProgress(60);
-        cloudinaryData = data;
-        
-        // Ensure user is authenticated before Firestore write
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-          throw new Error("User must be authenticated to upload media.");
-        }
-
-        setProgress(80);
-
-        try {
-          // Save to Firestore Media Library
-          await addDoc(collection(db, "media"), {
-            secure_url: data.secure_url,
-            public_id: data.public_id,
-            created_at: serverTimestamp(),
-            uploader: currentUser.uid,
-            type: file.type || data.resource_type || "unknown",
-            size: data.bytes || file.size || 0,
-            
-            // Adding previous schema fields as well to ensure backwards compatibility 
-            // since MediaManager might expect them.
-            filename: file.name,
-            url: data.secure_url || data.url,
-            folder: folder,
-            tags: [],
-            isFavorite: false,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
-          
-          setProgress(100);
-          onUploadSuccess(data.secure_url, data);
-        } catch (dbErr) {
-          console.error("Firestore Write Error:", dbErr);
-          // Rollback / Throw exact error to catch block
-          handleFirestoreError(dbErr, OperationType.WRITE, "media");
-        }
-      } else {
-        const errorMsg = data.error || `HTTP ${response.status} Error`;
-        console.error("Cloudinary error:", data);
-        throw new Error(errorMsg);
-      }
     } catch (err: any) {
       console.error("Upload error:", err);
       let msg = err.message || "Network error or permission issue during upload.";
@@ -123,7 +103,7 @@ export default function MediaUploader({
     if (acceptedFiles.length === 0) return;
     
     setErrorDetails(null);
-    const file = acceptedFiles[0]; // Process one file at a time
+    const file = acceptedFiles[0]; 
     
     // Validation
     const ext = file.name.split('.').pop()?.toLowerCase() || "";
@@ -142,7 +122,6 @@ export default function MediaUploader({
         return;
     }
 
-    // Check if image and requires cropping
     if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -153,18 +132,16 @@ export default function MediaUploader({
         return;
     }
 
-    // Direct upload
-    uploadToCloudinary(file);
+    uploadToSupabase(file);
   }, [aspectRatio, maxSizeInMB]);
 
   const handleCropComplete = async (croppedFile: File) => {
     setCropImageSrc(null);
     setPendingFile(null);
     
-    // To preserve original name
     const finalFile = new File([croppedFile], pendingFile?.name || "cropped-image.jpg", { type: "image/jpeg" });
     
-    await uploadToCloudinary(finalFile);
+    await uploadToSupabase(finalFile);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 

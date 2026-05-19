@@ -12,14 +12,14 @@ export default function ProfileDropdown({ onClose }: { onClose: () => void }) {
       <div className="px-4 py-3 border-b border-white/5 mb-2 hover:bg-white/5 transition-colors cursor-pointer block">
         <Link to="/dashboard/profile" onClick={onClose} className="flex items-center gap-3 w-full">
            <div className="w-10 h-10 rounded-full overflow-hidden bg-[#101010] border border-white/10 shrink-0 flex items-center justify-center">
-             {user?.photoURL ? (
-                <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+             {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
              ) : (
                 <UserCircle className="w-6 h-6 text-[#A8AFBD]" />
              )}
            </div>
            <div className="flex-1 min-w-0">
-             <div className="text-sm font-semibold text-white truncate">{user?.displayName || "Admin User"}</div>
+             <div className="text-sm font-semibold text-white truncate">{user?.user_metadata?.full_name || "Admin User"}</div>
              <div className="text-xs text-[#A8AFBD] truncate">{user?.email}</div>
            </div>
         </Link>

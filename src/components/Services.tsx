@@ -1,23 +1,44 @@
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { MonitorSmartphone, Layout, PenTool, Sparkles, Box, Presentation, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore"
-import { db } from "../lib/firebase"
+import { supabase } from "../lib/supabase"
 
 export default function Services() {
   const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const q = query(collection(db, "services"), where("status", "==", "Active"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      setServices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    }, (error) => {
-      console.error("Failed to fetch services", error);
-      setLoading(false);
-    });
-    return () => unsub();
+    let mounted = true;
+
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('services')
+          .select('*')
+          .eq('status', 'Active')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (mounted && data) {
+          setServices(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch services", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchServices();
+
+    const sub = supabase.channel('public:services')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, fetchServices)
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   const getIcon = (category: string) => {

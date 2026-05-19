@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bell, Check, Trash2, ExternalLink } from "lucide-react";
-import { collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { supabase } from "../../lib/supabase";
 import { Link } from "react-router-dom";
 
 export default function NotificationDropdown({ onClose }: { onClose?: () => void }) {
@@ -9,26 +8,42 @@ export default function NotificationDropdown({ onClose }: { onClose?: () => void
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
+    let mounted = true;
     const fetchNotifications = async () => {
       try {
-        const q = query(collection(db, "notifications"), orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-        const notifs = snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
-        setNotifications(notifs);
-        setUnreadCount(notifs.filter(n => !n.read).length);
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (mounted && data) {
+          setNotifications(data);
+          setUnreadCount(data.filter(n => !n.read).length);
+        }
       } catch (error) {
         console.error("Notifications error", error);
-        try { handleFirestoreError(error, OperationType.GET, "notifications"); } catch (e) {}
       }
     };
     fetchNotifications();
+
+    const sub = supabase.channel('public:notifications_list')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
+        fetchNotifications();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   const markAsRead = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     try {
-      await updateDoc(doc(db, "notifications", id), { read: true });
+      await supabase.from('notifications').update({ read: true }).eq('id', id);
     } catch (error) {
       console.error(error);
     }
@@ -37,8 +52,8 @@ export default function NotificationDropdown({ onClose }: { onClose?: () => void
   const markAllAsRead = async () => {
     try {
       const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-      for (const id of unreadIds) {
-        await updateDoc(doc(db, "notifications", id), { read: true });
+      if (unreadIds.length > 0) {
+        await supabase.from('notifications').update({ read: true }).in('id', unreadIds);
       }
     } catch (error) {
       console.error(error);
@@ -49,7 +64,7 @@ export default function NotificationDropdown({ onClose }: { onClose?: () => void
     e.stopPropagation();
     e.preventDefault();
     try {
-      await deleteDoc(doc(db, "notifications", id));
+      await supabase.from('notifications').delete().eq('id', id);
     } catch (error) {
       console.error(error);
     }
@@ -89,16 +104,16 @@ export default function NotificationDropdown({ onClose }: { onClose?: () => void
                     <p className={`text-sm ${!notif.read ? 'text-white font-medium' : 'text-[#A8AFBD]'}`}>
                       {notif.title}
                     </p>
-                    <p className="text-xs text-[#A8AFBD] mt-1 line-clamp-2">{notif.description}</p>
+                    <p className="text-xs text-[#A8AFBD] mt-1 line-clamp-2">{notif.message}</p>
                     
                     <div className="flex items-center gap-3 mt-2">
-                       {notif.createdAt && (
+                       {notif.created_at && (
                          <span className="text-[10px] text-[#A8AFBD]/70 uppercase tracking-wider">
-                           {notif.createdAt.toDate().toLocaleString()}
+                           {new Date(notif.created_at).toLocaleString()}
                          </span>
                        )}
-                       {notif.actionUrl && (
-                         <Link to={notif.actionUrl} onClick={onClose} className="text-[10px] text-[#2984FF] flex items-center gap-1 hover:underline">
+                       {notif.link && (
+                         <Link to={notif.link} onClick={onClose} className="text-[10px] text-[#2984FF] flex items-center gap-1 hover:underline">
                            View <ExternalLink className="w-3 h-3" />
                          </Link>
                        )}

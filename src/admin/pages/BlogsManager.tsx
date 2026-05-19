@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash, RefreshCw, Eye } from "lucide-react";
-import { collection, onSnapshot, query, orderBy, getDocs, doc, deleteDoc, addDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { Plus, Search, Edit, Trash, RefreshCw, Eye, FileText } from "lucide-react";
+import { supabase } from "../../lib/supabase";
 import CustomSelect from "../components/CustomSelect";
 import MediaUploader from "../../components/MediaUploader";
 
@@ -23,17 +22,35 @@ export default function BlogsManager() {
   });
 
   useEffect(() => {
-    const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const b = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBlogs(b);
-      setLoading(false);
-    }, (error) => {
-       console.error(error);
-       try { handleFirestoreError(error, OperationType.GET, "blogs"); } catch (e) {}
-       setLoading(false);
-    });
-    return () => unsub();
+    let mounted = true;
+
+    const fetchBlogs = async () => {
+      const { data, error } = await supabase
+        .from('blogs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (mounted) {
+        if (!error && data) {
+          setBlogs(data);
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+
+    const subscription = supabase
+      .channel('blogs_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'blogs' }, payload => {
+        fetchBlogs();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const openAppModal = (blog: any) => {
@@ -44,7 +61,7 @@ export default function BlogsManager() {
       content: blog.content || "",
       tags: blog.tags || "",
       status: blog.status || "Published",
-      coverImage: blog.coverImage || ""
+      coverImage: blog.coverImage || blog.thumbnail_url || ""
     });
     setShowModal(true);
   };
@@ -65,46 +82,51 @@ export default function BlogsManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data = {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const payload = {
         title: formData.title,
         slug: formData.slug,
         content: formData.content,
-        tags: formData.tags,
-        status: formData.status,
-        coverImage: formData.coverImage,
-        updatedAt: serverTimestamp()
+        // We're converting the tags string to an array or leaving as is if schema is TEXT
+        // In the supabase-schema we used TEXT for slug and generic structure.
+        // The original used string for tags
+        status: formData.status.toLowerCase(), // Check schema constraint: 'draft', 'published'
+        thumbnail_url: formData.coverImage,
+        author_id: session?.user?.id
+        // removing generic tags for now if not in schema, unless we added it later.
       };
       
       if (editingId) {
-        await updateDoc(doc(db, "blogs", editingId), data);
+        await supabase.from('blogs').update({
+           title: payload.title,
+           slug: payload.slug,
+           content: payload.content,
+           status: payload.status,
+           thumbnail_url: payload.thumbnail_url
+        }).eq('id', editingId);
       } else {
-        await addDoc(collection(db, "blogs"), {
-          ...data,
-          views: 0,
-          createdAt: serverTimestamp()
-        });
+        await supabase.from('blogs').insert([payload]);
       }
       setShowModal(false);
     } catch (error) {
       console.error(error);
-      try { handleFirestoreError(error, OperationType.WRITE, "blogs"); } catch(e) {}
     }
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this blog?")) {
       try {
-        await deleteDoc(doc(db, "blogs", id));
+        await supabase.from('blogs').delete().eq('id', id);
       } catch (error) {
         console.error(error);
-        try { handleFirestoreError(error, OperationType.DELETE, `blogs/${id}`); } catch (e) {}
       }
     }
   };
 
   const filteredBlogs = blogs.filter(b => {
-    const matchesSearch = b.title?.toLowerCase().includes(searchQuery.toLowerCase()) || b.tags?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "All Status" || b.status === filterStatus;
+    const matchesSearch = b.title?.toLowerCase().includes(searchQuery.toLowerCase()) || b.slug?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === "All Status" || (b.status && b.status.toLowerCase() === filterStatus.toLowerCase());
     return matchesSearch && matchesStatus;
   });
 
@@ -159,7 +181,6 @@ export default function BlogsManager() {
               <thead className="bg-[#101010] text-[#A8AFBD] text-xs uppercase tracking-wider">
                 <tr>
                   <th className="px-6 py-4 font-medium">Title</th>
-                  <th className="px-6 py-4 font-medium">Tags</th>
                   <th className="px-6 py-4 font-medium">Status</th>
                   <th className="px-6 py-4 font-medium">Views</th>
                   <th className="px-6 py-4 font-medium">Actions</th>
@@ -172,11 +193,10 @@ export default function BlogsManager() {
                        <div className="font-semibold text-white">{b.title}</div>
                        <div className="text-xs text-[#A8AFBD] mt-1">/{b.slug}</div>
                      </td>
-                     <td className="px-6 py-4 text-[#A8AFBD] text-sm">{b.tags}</td>
                      <td className="px-6 py-4">
-                       <span className={`px-3 py-1 text-xs rounded-full font-medium ${
-                         b.status === 'Published' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
-                         b.status === 'Scheduled' ? 'bg-[#2984FF]/10 text-[#2984FF] border border-[#2984FF]/20' :
+                       <span className={`px-3 py-1 text-xs rounded-full font-medium capitalize ${
+                         b.status === 'published' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
+                         b.status === 'scheduled' ? 'bg-[#2984FF]/10 text-[#2984FF] border border-[#2984FF]/20' :
                          'bg-[#A8AFBD]/10 text-[#A8AFBD] border border-[#A8AFBD]/20'
                        }`}>
                          {b.status}
@@ -265,6 +285,3 @@ export default function BlogsManager() {
     </div>
   );
 }
-
-// ensure FileText is imported
-import { FileText } from "lucide-react";

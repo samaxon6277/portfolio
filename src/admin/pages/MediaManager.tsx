@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, Search, Image as ImageIcon, Video, FileText as File, Trash, Link as LinkIcon, Download, X, Copy, Check, Filter } from "lucide-react";
-import { collection, query, orderBy, getDocs, doc, deleteDoc, addDoc, serverTimestamp, updateDoc, onSnapshot } from "firebase/firestore";
-import { db, auth, handleFirestoreError, OperationType } from "../../lib/firebase";
-import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "../../lib/supabase";
+import { useAuth } from "../../lib/AuthContext";
+import { motion, AnimatePresence } from "motion/react";
 
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
@@ -14,6 +14,8 @@ function formatBytes(bytes: number, decimals = 2) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
+const BUCKET_NAME = 'media-library';
+
 export default function MediaManager() {
   const [media, setMedia] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,22 +25,42 @@ export default function MediaManager() {
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const q = query(collection(db, "media"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const mediaData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate()
-      }));
-      setMedia(mediaData);
-      setLoading(false);
-    }, (error) => {
-      try { handleFirestoreError(error, OperationType.GET, "media"); } catch (e) {}
-      setLoading(false);
-    });
+  const { user } = useAuth();
 
-    return () => unsub();
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchMedia = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('media')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (mounted && data) {
+          setMedia(data);
+        }
+      } catch (err) {
+        console.error("Error fetching media:", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchMedia();
+
+    // Set up realtime subscription
+    const sub = supabase.channel('public:media')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'media' }, () => {
+        fetchMedia();
+      })
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -64,93 +86,88 @@ export default function MediaManager() {
     if (processedUploads.length === 0) return;
 
     setUploads(prev => [...prev, ...processedUploads]);
-
     const validUploads = processedUploads.filter(u => u.status !== 'error');
 
     validUploads.forEach(async upload => {
-      if(!auth.currentUser) {
+      if(!user) {
          setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'error', errorMsg: 'Not authenticated' } : u));
          return;
       }
       
       try {
-        const formData = new FormData();
-        formData.append("file", upload.file);
-        formData.append("folder", "portfolio/media");
+        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, progress: 20 } : u));
 
-        // Optional: show some progress initially
-        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, progress: 30 } : u));
+        const fileExt = upload.file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
+        const { data: storageData, error: uploadError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .upload(filePath, upload.file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, progress: 60 } : u));
+
+        const { data: publicData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(filePath);
+
+        const publicUrl = publicData.publicUrl;
+
+        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, progress: 80 } : u));
+
+        // Save to DB
+        const { error: dbError } = await supabase.from('media').insert({
+          file_name: upload.file.name,
+          public_url: publicUrl,
+          storage_path: filePath,
+          media_type: upload.file.type,
+          size: upload.file.size,
+          bucket_name: BUCKET_NAME,
+          uploaded_by: user.id
         });
 
-        const data = await response.json();
+        if (dbError) throw dbError;
 
-        if (response.ok && data.success) {
-          setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, progress: 90 } : u));
-          try {
-            await addDoc(collection(db, "media"), {
-              filename: upload.file.name,
-              url: data.secure_url || data.url,
-              public_id: data.public_id, // Ensure public_id matches what we destroy
-              type: upload.file.type || data.resource_type || "unknown",
-              size: data.bytes || upload.file.size || 0,
-              folder: 'portfolio/media',
-              tags: [],
-              uploader: auth.currentUser?.uid || "unknown",
-              isFavorite: false,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp()
-            });
-            setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'completed', progress: 100 } : u));
-            setTimeout(() => {
-              setUploads(prev => prev.filter(u => u.id !== upload.id));
-            }, 3000);
-          } catch(err) {
-             console.error("Error adding doc to Firestore:", err);
-             setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'error', errorMsg: 'Failed to save to database' } : u));
-          }
-        } else {
-           console.error("Cloudinary upload error:", data);
-           const errorMsg = data.error || `HTTP ${response.status} Error`;
-           setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'error', errorMsg } : u));
-        }
-      } catch (err) {
+        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'completed', progress: 100 } : u));
+        setTimeout(() => {
+          setUploads(prev => prev.filter(u => u.id !== upload.id));
+        }, 3000);
+
+      } catch (err: any) {
         console.error("Upload preparation or network error:", err);
-        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'error', errorMsg: 'Network error or CORS issue' } : u));
+        setUploads(prev => prev.map(u => u.id === upload.id ? { ...u, status: 'error', errorMsg: err.message || 'Network error or CORS issue' } : u));
       }
     });
-  }, []);
+  }, [user]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop } as any);
 
   const deleteMedia = async (item: any, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if(!confirm(`Are you sure you want to delete ${item.filename}?`)) return;
+    if(!confirm(`Are you sure you want to delete ${item.file_name}?`)) return;
+    
     try {
-      if (item.publicId || item.public_id) {
-         try {
-             await fetch("/api/delete", {
-                 method: "POST",
-                 headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify({
-                     public_id: item.publicId || item.public_id,
-                     resource_type: item.type.startsWith('video/') ? 'video' : 'image'
-                 })
-             });
-         } catch(e) {
-             console.error("Failed to delete from Cloudinary:", e);
-         }
+      if (item.storage_path) {
+         const { error: storageError } = await supabase.storage
+            .from(BUCKET_NAME)
+            .remove([item.storage_path]);
+            
+         if (storageError) console.error("Failed to delete from Supabase Storage:", storageError);
       }
-      await deleteDoc(doc(db, "media", item.id));
+      
+      const { error: dbError } = await supabase.from('media').delete().eq('id', item.id);
+      if (dbError) throw dbError;
+      
       if(selectedItem?.id === item.id) setSelectedItem(null);
-      // Optimistic update
-      setMedia(prev => prev.filter(m => m.id !== item.id));
+      
     } catch(err) {
-      console.error(err);
-      handleFirestoreError(err, OperationType.DELETE, `media/${item.id}`);
+      console.error("Failed to delete media:", err);
+      alert("Failed to delete media file.");
     }
   };
 
@@ -162,11 +179,11 @@ export default function MediaManager() {
   };
 
   const filteredMedia = media.filter(item => {
-    if (activeTab === "images" && !item.type.startsWith("image/")) return false;
-    if (activeTab === "videos" && !item.type.startsWith("video/")) return false;
-    if (activeTab === "documents" && (item.type.startsWith("image/") || item.type.startsWith("video/"))) return false;
+    if (activeTab === "images" && !item.media_type?.startsWith("image/")) return false;
+    if (activeTab === "videos" && !item.media_type?.startsWith("video/")) return false;
+    if (activeTab === "documents" && (item.media_type?.startsWith("image/") || item.media_type?.startsWith("video/"))) return false;
     
-    if (search && !item.filename.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !item.file_name?.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -176,7 +193,7 @@ export default function MediaManager() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-3xl font-display font-bold">Media Library</h1>
-            <p className="text-[#A8AFBD] mt-1">Manage your images, videos, and documents.</p>
+            <p className="text-[#A8AFBD] mt-1">Manage your images, videos, and documents with Supabase.</p>
           </div>
           <div {...getRootProps()} className="relative cursor-pointer">
             <input {...getInputProps()} />
@@ -263,28 +280,28 @@ export default function MediaManager() {
                         className={`group flex flex-col bg-[#101010] border rounded-xl overflow-hidden transition-all cursor-pointer ${selectedItem?.id === item.id ? 'border-[#2984FF] ring-1 ring-[#2984FF]' : 'border-white/5 hover:border-white/20'}`}
                      >
                         <div className="aspect-square relative overflow-hidden bg-white/5 flex items-center justify-center">
-                           {item.type.startsWith('image/') ? (
-                              <img src={item.url} alt={item.filename} className="w-full h-full object-cover" />
-                           ) : item.type.startsWith('video/') ? (
+                           {item.media_type?.startsWith('image/') ? (
+                              <img src={item.public_url} alt={item.file_name} className="w-full h-full object-cover" />
+                           ) : item.media_type?.startsWith('video/') ? (
                               <Video className="w-10 h-10 text-[#A8AFBD]" />
                            ) : (
                               <File className="w-10 h-10 text-[#A8AFBD]" />
                            )}
                            <div className={`absolute inset-0 bg-black/60 transition-opacity flex flex-col items-center justify-center gap-2 ${selectedItem?.id === item.id ? 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                               <div className="flex gap-2">
-                                 <button onClick={(e) => copyToClipboard(item.url, item.id, e)} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white" title="Copy Link">
+                                 <button onClick={(e) => copyToClipboard(item.public_url, item.id, e)} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white" title="Copy Link">
                                     {copiedId === item.id ? <Check className="w-4 h-4 text-green-400" /> : <LinkIcon className="w-4 h-4"/>}
                                  </button>
-                                 <a href={item.url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white" title="Download"><Download className="w-4 h-4"/></a>
+                                 <a href={item.public_url} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white" title="Download"><Download className="w-4 h-4"/></a>
                               </div>
                               <button onClick={(e) => deleteMedia(item, e)} className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-lg text-red-400" title="Delete"><Trash className="w-4 h-4"/></button>
                            </div>
                         </div>
                         <div className="p-3">
-                           <p className="text-sm font-medium text-white truncate" title={item.filename}>{item.filename}</p>
+                           <p className="text-sm font-medium text-white truncate" title={item.file_name}>{item.file_name}</p>
                            <div className="flex justify-between items-center mt-1">
                              <p className="text-[10px] text-[#A8AFBD] tracking-wider">{formatBytes(item.size)}</p>
-                             <p className="text-[10px] text-[#A8AFBD] uppercase border border-white/10 px-1.5 py-0.5 rounded">{item.type.split('/')[0]}</p>
+                             <p className="text-[10px] text-[#A8AFBD] uppercase border border-white/10 px-1.5 py-0.5 rounded">{item.media_type?.split('/')[0] || "File"}</p>
                            </div>
                         </div>
                      </div>
@@ -310,10 +327,10 @@ export default function MediaManager() {
                </div>
                <div className="p-4 overflow-y-auto flex-1 scrollbar-hide">
                   <div className="aspect-video bg-[#101010] rounded-xl overflow-hidden flex items-center justify-center mb-4 border border-white/5 relative group">
-                     {selectedItem.type.startsWith('image/') ? (
-                        <img src={selectedItem.url} alt={selectedItem.filename} className="w-full h-full object-contain" />
-                     ) : selectedItem.type.startsWith('video/') ? (
-                        <video src={selectedItem.url} controls className="w-full h-full" />
+                     {selectedItem.media_type?.startsWith('image/') ? (
+                        <img src={selectedItem.public_url} alt={selectedItem.file_name} className="w-full h-full object-contain" />
+                     ) : selectedItem.media_type?.startsWith('video/') ? (
+                        <video src={selectedItem.public_url} controls className="w-full h-full" />
                      ) : (
                         <File className="w-12 h-12 text-[#A8AFBD]" />
                      )}
@@ -322,11 +339,11 @@ export default function MediaManager() {
                   <div className="space-y-4">
                      <div>
                         <label className="text-[10px] font-bold text-[#A8AFBD] uppercase tracking-wider mb-1 block">File Name</label>
-                        <p className="text-sm text-white break-all">{selectedItem.filename}</p>
+                        <p className="text-sm text-white break-all">{selectedItem.file_name}</p>
                      </div>
                      <div>
                         <label className="text-[10px] font-bold text-[#A8AFBD] uppercase tracking-wider mb-1 block">Type</label>
-                        <p className="text-sm text-white">{selectedItem.type}</p>
+                        <p className="text-sm text-white">{selectedItem.media_type}</p>
                      </div>
                      <div>
                         <label className="text-[10px] font-bold text-[#A8AFBD] uppercase tracking-wider mb-1 block">Size</label>
@@ -334,14 +351,14 @@ export default function MediaManager() {
                      </div>
                      <div>
                         <label className="text-[10px] font-bold text-[#A8AFBD] uppercase tracking-wider mb-1 block">Uploaded On</label>
-                        <p className="text-sm text-white">{selectedItem.createdAt ? selectedItem.createdAt.toLocaleDateString() : 'Unknown'}</p>
+                        <p className="text-sm text-white">{selectedItem.created_at ? new Date(selectedItem.created_at).toLocaleDateString() : 'Unknown'}</p>
                      </div>
                      <div>
                         <label className="text-[10px] font-bold text-[#A8AFBD] uppercase tracking-wider mb-1 block">File URL</label>
                         <div className="flex gap-2">
-                           <input type="text" readOnly value={selectedItem.url} className="w-full bg-[#101010] border border-white/5 rounded-lg px-3 py-2 text-xs text-[#A8AFBD] focus:outline-none" />
+                           <input type="text" readOnly value={selectedItem.public_url} className="w-full bg-[#101010] border border-white/5 rounded-lg px-3 py-2 text-xs text-[#A8AFBD] focus:outline-none" />
                            <button 
-                             onClick={(e) => copyToClipboard(selectedItem.url, selectedItem.id, e)}
+                             onClick={(e) => copyToClipboard(selectedItem.public_url, selectedItem.id, e)}
                              className="p-2 bg-[#2984FF]/10 text-[#2984FF] hover:bg-[#2984FF]/20 rounded-lg transition-colors shrink-0"
                              title="Copy URL"
                            >
@@ -352,7 +369,7 @@ export default function MediaManager() {
                   </div>
                   
                   <div className="mt-8 space-y-2">
-                     <a href={selectedItem.url} target="_blank" rel="noreferrer" className="w-full text-center block bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
+                     <a href={selectedItem.public_url} target="_blank" rel="noreferrer" className="w-full text-center block bg-white/5 hover:bg-white/10 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors">
                         Open in new tab
                      </a>
                      <button onClick={(e) => deleteMedia(selectedItem, e)} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-xl text-sm font-medium transition-colors">

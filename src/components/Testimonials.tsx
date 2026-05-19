@@ -1,18 +1,35 @@
-import { motion } from "framer-motion"
+import { motion } from "motion/react"
 import { Quote } from "lucide-react"
 import { useState, useEffect } from "react"
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore"
-import { db } from "../lib/firebase"
+import { supabase } from "../lib/supabase"
 
 export default function Testimonials() {
   const [testimonials, setTestimonials] = useState<any[]>([])
 
   useEffect(() => {
-    const q = query(collection(db, "testimonials"), orderBy("createdAt", "desc"))
-    const unsub = onSnapshot(q, (snapshot) => {
-      setTestimonials(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
-    })
-    return () => unsub()
+    let mounted = true;
+    
+    const fetchTestimonials = async () => {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (!error && mounted && data) {
+        setTestimonials(data);
+      }
+    };
+    
+    fetchTestimonials();
+    
+    const sub = supabase.channel('public:testimonials')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonials' }, fetchTestimonials)
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(sub);
+    };
   }, [])
 
   if (testimonials.length === 0) return null;
