@@ -41,7 +41,7 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
         className="flex flex-col items-center gap-4"
       >
         {settings?.logo_url ? (
-          <img src={settings.logo_url} alt="Logo" className="w-24 h-24 object-contain" />
+          <img src={settings.logo_url} alt="Logo" className="h-16 w-auto object-contain max-w-full" />
         ) : null}
         
         {(!settings?.logo_url || settings?.logo_type === 'text' || settings?.logo_type === 'both') && (

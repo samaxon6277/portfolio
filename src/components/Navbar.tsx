@@ -38,9 +38,9 @@ export default function Navbar() {
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center gap-3">
                 {(!settings?.logo_type || settings?.logo_type === 'image' || settings?.logo_type === 'both') && settings?.logo_url ? (
-                  <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-neo-surface" />
+                  <img src={settings.logo_url} alt="Logo" className="h-10 w-auto object-contain" />
                 ) : (!settings?.logo_type || settings?.logo_type === 'image' || settings?.logo_type === 'both') ? (
-                  <div className="w-12 h-12 rounded-full bg-neo-surface flex items-center justify-center border-2 border-neo-surface text-neo-heading font-display">
+                  <div className="w-10 h-10 rounded-full bg-neo-surface flex items-center justify-center border-2 border-neo-surface text-neo-heading font-display shrink-0">
                     {settings?.company_name?.[0] || "S"}
                   </div>
                 ) : null}

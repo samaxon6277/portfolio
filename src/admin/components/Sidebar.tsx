@@ -54,7 +54,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         <div className="h-20 flex flex-shrink-0 items-center justify-between px-6 border-b border-white/5">
           <Link to="/dashboard" className="flex items-center gap-3">
             {(!settings?.logo_type || settings?.logo_type === 'image' || settings?.logo_type === 'both') && settings?.logo_url && (
-              <img src={settings.logo_url} alt="Logo" className="w-8 h-8 rounded-full object-cover" />
+              <img src={settings.logo_url} alt="Logo" className="h-8 w-auto object-contain" />
             )}
             {(!settings?.logo_url || settings?.logo_type === 'text' || settings?.logo_type === 'both') && (
               <span className="font-display font-bold text-xl tracking-wider uppercase text-[#2984FF]">
