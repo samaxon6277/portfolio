@@ -13,25 +13,25 @@ export default function SettingsManager() {
   
   const [formData, setFormData] = useState({
     businessName: "SamaXon",
-    tagline: "",
+    tagline: "Odyssey of a Full-Stack Developer",
     logoType: "text",
     logoText: "SAMAXON",
     logoImageUrl: "",
     faviconUrl: "",
-    contactPhone: "",
-    whatsappNumber: "",
-    contactEmail: "",
-    contactLocation: "",
-    aboutTitle: "",
-    aboutSubtitle: "",
-    aboutBio: "",
-    skills: [] as string[],
+    contactPhone: "+91 80768 74034",
+    whatsappNumber: "+91 80768 74034",
+    contactEmail: "samaxon6277@gmail.com",
+    contactLocation: "India",
+    aboutTitle: "Samar",
+    aboutSubtitle: "Full-Stack Developer",
+    aboutBio: "I am Samar, a passionate creative Full-Stack Developer bridging the gap between beautiful design and robust engineering. I build tools for SamaXon to craft digital products that not only look stunning but perform flawlessly.",
+    skills: ["React", "TypeScript", "Node.js", "TailwindCSS", "Next.js", "Supabase"] as string[],
     resumeUrl: "",
     socialLinks: SOCIAL_PLATFORMS.map(p => ({ platform: p, url: "", enabled: false })),
     metaTitle: "SamaXon - Digital Portfolio",
-    keywords: "",
-    metaDescription: "",
-    id: "" // To track the singleton row id
+    keywords: "Samar, SamaXon, Full-Stack Developer, Portfolio",
+    metaDescription: "The professional digital portfolio of Samar, founder of SamaXon.",
+    id: "" 
   });
 
   const [loading, setLoading] = useState(true);

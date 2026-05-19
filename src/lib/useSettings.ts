@@ -2,28 +2,26 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 export interface SettingsData {
-  portfolioName?: string;
+  company_name?: string;
   tagline?: string;
-  logoType?: "text" | "image" | "both";
-  logoText?: string;
-  logoImageUrl?: string;
-  faviconUrl?: string;
-  contactPhone?: string;
-  whatsappNumber?: string;
-  contactEmail?: string;
-  contactLocation?: string;
-  businessName?: string;
-  aboutTitle?: string;
-  aboutSubtitle?: string;
-  aboutBio?: string;
+  logo_type?: "text" | "image" | "both";
+  logo_text?: string;
+  logo_url?: string;
+  favicon_url?: string;
+  phone?: string;
+  whatsapp_number?: string;
+  email?: string;
+  address?: string;
+  about_title?: string;
+  about_subtitle?: string;
+  about_text?: string;
   skills?: string[];
-  experience?: any[];
+  resume_url?: string;
+  meta_title?: string;
+  meta_keywords?: string;
+  meta_description?: string;
+  // Legacy aliases
   avatarUrl?: string;
-  resumeUrl?: string;
-  socialLinks?: Array<{ platform: string; url: string; enabled: boolean }>;
-  metaTitle?: string;
-  keywords?: string;
-  metaDescription?: string;
 }
 
 export function useSettings() {
@@ -41,8 +39,11 @@ export function useSettings() {
         
       if (mounted) {
         if (!error && data) {
-           // map your fields from supabase logic to this interface if needed, or just set it
-           setSettings(data as any);
+           const mappedData: SettingsData = {
+             ...data,
+             avatarUrl: data.logo_url // Mapping logo_url to avatarUrl for About component
+           };
+           setSettings(mappedData);
         }
         setLoading(false);
       }
@@ -50,16 +51,18 @@ export function useSettings() {
     
     fetchSettings();
     
-    const subscription = supabase
-      .channel('settings_changes')
+    const channel = supabase
+      .channel(`realtime:settings_${Math.random().toString(36).substring(7)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, payload => {
-        setSettings(payload.new as any);
+        if (mounted) {
+          setSettings(payload.new as any);
+        }
       })
       .subscribe();
 
     return () => {
       mounted = false;
-      supabase.removeChannel(subscription);
+      supabase.removeChannel(channel);
     };
   }, []);
 

@@ -37,11 +37,11 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center">
-                {settings?.logoImageUrl ? (
-                  <img src={settings.logoImageUrl} alt="Avatar" className="w-12 h-12 rounded-full object-cover border-2 border-neo-surface" />
+                {settings?.logo_url ? (
+                  <img src={settings.logo_url} alt="Logo" className="w-12 h-12 rounded-full object-cover border-2 border-neo-surface" />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-neo-surface flex items-center justify-center border-2 border-neo-surface text-neo-heading font-display">
-                    P1
+                    {settings?.company_name?.[0] || "S"}
                   </div>
                 )}
               </Link>

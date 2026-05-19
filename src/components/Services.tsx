@@ -2,6 +2,7 @@ import { motion } from "motion/react"
 import { MonitorSmartphone, Layout, PenTool, Sparkles, Box, Presentation, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { supabase } from "../lib/supabase"
+import { Link } from "react-router-dom"
 
 export default function Services() {
   const [services, setServices] = useState<any[]>([])
@@ -31,7 +32,7 @@ export default function Services() {
 
     fetchServices();
 
-    const sub = supabase.channel('public:services')
+    const sub = supabase.channel(`realtime:services_${Math.random().toString(36).substring(7)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, fetchServices)
       .subscribe();
 
@@ -54,22 +55,18 @@ export default function Services() {
     <section id="services" className="py-24 relative min-h-[50vh]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold font-display inline-block relative">
-            <span className="geo-gradient-text z-10 relative">My Services</span>
-            <span className="absolute -bottom-4 left-0 w-full h-1 bg-neo-elevated rounded-full overflow-hidden">
-               <motion.span 
-                 initial={{ width: 0 }}
-                 whileInView={{ width: "100%" }}
-                 transition={{ duration: 1 }}
-                 className="block h-full bg-gradient-to-r from-neo-cyan to-neo-accent"
-               />
-            </span>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-display inline-block relative text-white tracking-[0.2em] uppercase">
+            Protocols
           </h2>
-          <p className="mt-8 text-neo-text-dim text-lg max-w-2xl mx-auto">
-            Comprehensive digital solutions blending creative design with robust engineering.
-          </p>
-        </div>
+          <p className="text-neo-text-dim uppercase tracking-widest text-sm mt-4 font-mono">Service Inventory</p>
+        </motion.div>
 
         {loading ? (
            <div className="flex justify-center items-center py-20">
@@ -88,32 +85,27 @@ export default function Services() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="geo-card p-8 group hover:-translate-y-2 transition-all duration-300 flex flex-col"
+                className="bg-[#1E2029] border border-neo-surface p-8 group hover:border-neo-cyan transition-all duration-300 flex flex-col relative overflow-hidden"
               >
-                <div className="w-16 h-16 rounded-2xl geo-inner-shadow bg-neo-surface flex items-center justify-center text-neo-accent mb-6 group-hover:text-neo-cyan transition-colors shrink-0">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-neo-cyan/5 -translate-y-16 translate-x-16 rounded-full blur-3xl group-hover:bg-neo-cyan/10 transition-colors"></div>
+                
+                <div className="w-16 h-16 border border-neo-surface flex items-center justify-center text-neo-cyan mb-6 group-hover:bg-neo-cyan group-hover:text-[#1E2029] transition-all duration-500 shrink-0">
                   {getIcon(svc.category)}
                 </div>
-                <div className="text-xs font-bold text-neo-cyan uppercase tracking-wider mb-2">
-                  {svc.category}
+                <div className="text-[10px] font-mono text-neo-text-disabled uppercase tracking-widest mb-2">
+                  System Mode: {svc.category}
                 </div>
-                <h3 className="text-xl font-bold font-display mb-3 group-hover:geo-glow-text transition-all">
+                <h3 className="text-xl font-bold font-display text-white uppercase tracking-wider mb-3 group-hover:text-neo-cyan transition-colors">
                   {svc.title}
                 </h3>
-                <p className="text-neo-text-dim leading-relaxed flex-1">
-                  Starting at {svc.pricing}
+                <p className="text-neo-text-dim leading-relaxed flex-1 font-mono text-sm uppercase tracking-tighter">
+                  {svc.description || "Operational parameters established for digital deployment."}
                 </p>
-                
-                <div className="mt-8">
-                  <a href="#contact" className="text-sm font-bold uppercase tracking-wider text-neo-text-disabled group-hover:text-neo-accent flex items-center transition-colors">
-                    <span>Discuss Project</span>
-                    <motion.span 
-                      className="ml-2 inline-block opacity-0 group-hover:opacity-100"
-                      initial={{ x: -10 }}
-                      whileHover={{ x: 0 }}
-                    >
-                      →
-                    </motion.span>
-                  </a>
+                <div className="mt-8 pt-6 border-t border-neo-surface/30 flex justify-between items-center">
+                   <span className="text-neo-cyan font-mono text-xs uppercase tracking-widest">{svc.pricing}</span>
+                   <Link to="/contact" className="text-[10px] font-mono uppercase tracking-widest bg-neo-surface px-3 py-1 text-neo-text-dim hover:text-white transition-colors">
+                      Execute &rarr;
+                   </Link>
                 </div>
               </motion.div>
             ))}
