@@ -47,13 +47,13 @@ export default function DashboardTab({ leads, careers, botVisits, activityLogs, 
   const pointsHuman = chartData.map((val, idx) => {
     const x = padding + (idx * (width - padding * 2)) / (chartData.length - 1);
     const y = height - padding - (val * (height - padding * 2)) / maxVal;
-    return `${x},${y}`;
+    return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
   }).join(' ');
 
   const pointsBot = chartBots.map((val, idx) => {
     const x = padding + (idx * (width - padding * 2)) / (chartBots.length - 1);
     const y = height - padding - (val * (height - padding * 2)) / maxVal;
-    return `${x},${y}`;
+    return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
   }).join(' ');
 
   return (

@@ -3,8 +3,9 @@ import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPo
 
 // Helper to determine if we should attempt Supabase queries
 const checkHasKeys = () => {
-  const url = (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_URL;
-  const key = (import.meta as any).env?.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const env = (import.meta as any).env || {};
+  const url = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || 'https://mgvnebqnzxpxjefxndpi.supabase.co';
+  const key = env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_KXdb80l02Z1UKuVwlh-Ubg_63NoP7UW';
   return !!(url && key);
 };
 
