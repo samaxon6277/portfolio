@@ -34,8 +34,8 @@ export default function SEO({
       'og:title': fullTitle,
       'og:description': description,
       'og:type': 'website',
-      'og:url': `https://samaxon.com${canonicalPath}`,
-      'og:image': 'https://samaxon.com/assets/og-cover.jpg',
+      'og:url': `https://www.samaxon.site${canonicalPath}`,
+      'og:image': 'https://www.samaxon.site/og-image.png',
       'twitter:card': 'summary_large_image',
       'twitter:title': fullTitle,
       'twitter:description': description
@@ -62,9 +62,9 @@ export default function SEO({
       "@context": "https://schema.org",
       "@type": schemaType,
       "name": "SamaXon",
-      "image": "https://samaxon.com/assets/logo.png",
-      "@id": "https://samaxon.com/#organization",
-      "url": "https://samaxon.com",
+      "image": "https://www.samaxon.site/favicon.png",
+      "@id": "https://www.samaxon.site/#organization",
+      "url": "https://www.samaxon.site",
       "telephone": "+918000000000",
       "priceRange": "$$$$",
       "address": {
