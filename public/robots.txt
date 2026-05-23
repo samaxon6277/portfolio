@@ -1,0 +1,6 @@
+# Crawlability instructions for SamaXon Premium digital platform
+User-agent: *
+Allow: /
+
+# Canonical Sitemap location
+Sitemap: https://samaxon.com/sitemap.xml

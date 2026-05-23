@@ -1,6 +1,6 @@
 {
-  "name": "SamaXon Agency Portfolio",
-  "description": "A high-quality portfolio and showcase for SamaXon. Features a modern dark neumorphism aesthetic, custom animations, and a responsive layout designed to generate freelance leads.",
+  "name": "SamaXon",
+  "description": "India’s fastest premium digital studio delivering websites, apps, branding assets, automations, bots, and admin-powered digital systems in under 48 hours.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

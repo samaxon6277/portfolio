@@ -1,112 +1,112 @@
-import { useState, useEffect } from "react";
-import { motion, useScroll, useSpring, AnimatePresence } from "motion/react";
-import { Outlet } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import About from "./components/About";
-import Projects from "./components/Projects";
-import QuestLog from "./components/QuestLog";
-import Contact from "./components/Contact";
-import Footer from "./components/Footer";
-import CustomCursor from "./components/CustomCursor";
-import { useVisitorTracker } from "./lib/useVisitorTracker";
-import { useGlobalSettings } from "./lib/SettingsContext";
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import About from './pages/About';
+import Services from './pages/Services';
+import Portfolio from './pages/Portfolio';
+import SamaXonEdge from './pages/SamaXonEdge';
+import ClientControl from './pages/ClientControl';
+import Careers from './pages/Careers';
+import Contact from './pages/Contact';
+import LegalPages from './pages/LegalPages';
+import AdminPanel from './pages/AdminPanel';
 
-function Preloader({ onComplete }: { onComplete: () => void }) {
-  const settings = useGlobalSettings();
+export default function App() {
+  const [currentPage, setCurrentPage] = useState<string>('home');
 
+  // Multi-page routing via simple hash matching
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, [onComplete]);
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-[200] bg-neo-bg flex items-center justify-center flex-col"
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
-    >
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.5, 1, 0.5],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="flex flex-col items-center gap-4"
-      >
-        {settings?.logo_url ? (
-          <img src={settings.logo_url} alt="Logo" className="h-16 w-auto object-contain max-w-full" />
-        ) : null}
-        
-        {(!settings?.logo_url || settings?.logo_type === 'text' || settings?.logo_type === 'both') && (
-          <div className="text-4xl font-bold font-display tracking-widest geo-gradient-text uppercase text-center">
-            {settings?.logo_text || settings?.company_name || 'SAMAXON'}
-          </div>
-        )}
-      </motion.div>
-      <div className="mt-8 w-48 h-1 geo-inner-shadow rounded-full overflow-hidden">
-        <motion.div
-          initial={{ x: "-100%" }}
-          animate={{ x: "100%" }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-          className="w-full h-full bg-gradient-to-r from-neo-accent to-neo-cyan"
-        />
-      </div>
-    </motion.div>
-  );
-}
-
-export function PublicLayout() {
-  const [loading, setLoading] = useState(() => {
-    return !sessionStorage.getItem('samaxon_preloader_shown');
-  });
-  
-  const handlePreloaderComplete = () => {
-    sessionStorage.setItem('samaxon_preloader_shown', 'true');
-    setLoading(false);
-  };
-  
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-  
-  useVisitorTracker();
-
-  return (
-    <div className="bg-neo-bg min-h-screen text-neo-text selection:bg-neo-accent selection:text-neo-bg">
-      <AnimatePresence>
-        {loading && <Preloader onComplete={handlePreloaderComplete} />}
-      </AnimatePresence>
-
-      <CustomCursor />
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      const validPages = ['home', 'about', 'services', 'portfolio', 'edge', 'control', 'careers', 'contact', 'privacy', 'terms', 'refund', 'admin'];
       
-      {!loading && (
-        <>
+      if (hash && validPages.includes(hash)) {
+        setCurrentPage(hash);
+      } else {
+        setCurrentPage('home');
+      }
+    };
+
+    // Initialize routing on load
+    handleHashChange();
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  // Isolate Admin Control Panel view
+  if (currentPage === 'admin') {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#FFFDF8]" id="app-viewport">
+        <AdminPanel />
+      </div>
+    );
+  }
+
+  // Helper to render active layout
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <Home setCurrentPage={setCurrentPage} />;
+      case 'about':
+        return <About setCurrentPage={setCurrentPage} />;
+      case 'services':
+        return <Services setCurrentPage={setCurrentPage} />;
+      case 'portfolio':
+        return <Portfolio setCurrentPage={setCurrentPage} />;
+      case 'edge':
+        return <SamaXonEdge setCurrentPage={setCurrentPage} />;
+      case 'control':
+        return <ClientControl setCurrentPage={setCurrentPage} />;
+      case 'careers':
+        return <Careers />;
+      case 'contact':
+        return <Contact />;
+      case 'privacy':
+        return <LegalPages type="privacy" />;
+      case 'terms':
+        return <LegalPages type="terms" />;
+      case 'refund':
+        return <LegalPages type="refund" />;
+      default:
+        return <Home setCurrentPage={setCurrentPage} />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-soft-ivory selection:bg-champagne-gold/30 selection:text-matte-black relative overflow-x-hidden" id="app-viewport">
+      {/* Global Luxury Radial Gradient Backdrop */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0" 
+        style={{
+          background: 'radial-gradient(circle at 12% 12%, rgba(214, 180, 106, 0.12) 0%, transparent 45%), radial-gradient(circle at 88% 88%, rgba(214, 180, 106, 0.12) 0%, transparent 45%)'
+        }}
+      />
+      
+      {/* Dynamic Floating Navbar with active control hooks */}
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+
+      {/* Main viewport with elegant page entry transitions */}
+      <main className="flex-grow">
+        <AnimatePresence mode="wait">
           <motion.div
-            className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-neo-cyan via-neo-accent to-neo-purple origin-left z-[100]"
-            style={{ scaleX }}
-          />
-          <Navbar />
-          <main className="min-h-screen">
-            <Outlet />
-          </main>
-          <Footer />
-        </>
-      )}
+            key={currentPage}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+          >
+            {renderPage()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      {/* Premium Multi-column Global Footer */}
+      <Footer setCurrentPage={setCurrentPage} />
     </div>
   );
 }
-
-export default function App() {
-  return <Outlet />;
-}
-
