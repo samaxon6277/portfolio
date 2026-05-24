@@ -147,9 +147,29 @@ export default function AdminPanel() {
         // Fetch auth states
         const { data: { session } } = await supabase.auth.getSession();
         if (session && session.user) {
-          const emailLower = session.user.email?.toLowerCase().trim();
-          const members = await supabaseService.getTeamMembers();
-          const match = members.find(m => m.email.toLowerCase().trim() === emailLower);
+          const emailLower = session.user.email || '';
+          const userId = session.user.id;
+
+          // Retrieve team member mapping cleanly
+          const { data: match, error: fetchError } = await supabaseService.getTeamMemberByAuth(userId, emailLower);
+
+          // Log database details in development only
+          const metaEnv = (import.meta as any).env || {};
+          if (metaEnv.DEV) {
+            console.log("--- Auth Session Init Diagnosis ---");
+            console.log("Auth User ID:", userId);
+            console.log("Auth Email:", emailLower);
+            console.log("Supabase URL:", metaEnv.VITE_SUPABASE_URL || 'Default env fallback');
+            console.log("Team Member Match:", match);
+            console.log("Fetch Error / RLS:", fetchError);
+          }
+
+          if (fetchError) {
+            console.error("Auth initialization query failed:", fetchError);
+            setLoginError(`RLS blocked team_members lookup: ${fetchError.message || JSON.stringify(fetchError)}`);
+            await supabase.auth.signOut();
+            return;
+          }
 
           if (match) {
             const roleDb = (match.role || '').toLowerCase().trim();
@@ -158,7 +178,7 @@ export default function AdminPanel() {
             if (!allowedRoles.includes(roleDb)) {
               setLoginError("Access denied: Admin role value not authorized. Ensure it matches one of: 'super_admin', 'admin', 'sales_manager', 'career_manager', 'content_editor', or 'viewer'.");
               await supabase.auth.signOut();
-            } else if (match.status.toLowerCase().trim() !== 'active') {
+            } else if (match.status && match.status.toLowerCase().trim() !== 'active') {
               setLoginError('Access denied: Account disabled.');
               await supabase.auth.signOut();
             } else {
@@ -178,7 +198,7 @@ export default function AdminPanel() {
               });
             }
           } else {
-            setLoginError("Access denied: Admin role not found. Please add this email to the 'team_members' table manually via your Supabase Console with status='active' and an authorized role (e.g., 'super_admin').");
+            setLoginError("No team member row found for this auth user.");
             await supabase.auth.signOut();
           }
         }
@@ -457,13 +477,28 @@ export default function AdminPanel() {
         throw new Error('Verification failed. Unable to establish session.');
       }
 
-      // Fetch team members profile mapping
-      const members = await supabaseService.getTeamMembers();
-      const match = members.find(m => m.email.toLowerCase().trim() === emailLower);
+      // Retrieve team member mapping cleanly
+      const { data: match, error: fetchError } = await supabaseService.getTeamMemberByAuth(authUser.id, emailLower);
+
+      // Log database details in development only
+      const loginMetaEnv = (import.meta as any).env || {};
+      if (loginMetaEnv.DEV) {
+        console.log("--- Auth Action Diagnosis ---");
+        console.log("Auth User ID:", authUser.id);
+        console.log("Auth Email:", emailLower);
+        console.log("Supabase URL:", loginMetaEnv.VITE_SUPABASE_URL || 'Default env fallback');
+        console.log("Team Member Match:", match);
+        console.log("Fetch Error / RLS:", fetchError);
+      }
+
+      if (fetchError) {
+        await supabase.auth.signOut();
+        throw new Error(`RLS blocked team_members lookup: ${fetchError.message || JSON.stringify(fetchError)}`);
+      }
 
       if (!match) {
         await supabase.auth.signOut();
-        throw new Error("Access denied: Admin role not found. Ensure this email is inserted in your Supabase database table 'team_members' with status='active' and key role='super_admin'.");
+        throw new Error("No team member row found for this auth user.");
       }
 
       const roleDb = (match.role || '').toLowerCase().trim();
@@ -474,7 +509,7 @@ export default function AdminPanel() {
         throw new Error("Access denied: Unauthorized role value. Valid configured roles are: 'super_admin', 'admin', 'sales_manager', 'career_manager', 'content_editor', or 'viewer'.");
       }
 
-      if (match.status.toLowerCase().trim() !== 'active') {
+      if (match.status && match.status.toLowerCase().trim() !== 'active') {
         await supabase.auth.signOut();
         throw new Error('Access denied: Account disabled.');
       }

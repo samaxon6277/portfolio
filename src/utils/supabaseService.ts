@@ -38,12 +38,47 @@ export function uiRoleToDb(uiRole: AdminRole) {
 
 const checkHasKeys = () => {
   const env = (import.meta as any).env || {};
-  const url = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const url = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || 'https://mgvnebqnzxpxjefxndpi.supabase.co';
+  const key = env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_KXdb80l02Z1UKuVwlh-Ubg_63NoP7UW';
   return !!(url && key);
 };
 
 export const supabaseService = {
+  // Query a team member by Auth user metadata securely
+  async getTeamMemberByAuth(userId: string, email: string): Promise<{ data: DbTeamMember | null; error: any }> {
+    if (!checkHasKeys()) return { data: null, error: new Error('Supabase integration is not fully configured.') };
+
+    // 1. Primary query: by Auth user ID (matching team_members.id === auth.uid())
+    try {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (data) {
+        return { data: data as DbTeamMember, error: null };
+      }
+      if (error) {
+        return { data: null, error };
+      }
+    } catch (err: any) {
+      console.warn('Supabase query by ID raised error:', err);
+    }
+
+    // 2. Fallback query: lower(team_members.email) === lower(session.user.email)
+    try {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .ilike('email', email.trim().toLowerCase())
+        .maybeSingle();
+
+      return { data: data as DbTeamMember | null, error };
+    } catch (err: any) {
+      return { data: null, error: err };
+    }
+  },
   // Helpers to map client inquiries to UI Leads
   mapInquiryToLead(inq: any): Lead {
     return {
