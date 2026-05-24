@@ -4,7 +4,7 @@ import {
   Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home
 } from 'lucide-react';
 
-import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset } from '../types';
+import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, JobApplication } from '../types';
 import { 
   AdminUser, BotVisit, AutomationLog, ActivityLog, PageSectionContent, WebsiteSettings, 
   initializeDatabase, logActivity 
@@ -28,6 +28,7 @@ export default function AdminPanel() {
   // Core administrative state datasets
   const [leads, setLeads] = useState<Lead[]>([]);
   const [careers, setCareers] = useState<CareerApplication[]>([]);
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -60,6 +61,9 @@ export default function AdminPanel() {
 
         const dynamicCareers = await supabaseService.getCareers();
         setCareers(dynamicCareers);
+
+        const dynamicJobApps = await supabaseService.getJobApplications();
+        setJobApplications(dynamicJobApps);
 
         const dynamicTestimonials = await supabaseService.getTestimonials();
         setTestimonials(dynamicTestimonials);
@@ -99,6 +103,11 @@ export default function AdminPanel() {
   const updateCareersState = (nextCareers: CareerApplication[]) => {
     setCareers(nextCareers);
     localStorage.setItem('samaxon_career_applications', JSON.stringify(nextCareers));
+  };
+
+  const updateJobApplicationsState = (nextApps: JobApplication[]) => {
+    setJobApplications(nextApps);
+    localStorage.setItem('samaxon_job_applications', JSON.stringify(nextApps));
   };
 
   const updateServicesState = (nextServices: Service[]) => {
@@ -191,6 +200,25 @@ export default function AdminPanel() {
     updateCareersState(nextList);
     supabaseService.deleteCareer(appId);
     logActivity('Raj Patel', 'Super Admin', 'DELETE_CAREER', 'CAREER_APPLICATION', appId, `Candidate records trace ID: ${appId} deleted entirely.`);
+    reloadActivityLogs();
+  };
+
+  const handleUpdateJobApplication = (updatedApp: JobApplication) => {
+    const nextList = jobApplications.map(c => c.id === updatedApp.id ? updatedApp : c);
+    updateJobApplicationsState(nextList);
+    supabaseService.upsertJobApplication(updatedApp);
+    logActivity(
+      'Raj Patel', 'Super Admin', 'UPDATE_JOB_APPLICATION', 'JOB_APPLICATION', updatedApp.id,
+      `Job Application for ${updatedApp.full_name} status updated to: ${updatedApp.status.toUpperCase()}`
+    );
+    reloadActivityLogs();
+  };
+
+  const handleDeleteJobApplication = (appId: string) => {
+    const nextList = jobApplications.filter(c => c.id !== appId);
+    updateJobApplicationsState(nextList);
+    supabaseService.deleteJobApplication(appId);
+    logActivity('Raj Patel', 'Super Admin', 'DELETE_JOB_APPLICATION', 'JOB_APPLICATION', appId, `Job Application ID: ${appId} permanently deleted.`);
     reloadActivityLogs();
   };
 
@@ -479,9 +507,9 @@ export default function AdminPanel() {
 
             {activeTab === 'careers' && (
               <CareersTab
-                careers={careers}
-                onUpdateCareer={handleUpdateCareer}
-                onDeleteCareer={handleDeleteCareer}
+                jobApplications={jobApplications}
+                onUpdateJobApplication={handleUpdateJobApplication}
+                onDeleteJobApplication={handleDeleteJobApplication}
               />
             )}
 

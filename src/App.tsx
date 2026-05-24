@@ -12,29 +12,42 @@ import Careers from './pages/Careers';
 import Contact from './pages/Contact';
 import LegalPages from './pages/LegalPages';
 import AdminPanel from './pages/AdminPanel';
+import SEOPage from './pages/SEOPage';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>('home');
 
-  // Multi-page routing via simple hash matching
+  // Multi-page routing via simple pathname & hash matching for search-crawlers and users
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      const validPages = ['home', 'about', 'services', 'portfolio', 'edge', 'control', 'careers', 'contact', 'privacy', 'terms', 'refund', 'admin'];
+    const handleRouteChange = () => {
+      const pathRaw = window.location.pathname.replace(/^\/|\/$/g, '');
+      const hashRaw = window.location.hash.replace('#', '');
       
-      if (hash && validPages.includes(hash)) {
-        setCurrentPage(hash);
+      const validPages = [
+        'home', 'about', 'services', 'portfolio', 'edge', 'control', 'careers', 'contact', 
+        'privacy', 'terms', 'refund', 'admin',
+        'banquet-hall-website-design', 'resort-website-design', 'hotel-website-design', 
+        'gym-website-design', 'restaurant-website-design', 'business-website-design'
+      ];
+      
+      if (pathRaw && validPages.includes(pathRaw)) {
+        setCurrentPage(pathRaw);
+      } else if (hashRaw && validPages.includes(hashRaw)) {
+        setCurrentPage(hashRaw);
       } else {
         setCurrentPage('home');
       }
     };
 
     // Initialize routing on load
-    handleHashChange();
+    handleRouteChange();
 
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleRouteChange);
+    window.addEventListener('popstate', handleRouteChange);
+    
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('hashchange', handleRouteChange);
+      window.removeEventListener('popstate', handleRouteChange);
     };
   }, []);
 
@@ -72,6 +85,18 @@ export default function App() {
         return <LegalPages type="terms" />;
       case 'refund':
         return <LegalPages type="refund" />;
+      case 'banquet-hall-website-design':
+        return <SEOPage niche="banquet" setCurrentPage={setCurrentPage} />;
+      case 'resort-website-design':
+        return <SEOPage niche="resort" setCurrentPage={setCurrentPage} />;
+      case 'hotel-website-design':
+        return <SEOPage niche="hotel" setCurrentPage={setCurrentPage} />;
+      case 'gym-website-design':
+        return <SEOPage niche="gym" setCurrentPage={setCurrentPage} />;
+      case 'restaurant-website-design':
+        return <SEOPage niche="restaurant" setCurrentPage={setCurrentPage} />;
+      case 'business-website-design':
+        return <SEOPage niche="business" setCurrentPage={setCurrentPage} />;
       default:
         return <Home setCurrentPage={setCurrentPage} />;
     }

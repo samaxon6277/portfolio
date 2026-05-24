@@ -4,8 +4,9 @@ interface SEOProps {
   title: string;
   description: string;
   canonicalPath: string;
-  schemaType?: 'Organization' | 'ProfessionalService' | 'WebSite';
+  schemaType?: string;
   schemaData?: Record<string, any>;
+  schemas?: any[];
 }
 
 export default function SEO({
@@ -13,7 +14,8 @@ export default function SEO({
   description,
   canonicalPath,
   schemaType = 'ProfessionalService',
-  schemaData
+  schemaData,
+  schemas
 }: SEOProps) {
   useEffect(() => {
     // 1. Set dynamic page title
@@ -58,16 +60,18 @@ export default function SEO({
     });
 
     // 4. Inject JSON-LD structured data
-    const existingScript = document.getElementById('samaxon-jsonld');
-    if (existingScript) {
-      existingScript.remove();
+    // Clear any previous schema script tags
+    document.querySelectorAll('.samaxon-jsonld-script').forEach(el => el.remove());
+    const existingOldScript = document.getElementById('samaxon-jsonld');
+    if (existingOldScript) {
+      existingOldScript.remove();
     }
 
     const defaultSchema = {
       "@context": "https://schema.org",
       "@type": schemaType,
-      "name": "SamaXon",
-      "image": "https://samaxon.site/favicon.png",
+      "name": "SamaXon Digital Solutions",
+      "image": "https://samaxon.site/og-image.png",
       "@id": "https://samaxon.site/#organization",
       "url": "https://samaxon.site",
       "telephone": "+918000000000",
@@ -100,21 +104,30 @@ export default function SEO({
       ]
     };
 
-    const finalSchema = {
-      ...defaultSchema,
-      ...(schemaData || {})
-    };
+    const schemasToInject: any[] = [];
+    if (schemas && schemas.length > 0) {
+      schemasToInject.push(...schemas);
+    } else {
+      const finalSchema = {
+        ...defaultSchema,
+        ...(schemaData || {})
+      };
+      schemasToInject.push(finalSchema);
+    }
 
-    const script = document.createElement('script');
-    script.id = 'samaxon-jsonld';
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify(finalSchema);
-    document.head.appendChild(script);
+    schemasToInject.forEach((schema, i) => {
+      const script = document.createElement('script');
+      script.className = 'samaxon-jsonld-script';
+      script.id = `samaxon-jsonld-${i}`;
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify(schema);
+      document.head.appendChild(script);
+    });
 
     // Scroll to top of the page on route load
     window.scrollTo({ top: 0, behavior: 'instant' as any });
 
-  }, [title, description, canonicalPath, schemaType, schemaData]);
+  }, [title, description, canonicalPath, schemaType, schemaData, schemas]);
 
   return null;
 }

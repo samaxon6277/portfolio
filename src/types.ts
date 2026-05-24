@@ -37,6 +37,27 @@ export interface CareerApplication {
   createdAt: string;
 }
 
+export interface JobApplication {
+  id: string;
+  full_name: string;
+  gender: string;
+  age: string | number;
+  city: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  education: string;
+  experience: string;
+  languages: string;
+  position: string;
+  expected_salary: string;
+  why_hire: string;
+  voice_sample_link?: string;
+  resume_url?: string;
+  status: 'New' | 'Shortlisted' | 'Rejected' | 'Interview Scheduled' | 'Hired';
+  created_at: string;
+}
+
 export interface Service {
   id: string;
   title: string;

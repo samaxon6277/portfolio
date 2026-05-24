@@ -1,69 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
-    <loc>https://samaxon.com/</loc>
+    <loc>https://samaxon.site/</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#about</loc>
+    <loc>https://samaxon.site/about</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#services</loc>
+    <loc>https://samaxon.site/services</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#portfolio</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://samaxon.com/#edge</loc>
+    <loc>https://samaxon.site/projects</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
+    <priority>0.85</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#control</loc>
+    <loc>https://samaxon.site/careers</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#careers</loc>
+    <loc>https://samaxon.site/contact</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.70</priority>
-  </url>
-  <url>
-    <loc>https://samaxon.com/#contact</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#privacy</loc>
+    <loc>https://samaxon.site/privacy</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.30</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#terms</loc>
+    <loc>https://samaxon.site/terms</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.30</priority>
   </url>
+
   <url>
-    <loc>https://samaxon.com/#refund</loc>
+    <loc>https://samaxon.site/refund</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.30</priority>
   </url>
+
+  <url>
+    <loc>https://samaxon.site/banquet-hall-website-design</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <url>
+    <loc>https://samaxon.site/resort-website-design</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <url>
+    <loc>https://samaxon.site/hotel-website-design</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <url>
+    <loc>https://samaxon.site/gym-website-design</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <url>
+    <loc>https://samaxon.site/restaurant-website-design</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <url>
+    <loc>https://samaxon.site/business-website-design</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
 </urlset>

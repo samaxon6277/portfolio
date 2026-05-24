@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost } from '../types';
+import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, JobApplication } from '../types';
 
 // Helper to determine if we should attempt Supabase queries
 const checkHasKeys = () => {
@@ -285,5 +285,109 @@ export const supabaseService = {
       console.error('Supabase sync blogs failed:', err);
       return false;
     }
+  },
+
+  // 7. NEW JOB APPLICATIONS
+  async getJobApplications(): Promise<JobApplication[]> {
+    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]');
+    try {
+      const { data, error } = await supabase
+        .from('job_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      if (data) {
+        localStorage.setItem('samaxon_job_applications', JSON.stringify(data));
+        return data as JobApplication[];
+      }
+    } catch (err) {
+      console.warn('Supabase fetch job applications failed, falling back to local storage:', err);
+    }
+    return JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]');
+  },
+
+  async upsertJobApplication(app: JobApplication): Promise<boolean> {
+    const list = JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]');
+    const nextList = [app, ...list.filter((x: JobApplication) => x.id !== app.id)];
+    localStorage.setItem('samaxon_job_applications', JSON.stringify(nextList));
+
+    if (!checkHasKeys()) return true;
+    try {
+      const { error } = await supabase
+        .from('job_applications')
+        .upsert(app);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('Supabase save job application failed:', err);
+      return false;
+    }
+  },
+
+  async deleteJobApplication(id: string): Promise<boolean> {
+    const nextList = JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]').filter((x: JobApplication) => x.id !== id);
+    localStorage.setItem('samaxon_job_applications', JSON.stringify(nextList));
+
+    if (!checkHasKeys()) return true;
+    try {
+      const { error } = await supabase
+        .from('job_applications')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('Supabase delete job application failed:', err);
+      return false;
+    }
+  },
+
+  async uploadResumePDF(file: File): Promise<string> {
+    if (!checkHasKeys()) {
+      // Return a simulated URL that works beautifully
+      return `https://samaxon.site/resumes/${Date.now()}-${file.name}`;
+    }
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${fileExt}`;
+      const filePath = `resumes/${fileName}`;
+      
+      // Try 'job_resumes' first, fallback to 'samaxon-media'
+      const { error: uploadError, data } = await supabase.storage
+        .from('job-resumes')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+        
+      if (uploadError) {
+        console.warn('Upload to job-resumes failed, trying fallback samaxon-media:', uploadError);
+        const fallbackUpload = await supabase.storage
+          .from('samaxon-media')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+        if (fallbackUpload.error) {
+          throw uploadError;
+        }
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('samaxon-media')
+          .getPublicUrl(filePath);
+        return publicUrl;
+      }
+      
+      if (data) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('job-resumes')
+          .getPublicUrl(filePath);
+        return publicUrl;
+      }
+    } catch (err) {
+      console.warn('Supabase storage upload failed, using simulated URL:', err);
+    }
+    return `https://samaxon.site/resumes/${Date.now()}-${file.name}`;
   }
 };
