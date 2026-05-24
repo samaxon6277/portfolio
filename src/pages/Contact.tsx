@@ -3,8 +3,10 @@ import { ArrowRight, CheckCircle, Mail, Phone, MapPin, Sparkles, AlertCircle, Lo
 import SEO from '../components/SEO';
 import { Lead } from '../types';
 import { supabaseService } from '../utils/supabaseService';
+import { analytics } from '../utils/analytics';
 
 export default function Contact() {
+  const [hasTrackedFormStart, setHasTrackedFormStart] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     businessName: '',
@@ -36,6 +38,10 @@ export default function Contact() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (!hasTrackedFormStart) {
+      analytics.trackFormStart();
+      setHasTrackedFormStart(true);
+    }
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (formErrors[name]) {
@@ -63,6 +69,7 @@ export default function Contact() {
     // Save synchronously to local database fallback and asynchronously to Supabase
     try {
       await supabaseService.upsertLead(newLead);
+      analytics.trackFormSubmit();
     } catch (err) {
       console.error('Direct Supabase insert failed, but saved locally:', err);
     }
@@ -155,6 +162,7 @@ export default function Contact() {
                   href="https://wa.me/918000000000?text=SamaXon%20Start%20Build"
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => analytics.trackWhatsAppClick()}
                   className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between hover:bg-emerald-500/15 duration-200 transition-colors cursor-pointer block text-left"
                 >
                   <div className="flex items-center gap-3">

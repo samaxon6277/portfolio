@@ -3,43 +3,88 @@ import {
   Users, Bot, FileCheck, CheckCircle2, XCircle, Briefcase, 
   Settings, ArrowUpRight, ArrowDownRight, Activity, Calendar, Chrome, Smartphone, Globe
 } from 'lucide-react';
-import { Lead, CareerApplication } from '../../types';
+import { useState, useEffect } from 'react';
+import { Lead, JobApplication } from '../../types';
 import { BotVisit, ActivityLog } from '../../utils/mockAdminData';
+import { analytics } from '../../utils/analytics';
 
 interface DashboardTabProps {
   leads: Lead[];
-  careers: CareerApplication[];
-  botVisits: BotVisit[];
-  activityLogs: ActivityLog[];
+  careers: JobApplication[];
+  botVisits: any[];
+  activityLogs: any[];
   onNavigateTo: (targetTab: string) => void;
 }
 
 export default function DashboardTab({ leads, careers, botVisits, activityLogs, onNavigateTo }: DashboardTabProps) {
+  // Aggregate real stats from actual database matrices
+  const [analyticsData, setAnalyticsData] = useState(() => {
+    const rawEvents = (activityLogs || []).map(l => ({
+      ...l,
+      event_type: (l.actionType || '').toLowerCase()
+    }));
+    const rawBots = (botVisits || []).map(b => ({
+      ...b,
+      created_at: b.lastSeenAt
+    }));
+    return analytics.computeStatsFromDatabase(rawEvents, rawBots, leads.length, careers.length);
+  });
+
+  useEffect(() => {
+    const rawEvents = (activityLogs || []).map(l => ({
+      ...l,
+      event_type: (l.actionType || '').toLowerCase()
+    }));
+    const rawBots = (botVisits || []).map(b => ({
+      ...b,
+      created_at: b.lastSeenAt
+    }));
+    setAnalyticsData(analytics.computeStatsFromDatabase(rawEvents, rawBots, leads.length, careers.length));
+  }, [leads.length, careers.length, botVisits, activityLogs]);
+
   // Calculations
   const totalLeads = leads.length;
-  const newLeads = leads.filter(l => l.status === 'new').length;
-  const qualifiedLeads = leads.filter(l => l.status === 'negotiating' || l.status === 'won').length;
-  const pendingCareers = careers.filter(c => c.status === 'submitted' || c.status === 'reviewing').length;
-  const approvedCareers = careers.filter(c => c.status === 'accepted').length;
-  const totalBotsCount = botVisits.reduce((acc, curr) => acc + curr.visitCount, 0);
+  const newLeads = leads.filter(l => {
+    const s = (l.status as string || '').toLowerCase();
+    return s === 'new';
+  }).length;
+  
+  const qualifiedLeads = leads.filter(l => {
+    const s = (l.status as string || '').toLowerCase();
+    return s === 'negotiating' || s === 'won' || s === 'qualified' || s === 'demo sent';
+  }).length;
+  
+  // Checking both lowercase & capitalized statuses for job applications
+  const pendingCareers = careers.filter(c => {
+    const s = (c.status as string || '').toLowerCase();
+    return s === 'new' || s === 'submitted' || s === 'reviewing' || s === 'interview scheduled';
+  }).length;
+  
+  const approvedCareers = careers.filter(c => {
+    const s = (c.status as string || '').toLowerCase();
+    return s === 'hired' || s === 'accepted';
+  }).length;
+  const totalBotsCount = botVisits.length;
   
   // Custom styled stats lists
   const stats = [
-    { title: 'Total Inquiries', value: totalLeads, change: '+18% this week', isPos: true, icon: Users, color: '#D6B46A', linkTo: 'leads' },
-    { title: 'New Leads', value: newLeads, change: '-4% backlog', isPos: true, icon: Activity, color: '#BFA15A', linkTo: 'leads' },
-    { title: 'Qualified Leads', value: qualifiedLeads, change: '+25% conversion', isPos: true, icon: FileCheck, color: '#111111', linkTo: 'leads' },
-    { title: 'Pending Careers', value: pendingCareers, change: '3 new resumes', isPos: true, icon: Briefcase, color: '#8A8178', linkTo: 'careers' },
-    { title: 'Approved Specialists', value: approvedCareers, change: 'Target reached', isPos: true, icon: CheckCircle2, color: 'emerald', linkTo: 'careers' },
-    { title: 'Bot Crawls (Hashed)', value: totalBotsCount, change: '14 blocked tests', isPos: false, icon: Bot, color: 'rose', linkTo: 'bot-logs' },
+    { title: 'Total Inquiries', value: totalLeads, change: totalLeads > 0 ? 'Live pipeline' : 'Awaiting inquiries', isPos: true, icon: Users, color: '#D6B46A', linkTo: 'leads' },
+    { title: 'New Leads', value: newLeads, change: newLeads > 0 ? 'Awaiting response' : 'Purged backlog', isPos: true, icon: Activity, color: '#BFA15A', linkTo: 'leads' },
+    { title: 'Qualified Leads', value: qualifiedLeads, change: 'Sales conversion', isPos: true, icon: FileCheck, color: '#111111', linkTo: 'leads' },
+    { title: 'Pending Careers', value: pendingCareers, change: 'Active candidates', isPos: true, icon: Briefcase, color: '#8A8178', linkTo: 'careers' },
+    { title: 'Approved Specialists', value: approvedCareers, change: 'Verified onboarded', isPos: true, icon: CheckCircle2, color: 'emerald', linkTo: 'careers' },
+    { title: 'Bot Crawls (Hashed)', value: totalBotsCount, change: 'Search indexers', isPos: false, icon: Bot, color: 'rose', linkTo: 'bot-logs' },
   ];
 
-  // Simulated daily visitors count (Last 7 days)
-  const chartData = [1200, 1450, 1100, 1650, 1900, 1850, 2100];
-  const chartBots = [240, 290, 480, 310, 190, 220, 280];
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // Dynamically generated real traffic curve - tied strictly to tracked visits
+  const chartData = analyticsData.chartData;
+  const chartBots = analyticsData.chartBots;
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
+
+  const isChartEmpty = chartData.reduce((a, b) => a + b, 0) === 0 && chartBots.reduce((a, b) => a + b, 0) === 0;
 
   // Pure SVG Line Graph Renderer - Luxurious Custom Design
-  const maxVal = 2500;
+  const maxVal = Math.max(10, ...chartData, ...chartBots);
   const width = 600;
   const height = 180;
   const padding = 20;
@@ -72,7 +117,6 @@ export default function DashboardTab({ leads, careers, botVisits, activityLogs, 
           </div>
           <button 
             onClick={() => {
-              // Reload simulated state
               window.location.reload();
             }}
             className="px-4 py-2.5 bg-[#111111] text-white hover:text-[#D6B46A] text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 duration-200"
@@ -146,15 +190,27 @@ export default function DashboardTab({ leads, careers, botVisits, activityLogs, 
 
             {/* Premium Vector Chart Display */}
             <div className="relative w-full h-[200px]" id="traffic-curve-display">
-              <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+              {isChartEmpty && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] flex flex-col items-center justify-center p-4 text-center z-10 rounded-2xl">
+                  <div className="w-10 h-10 rounded-full bg-[#D6B46A]/10 border border-[#D6B46A]/20 flex items-center justify-center text-[#BFA15A] mb-2.5">
+                    <Activity className="w-5 h-5 animate-pulse" />
+                  </div>
+                  <h4 className="text-xs font-bold text-[#111111] uppercase tracking-wider">No analytics data collected yet</h4>
+                  <p className="text-[10px] text-[#8A8178] mt-1 pr-6 pl-6 max-w-sm leading-normal font-medium">
+                    Telemetry is active. Traffic timelines will populate live once visitors interact with your web application.
+                  </p>
+                </div>
+              )}
+              
+              <svg viewBox={`0 0 ${width} ${height}`} className={`w-full h-full overflow-visible transition-opacity duration-500 ${isChartEmpty ? 'opacity-25' : 'opacity-100'}`}>
                 {/* Grid Lines */}
                 <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="#D6B46A" strokeWidth="0.5" strokeDasharray="3,3" opacity="0.15" />
                 <line x1={padding} y1={height/2} x2={width - padding} y2={height/2} stroke="#D6B46A" strokeWidth="0.5" strokeDasharray="3,3" opacity="0.15" />
                 <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#D6B46A" strokeWidth="0.8" opacity="0.3" />
 
                 {/* Human Traffic Line filled with subtle gradient */}
-                <path d={pointsHuman} fill="none" stroke="#D6B46A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                {chartData.map((val, idx) => {
+                <path d={pointsHuman} fill="none" stroke="#D6B46A" strokeWidth={isChartEmpty ? "1" : "3"} strokeLinecap="round" strokeLinejoin="round" />
+                {!isChartEmpty && chartData.map((val, idx) => {
                   const x = padding + (idx * (width - padding * 2)) / (chartData.length - 1);
                   const y = height - padding - (val * (height - padding * 2)) / maxVal;
                   return (

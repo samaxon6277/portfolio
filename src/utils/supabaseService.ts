@@ -1,154 +1,276 @@
 import { supabase } from './supabase';
-import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, JobApplication } from '../types';
+import { Lead, JobApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset } from '../types';
 
-// Helper to determine if we should attempt Supabase queries
+// Role mappings
+export type AdminRole = 'Super Admin' | 'Admin' | 'Content Editor' | 'Sales Manager' | 'Career Manager' | 'Viewer';
+
+export interface DbTeamMember {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string; // db style: super_admin, etc.
+  status: string; // db style: active, disabled
+  created_at: string;
+  last_login?: string | null;
+  created_by?: string | null;
+}
+
+export function dbRoleToUi(dbRole: string): AdminRole {
+  const norm = (dbRole || '').toLowerCase().trim();
+  if (norm === 'super_admin' || norm === 'super admin') return 'Super Admin';
+  if (norm === 'admin') return 'Admin';
+  if (norm === 'content_editor' || norm === 'content editor') return 'Content Editor';
+  if (norm === 'sales_manager' || norm === 'sales manager') return 'Sales Manager';
+  if (norm === 'career_manager' || norm === 'career manager') return 'Career Manager';
+  return 'Viewer';
+}
+
+export function uiRoleToDb(uiRole: AdminRole) {
+  switch (uiRole) {
+    case 'Super Admin': return 'super_admin';
+    case 'Admin': return 'admin';
+    case 'Content Editor': return 'content_editor';
+    case 'Sales Manager': return 'sales_manager';
+    case 'Career Manager': return 'career_manager';
+    default: return 'viewer';
+  }
+}
+
 const checkHasKeys = () => {
   const env = (import.meta as any).env || {};
-  const url = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL || 'https://mgvnebqnzxpxjefxndpi.supabase.co';
-  const key = env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_KXdb80l02Z1UKuVwlh-Ubg_63NoP7UW';
+  const url = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   return !!(url && key);
 };
 
 export const supabaseService = {
-  // 1. LEADS
+  // Helpers to map client inquiries to UI Leads
+  mapInquiryToLead(inq: any): Lead {
+    return {
+      id: inq.id,
+      name: inq.full_name || '',
+      businessName: inq.business_name || '',
+      phone: inq.phone || inq.whatsapp || '',
+      email: inq.email || '',
+      city: inq.city || '',
+      serviceNeeded: inq.service_required || 'Web Development',
+      currentProblem: inq.message || '',
+      desiredTimeline: 'Under 48 Hours',
+      budgetRange: '₹1,00,000 - ₹2,50,000 (Elite Premium)',
+      message: inq.message || '',
+      status: (inq.status || 'new').toLowerCase() as any, // mapping to 'new' | 'contacted' | 'negotiating' | 'won' | 'lost'
+      createdAt: inq.created_at || new Date().toISOString(),
+      priority: inq.priority || 'medium',
+      internalNotes: inq.notes || '',
+      assignedTo: inq.assigned_to || ''
+    } as any;
+  },
+
+  // 1. LEADS (Mapped to client_inquiries table)
   async getLeads(): Promise<Lead[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_leads') || '[]');
+    if (!checkHasKeys()) return [];
     try {
       const { data, error } = await supabase
-        .from('samaxon_leads')
+        .from('client_inquiries')
         .select('*')
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
         
       if (error) throw error;
-      if (data && data.length > 0) {
-        localStorage.setItem('samaxon_leads', JSON.stringify(data));
-        return data as Lead[];
-      }
+      return (data || []).map(this.mapInquiryToLead);
     } catch (err) {
-      console.warn('Supabase fetch leads failed, falling back to local storage:', err);
+      console.warn('Supabase fetch client_inquiries failed:', err);
     }
-    return JSON.parse(localStorage.getItem('samaxon_leads') || '[]');
+    return [];
   },
 
   async upsertLead(lead: Lead): Promise<boolean> {
-    localStorage.setItem('samaxon_leads', JSON.stringify([
-      lead,
-      ...JSON.parse(localStorage.getItem('samaxon_leads') || '[]').filter((l: Lead) => l.id !== lead.id)
-    ]));
-    
     if (!checkHasKeys()) return true;
     try {
+      const inquiry = {
+        id: lead.id,
+        full_name: lead.name,
+        business_name: lead.businessName,
+        phone: lead.phone,
+        whatsapp: lead.phone,
+        email: lead.email,
+        service_required: lead.serviceNeeded,
+        city: lead.city,
+        message: lead.message || lead.currentProblem || '',
+        status: lead.status || 'new',
+        priority: (lead as any).priority || 'medium',
+        notes: (lead as any).internalNotes || '',
+        assigned_to: (lead as any).assignedTo || '',
+        created_at: lead.createdAt || new Date().toISOString()
+      };
+
       const { error } = await supabase
-        .from('samaxon_leads')
-        .upsert(lead);
+        .from('client_inquiries')
+        .upsert(inquiry);
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Supabase save lead failed:', err);
+      console.error('Supabase write client_inquiries failed:', err);
       return false;
     }
   },
 
   async deleteLead(id: string): Promise<boolean> {
-    const nextList = JSON.parse(localStorage.getItem('samaxon_leads') || '[]').filter((l: Lead) => l.id !== id);
-    localStorage.setItem('samaxon_leads', JSON.stringify(nextList));
-
     if (!checkHasKeys()) return true;
     try {
       const { error } = await supabase
-        .from('samaxon_leads')
+        .from('client_inquiries')
         .delete()
         .eq('id', id);
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Supabase delete lead failed:', err);
+      console.error('Supabase delete client_inquiries failed:', err);
       return false;
     }
   },
 
-  // 2. CAREER APPLICATIONS
-  async getCareers(): Promise<CareerApplication[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_career_applications') || '[]');
+  // 2. JOB APPLICATIONS (Careers table)
+  async getJobApplications(): Promise<JobApplication[]> {
+    if (!checkHasKeys()) return [];
     try {
       const { data, error } = await supabase
-        .from('samaxon_career_applications')
+        .from('job_applications')
         .select('*')
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
         
       if (error) throw error;
-      if (data && data.length > 0) {
-        localStorage.setItem('samaxon_career_applications', JSON.stringify(data));
-        return data as CareerApplication[];
-      }
+      return (data || []) as JobApplication[];
     } catch (err) {
-      console.warn('Supabase fetch careers failed, falling back to local storage:', err);
+      console.warn('Supabase fetch job_applications failed:', err);
     }
-    return JSON.parse(localStorage.getItem('samaxon_career_applications') || '[]');
+    return [];
   },
 
-  async upsertCareer(app: CareerApplication): Promise<boolean> {
-    localStorage.setItem('samaxon_career_applications', JSON.stringify([
-      app,
-      ...JSON.parse(localStorage.getItem('samaxon_career_applications') || '[]').filter((c: CareerApplication) => c.id !== app.id)
-    ]));
-
+  async upsertJobApplication(app: JobApplication): Promise<boolean> {
     if (!checkHasKeys()) return true;
     try {
       const { error } = await supabase
-        .from('samaxon_career_applications')
-        .upsert(app);
+        .from('job_applications')
+        .upsert({
+          id: app.id,
+          full_name: app.full_name,
+          gender: app.gender,
+          age: app.age,
+          city: app.city,
+          phone: app.phone,
+          whatsapp: app.whatsapp,
+          email: app.email,
+          education: app.education,
+          experience: app.experience,
+          languages: app.languages,
+          position: app.position,
+          expected_salary: app.expected_salary,
+          why_hire: app.why_hire,
+          voice_sample_link: app.voice_sample_link || '',
+          resume_url: app.resume_url || '',
+          status: app.status || 'New',
+          created_at: app.created_at || new Date().toISOString()
+        });
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Supabase save career app failed:', err);
+      console.error('Supabase save job_applications failed:', err);
       return false;
     }
   },
 
-  async deleteCareer(id: string): Promise<boolean> {
-    const nextList = JSON.parse(localStorage.getItem('samaxon_career_applications') || '[]').filter((c: CareerApplication) => c.id !== id);
-    localStorage.setItem('samaxon_career_applications', JSON.stringify(nextList));
-
+  async deleteJobApplication(id: string): Promise<boolean> {
     if (!checkHasKeys()) return true;
     try {
       const { error } = await supabase
-        .from('samaxon_career_applications')
+        .from('job_applications')
         .delete()
         .eq('id', id);
       if (error) throw error;
       return true;
     } catch (err) {
-      console.error('Supabase delete career application failed:', err);
+      console.error('Supabase delete job_applications failed:', err);
       return false;
     }
   },
 
-  // 3. PORTFOLIO PROJECTS
+  // 3. TEAM MEMBERS
+  async getTeamMembers(): Promise<DbTeamMember[]> {
+    if (!checkHasKeys()) return [];
+    try {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.warn('Supabase fetch team_members failed:', err);
+    }
+    return [];
+  },
+
+  async isFirstUser(): Promise<boolean> {
+    if (!checkHasKeys()) return true;
+    try {
+      const { data, error, count } = await supabase
+        .from('team_members')
+        .select('*', { count: 'exact', head: true });
+      if (error) throw error;
+      return count === 0;
+    } catch (err) {
+      console.warn('Could not determine if first user:', err);
+      return false;
+    }
+  },
+
+  async upsertTeamMember(member: DbTeamMember): Promise<boolean> {
+    if (!checkHasKeys()) return true;
+    try {
+      const { error } = await supabase
+        .from('team_members')
+        .upsert(member);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('Supabase save team_members failed:', err);
+      return false;
+    }
+  },
+
+  async deleteTeamMember(id: string): Promise<boolean> {
+    if (!checkHasKeys()) return true;
+    try {
+      const { error } = await supabase
+        .from('team_members')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('Supabase delete team_members failed:', err);
+      return false;
+    }
+  },
+
+  // 4. PORTFOLIO PROJECTS
   async getPortfolioProjects(): Promise<PortfolioProject[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_portfolio_projects') || '[]');
+    if (!checkHasKeys()) return [];
     try {
       const { data, error } = await supabase
         .from('samaxon_portfolio_projects')
         .select('*');
-        
       if (error) throw error;
-      if (data && data.length > 0) {
-        localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(data));
-        return data as PortfolioProject[];
-      }
+      return (data || []) as PortfolioProject[];
     } catch (err) {
-      console.warn('Supabase fetch projects failed, falling back to local storage:', err);
+      console.warn('Supabase fetch projects failed:', err);
     }
-    return JSON.parse(localStorage.getItem('samaxon_portfolio_projects') || '[]');
+    return [];
   },
 
   async upsertPortfolioProjects(projects: PortfolioProject[]): Promise<boolean> {
-    localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(projects));
-
     if (!checkHasKeys()) return true;
     try {
-      // Upsert full array or individual elements
       for (const proj of projects) {
         await supabase
           .from('samaxon_portfolio_projects')
@@ -162,9 +284,6 @@ export const supabaseService = {
   },
 
   async deletePortfolioProject(id: string): Promise<boolean> {
-    const nextList = JSON.parse(localStorage.getItem('samaxon_portfolio_projects') || '[]').filter((p: PortfolioProject) => p.id !== id);
-    localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(nextList));
-
     if (!checkHasKeys()) return true;
     try {
       const { error } = await supabase
@@ -179,28 +298,22 @@ export const supabaseService = {
     }
   },
 
-  // 4. SERVICES
+  // 5. SERVICES
   async getServices(): Promise<Service[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_services') || '[]');
+    if (!checkHasKeys()) return [];
     try {
       const { data, error } = await supabase
         .from('samaxon_services')
         .select('*');
-        
       if (error) throw error;
-      if (data && data.length > 0) {
-        localStorage.setItem('samaxon_services', JSON.stringify(data));
-        return data as Service[];
-      }
+      return (data || []) as Service[];
     } catch (err) {
-      console.warn('Supabase fetch services failed, falling back to local storage:', err);
+      console.warn('Supabase fetch services failed:', err);
     }
-    return JSON.parse(localStorage.getItem('samaxon_services') || '[]');
+    return [];
   },
 
   async upsertServices(services: Service[]): Promise<boolean> {
-    localStorage.setItem('samaxon_services', JSON.stringify(services));
-
     if (!checkHasKeys()) return true;
     try {
       for (const srv of services) {
@@ -215,28 +328,22 @@ export const supabaseService = {
     }
   },
 
-  // 5. TESTIMONIALS
+  // 6. TESTIMONIALS
   async getTestimonials(): Promise<Testimonial[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_testimonials') || '[]');
+    if (!checkHasKeys()) return [];
     try {
       const { data, error } = await supabase
         .from('samaxon_testimonials')
         .select('*');
-        
       if (error) throw error;
-      if (data && data.length > 0) {
-        localStorage.setItem('samaxon_testimonials', JSON.stringify(data));
-        return data as Testimonial[];
-      }
+      return (data || []) as Testimonial[];
     } catch (err) {
-      console.warn('Supabase fetch testimonials failed, falling back to local storage:', err);
+      console.warn('Supabase fetch testimonials failed:', err);
     }
-    return JSON.parse(localStorage.getItem('samaxon_testimonials') || '[]');
+    return [];
   },
 
   async upsertTestimonials(testimonials: Testimonial[]): Promise<boolean> {
-    localStorage.setItem('samaxon_testimonials', JSON.stringify(testimonials));
-
     if (!checkHasKeys()) return true;
     try {
       for (const test of testimonials) {
@@ -251,28 +358,22 @@ export const supabaseService = {
     }
   },
 
-  // 6. BLOG POSTS
+  // 7. BLOG POSTS
   async getBlogs(): Promise<BlogPost[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_blogs') || '[]');
+    if (!checkHasKeys()) return [];
     try {
       const { data, error } = await supabase
         .from('samaxon_blogs')
         .select('*');
-        
       if (error) throw error;
-      if (data && data.length > 0) {
-        localStorage.setItem('samaxon_blogs', JSON.stringify(data));
-        return data as BlogPost[];
-      }
+      return (data || []) as BlogPost[];
     } catch (err) {
-      console.warn('Supabase fetch blogs failed, falling back to local storage:', err);
+      console.warn('Supabase fetch blogs failed:', err);
     }
-    return JSON.parse(localStorage.getItem('samaxon_blogs') || '[]');
+    return [];
   },
 
   async upsertBlogs(blogs: BlogPost[]): Promise<boolean> {
-    localStorage.setItem('samaxon_blogs', JSON.stringify(blogs));
-
     if (!checkHasKeys()) return true;
     try {
       for (const blog of blogs) {
@@ -287,65 +388,9 @@ export const supabaseService = {
     }
   },
 
-  // 7. NEW JOB APPLICATIONS
-  async getJobApplications(): Promise<JobApplication[]> {
-    if (!checkHasKeys()) return JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]');
-    try {
-      const { data, error } = await supabase
-        .from('job_applications')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      if (data) {
-        localStorage.setItem('samaxon_job_applications', JSON.stringify(data));
-        return data as JobApplication[];
-      }
-    } catch (err) {
-      console.warn('Supabase fetch job applications failed, falling back to local storage:', err);
-    }
-    return JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]');
-  },
-
-  async upsertJobApplication(app: JobApplication): Promise<boolean> {
-    const list = JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]');
-    const nextList = [app, ...list.filter((x: JobApplication) => x.id !== app.id)];
-    localStorage.setItem('samaxon_job_applications', JSON.stringify(nextList));
-
-    if (!checkHasKeys()) return true;
-    try {
-      const { error } = await supabase
-        .from('job_applications')
-        .upsert(app);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('Supabase save job application failed:', err);
-      return false;
-    }
-  },
-
-  async deleteJobApplication(id: string): Promise<boolean> {
-    const nextList = JSON.parse(localStorage.getItem('samaxon_job_applications') || '[]').filter((x: JobApplication) => x.id !== id);
-    localStorage.setItem('samaxon_job_applications', JSON.stringify(nextList));
-
-    if (!checkHasKeys()) return true;
-    try {
-      const { error } = await supabase
-        .from('job_applications')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-      return true;
-    } catch (err) {
-      console.error('Supabase delete job application failed:', err);
-      return false;
-    }
-  },
-
+  // 8. STORAGE PDF RESUME UPLOADER
   async uploadResumePDF(file: File): Promise<string> {
     if (!checkHasKeys()) {
-      // Return a simulated URL that works beautifully
       return `https://samaxon.site/resumes/${Date.now()}-${file.name}`;
     }
     try {
@@ -353,7 +398,6 @@ export const supabaseService = {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${fileExt}`;
       const filePath = `resumes/${fileName}`;
       
-      // Try 'job_resumes' first, fallback to 'samaxon-media'
       const { error: uploadError, data } = await supabase.storage
         .from('job-resumes')
         .upload(filePath, file, {
@@ -389,5 +433,126 @@ export const supabaseService = {
       console.warn('Supabase storage upload failed, using simulated URL:', err);
     }
     return `https://samaxon.site/resumes/${Date.now()}-${file.name}`;
+  },
+
+  // 9. EVENT TRACKING & CRAWLERS LOGS
+  async trackSiteEvent(eventType: string, metadata: any = {}) {
+    if (!checkHasKeys()) return;
+    try {
+      const ua = navigator.userAgent || '';
+      
+      // Known bots
+      const isBot = /Googlebot|Bingbot|AhrefsBot|SemrushBot|FacebookExternalHit|Twitterbot|WhatsApp/i.test(ua);
+      
+      if (isBot) {
+        // Log crawler
+        const botName = ua.match(/(Googlebot|Bingbot|AhrefsBot|SemrushBot|FacebookExternalHit|Twitterbot|WhatsApp)/i)?.[0] || 'Unknown Bot';
+        await supabase
+          .from('crawler_logs')
+          .insert({
+            id: `crawl-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+            bot_name: botName,
+            user_agent: ua,
+            page_url: window.location.href,
+            ip_hash: `hash-${(botName + Date.now()).substring(0, 10)}`,
+            created_at: new Date().toISOString()
+          });
+        return;
+      }
+
+      // Detect Browser
+      let browser = 'Other';
+      if (ua.includes('Chrome')) browser = 'Chrome';
+      else if (ua.includes('Safari')) browser = 'Safari';
+      else if (ua.includes('Firefox')) browser = 'Firefox';
+      else if (ua.includes('Edge')) browser = 'Edge';
+
+      // Detect Device
+      let deviceType = 'Desktop';
+      if (/Tablet|iPad/i.test(ua)) deviceType = 'Tablet';
+      else if (/Mobi|Android|iPhone/i.test(ua)) deviceType = 'Mobile';
+
+      await supabase
+        .from('site_events')
+        .insert({
+          id: `eve-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          event_type: eventType,
+          page_url: window.location.href,
+          referrer: document.referrer || 'Direct',
+          user_agent: ua,
+          device_type: deviceType,
+          browser: browser,
+          country: 'India', // Local Default since container is sandboxed, optionally fetched or fallback
+          city: 'Mumbai',
+          metadata: metadata,
+          created_at: new Date().toISOString()
+        });
+    } catch (err) {
+      // Slant warning rather than crashing
+      console.warn('Telemetry event writing failed:', err);
+    }
+  },
+
+  async fetchSiteEvents(): Promise<any[]> {
+    if (!checkHasKeys()) return [];
+    try {
+      const { data, error } = await supabase
+        .from('site_events')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.warn('Failed site_events fetch:', err);
+      return [];
+    }
+  },
+
+  async fetchCrawlerLogs(): Promise<any[]> {
+    if (!checkHasKeys()) return [];
+    try {
+      const { data, error } = await supabase
+        .from('crawler_logs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.warn('Failed crawler_logs fetch:', err);
+      return [];
+    }
+  },
+
+  async fetchWebhookLogs(): Promise<any[]> {
+    if (!checkHasKeys()) return [];
+    try {
+      const { data, error } = await supabase
+        .from('webhook_logs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.warn('Failed webhook_logs fetch:', err);
+      return [];
+    }
+  },
+
+  async trackWebhookLog(type: string, status: string, errorMsg?: string, payload: any = {}) {
+    if (!checkHasKeys()) return;
+    try {
+      await supabase
+        .from('webhook_logs')
+        .insert({
+          id: `web-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          webhook_type: type,
+          payload: payload,
+          status: status,
+          error_message: errorMsg || '',
+          created_at: new Date().toISOString()
+        });
+    } catch (err) {
+      console.warn('Telemetry webhook writing failed:', err);
+    }
   }
 };

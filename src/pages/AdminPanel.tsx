@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home
+  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff
 } from 'lucide-react';
 
 import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, JobApplication } from '../types';
-import { 
-  AdminUser, BotVisit, AutomationLog, ActivityLog, PageSectionContent, WebsiteSettings, 
-  initializeDatabase, logActivity 
-} from '../utils/mockAdminData';
-import { supabaseService } from '../utils/supabaseService';
+import { supabaseService, dbRoleToUi, uiRoleToDb } from '../utils/supabaseService';
+import { supabase } from '../utils/supabase';
+import { analytics } from '../utils/analytics';
 
 // Tab components imports
 import DashboardTab from './admin/DashboardTab';
@@ -20,283 +18,518 @@ import SystemSettingsTab from './admin/SystemSettingsTab';
 
 export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
+
+  // Active Admin Session Data
+  const [currentUser, setCurrentUser] = useState<{
+    id: string;
+    email: string;
+    full_name: string;
+    role: string;
+  } | null>(null);
 
   // Core administrative state datasets
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [careers, setCareers] = useState<CareerApplication[]>([]);
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [pageSections, setPageSections] = useState<PageSectionContent[]>([]);
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
-  const [legalPages, setLegalPages] = useState<any>({});
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
-  const [botVisits, setBotVisits] = useState<BotVisit[]>([]);
-  const [automationLogs, setAutomationLogs] = useState<AutomationLog[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [botVisits, setBotVisits] = useState<any[]>([]);
+  const [automationLogs, setAutomationLogs] = useState<any[]>([]);
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [adminUsers, setAdminUsers] = useState<any[]>([]);
+  
+  // Unused mock fields kept to satisfy initial tab component properties
+  const [careers, setCareers] = useState<CareerApplication[]>([]);
+  const [pageSections, setPageSections] = useState<any[]>([]);
+  const [legalPages, setLegalPages] = useState<any>({});
   const [websiteSettings, setWebsiteSettings] = useState<any>({});
 
-  // 1. Mount initial states
+  // 1. Mount initial states & Check Auth
+  const syncWithDatabase = async () => {
+    try {
+      const [
+        dynamicProjects,
+        dynamicServices,
+        dynamicLeads,
+        dynamicJobApps,
+        dynamicTestimonials,
+        dynamicBlogs,
+        rawMembers,
+        rawEvents,
+        rawCrawlers,
+        rawWebhooks
+      ] = await Promise.all([
+        supabaseService.getPortfolioProjects(),
+        supabaseService.getServices(),
+        supabaseService.getLeads(),
+        supabaseService.getJobApplications(),
+        supabaseService.getTestimonials(),
+        supabaseService.getBlogs(),
+        supabaseService.getTeamMembers(),
+        supabaseService.fetchSiteEvents(),
+        supabaseService.fetchCrawlerLogs(),
+        supabaseService.fetchWebhookLogs()
+      ]);
+
+      setPortfolioProjects(dynamicProjects);
+      setServices(dynamicServices);
+      setLeads(dynamicLeads);
+      setJobApplications(dynamicJobApps);
+      setTestimonials(dynamicTestimonials);
+      setBlogs(dynamicBlogs);
+
+      // Map live team members
+      const mappedAdmins = rawMembers.map(m => ({
+        id: m.id,
+        name: m.full_name,
+        email: m.email,
+        role: dbRoleToUi(m.role),
+        status: (m.status || '').toLowerCase() === 'active' ? 'Active' : 'Disabled',
+        lastLogin: m.last_login || 'Never',
+        createdAt: m.created_at
+      }));
+      setAdminUsers(mappedAdmins);
+
+      // Map crawlers
+      const mappedBots = rawCrawlers.map(l => ({
+        id: l.id,
+        botName: l.bot_name,
+        userAgent: l.user_agent,
+        pageUrl: l.page_url,
+        ipHash: l.ip_hash,
+        visitCount: 1,
+        lastSeenAt: l.created_at
+      }));
+      setBotVisits(mappedBots);
+
+      // Map siteEvents to activity logs
+      const mappedActivityLogs = rawEvents.map(e => ({
+        id: e.id,
+        adminUserName: e.metadata?.name || e.metadata?.email || 'Visitor Address',
+        adminUserRole: e.metadata?.role || 'Guest',
+        actionType: (e.event_type || '').toUpperCase(),
+        entityType: e.metadata?.page || 'Site Routing',
+        entityId: e.id,
+        description: `Triggered event: "${e.event_type}" from ${e.browser || 'Unknown'} Browser on a ${e.device_type || 'Desktop'}. Ref: ${e.referrer || 'Direct'}. Path: ${e.page_url || '/'}`,
+        timestamp: e.created_at
+      }));
+      setActivityLogs(mappedActivityLogs);
+
+      // Webhook dynamic logs
+      const mappedWebhooks = rawWebhooks.map(w => ({
+        id: w.id,
+        name: w.webhook_type,
+        status: w.status === 'success' ? 'Active' : 'Failed',
+        endpoint: '/api/v1/automate',
+        lastTriggered: w.created_at,
+        failureReason: w.error_message || ''
+      }));
+      setAutomationLogs(mappedWebhooks);
+
+    } catch (err) {
+      console.warn('Sync failed to load real-time database elements:', err);
+    }
+  };
+
   useEffect(() => {
-    // Standard initialization check
-    initializeDatabase();
-
-    // Async sync with Supabase and handle fallbacks
-    const syncWithSupabase = async () => {
+    const initializeAuth = async () => {
+      setAuthLoading(true);
       try {
-        const dynamicProjects = await supabaseService.getPortfolioProjects();
-        setPortfolioProjects(dynamicProjects);
+        // Fetch auth states
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          const emailLower = session.user.email?.toLowerCase().trim();
+          const members = await supabaseService.getTeamMembers();
+          const match = members.find(m => m.email.toLowerCase().trim() === emailLower);
 
-        const dynamicServices = await supabaseService.getServices();
-        setServices(dynamicServices);
-
-        const dynamicLeads = await supabaseService.getLeads();
-        setLeads(dynamicLeads);
-
-        const dynamicCareers = await supabaseService.getCareers();
-        setCareers(dynamicCareers);
-
-        const dynamicJobApps = await supabaseService.getJobApplications();
-        setJobApplications(dynamicJobApps);
-
-        const dynamicTestimonials = await supabaseService.getTestimonials();
-        setTestimonials(dynamicTestimonials);
-
-        const dynamicBlogs = await supabaseService.getBlogs();
-        setBlogs(dynamicBlogs);
+          if (match) {
+            const roleDb = (match.role || '').toLowerCase().trim();
+            const allowedRoles = ['super_admin', 'admin', 'sales_manager', 'career_manager', 'content_editor', 'viewer'];
+            
+            if (!allowedRoles.includes(roleDb)) {
+              setLoginError("Access denied: Admin role value not authorized. Ensure it matches one of: 'super_admin', 'admin', 'sales_manager', 'career_manager', 'content_editor', or 'viewer'.");
+              await supabase.auth.signOut();
+            } else if (match.status.toLowerCase().trim() !== 'active') {
+              setLoginError('Access denied: Account disabled.');
+              await supabase.auth.signOut();
+            } else {
+              setCurrentUser({
+                id: match.id,
+                email: match.email,
+                full_name: match.full_name,
+                role: dbRoleToUi(match.role)
+              });
+              setIsAuthenticated(true);
+              
+              // Log login activity
+              await supabaseService.trackSiteEvent('admin_session_resume', {
+                email: match.email,
+                role: dbRoleToUi(match.role),
+                name: match.full_name
+              });
+            }
+          } else {
+            setLoginError("Access denied: Admin role not found. Please add this email to the 'team_members' table manually via your Supabase Console with status='active' and an authorized role (e.g., 'super_admin').");
+            await supabase.auth.signOut();
+          }
+        }
       } catch (err) {
-        console.warn('Initial Supabase fetch failed, relying on localStorage cached sync:', err);
+        console.warn('Initial auth validation crashed, running client-safeguard:', err);
+      } finally {
+        setAuthLoading(false);
       }
     };
 
-    syncWithSupabase();
+    initializeAuth();
+    syncWithDatabase();
 
-    // Load static logs, media, settings etc. from localStorage as before
-    setPageSections(JSON.parse(localStorage.getItem('samaxon_page_sections') || '[]'));
-    setLegalPages(JSON.parse(localStorage.getItem('samaxon_legal_pages') || '{}'));
-    setMediaAssets(JSON.parse(localStorage.getItem('samaxon_media') || '[]'));
-    setBotVisits(JSON.parse(localStorage.getItem('samaxon_bot_visits') || '[]'));
-    setAutomationLogs(JSON.parse(localStorage.getItem('samaxon_automation_logs') || '[]'));
-    setActivityLogs(JSON.parse(localStorage.getItem('samaxon_activity_logs') || '[]'));
-    setAdminUsers(JSON.parse(localStorage.getItem('samaxon_admin_users') || '[]'));
-    setWebsiteSettings(JSON.parse(localStorage.getItem('samaxon_website_settings') || '{}'));
-
-    // Check pre-existing session
-    const prevSession = sessionStorage.getItem('samaxon_admin_authorized');
-    if (prevSession === 'true') {
-      setIsAuthenticated(true);
-    }
+    // Setup local listeners to mirror analytics triggers
+    const handleLocalTele = () => {
+      syncWithDatabase();
+    };
+    window.addEventListener('samaxon_analytics_updated', handleLocalTele);
+    return () => {
+      window.removeEventListener('samaxon_analytics_updated', handleLocalTele);
+    };
   }, []);
 
-  // 2. Persistent State Writers
-  const updateLeadsState = (nextLeads: Lead[]) => {
-    setLeads(nextLeads);
-    localStorage.setItem('samaxon_leads', JSON.stringify(nextLeads));
-  };
-
-  const updateCareersState = (nextCareers: CareerApplication[]) => {
-    setCareers(nextCareers);
-    localStorage.setItem('samaxon_career_applications', JSON.stringify(nextCareers));
-  };
-
-  const updateJobApplicationsState = (nextApps: JobApplication[]) => {
-    setJobApplications(nextApps);
-    localStorage.setItem('samaxon_job_applications', JSON.stringify(nextApps));
-  };
-
-  const updateServicesState = (nextServices: Service[]) => {
-    setServices(nextServices);
-    localStorage.setItem('samaxon_services', JSON.stringify(nextServices));
-    supabaseService.upsertServices(nextServices);
-  };
-
-  const updatePortfolioState = (nextProjects: PortfolioProject[]) => {
-    setPortfolioProjects(nextProjects);
-    localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(nextProjects));
-    supabaseService.upsertPortfolioProjects(nextProjects);
-  };
-
-  const updateTestimonialsState = (nextTest: Testimonial[]) => {
-    setTestimonials(nextTest);
-    localStorage.setItem('samaxon_testimonials', JSON.stringify(nextTest));
-    supabaseService.upsertTestimonials(nextTest);
-  };
-
-  const updatePageSectionsState = (nextSections: PageSectionContent[]) => {
-    setPageSections(nextSections);
-    localStorage.setItem('samaxon_page_sections', JSON.stringify(nextSections));
-  };
-
-  const updateBlogsState = (nextBlogs: BlogPost[]) => {
-    setBlogs(nextBlogs);
-    localStorage.setItem('samaxon_blogs', JSON.stringify(nextBlogs));
-    supabaseService.upsertBlogs(nextBlogs);
-  };
-
-  const updateLegalPagesState = (nextLegal: any) => {
-    setLegalPages(nextLegal);
-    localStorage.setItem('samaxon_legal_pages', JSON.stringify(nextLegal));
-  };
-
-  const updateMediaState = (nextMedia: MediaAsset[]) => {
-    setMediaAssets(nextMedia);
-    localStorage.setItem('samaxon_media', JSON.stringify(nextMedia));
-  };
-
-  const updateWebsiteSettingsState = (nextSettings: WebsiteSettings) => {
-    setWebsiteSettings(nextSettings);
-    localStorage.setItem('samaxon_website_settings', JSON.stringify(nextSettings));
-  };
-
-  const updateAdminUsersState = (nextUsers: AdminUser[]) => {
-    setAdminUsers(nextUsers);
-    localStorage.setItem('samaxon_admin_users', JSON.stringify(nextUsers));
-  };
-
-  // Re-read activity logs helper
-  const reloadActivityLogs = () => {
-    setActivityLogs(JSON.parse(localStorage.getItem('samaxon_activity_logs') || '[]'));
-  };
+  // Sync up states dynamically when authenticated succeeds
+  useEffect(() => {
+    if (isAuthenticated) {
+      syncWithDatabase();
+    }
+  }, [isAuthenticated]);
 
   // 3. Command Action Triggering: updates and audit logs appending
-  const handleUpdateLead = (updatedLead: Lead) => {
-    const nextList = leads.map(l => l.id === updatedLead.id ? updatedLead : l);
-    updateLeadsState(nextList);
-    supabaseService.upsertLead(updatedLead);
-    logActivity(
-      'Raj Patel', 'Super Admin', 'UPDATE_LEAD', 'LEAD', updatedLead.id,
-      `Updated pipeline status of lead "${updatedLead.name}" code to: ${updatedLead.status.toUpperCase()}`
-    );
-    reloadActivityLogs();
+  const handleUpdateLead = async (updatedLead: Lead) => {
+    const success = await supabaseService.upsertLead(updatedLead);
+    if (success) {
+      setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
+      await supabaseService.trackSiteEvent('update_lead_status', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role,
+        leadId: updatedLead.id,
+        nextStatus: updatedLead.status
+      });
+      syncWithDatabase();
+    }
   };
 
-  const handleDeleteLead = (leadId: string) => {
-    const nextList = leads.filter(l => l.id !== leadId);
-    updateLeadsState(nextList);
-    supabaseService.deleteLead(leadId);
-    logActivity('Raj Patel', 'Super Admin', 'DELETE_LEAD', 'LEAD', leadId, `Permanently purged lead trace ID: ${leadId} from dashboard.`);
-    reloadActivityLogs();
+  const handleDeleteLead = async (leadId: string) => {
+    const success = await supabaseService.deleteLead(leadId);
+    if (success) {
+      setLeads(prev => prev.filter(l => l.id !== leadId));
+      await supabaseService.trackSiteEvent('delete_lead', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role,
+        leadId: leadId
+      });
+      syncWithDatabase();
+    }
   };
 
-  const handleUpdateCareer = (updatedApp: CareerApplication) => {
-    const nextList = careers.map(c => c.id === updatedApp.id ? updatedApp : c);
-    updateCareersState(nextList);
-    supabaseService.upsertCareer(updatedApp);
-    logActivity(
-      'Raj Patel', 'Super Admin', 'UPDATE_CAREER', 'CAREER_APPLICATION', updatedApp.id,
-      `Candidate application for ${updatedApp.name} update committed to system: ${updatedApp.status.toUpperCase()}`
-    );
-    reloadActivityLogs();
+  const handleUpdateJobApplication = async (updatedApp: JobApplication) => {
+    const success = await supabaseService.upsertJobApplication(updatedApp);
+    if (success) {
+      setJobApplications(prev => prev.map(c => c.id === updatedApp.id ? updatedApp : c));
+      await supabaseService.trackSiteEvent('update_job_status', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role,
+        appId: updatedApp.id,
+        nextStatus: updatedApp.status
+      });
+      syncWithDatabase();
+    }
   };
 
-  const handleDeleteCareer = (appId: string) => {
-    const nextList = careers.filter(c => c.id !== appId);
-    updateCareersState(nextList);
-    supabaseService.deleteCareer(appId);
-    logActivity('Raj Patel', 'Super Admin', 'DELETE_CAREER', 'CAREER_APPLICATION', appId, `Candidate records trace ID: ${appId} deleted entirely.`);
-    reloadActivityLogs();
-  };
-
-  const handleUpdateJobApplication = (updatedApp: JobApplication) => {
-    const nextList = jobApplications.map(c => c.id === updatedApp.id ? updatedApp : c);
-    updateJobApplicationsState(nextList);
-    supabaseService.upsertJobApplication(updatedApp);
-    logActivity(
-      'Raj Patel', 'Super Admin', 'UPDATE_JOB_APPLICATION', 'JOB_APPLICATION', updatedApp.id,
-      `Job Application for ${updatedApp.full_name} status updated to: ${updatedApp.status.toUpperCase()}`
-    );
-    reloadActivityLogs();
-  };
-
-  const handleDeleteJobApplication = (appId: string) => {
-    const nextList = jobApplications.filter(c => c.id !== appId);
-    updateJobApplicationsState(nextList);
-    supabaseService.deleteJobApplication(appId);
-    logActivity('Raj Patel', 'Super Admin', 'DELETE_JOB_APPLICATION', 'JOB_APPLICATION', appId, `Job Application ID: ${appId} permanently deleted.`);
-    reloadActivityLogs();
+  const handleDeleteJobApplication = async (appId: string) => {
+    const success = await supabaseService.deleteJobApplication(appId);
+    if (success) {
+      setJobApplications(prev => prev.filter(c => c.id !== appId));
+      await supabaseService.trackSiteEvent('delete_job_application', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role,
+        appId: appId
+      });
+      syncWithDatabase();
+    }
   };
 
   // Content state updaters accompanied with active audit log entries
-  const handleUpdateServices = (nextServices: Service[]) => {
-    updateServicesState(nextServices);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_SERVICES', 'SERVICES_METADATA', 'srv-group', 'Re-configured SamaXon capabilities grid layout configurations.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdatePortfolio = (nextPortfolio: PortfolioProject[]) => {
-    updatePortfolioState(nextPortfolio);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_PORTFOLIO', 'PORTFOLIO_CASES', 'proj-group', 'Committed layout revision to published client success stories.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdateTestimonials = (nextTest: Testimonial[]) => {
-    updateTestimonialsState(nextTest);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_TESTIMONIALS', 'CLIENT_QUOTES', 'test-group', 'Updated verified client text testimonials configurations.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdatePageSections = (nextSections: PageSectionContent[]) => {
-    updatePageSectionsState(nextSections);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_PAGES', 'STATIC_PAGE_TEXT', 'sec-group', 'Re-scripted static page hero components or copy coordinates.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdateBlogs = (nextBlogs: BlogPost[]) => {
-    updateBlogsState(nextBlogs);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_BLOGS', 'BLOG_POSTS', 'blog-group', 'Saved visual draft update inside insights builder.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdateLegalPages = (nextPages: any) => {
-    updateLegalPagesState(nextPages);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_LEGAL', 'LEGAL_DISCLOSURES', 'legal-group', 'Re-signed security parameters or refund frames.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdateMedia = (nextMedia: MediaAsset[]) => {
-    updateMediaState(nextMedia);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_MEDIA', 'MEDIA_LIBRARY', 'media-group', 'Modified storage assets reference paths inside storage manager.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdateWebsiteSettings = (nextSettings: WebsiteSettings) => {
-    updateWebsiteSettingsState(nextSettings);
-    logActivity('Raj Patel', 'Super Admin', 'REWRITE_SETTINGS', 'SITE_SETTINGS', 'setting-group', 'Updated master metadata, SEO values, or WhatsApp contact points.');
-    reloadActivityLogs();
-  };
-
-  const handleUpdateAdminUsers = (nextUsers: AdminUser[]) => {
-    updateAdminUsersState(nextUsers);
-    logActivity('Raj Patel', 'Super Admin', 'CONTROL_ACCESS', 'RBAC_POLICIES', 'rbac-group', 'Adjusted Role-Based Access controls matrix.');
-    reloadActivityLogs();
-  };
-
-  // 4. Verification Form Handler
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginEmail === 'admin@samaxon.com' && loginPassword === 'admin') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('samaxon_admin_authorized', 'true');
-      logActivity('Raj Patel', 'Super Admin', 'LOGIN', 'SESSION', `sess-${Date.now()}`, 'Super Admin authenticated successfully.');
-      reloadActivityLogs();
-      setLoginError('');
-    } else {
-      setLoginError('Invalid administrative token key combination. Enter raj@samaxon.com or admin credentials.');
+  const handleUpdateServices = async (nextServices: Service[]) => {
+    const success = await supabaseService.upsertServices(nextServices);
+    if (success) {
+      setServices(nextServices);
+      await supabaseService.trackSiteEvent('update_all_services', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role
+      });
+      syncWithDatabase();
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('samaxon_admin_authorized');
+  const handleUpdatePortfolio = async (nextPortfolio: PortfolioProject[]) => {
+    const success = await supabaseService.upsertPortfolioProjects(nextPortfolio);
+    if (success) {
+      setPortfolioProjects(nextPortfolio);
+      await supabaseService.trackSiteEvent('update_all_portfolio', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role
+      });
+      syncWithDatabase();
+    }
   };
 
-  // 5. Renders Wall check
+  const handleUpdateTestimonials = async (nextTest: Testimonial[]) => {
+    const success = await supabaseService.upsertTestimonials(nextTest);
+    if (success) {
+      setTestimonials(nextTest);
+      await supabaseService.trackSiteEvent('update_all_testimonials', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role
+      });
+      syncWithDatabase();
+    }
+  };
+
+  const handleUpdatePageSections = (nextSections: any[]) => {
+    setPageSections(nextSections);
+  };
+
+  const handleUpdateBlogs = async (nextBlogs: BlogPost[]) => {
+    const success = await supabaseService.upsertBlogs(nextBlogs);
+    if (success) {
+      setBlogs(nextBlogs);
+      await supabaseService.trackSiteEvent('update_all_blogs_and_insights', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role
+      });
+      syncWithDatabase();
+    }
+  };
+
+  const handleUpdateLegalPages = (nextPages: any) => {
+    setLegalPages(nextPages);
+  };
+
+  const handleUpdateMedia = (nextMedia: MediaAsset[]) => {
+    setMediaAssets(nextMedia);
+  };
+
+  const handleUpdateWebsiteSettings = (nextSettings: any) => {
+    setWebsiteSettings(nextSettings);
+  };
+
+  const handleUpdateAdminUsers = async (nextUsers: any[]) => {
+    // Only Super Admin can modify accounts
+    if (currentUser?.role !== 'Super Admin') {
+      alert('Security Policy Alert: Only Super Admin is authorized to register or configure executive accounts.');
+      return;
+    }
+
+    try {
+      for (const nextUser of nextUsers) {
+        const found = adminUsers.find(u => u.id === nextUser.id);
+        if (!found) {
+          // NEW Teammate ADDED!
+          // Try to sign up the user in Supabase Auth first with the custom password set
+          const passwordToUse = nextUser.password || 'SamaXonAdminSecurePassword123!';
+          let finalId = nextUser.id;
+          
+          try {
+            const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+              email: nextUser.email,
+              password: passwordToUse
+            });
+            if (signUpErr) {
+              console.warn('Supabase Auth signUp returned error/warning:', signUpErr.message);
+            }
+            if (signUpData?.user?.id) {
+              finalId = signUpData.user.id;
+            }
+          } catch (signUpFail) {
+            console.error('Supabase Auth signUp failed:', signUpFail);
+          }
+
+          const dbMemberObj = {
+            id: finalId,
+            full_name: nextUser.name,
+            email: nextUser.email,
+            role: uiRoleToDb(nextUser.role),
+            status: nextUser.status === 'Active' ? 'active' : 'disabled',
+            created_at: new Date().toISOString(),
+            created_by: currentUser?.id
+          };
+          await supabaseService.upsertTeamMember(dbMemberObj);
+        } else if (found.status !== nextUser.status || found.role !== nextUser.role) {
+          // Role / status modified!
+          const dbMemberObj = {
+            id: nextUser.id,
+            full_name: nextUser.name,
+            email: nextUser.email,
+            role: uiRoleToDb(nextUser.role),
+            status: nextUser.status === 'Active' ? 'active' : 'disabled',
+            created_at: found.createdAt || new Date().toISOString(),
+            created_by: currentUser?.id
+          };
+          await supabaseService.upsertTeamMember(dbMemberObj);
+        }
+      }
+
+      // Check for deletes
+      for (const oldUser of adminUsers) {
+        const found = nextUsers.find(u => u.id === oldUser.id);
+        if (!found) {
+          await supabaseService.deleteTeamMember(oldUser.id);
+        }
+      }
+
+      await supabaseService.trackSiteEvent('admin_rbac_matrix_changed', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role
+      });
+      
+      const rawMembers = await supabaseService.getTeamMembers();
+      const mappedAdmins = rawMembers.map(m => ({
+        id: m.id,
+        name: m.full_name,
+        email: m.email,
+        role: dbRoleToUi(m.role),
+        status: (m.status || '').toLowerCase() === 'active' ? 'Active' : 'Disabled',
+        lastLogin: m.last_login || 'Never',
+        createdAt: m.created_at
+      }));
+      setAdminUsers(mappedAdmins);
+
+      alert('Database team matrix sync completed successfully!');
+    } catch (err) {
+      console.error('Failed to update team members:', err);
+    }
+  };
+
+  // 4. Secure Audited Auth Handlers
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingAuth(true);
+    setLoginError('');
+
+    try {
+      const emailLower = loginEmail.trim().toLowerCase();
+      if (!emailLower || !loginPassword) {
+        throw new Error('Please enter both your identifier email and access passphrase.');
+      }
+
+      // Strictly sign in using credentials. No registration or auto-onboarding routes.
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: emailLower,
+        password: loginPassword
+      });
+
+      if (signInError) {
+        const errMsg = signInError.message.toLowerCase();
+        if (errMsg.includes('invalid login credentials') || errMsg.includes('invalid grant')) {
+          throw new Error('Invalid email or password.');
+        } else {
+          throw signInError;
+        }
+      }
+
+      const authUser = signInData?.user;
+      if (!authUser) {
+        throw new Error('Verification failed. Unable to establish session.');
+      }
+
+      // Fetch team members profile mapping
+      const members = await supabaseService.getTeamMembers();
+      const match = members.find(m => m.email.toLowerCase().trim() === emailLower);
+
+      if (!match) {
+        await supabase.auth.signOut();
+        throw new Error("Access denied: Admin role not found. Ensure this email is inserted in your Supabase database table 'team_members' with status='active' and key role='super_admin'.");
+      }
+
+      const roleDb = (match.role || '').toLowerCase().trim();
+      const allowedRoles = ['super_admin', 'admin', 'sales_manager', 'career_manager', 'content_editor', 'viewer'];
+      
+      if (!allowedRoles.includes(roleDb)) {
+        await supabase.auth.signOut();
+        throw new Error("Access denied: Unauthorized role value. Valid configured roles are: 'super_admin', 'admin', 'sales_manager', 'career_manager', 'content_editor', or 'viewer'.");
+      }
+
+      if (match.status.toLowerCase().trim() !== 'active') {
+        await supabase.auth.signOut();
+        throw new Error('Access denied: Account disabled.');
+      }
+
+      // Commit login timestamp audit log
+      match.last_login = new Date().toISOString();
+      await supabaseService.upsertTeamMember(match);
+
+      setCurrentUser({
+        id: match.id,
+        email: match.email,
+        full_name: match.full_name,
+        role: dbRoleToUi(match.role)
+      });
+      setIsAuthenticated(true);
+
+      await supabaseService.trackSiteEvent('admin_completed_secure_login', {
+        email: match.email,
+        role: dbRoleToUi(match.role),
+        name: match.full_name
+      });
+
+    } catch (err: any) {
+      setLoginError(err.message || 'System Network Interruption. Authentication aborted.');
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabaseService.trackSiteEvent('admin_disconnected_terminal', {
+        email: currentUser?.email,
+        name: currentUser?.full_name,
+        role: currentUser?.role
+      });
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('Signout failed:', e);
+    }
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+  };
+
+  // Initializing screen
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] flex flex-col items-center justify-center p-6 gap-3">
+        <RefreshCw className="w-8 h-8 text-[#D6B46A] animate-spin" />
+        <span className="text-xs font-mono tracking-widest text-[#8A8178] uppercase mt-2 animate-pulse">Checking Secure Shell...</span>
+      </div>
+    );
+  }
+
+  // 5. Renders Auth Wall check
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#F8F4EE] flex items-center justify-center p-4 relative overflow-hidden" id="admin-login-screen">
@@ -316,8 +549,12 @@ export default function AdminPanel() {
             <div className="mx-auto w-12 h-12 bg-white/5 border border-[#D6B46A]/25 rounded-xl flex items-center justify-center text-[#D6B46A] mb-4.5 font-display text-lg font-black tracking-widest">
               S
             </div>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">Administrative Gateway</span>
-            <h1 className="font-display text-xl font-black text-[#FFFDF8] tracking-tight mt-1">SamaXon Studio Control</h1>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+              Administrative Gateway
+            </span>
+            <h1 className="font-display text-xl font-black text-[#FFFDF8] tracking-tight mt-1">
+              SamaXon Studio Control
+            </h1>
           </div>
 
           <form onSubmit={handleLoginSubmit} className="p-8 space-y-6">
@@ -335,8 +572,8 @@ export default function AdminPanel() {
 
             <div className="space-y-4">
               {/* Email Address */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-wider text-[#8A8178] font-bold block">Interlink ID (Email)</label>
+              <div className="space-y-1.5 flex flex-col">
+                <label className="text-[10px] uppercase tracking-wider text-[#8A8178] font-bold block">Executive Identifier Key (Email)</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A8178]/65">
                     <Mail className="w-4 h-4" />
@@ -344,7 +581,7 @@ export default function AdminPanel() {
                   <input
                     type="email"
                     required
-                    placeholder="admin@samaxon.com"
+                    placeholder="name@samaxon.com"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-[#FFFDF8] hover:bg-neutral-50 border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all placeholder:text-[#8A8178]/70"
@@ -353,56 +590,66 @@ export default function AdminPanel() {
               </div>
 
               {/* Security passphrase */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-wider text-[#8A8178] font-bold block">Access Password (Passphrase)</label>
+              <div className="space-y-1.5 flex flex-col">
+                <label className="text-[10px] uppercase tracking-wider text-[#8A8178] font-bold block">Access Passphrase (Password)</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8A8178]/65">
                     <Lock className="w-4 h-4" />
                   </span>
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-[#FFFDF8] hover:bg-neutral-50 border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all"
+                    className="w-full pl-10 pr-10 py-3 bg-[#FFFDF8] hover:bg-neutral-50 border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#8A8178]/65 hover:text-[#D6B46A]"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Quick Helper Credentials */}
-            <div className="bg-[#FFFDF8] border border-[#D6B46A]/15 p-3.5 rounded-2xl text-[11px] text-[#8A8178] font-medium leading-relaxed">
-              <span className="font-bold text-[#111111] block mb-0.5">Quick Emulator Access credentials:</span>
-              Use Email: <strong className="text-[#BFA15A]">admin@samaxon.com</strong> & Password: <strong className="text-[#BFA15A]">admin</strong> to bypass auth checks.
-            </div>
-
             <button
               type="submit"
-              className="w-full py-3 bg-[#111111] hover:bg-[#262626] text-white hover:text-[#D6B46A] text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+              disabled={isSubmittingAuth}
+              className="w-full py-3 bg-[#111111] hover:bg-[#262626] text-white hover:text-[#D6B46A] text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Shield className="w-4 h-4" />
-              Verify Executive Token
+              {isSubmittingAuth ? 'Establishing Sync Link...' : 'Verify Executive Token'}
             </button>
           </form>
 
           {/* Secure disclaimer brand footer */}
           <div className="p-6 text-center border-t border-neutral-100 text-[10px] font-mono text-[#8A8178] tracking-wider uppercase bg-[#FFFDF8]">
-            SamaXon R&D Systems • Secured 256h Crypts
+            SamaXon Security Node • Production Authenticated
           </div>
         </motion.div>
       </div>
     );
   }
 
-  // Visual Nav Menu Options mapping
+  // Visual Nav Menu Options mapping (System Settings Hub is restricted to Super Admin only)
   const menuOptions = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
     { id: 'leads', label: 'Client Inquiries', icon: FileSpreadsheet },
     { id: 'careers', label: 'Applications', icon: Briefcase },
     { id: 'content', label: 'Content Board', icon: Settings },
-    { id: 'system', label: 'Systems Hub', icon: Shield }
   ];
+
+  if (currentUser && currentUser.role === 'Super Admin') {
+    menuOptions.push({ id: 'system', label: 'Systems Hub', icon: Shield });
+  }
+
+  // Get name initials
+  const initials = currentUser?.full_name
+    ? currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+    : 'EX';
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] flex flex-col md:flex-row text-neutral-800 font-sans antialiased" id="admin-workspace-core">
@@ -457,12 +704,12 @@ export default function AdminPanel() {
         {/* User Session profile controls and stats */}
         <div className="p-5 border-t border-[#D6B46A]/15 space-y-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-400 flex items-center justify-center font-display text-emerald-400 font-black text-xs">
-              RP
+            <div className="w-9 h-9 rounded-full bg-[#D6B46A]/15 border border-[#D6B46A]/40 flex items-center justify-center font-display text-[#D6B46A] font-black text-xs">
+              {initials}
             </div>
-            <div className="flex flex-col text-xs">
-              <span className="font-bold text-white">Raj Patel</span>
-              <span className="text-[9px] font-mono text-[#D6B46A] uppercase font-bold">Super Admin</span>
+            <div className="flex flex-col text-xs max-w-[140px] truncate select-none">
+              <span className="font-bold text-white leading-tight truncate">{currentUser?.full_name}</span>
+              <span className="text-[9px] font-mono text-[#D6B46A] uppercase font-bold truncate">{currentUser?.role}</span>
             </div>
           </div>
 
@@ -490,7 +737,7 @@ export default function AdminPanel() {
             {activeTab === 'dashboard' && (
               <DashboardTab
                 leads={leads}
-                careers={careers}
+                careers={jobApplications as any}
                 botVisits={botVisits}
                 activityLogs={activityLogs}
                 onNavigateTo={(tabId) => setActiveTab(tabId)}
@@ -530,7 +777,7 @@ export default function AdminPanel() {
               />
             )}
 
-            {activeTab === 'system' && (
+            {activeTab === 'system' && currentUser?.role === 'Super Admin' && (
               <SystemSettingsTab
                 mediaAssets={mediaAssets}
                 botVisits={botVisits}

@@ -8,6 +8,7 @@ export interface AdminUser {
   status: 'Active' | 'Disabled';
   lastLogin: string;
   createdAt: string;
+  password?: string;
 }
 
 export interface BotVisit {

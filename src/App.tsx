@@ -13,9 +13,15 @@ import Contact from './pages/Contact';
 import LegalPages from './pages/LegalPages';
 import AdminPanel from './pages/AdminPanel';
 import SEOPage from './pages/SEOPage';
+import { analytics } from './utils/analytics';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>('home');
+
+  // Track page views in real-time
+  useEffect(() => {
+    analytics.trackPageView(currentPage);
+  }, [currentPage]);
 
   // Multi-page routing via simple pathname & hash matching for search-crawlers and users
   useEffect(() => {

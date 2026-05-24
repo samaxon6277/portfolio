@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Settings, Image, BarChart2, ShieldAlert, Users, Radio, History, ClipboardList, Lock, Check, Copy, Upload, Trash2, ShieldCheck, RefreshCw, Eye, BookOpen, AlertCircle
+  Settings, Image, BarChart2, ShieldAlert, Users, Radio, History, ClipboardList, Lock, Check, Copy, Upload, Trash2, ShieldCheck, RefreshCw, Eye, EyeOff, BookOpen, AlertCircle
 } from 'lucide-react';
 import { MediaAsset } from '../../types';
 import { BotVisit, AutomationLog, ActivityLog, AdminUser, WebsiteSettings } from '../../utils/mockAdminData';
+import { analytics } from '../../utils/analytics';
 
 interface SystemSettingsTabProps {
   mediaAssets: MediaAsset[];
@@ -26,6 +27,65 @@ export default function SystemSettingsTab({
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [searchAudit, setSearchAudit] = useState('');
   
+  const [analyticsData, setAnalyticsData] = useState(() => analytics.getStats());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setAnalyticsData(analytics.getStats());
+    };
+    window.addEventListener('samaxon_analytics_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('samaxon_analytics_updated', handleUpdate);
+    };
+  }, []);
+
+  // Team Management new member states
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [newMemberRole, setNewMemberRole] = useState<'Super Admin' | 'Admin' | 'Content Editor' | 'Sales Manager' | 'Career Manager' | 'Viewer'>('Admin');
+  const [newMemberPassword, setNewMemberPassword] = useState('');
+  const [showNewMemberPassword, setShowNewMemberPassword] = useState(false);
+
+  const handleAddNewMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMemberName.trim() || !newMemberEmail.trim() || !newMemberPassword) {
+      alert('Please fill out Member Name, Email, and Access Password.');
+      return;
+    }
+    const emailPattern = /\S+@\S+\.\S+/;
+    if (!emailPattern.test(newMemberEmail)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    if (newMemberPassword.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+    const duplicate = adminUsers.find(u => u.email.toLowerCase() === newMemberEmail.trim().toLowerCase());
+    if (duplicate) {
+      alert('This email address is already registered as a team member.');
+      return;
+    }
+
+    const newUser: AdminUser = {
+      id: `usr-${Date.now()}`,
+      name: newMemberName.trim(),
+      email: newMemberEmail.trim(),
+      role: newMemberRole,
+      status: 'Active',
+      lastLogin: 'Never',
+      createdAt: new Date().toISOString(),
+      password: newMemberPassword
+    };
+
+    onUpdateAdminUsers([...adminUsers, newUser]);
+    setNewMemberName('');
+    setNewMemberEmail('');
+    setNewMemberPassword('');
+    setNewMemberRole('Admin');
+    alert(`Successfully registered ${newUser.name} as ${newUser.role} with the configured set password!`);
+  };
+
   // Media simulation
   const [newMediaName, setNewMediaName] = useState('');
   const [newMediaUrl, setNewMediaUrl] = useState('');
@@ -209,10 +269,10 @@ export default function SystemSettingsTab({
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Page Views', count: 18450, rate: '74% of traffic' },
-                { label: 'Form Starts', count: 480, rate: 'new clients' },
-                { label: 'Form Submits', count: 58, rate: '12% success funnel' },
-                { label: 'WhatsApp clickouts', count: 290, rate: 'instant bypass' }
+                { label: 'Page Views', count: analyticsData.pageViews, rate: 'Direct site loads' },
+                { label: 'Form Starts', count: analyticsData.formStarts, rate: 'Form focus actions' },
+                { label: 'Form Submits', count: analyticsData.formSubmits, rate: 'Secure database records' },
+                { label: 'WhatsApp clickouts', count: analyticsData.whatsappClickouts, rate: 'Direct WhatsApp bypass' }
               ].map(event => (
                 <div key={event.label} className="bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-2xl p-4">
                   <span className="text-[10px] font-mono uppercase text-[#8A8178] tracking-wider block font-bold">{event.label}</span>
@@ -373,6 +433,84 @@ export default function SystemSettingsTab({
               </table>
             </div>
           </div>
+
+          {/* Add Team Member Entry Module */}
+          <div className="bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm space-y-4">
+            <div>
+              <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#111111]">Register New Executive Member</h4>
+              <p className="text-[11px] text-[#8A8178] mt-0.5">Authorize additional managers or specialists with granular Access Controls</p>
+            </div>
+            
+            <form onSubmit={handleAddNewMember} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+              <div className="md:col-span-3 col-span-12">
+                <label className="text-[9px] uppercase font-bold text-[#8A8178] block mb-1.5">Executive Name</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Devashish Sharma"
+                  value={newMemberName}
+                  onChange={e => setNewMemberName(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl text-xs outline-none focus:border-[#D6B46A] text-matte-black font-semibold" 
+                />
+              </div>
+              <div className="md:col-span-3 col-span-12">
+                <label className="text-[9px] uppercase font-bold text-[#8A8178] block mb-1.5">Email Address</label>
+                <input 
+                  type="email" 
+                  required
+                  placeholder="e.g. devashish@samaxon.site"
+                  value={newMemberEmail}
+                  onChange={e => setNewMemberEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl text-xs outline-none focus:border-[#D6B46A] text-matte-black font-semibold" 
+                />
+              </div>
+              <div className="md:col-span-2 col-span-12">
+                <label className="text-[9px] uppercase font-bold text-[#8A8178] block mb-1.5">Access Password</label>
+                <div className="relative">
+                  <input 
+                    type={showNewMemberPassword ? "text" : "password"} 
+                    required
+                    placeholder="Min 6 characters"
+                    value={newMemberPassword}
+                    onChange={e => setNewMemberPassword(e.target.value)}
+                    className="w-full pl-3 pr-8 py-2.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl text-xs outline-none focus:border-[#D6B46A] text-matte-black font-semibold" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewMemberPassword(prev => !prev)}
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#8A8178]/65 hover:text-[#D6B46A]"
+                  >
+                    {showNewMemberPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              <div className="md:col-span-2 col-span-12">
+                <label className="text-[9px] uppercase font-bold text-[#8A8178] block mb-1.5">Select Role Control</label>
+                <select 
+                  value={newMemberRole}
+                  onChange={e => setNewMemberRole(e.target.value as any)}
+                  className="w-full px-3 py-2.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl text-xs outline-none cursor-pointer text-[#111111] font-semibold"
+                >
+                  <option value="Super Admin">Super Admin</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Content Editor">Content Editor</option>
+                  <option value="Sales Manager">Sales Manager</option>
+                  <option value="Career Manager">Career Manager</option>
+                  <option value="Viewer">Viewer</option>
+                </select>
+              </div>
+              <div className="md:col-span-2 col-span-12">
+                <button 
+                  type="submit"
+                  className="w-full py-2.5 bg-[#111111] text-[#D6B46A] hover:text-white hover:bg-[#222222] text-[10px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  Add Member
+                </button>
+              </div>
+            </form>
+          </div>
+
         </div>
       )}
 
