@@ -7,6 +7,8 @@ import {
 import { Service, PortfolioProject, Testimonial, BlogPost } from '../../types';
 import { PageSectionContent, WebsiteSettings } from '../../utils/mockAdminData';
 import { compressImage, cropAndCompressImage } from '../../utils/imageCompressor';
+import CustomSelect from '../../components/CustomSelect';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 function SmartAdminThumbnail({ src, alt }: { src: string; alt: string }) {
   const [isPortrait, setIsPortrait] = useState<boolean>(false);
@@ -50,6 +52,7 @@ export default function ContentSettingsTab({
   services, portfolioProjects, testimonials, pageSections, blogs, legalPages,
   onUpdateServices, onUpdatePortfolio, onUpdateTestimonials, onUpdatePageSections, onUpdateBlogs, onUpdateLegalPages
 }: ContentSettingsTabProps) {
+  const { showToast, showConfirm } = useCustomUi();
   const [subTab, setSubTab] = useState<'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal'>('services');
 
   // Unified editing entity modals tracker
@@ -94,9 +97,15 @@ export default function ContentSettingsTab({
   };
 
   const handleDeleteService = (srvId: string) => {
-    if (confirm('Delete this service permanently? This modifies public capabilities grids.')) {
-      onUpdateServices(services.filter(s => s.id !== srvId));
-    }
+    showConfirm({
+      title: 'Delete Service Entry?',
+      message: 'Are you absolutely sure you want to permanently delete this service capability? This directly modifies the public website capabilities grid.',
+      confirmText: 'Yes, Delete',
+      onConfirm: () => {
+        onUpdateServices(services.filter(s => s.id !== srvId));
+        showToast('Service deleted successfully.', 'success');
+      }
+    });
   };
 
   const handleAddProject = (category: 'websites' | 'apps' | 'brand-identity' | 'graphics' | 'automations' | 'bots' | 'admin-ready' = 'websites') => {
@@ -124,9 +133,15 @@ export default function ContentSettingsTab({
   };
 
   const handleDeleteProject = (projId: string) => {
-    if (confirm('Are you sure you want to delete this case study?')) {
-      onUpdatePortfolio(portfolioProjects.filter(p => p.id !== projId));
-    }
+    showConfirm({
+      title: 'Delete Case Study?',
+      message: 'Are you absolutely certain you want to permanently delete this case study? This action will immediately remove it from the client showcase.',
+      confirmText: 'Delete Case Study',
+      onConfirm: () => {
+        onUpdatePortfolio(portfolioProjects.filter(p => p.id !== projId));
+        showToast('Case study removed successfully.', 'success');
+      }
+    });
   };
 
   const handleAddTestimonial = () => {
@@ -142,9 +157,15 @@ export default function ContentSettingsTab({
   };
 
   const handleDeleteTestimonial = (testId: string) => {
-    if (confirm('Remove this client recommendation?')) {
-      onUpdateTestimonials(testimonials.filter(t => t.id !== testId));
-    }
+    showConfirm({
+      title: 'Delete Client Recommendation?',
+      message: 'Remove this client recommendation of the executive reviews section?',
+      confirmText: 'Remove Quote',
+      onConfirm: () => {
+        onUpdateTestimonials(testimonials.filter(t => t.id !== testId));
+        showToast('Client recommendation removed.', 'success');
+      }
+    });
   };
 
   const handleAddBlog = () => {
@@ -161,9 +182,15 @@ export default function ContentSettingsTab({
   };
 
   const handleDeleteBlog = (blogId: string) => {
-    if (confirm('Delete this insight post permanently?')) {
-      onUpdateBlogs(blogs.filter(b => b.id !== blogId));
-    }
+    showConfirm({
+      title: 'Delete Insight Post?',
+      message: 'Are you absolutely sure you want to delete this insight article permanently?',
+      confirmText: 'Delete Post',
+      onConfirm: () => {
+        onUpdateBlogs(blogs.filter(b => b.id !== blogId));
+        showToast('Insight article deleted.', 'success');
+      }
+    });
   };
 
   const handleThumbnailFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -735,19 +762,19 @@ export default function ContentSettingsTab({
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Category Group</label>
-                    <select 
+                    <CustomSelect 
                       value={editingProject.category} 
-                      onChange={e => setEditingProject({ ...editingProject, category: e.target.value as any })}
-                      className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg bg-white focus:border-[#D6B46A] outline-none capitalize"
-                    >
-                      <option value="websites">Websites</option>
-                      <option value="apps">Apps</option>
-                      <option value="brand-identity">Brand Identity</option>
-                      <option value="graphics">8K Graphics</option>
-                      <option value="automations">Automations</option>
-                      <option value="bots">Telegram Bots</option>
-                      <option value="admin-ready">Admin-Ready Systems</option>
-                    </select>
+                      onChange={val => setEditingProject({ ...editingProject, category: val as any })}
+                      options={[
+                        { value: 'websites', label: 'Websites' },
+                        { value: 'apps', label: 'Apps' },
+                        { value: 'brand-identity', label: 'Brand Identity' },
+                        { value: 'graphics', label: '8K Graphics' },
+                        { value: 'automations', label: 'Automations' },
+                        { value: 'bots', label: 'Telegram Bots' },
+                        { value: 'admin-ready', label: 'Admin-Ready Systems' }
+                      ]}
+                    />
                   </div>
                 </div>
 
@@ -963,7 +990,7 @@ export default function ContentSettingsTab({
 
               {/* Quality & Sharpness guarantee */}
               <div className="p-3 bg-white/5 rounded-2xl border border-white/5 flex items-start gap-2.5 mb-2 text-left">
-                <span className="text-xs">✨</span>
+                <Sparkles className="w-4 h-4 text-champagne-gold shrink-0 mt-0.5" />
                 <p className="text-[10px] text-neutral-300 leading-normal font-sans">
                   <strong>High-Resolution Assurance:</strong> To answer your quality preference, SamaXon Studio processes details up to <strong>1920px</strong> wide with <strong>95% JPEG sharpness</strong>. This preserves extreme screenshot details while keeping memory limits stable.
                 </p>

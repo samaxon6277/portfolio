@@ -6,11 +6,15 @@ import {
 import { MediaAsset } from '../../types';
 import { BotVisit, AutomationLog, ActivityLog, AdminUser, WebsiteSettings } from '../../utils/mockAdminData';
 import { analytics } from '../../utils/analytics';
+import CustomSelect from '../../components/CustomSelect';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 interface SystemSettingsTabProps {
+  initialSubTab?: 'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile';
+  onSubTabChange?: (tab: 'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile') => void;
   mediaAssets: MediaAsset[];
   botVisits: BotVisit[];
-  automationLogs: AutomationLog[];
+  automationLogs: any[];
   activityLogs: ActivityLog[];
   adminUsers: AdminUser[];
   websiteSettings: WebsiteSettings;
@@ -20,12 +24,67 @@ interface SystemSettingsTabProps {
 }
 
 export default function SystemSettingsTab({
+  initialSubTab, onSubTabChange,
   mediaAssets, botVisits, automationLogs, activityLogs, adminUsers, websiteSettings,
   onUpdateMedia, onUpdateWebsiteSettings, onUpdateAdminUsers
 }: SystemSettingsTabProps) {
+  const { showConfirm, showToast, showAlert } = useCustomUi();
   const [subTab, setSubTab] = useState<'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile'>('media');
+  const [localSettings, setLocalSettings] = useState<WebsiteSettings>(websiteSettings);
+
+  useEffect(() => {
+    if (websiteSettings) {
+      setLocalSettings(websiteSettings);
+    }
+  }, [websiteSettings]);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
+
+  const changeSubTab = (tab: 'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile') => {
+    setSubTab(tab);
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    }
+  };
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [searchAudit, setSearchAudit] = useState('');
+
+  // Real-time custom states for Webhook Delivery systems & Bot tracking
+  const [expandedWebhooks, setExpandedWebhooks] = useState<Record<string, boolean>>({});
+  const [copiedWebhookId, setCopiedWebhookId] = useState<string | null>(null);
+
+  const toggleExpandWebhook = (id: string) => {
+    setExpandedWebhooks(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleCopyPayload = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedWebhookId(id);
+    setTimeout(() => setCopiedWebhookId(null), 2000);
+    showToast('Webhook payload copied to clipboard!', 'success');
+  };
+
+  const renderPayload = (payload: any): string => {
+    if (!payload) return 'No payload data';
+    let formatted = '';
+    try {
+      if (typeof payload === 'object') {
+        formatted = JSON.stringify(payload, null, 2);
+      } else if (typeof payload === 'string') {
+        const parsed = JSON.parse(payload);
+        formatted = JSON.stringify(parsed, null, 2);
+      } else {
+        formatted = String(payload);
+      }
+    } catch (e) {
+      formatted = String(payload);
+    }
+    return formatted;
+  };
   
   const [analyticsData, setAnalyticsData] = useState(() => analytics.getStats());
 
@@ -49,21 +108,37 @@ export default function SystemSettingsTab({
   const handleAddNewMember = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMemberName.trim() || !newMemberEmail.trim() || !newMemberPassword) {
-      alert('Please fill out Member Name, Email, and Access Password.');
+      showAlert({
+        title: 'Error creating user',
+        message: 'Please fill out Member Name, Email, and Access Password to create this profile.',
+        type: 'error'
+      });
       return;
     }
     const emailPattern = /\S+@\S+\.\S+/;
     if (!emailPattern.test(newMemberEmail)) {
-      alert('Please enter a valid email address.');
+      showAlert({
+        title: 'Invalid format',
+        message: 'Please provide a valid active email address.',
+        type: 'error'
+      });
       return;
     }
     if (newMemberPassword.length < 6) {
-      alert('Password must be at least 6 characters long.');
+      showAlert({
+        title: 'Incorrect requirements',
+        message: 'Password must be at least 6 characters long to maintain premium terminal encryption.',
+        type: 'warning'
+      });
       return;
     }
     const duplicate = adminUsers.find(u => u.email.toLowerCase() === newMemberEmail.trim().toLowerCase());
     if (duplicate) {
-      alert('This email address is already registered as a team member.');
+      showAlert({
+        title: 'Error creating user',
+        message: 'This email address is already registered as an active team member.',
+        type: 'error'
+      });
       return;
     }
 
@@ -83,7 +158,7 @@ export default function SystemSettingsTab({
     setNewMemberEmail('');
     setNewMemberPassword('');
     setNewMemberRole('Admin');
-    alert(`Successfully registered ${newUser.name} as ${newUser.role} with the configured set password!`);
+    showToast(`Successfully registered ${newUser.name} as ${newUser.role}!`, 'success');
   };
 
   // Media simulation
@@ -103,13 +178,19 @@ export default function SystemSettingsTab({
     onUpdateMedia([item, ...mediaAssets]);
     setNewMediaName('');
     setNewMediaUrl('');
-    alert('Simulated Upload complete in Supabase bucket! Path: ' + item.url);
+    showToast(`Upload successfully completed! Path added to public library.`, 'success');
   };
 
   const handleDeleteMedia = (id: string) => {
-    if (confirm('Delete this media file?')) {
-      onUpdateMedia(mediaAssets.filter(m => m.id !== id));
-    }
+    showConfirm({
+      title: 'Delete Media Asset?',
+      message: 'Are you sure you want to permanently delete this media component? This can break visual placeholders if the file is in active use.',
+      confirmText: 'Delete Asset',
+      onConfirm: () => {
+        onUpdateMedia(mediaAssets.filter(m => m.id !== id));
+        showToast('Media file deleted.', 'success');
+      }
+    });
   };
 
   const handleTeamMemberToggle = (id: string) => {
@@ -158,7 +239,7 @@ export default function SystemSettingsTab({
 
         {/* System Subtab Navigator */}
         <div className="flex flex-wrap bg-[#FFFDF8] border border-[#D6B46A]/20 p-1 rounded-xl text-[10px] font-mono font-bold tracking-widest uppercase" id="system-sub-navigator">
-          {[
+             {[
             { id: 'media', label: 'Media Library', icon: Image },
             { id: 'analytics', label: 'Full Analytics', icon: BarChart2 },
             { id: 'botlogs', label: 'Webhooks & Bot logs', icon: ShieldAlert },
@@ -170,7 +251,7 @@ export default function SystemSettingsTab({
             return (
               <button
                 key={tab.id}
-                onClick={() => setSubTab(tab.id as any)}
+                onClick={() => changeSubTab(tab.id as any)}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                   subTab === tab.id 
                     ? 'bg-[#111111] text-white' 
@@ -286,22 +367,52 @@ export default function SystemSettingsTab({
             <div className="border border-neutral-100 rounded-2xl p-6 bg-neutral-50 space-y-4">
               <span className="text-[10px] font-mono uppercase text-[#BFA15A] tracking-widest font-black block">Traffic Source Acquisition Maps</span>
               <div className="space-y-3.5">
-                {[
-                  { source: 'Direct Search Ingress (Organic)', pct: 54 },
-                  { source: 'Linked In Referral Engine (Enterprise)', pct: 28 },
-                  { source: 'Telegram Consulting Networks', pct: 15 },
-                  { source: 'Google Ads campaigns', pct: 3 }
-                ].map(src => (
-                  <div key={src.source} className="space-y-1 text-xs">
-                    <div className="flex justify-between items-center text-neutral-800">
-                      <span className="font-medium">{src.source}</span>
-                      <span className="font-mono font-bold text-[#D6B46A]">{src.pct}%</span>
+                {(() => {
+                  let directCount = 0;
+                  let linkedinCount = 0;
+                  let telegramCount = 0;
+                  let socialCount = 0;
+
+                  (activityLogs || []).forEach(log => {
+                    const desc = (log.description || '').toLowerCase();
+                    if (desc.includes('ref: direct') || desc.includes('ref: unknown')) {
+                      directCount++;
+                    } else if (desc.includes('linkedin')) {
+                      linkedinCount++;
+                    } else if (desc.includes('telegram') || desc.includes('t.me') || desc.includes('t.co')) {
+                      telegramCount++;
+                    } else {
+                      socialCount++;
+                    }
+                  });
+
+                  const total = directCount + linkedinCount + telegramCount + socialCount || 1;
+                  const sources = [
+                    { source: 'Direct Search / Organic Ingress', count: directCount },
+                    { source: 'LinkedIn Enterprise Referrals', count: linkedinCount },
+                    { source: 'Telegram Consulting Leads', count: telegramCount },
+                    { source: 'External Web Referrers / Socials', count: socialCount }
+                  ];
+
+                  // In case there's no data, default to 100% direct for visual placeholder elegance
+                  const hasData = (directCount + linkedinCount + telegramCount + socialCount) > 0;
+                  const mappedSources = sources.map(s => ({
+                    source: s.source,
+                    pct: hasData ? Math.round((s.count / total) * 100) : (s.source.includes('Direct') ? 100 : 0)
+                  }));
+
+                  return mappedSources.map(src => (
+                    <div key={src.source} className="space-y-1 text-xs">
+                      <div className="flex justify-between items-center text-neutral-800">
+                        <span className="font-medium">{src.source}</span>
+                        <span className="font-mono font-bold text-[#D6B46A]">{src.pct}%</span>
+                      </div>
+                      <div className="w-full bg-neutral-200 h-2 rounded-full overflow-hidden">
+                        <div className="bg-[#D6B46A] h-full rounded-full animate-all duration-500" style={{ width: `${src.pct}%` }} />
+                      </div>
                     </div>
-                    <div className="w-full bg-neutral-200 h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B46A] h-full rounded-full" style={{ width: `${src.pct}%` }} />
-                    </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
           </div>
@@ -312,58 +423,212 @@ export default function SystemSettingsTab({
       {subTab === 'botlogs' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left" id="subtab-botlogs-view">
           
-          {/* Telegram bots webhook logs */}
+          {/* Webhook Transaction Logs */}
           <div className="lg:col-span-6 bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm space-y-4">
-            <div>
-              <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#111111]">Automation Webhook Transaction Logs</h4>
-              <p className="text-[11px] text-[#8A8178] mt-0.5">Future CRM bridges and target Telegram logs emulations</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[#111111]">Webhook Delivery Systems</h4>
+                <p className="text-[11px] text-[#8A8178] mt-0.5">Real-time external postback bridges active inside the database</p>
+              </div>
+              <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-850 rounded-full font-mono font-bold text-[9px] tracking-wide">
+                {automationLogs.length} Records
+              </span>
             </div>
 
-            <div className="space-y-4">
-              {automationLogs.map(log => (
-                <div key={log.id} className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4 text-xs space-y-2">
-                  <div className="flex justify-between items-center">
-                    <strong className="text-neutral-800 font-display uppercase text-[10px] tracking-wide">{log.automationType}</strong>
-                    <span className={`px-2 py-0.5 text-[9px] font-mono uppercase font-extrabold rounded ${
-                      log.status === 'Success' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700 animate-pulse'
-                    }`}>
-                      {log.status}
-                    </span>
-                  </div>
-                  <p className="font-semibold text-neutral-800">{log.triggerEvent}</p>
-                  <pre className="p-2.5 bg-neutral-900 border border-neutral-800 text-[#FFFDF8] text-[9px] font-mono rounded-lg overflow-x-auto">
-                    {log.payloadSummary}
-                  </pre>
-                  {log.errorMessage && <p className="text-[10px] text-rose-600 font-bold">Error: {log.errorMessage}</p>}
-                </div>
-              ))}
-            </div>
+            {automationLogs.length === 0 ? (
+              <div className="py-12 text-center text-neutral-400 font-medium border-2 border-dashed border-neutral-100 rounded-2xl bg-[#FFFDF8]/40 space-y-2">
+                <AlertCircle className="w-8 h-8 text-neutral-300 mx-auto animate-bounce" />
+                <p className="text-xs">No webhook logs available yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[550px] overflow-y-auto pr-1">
+                {automationLogs.map(log => {
+                  const payloadStr = renderPayload(log.payload);
+                  const isExpanded = !!expandedWebhooks[log.id];
+                  
+                  // Status mappings or styling logic
+                  const statusRaw = (log.status || '').toLowerCase();
+                  let statusBg = 'bg-neutral-50 border-neutral-200 text-neutral-700';
+                  let statusLabel = log.status || 'Success';
+
+                  if (statusRaw === 'success') {
+                    statusBg = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+                    statusLabel = 'Success';
+                  } else if (statusRaw === 'failed' || statusRaw === 'error' || statusRaw === 'fail') {
+                    statusBg = 'bg-rose-50 border-rose-200 text-rose-800 animate-pulse';
+                    statusLabel = 'Failed';
+                  } else if (statusRaw === 'pending') {
+                    statusBg = 'bg-amber-50 border-amber-200 text-amber-800';
+                    statusLabel = 'Pending';
+                  } else if (statusRaw === 'active') {
+                    statusBg = 'bg-sky-50 border-sky-200 text-sky-800';
+                    statusLabel = 'Active';
+                  }
+
+                  // Date format handler preventing invalid dates
+                  let dateStr = 'Unknown date';
+                  if (log.created_at) {
+                    try {
+                      const d = new Date(log.created_at);
+                      if (!isNaN(d.getTime())) {
+                        dateStr = d.toLocaleString('en-IN', {
+                          dateStyle: 'short',
+                          timeStyle: 'medium'
+                        });
+                      }
+                    } catch (e) {}
+                  }
+
+                  return (
+                    <div 
+                      key={log.id} 
+                      className="bg-[#FFFDF8] border border-[#D6B46A]/20 hover:border-[#D6B46A]/45 rounded-2xl p-4 transition-all duration-200 text-xs shadow-xs space-y-3"
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="space-y-0.5">
+                          <strong className="text-neutral-900 font-display uppercase tracking-wide text-[11px] block">
+                            {log.webhook_type || 'Custom Webhook Notification'}
+                          </strong>
+                          <span className="text-[10px] text-[#8A8178] font-mono">{dateStr}</span>
+                        </div>
+                        <span className={`px-2 py-0.5 text-[9px] font-mono uppercase font-black rounded-lg border ${statusBg}`}>
+                          {statusLabel}
+                        </span>
+                      </div>
+
+                      {/* Webhook Meta Fields Grid */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 py-2 border-t border-b border-dashed border-[#D6B46A]/10 text-[11px] text-neutral-800 font-medium">
+                        <div>
+                          <span className="text-[9px] font-mono text-[#8A8178] block uppercase">Target API URL</span>
+                          <span className="truncate block select-all" title={log.target_url || 'https://api.telegram.org'}>
+                            {log.target_url || '/api/v1/automate'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-mono text-[#8A8178] block uppercase">Response Header</span>
+                          <span className="font-mono">
+                            HTTP {log.response_code || (statusRaw === 'success' ? '200' : '400')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Error Message if failed */}
+                      {log.error_message && (
+                        <div className="p-2.5 bg-rose-50/50 border border-rose-100 rounded-xl text-rose-700 text-[11px] font-medium leading-relaxed">
+                          <span className="font-bold text-[9px] font-mono uppercase tracking-widest block text-rose-500 mb-0.5">Delivery Error Context</span>
+                          {log.error_message}
+                        </div>
+                      )}
+
+                      {/* Actions Box */}
+                      <div className="flex items-center justify-between gap-4 pt-1">
+                        <button 
+                          onClick={() => toggleExpandWebhook(log.id)}
+                          className="text-[#BFA15A] hover:text-[#111111] font-mono font-black text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          {isExpanded ? 'Hide Payload' : 'Show Payload Details'}
+                        </button>
+                        <button 
+                          onClick={() => handleCopyPayload(log.id, payloadStr)}
+                          className="px-2 py-1 bg-white hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900 border border-neutral-200 hover:border-neutral-300 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition-all cursor-pointer"
+                        >
+                          <Copy className="w-3 h-3" />
+                          {copiedWebhookId === log.id ? 'Copied!' : 'Copy JSON'}
+                        </button>
+                      </div>
+
+                      {/* Expanded Section for Payload with high-contrast text */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-2 space-y-1">
+                              <span className="text-[9px] font-mono text-[#8A8178] uppercase block font-bold">Payload JSON Representation:</span>
+                              <pre 
+                                className="p-3 bg-neutral-900 border border-neutral-800 text-[#F5F5F5] font-mono text-[10px] leading-relaxed rounded-xl overflow-x-auto max-h-[250px] scrollbar-thin shadow-inner block select-all whitespace-pre"
+                                style={{ color: '#E0E0E0' }}
+                              >
+                                {payloadStr}
+                              </pre>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Crawler user agents tracking logs */}
           <div className="lg:col-span-6 bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm space-y-4">
-            <div>
-              <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#111111]">Robot Crawler user agent indexes</h4>
-              <p className="text-[11px] text-[#8A8178] mt-0.5">Isolated crawler agent hits comparing SEO indexes</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-display font-bold text-sm uppercase tracking-wider text-[#111111]">Robot Crawler Analytics</h4>
+                <p className="text-[11px] text-[#8A8178] mt-0.5">Verified backend audit trace of standard SEO spiders and previews</p>
+              </div>
+              <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-850 rounded-full font-mono font-bold text-[9px] tracking-wide">
+                {botVisits.length} Agents
+              </span>
             </div>
 
-            <div className="divide-y divide-neutral-100">
-              {botVisits.map(bot => (
-                <div key={bot.id} className="py-3.5 space-y-1 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-neutral-900">{bot.botName}</span>
-                    <span className="px-1.5 py-0.5 bg-[#FFFDF8] border border-[#D6B46A]/20 text-[#BFA15A] text-[9px] font-mono uppercase font-black rounded">
-                      {bot.category}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-[#8A8178] font-mono tracking-tight leading-normal truncate">{bot.userAgent}</p>
-                  <div className="flex justify-between text-[10px] text-[#8A8178]">
-                    <span>Masked IP: {bot.ipHash} • hits: <strong>{bot.visitCount}</strong></span>
-                    <span>Last Active: {new Date(bot.lastSeenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {botVisits.length === 0 ? (
+              <div className="py-12 text-center text-neutral-400 font-medium border-2 border-dashed border-neutral-100 rounded-2xl bg-[#FFFDF8]/40 space-y-2">
+                <AlertCircle className="w-8 h-8 text-neutral-300 mx-auto" />
+                <p className="text-xs">No crawler activity detected yet.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-[#D6B46A]/10 max-h-[550px] overflow-y-auto pr-1">
+                {botVisits.map(bot => {
+                  let dateStr = 'Just now';
+                  if (bot.lastSeenAt) {
+                    try {
+                      const d = new Date(bot.lastSeenAt);
+                      if (!isNaN(d.getTime())) {
+                        dateStr = d.toLocaleString('en-IN', {
+                          dateStyle: 'short',
+                          timeStyle: 'medium'
+                        });
+                      }
+                    } catch (e) {}
+                  }
+
+                  return (
+                    <div key={bot.id} className="py-3.5 space-y-2 text-xs hover:bg-[#FFFDF8]/30 px-1 rounded-xl transition-all duration-150">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-neutral-900 tracking-tight text-sm flex items-center gap-1.5">
+                            <span className="w-2 h-2 bg-emerald-500 rounded-full inline-block animate-pulse" />
+                            {bot.botName || 'Generic Bot'}
+                          </span>
+                          <span className="text-[10px] text-neutral-500 font-mono italic block">{bot.pagePath || '/'}</span>
+                        </div>
+                        <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-[#BFA15A] text-[9px] font-mono uppercase font-black rounded-lg">
+                          {bot.category || 'Unknown Bot'}
+                        </span>
+                      </div>
+
+                      <div className="p-2 bg-neutral-50 border border-neutral-200/55 rounded-xl space-y-1">
+                        <span className="text-[8px] font-mono text-[#8A8178] block uppercase tracking-wider">Device Agent Match</span>
+                        <p className="text-[10px] text-neutral-700 font-mono tracking-tight leading-normal select-all select-text">{bot.userAgent}</p>
+                      </div>
+
+                      <div className="flex justify-between text-[10px] text-neutral-500 font-mono font-medium pt-1">
+                        <span>Masked Client IP: <strong className="text-neutral-800 select-all">{bot.ipHash || 'unknown'}</strong></span>
+                        <span>Active Seen: <strong className="text-neutral-800">{dateStr}</strong></span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
         </div>
@@ -394,18 +659,12 @@ export default function SystemSettingsTab({
                     <tr key={user.id} className="border-b border-neutral-100 hover:bg-[#FFFDF8]/30 transition-colors">
                       <td className="py-3 px-4 font-bold text-[#111111]">{user.name}</td>
                       <td className="py-3 px-4">
-                        <select 
+                        <CustomSelect 
                           value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
-                          className="px-2 py-1 bg-white border border-[#D6B46A]/20 text-[11px] text-[#111111] font-semibold rounded outline-none"
-                        >
-                          <option value="Super Admin">Super Admin</option>
-                          <option value="Admin">Admin</option>
-                          <option value="Content Editor">Content Editor</option>
-                          <option value="Sales Manager">Sales Manager</option>
-                          <option value="Career Manager">Career Manager</option>
-                          <option value="Viewer">Viewer</option>
-                        </select>
+                          onChange={(val) => handleRoleChange(user.id, val as any)}
+                          options={['Super Admin', 'Admin', 'Content Editor', 'Sales Manager', 'Career Manager', 'Viewer']}
+                          className="w-40"
+                        />
                       </td>
                       <td className="py-3 px-4">
                         <span className={`px-2.5 py-0.5 text-[9px] font-mono uppercase font-black rounded ${
@@ -486,18 +745,11 @@ export default function SystemSettingsTab({
               </div>
               <div className="md:col-span-2 col-span-12">
                 <label className="text-[9px] uppercase font-bold text-[#8A8178] block mb-1.5">Select Role Control</label>
-                <select 
+                <CustomSelect 
                   value={newMemberRole}
-                  onChange={e => setNewMemberRole(e.target.value as any)}
-                  className="w-full px-3 py-2.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl text-xs outline-none cursor-pointer text-[#111111] font-semibold"
-                >
-                  <option value="Super Admin">Super Admin</option>
-                  <option value="Admin">Admin</option>
-                  <option value="Content Editor">Content Editor</option>
-                  <option value="Sales Manager">Sales Manager</option>
-                  <option value="Career Manager">Career Manager</option>
-                  <option value="Viewer">Viewer</option>
-                </select>
+                  onChange={val => setNewMemberRole(val as any)}
+                  options={['Super Admin', 'Admin', 'Content Editor', 'Sales Manager', 'Career Manager', 'Viewer']}
+                />
               </div>
               <div className="md:col-span-2 col-span-12">
                 <button 
@@ -516,7 +768,15 @@ export default function SystemSettingsTab({
 
       {/* --- MASTER BRAND CONFIGS & SEO --- */}
       {subTab === 'brand' && (
-        <form onSubmit={e => { e.preventDefault(); alert('Master web setting applied successfully!'); }} className="space-y-6 text-left" id="subtab-brand-view">
+        <form 
+          onSubmit={e => { 
+            e.preventDefault(); 
+            onUpdateWebsiteSettings(localSettings);
+            showToast('Master branding & SEO settings successfully saved to system registry!', 'success'); 
+          }} 
+          className="space-y-6 text-left" 
+          id="subtab-brand-view"
+        >
           <div className="bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm space-y-4">
             <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A] block border-b border-[#D6B46A]/10 pb-1.5">Master Branding Settings</span>
             
@@ -525,8 +785,8 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Corporate Studio Brand Name</label>
                 <input 
                   type="text" 
-                  value={websiteSettings.brandName}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, brandName: e.target.value })}
+                  value={localSettings.brandName || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, brandName: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
@@ -535,8 +795,8 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Brand Contact Endpoint email</label>
                 <input 
                   type="email" 
-                  value={websiteSettings.contactEmail}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, contactEmail: e.target.value })}
+                  value={localSettings.contactEmail || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, contactEmail: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
@@ -545,8 +805,8 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Phone / WhatsApp coordinate</label>
                 <input 
                   type="text" 
-                  value={websiteSettings.phoneWhatsapp}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, phoneWhatsapp: e.target.value })}
+                  value={localSettings.phoneWhatsapp || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, phoneWhatsapp: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
@@ -555,8 +815,28 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Telegram Ingress Link</label>
                 <input 
                   type="text" 
-                  value={websiteSettings.telegramLink}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, telegramLink: e.target.value })}
+                  value={localSettings.telegramLink || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, telegramLink: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">LinkedIn Corporate Link</label>
+                <input 
+                  type="text" 
+                  value={localSettings.linkedinLink || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, linkedinLink: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Instagram Handle Link</label>
+                <input 
+                  type="text" 
+                  value={localSettings.instagramLink || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, instagramLink: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
@@ -565,8 +845,8 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Hashed HQ Office Address</label>
                 <input 
                   type="text" 
-                  value={websiteSettings.address}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, address: e.target.value })}
+                  value={localSettings.address || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, address: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
@@ -581,8 +861,8 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Global Meta title context</label>
                 <input 
                   type="text" 
-                  value={websiteSettings.defaultSeoTitle}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, defaultSeoTitle: e.target.value })}
+                  value={localSettings.defaultSeoTitle || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, defaultSeoTitle: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
@@ -591,28 +871,42 @@ export default function SystemSettingsTab({
                 <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Global Meta description content</label>
                 <textarea 
                   rows={2}
-                  value={websiteSettings.defaultSeoDescription}
-                  onChange={e => onUpdateWebsiteSettings({ ...websiteSettings, defaultSeoDescription: e.target.value })}
+                  value={localSettings.defaultSeoDescription || ''}
+                  onChange={e => setLocalSettings({ ...localSettings, defaultSeoDescription: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold leading-relaxed" 
                 />
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#D6B46A]/15 flex items-center justify-between">
+            <div className="pt-4 border-t border-[#D6B46A]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="text-xs text-[#8A8178]">
-                <strong>Maintenance Mode Active:</strong> {websiteSettings.maintenanceMode ? 'Blocked Ingress' : 'Active Live Studio'}
+                <strong>Maintenance Mode Active:</strong> {localSettings.maintenanceMode ? 'Blocked Ingress' : 'Active Live Studio'}
               </div>
-              <button 
-                type="button"
-                onClick={() => onUpdateWebsiteSettings({ ...websiteSettings, maintenanceMode: !websiteSettings.maintenanceMode })}
-                className={`px-3.5 py-1.5 border rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
-                  websiteSettings.maintenanceMode 
-                    ? 'bg-amber-50 text-amber-700 border-amber-200' 
-                    : 'bg-white text-[#BFA15A] border-[#D6B46A]/20 hover:border-[#D6B46A]'
-                }`}
-              >
-                Toggle maintenance Mode
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const nextMaintenance = !localSettings.maintenanceMode;
+                    const updated = { ...localSettings, maintenanceMode: nextMaintenance };
+                    setLocalSettings(updated);
+                    onUpdateWebsiteSettings(updated);
+                    showToast(`Maintenance Mode is now ${nextMaintenance ? 'Active (Blocked Ingress)' : 'Inactive (Active Live Studio)'}`, 'info');
+                  }}
+                  className={`px-3.5 py-2 border rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all ${
+                    localSettings.maintenanceMode 
+                      ? 'bg-amber-100/70 text-amber-800 border-amber-300 shadow-sm' 
+                      : 'bg-[#FFFDF8] text-[#8A8178] hover:text-[#111111] border-[#D6B46A]/20 hover:border-[#D6B46A]'
+                  }`}
+                >
+                  Toggle Maintenance Mode
+                </button>
+                <button 
+                  type="submit"
+                  className="px-5 py-2 bg-[#111111] hover:bg-neutral-800 text-[#D6B46A] hover:text-white border border-[#111111] text-[10px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-md"
+                >
+                  Save Brand Settings
+                </button>
+              </div>
             </div>
           </div>
         </form>

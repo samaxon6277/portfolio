@@ -1,10 +1,43 @@
-import { Zap, Crown, Mail, Shield, CheckCircle, Scale } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Zap, Crown, Mail, Shield, CheckCircle, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare } from 'lucide-react';
 
 interface FooterProps {
   setCurrentPage: (page: string) => void;
 }
 
 export default function Footer({ setCurrentPage }: FooterProps) {
+  const [socialLinks, setSocialLinks] = useState({
+    telegramLink: 'https://t.me/samaxon_studio',
+    linkedinLink: 'https://linkedin.com/company/samaxon',
+    instagramLink: 'https://instagram.com/samaxon_studio',
+    phoneWhatsapp: '+91 80000 00000'
+  });
+
+  useEffect(() => {
+    const loadSocial = () => {
+      try {
+        const stored = localStorage.getItem('samaxon_website_settings');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setSocialLinks({
+            telegramLink: parsed.telegramLink || 'https://t.me/samaxon_studio',
+            linkedinLink: parsed.linkedinLink || 'https://linkedin.com/company/samaxon',
+            instagramLink: parsed.instagramLink || 'https://instagram.com/samaxon_studio',
+            phoneWhatsapp: parsed.phoneWhatsapp || '+91 80000 00000'
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to load social settings:', e);
+      }
+    };
+
+    loadSocial();
+    window.addEventListener('samaxon_website_settings_updated', loadSocial);
+    return () => {
+      window.removeEventListener('samaxon_website_settings_updated', loadSocial);
+    };
+  }, []);
+
   const handlePageChange = (page: string) => {
     setCurrentPage(page);
     window.location.hash = page === 'home' ? '' : page;
@@ -51,6 +84,45 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               "Aapka business ready hai, but systems slow hain? Wait mat kijiye. Build premium, scale fast."
             </p>
           </div>
+
+          <div className="flex items-center gap-3 mt-2" id="footer-social-panel">
+            <a 
+              href={socialLinks.telegramLink}
+              target="_blank"
+              rel="noreferrer"
+              className="w-8 h-8 rounded-full bg-charcoal border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
+              title="Telegram Channel"
+            >
+              <Send className="w-4 h-4" />
+            </a>
+            <a 
+              href={socialLinks.linkedinLink}
+              target="_blank"
+              rel="noreferrer"
+              className="w-8 h-8 rounded-full bg-charcoal border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
+              title="LinkedIn Profile"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a 
+              href={socialLinks.instagramLink}
+              target="_blank"
+              rel="noreferrer"
+              className="w-8 h-8 rounded-full bg-charcoal border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
+              title="Instagram Handle"
+            >
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a 
+              href={`https://wa.me/${socialLinks.phoneWhatsapp.replace(/[^\d]/g, '') || '918000000000'}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-8 h-8 rounded-full bg-charcoal border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
+              title="WhatsApp Chat"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </a>
+          </div>
         </div>
 
         {/* Studio Wings Navigation */}
@@ -94,33 +166,38 @@ export default function Footer({ setCurrentPage }: FooterProps) {
           <div className="flex flex-col gap-3">
             <button 
               onClick={() => handlePageChange('services')} 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
             >
-              💻 Premium Web Development
+              <Monitor className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
+              <span>Premium Web Development</span>
             </button>
             <button 
               onClick={() => handlePageChange('services')} 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
             >
-              📱 Mobile App Solutions
+              <Smartphone className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
+              <span>Mobile App Solutions</span>
             </button>
             <button 
               onClick={() => handlePageChange('services')} 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
             >
-              🎨 Logo & Identity Design
+              <Palette className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
+              <span>Logo & Identity Design</span>
             </button>
             <button 
               onClick={() => handlePageChange('services')} 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
             >
-              ⚡ Business Workflow Automations
+              <Cpu className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
+              <span>Business Workflow Automations</span>
             </button>
             <button 
               onClick={() => handlePageChange('services')} 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
             >
-              🤖 Custom Telegram Bots
+              <Bot className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
+              <span>Custom Telegram Bots</span>
             </button>
           </div>
         </div>

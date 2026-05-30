@@ -8,6 +8,8 @@ import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPo
 import { supabaseService, dbRoleToUi, uiRoleToDb } from '../utils/supabaseService';
 import { supabase } from '../utils/supabase';
 import { analytics } from '../utils/analytics';
+import { useCustomUi } from '../context/CustomUiContext';
+import { logger } from '../utils/logger';
 
 // Tab components imports
 import DashboardTab from './admin/DashboardTab';
@@ -17,9 +19,11 @@ import ContentSettingsTab from './admin/ContentSettingsTab';
 import SystemSettingsTab from './admin/SystemSettingsTab';
 
 export default function AdminPanel() {
+  const { showToast, showAlert } = useCustomUi();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [systemSubTab, setSystemSubTab] = useState<'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile'>('media');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +55,32 @@ export default function AdminPanel() {
   const [careers, setCareers] = useState<CareerApplication[]>([]);
   const [pageSections, setPageSections] = useState<any[]>([]);
   const [legalPages, setLegalPages] = useState<any>({});
-  const [websiteSettings, setWebsiteSettings] = useState<any>({});
+  const [websiteSettings, setWebsiteSettings] = useState<any>(() => {
+    try {
+      const stored = localStorage.getItem('samaxon_website_settings');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      logger.warn('Failed to parse website settings from localStorage:', e);
+    }
+    return {
+      brandName: 'SamaXon',
+      logoUrl: 'S',
+      faviconUrl: '/favicon.ico',
+      contactEmail: 'build@samaxon.com',
+      phoneWhatsapp: '+91 80000 00000',
+      telegramLink: 'https://t.me/samaxon_studio',
+      linkedinLink: 'https://linkedin.com/company/samaxon',
+      instagramLink: 'https://instagram.com/samaxon_studio',
+      address: 'SamaXon Tech Suites, Level 8, DLF CyberCity, Gurugram, HR, India',
+      defaultSeoTitle: "SamaXon | India's Premium 48-Hour Digital & Systems Studio",
+      defaultSeoDescription: 'SamaXon engineers luxury websites, lightning-fast mobile apps, advanced automations, custom telegram bots, and bespoke digital control hubs in 48 hours.',
+      maintenanceMode: false,
+      globalCtaText: 'Start Your 48h Build',
+      footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.'
+    };
+  });
 
   // 1. Mount initial states & Check Auth
   const syncWithDatabase = async () => {
@@ -100,15 +129,29 @@ export default function AdminPanel() {
       setAdminUsers(mappedAdmins);
 
       // Map crawlers
-      const mappedBots = rawCrawlers.map(l => ({
-        id: l.id,
-        botName: l.bot_name,
-        userAgent: l.user_agent,
-        pageUrl: l.page_url,
-        ipHash: l.ip_hash,
-        visitCount: 1,
-        lastSeenAt: l.created_at
-      }));
+      const mappedBots = rawCrawlers.map(l => {
+        const botName = l.bot_name || 'Generic Bot';
+        const userAgent = l.user_agent || 'Unknown';
+        const normUA = userAgent.toLowerCase();
+        const normName = botName.toLowerCase();
+        let category = 'Unknown Bot';
+        if (normName.includes('google') || normUA.includes('google')) category = 'Googlebot';
+        else if (normName.includes('bing') || normUA.includes('bing')) category = 'Bingbot';
+        else if (normName.includes('telegram') || normName.includes('twitter') || normName.includes('facebook') || normUA.includes('telegram') || normUA.includes('twitter') || normUA.includes('facebook') || normUA.includes('whatsapp')) category = 'Social Preview Bot';
+        else if (normName.includes('ahrefs') || normName.includes('semrush') || normUA.includes('ahrefs') || normUA.includes('semrush')) category = 'SEO Tool Bot';
+        
+        return {
+          id: l.id,
+          botName: botName,
+          category: category as any,
+          userAgent: userAgent,
+          pagePath: l.page_url || '/',
+          ipHash: l.ip_hash || 'unknown',
+          visitCount: 1,
+          lastSeenAt: l.created_at,
+          createdAt: l.created_at
+        };
+      });
       setBotVisits(mappedBots);
 
       // Map siteEvents to activity logs
@@ -120,23 +163,16 @@ export default function AdminPanel() {
         entityType: e.metadata?.page || 'Site Routing',
         entityId: e.id,
         description: `Triggered event: "${e.event_type}" from ${e.browser || 'Unknown'} Browser on a ${e.device_type || 'Desktop'}. Ref: ${e.referrer || 'Direct'}. Path: ${e.page_url || '/'}`,
+        createdAt: e.created_at,
         timestamp: e.created_at
       }));
       setActivityLogs(mappedActivityLogs);
 
-      // Webhook dynamic logs
-      const mappedWebhooks = rawWebhooks.map(w => ({
-        id: w.id,
-        name: w.webhook_type,
-        status: w.status === 'success' ? 'Active' : 'Failed',
-        endpoint: '/api/v1/automate',
-        lastTriggered: w.created_at,
-        failureReason: w.error_message || ''
-      }));
-      setAutomationLogs(mappedWebhooks);
+      // Webhook dynamic logs - directly connect to real database table
+      setAutomationLogs(rawWebhooks || []);
 
     } catch (err) {
-      console.warn('Sync failed to load real-time database elements:', err);
+      logger.warn('Sync failed to load real-time database elements:', err);
     }
   };
 
@@ -154,19 +190,13 @@ export default function AdminPanel() {
           const { data: match, error: fetchError } = await supabaseService.getTeamMemberByAuth(userId, emailLower);
 
           // Log database details in development only
-          const metaEnv = (import.meta as any).env || {};
-          if (metaEnv.DEV) {
-            console.log("--- Auth Session Init Diagnosis ---");
-            console.log("Auth User ID:", userId);
-            console.log("Auth Email:", emailLower);
-            console.log("Supabase URL:", metaEnv.VITE_SUPABASE_URL || 'Default env fallback');
-            console.log("Team Member Match:", match);
-            console.log("Fetch Error / RLS:", fetchError);
-          }
+          logger.log("--- Auth Session Init Diagnosis ---");
+          logger.log("Auth User ID:", userId);
+          logger.log("Auth Email:", emailLower);
 
           if (fetchError) {
-            console.error("Auth initialization query failed:", fetchError);
-            setLoginError(`RLS blocked team_members lookup: ${fetchError.message || JSON.stringify(fetchError)}`);
+            logger.error("Auth initialization query failed:", fetchError);
+            setLoginError(`Authentication lookup failed. Please contact your system administrator.`);
             await supabase.auth.signOut();
             return;
           }
@@ -203,7 +233,7 @@ export default function AdminPanel() {
           }
         }
       } catch (err) {
-        console.warn('Initial auth validation crashed, running client-safeguard:', err);
+        logger.warn('Initial auth validation process encountered error');
       } finally {
         setAuthLoading(false);
       }
@@ -355,12 +385,21 @@ export default function AdminPanel() {
 
   const handleUpdateWebsiteSettings = (nextSettings: any) => {
     setWebsiteSettings(nextSettings);
+    try {
+      localStorage.setItem('samaxon_website_settings', JSON.stringify(nextSettings));
+    } catch (e) {
+      logger.warn('Failed to save website settings to localStorage:', e);
+    }
   };
 
   const handleUpdateAdminUsers = async (nextUsers: any[]) => {
     // Only Super Admin can modify accounts
     if (currentUser?.role !== 'Super Admin') {
-      alert('Security Policy Alert: Only Super Admin is authorized to register or configure executive accounts.');
+      showAlert({
+        title: 'Security Policy Alert',
+        message: 'Only Super Admin is authorised to register or configure executive roles.',
+        type: 'error'
+      });
       return;
     }
 
@@ -379,13 +418,13 @@ export default function AdminPanel() {
               password: passwordToUse
             });
             if (signUpErr) {
-              console.warn('Supabase Auth signUp returned error/warning:', signUpErr.message);
+              logger.warn('Supabase Auth signUp returned error/warning.');
             }
             if (signUpData?.user?.id) {
               finalId = signUpData.user.id;
             }
           } catch (signUpFail) {
-            console.error('Supabase Auth signUp failed:', signUpFail);
+            logger.error('Supabase Auth signUp failed.');
           }
 
           const dbMemberObj = {
@@ -439,9 +478,9 @@ export default function AdminPanel() {
       }));
       setAdminUsers(mappedAdmins);
 
-      alert('Database team matrix sync completed successfully!');
+      showToast('Database team matrix sync completed successfully!', 'success');
     } catch (err) {
-      console.error('Failed to update team members:', err);
+      logger.error('Failed to update team members');
     }
   };
 
@@ -481,19 +520,13 @@ export default function AdminPanel() {
       const { data: match, error: fetchError } = await supabaseService.getTeamMemberByAuth(authUser.id, emailLower);
 
       // Log database details in development only
-      const loginMetaEnv = (import.meta as any).env || {};
-      if (loginMetaEnv.DEV) {
-        console.log("--- Auth Action Diagnosis ---");
-        console.log("Auth User ID:", authUser.id);
-        console.log("Auth Email:", emailLower);
-        console.log("Supabase URL:", loginMetaEnv.VITE_SUPABASE_URL || 'Default env fallback');
-        console.log("Team Member Match:", match);
-        console.log("Fetch Error / RLS:", fetchError);
-      }
+      logger.log("--- Auth Action Diagnosis ---");
+      logger.log("Auth User ID:", authUser.id);
+      logger.log("Auth Email:", emailLower);
 
       if (fetchError) {
         await supabase.auth.signOut();
-        throw new Error(`RLS blocked team_members lookup: ${fetchError.message || JSON.stringify(fetchError)}`);
+        throw new Error(`Access verification failed. RLS policy mismatch detected.`);
       }
 
       if (!match) {
@@ -548,7 +581,7 @@ export default function AdminPanel() {
       });
       await supabase.auth.signOut();
     } catch (e) {
-      console.warn('Signout failed:', e);
+      logger.warn('Signout action failed');
     }
     setIsAuthenticated(false);
     setCurrentUser(null);
@@ -687,10 +720,10 @@ export default function AdminPanel() {
     : 'EX';
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col md:flex-row text-neutral-800 font-sans antialiased" id="admin-workspace-core">
+    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#FFFDF8] flex flex-col md:flex-row text-neutral-800 font-sans antialiased" id="admin-workspace-core">
       
       {/* 1. Luxurious Floating Left Navigation Sidebar */}
-      <aside className="w-full md:w-64 bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/20 flex flex-col justify-between shrink-0 text-left">
+      <aside className="w-full md:w-64 md:h-full bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/20 flex flex-col justify-between shrink-0 text-left overflow-y-auto custom-scrollbar">
         <div>
           {/* Master branding block */}
           <div className="p-6 border-b border-[#D6B46A]/15 flex items-center justify-between">
@@ -759,7 +792,7 @@ export default function AdminPanel() {
       </aside>
 
       {/* 2. Primary Workspace Body */}
-      <main className="flex-1 min-w-0 bg-[#FFFDF8] p-6 lg:p-10">
+      <main className="flex-1 min-w-0 bg-[#FFFDF8] p-6 lg:p-10 md:h-full md:overflow-y-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -775,7 +808,17 @@ export default function AdminPanel() {
                 careers={jobApplications as any}
                 botVisits={botVisits}
                 activityLogs={activityLogs}
-                onNavigateTo={(tabId) => setActiveTab(tabId)}
+                onNavigateTo={(tabId) => {
+                  if (tabId === 'bot-logs') {
+                    setSystemSubTab('botlogs');
+                    setActiveTab('system');
+                  } else if (tabId === 'activity-logs') {
+                    setSystemSubTab('audit');
+                    setActiveTab('system');
+                  } else {
+                    setActiveTab(tabId);
+                  }
+                }}
               />
             )}
 
@@ -814,6 +857,8 @@ export default function AdminPanel() {
 
             {activeTab === 'system' && currentUser?.role === 'Super Admin' && (
               <SystemSettingsTab
+                initialSubTab={systemSubTab}
+                onSubTabChange={(st: any) => setSystemSubTab(st)}
                 mediaAssets={mediaAssets}
                 botVisits={botVisits}
                 automationLogs={automationLogs}

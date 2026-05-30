@@ -17,6 +17,14 @@ export interface Lead {
   message?: string;
   status: 'new' | 'contacted' | 'negotiating' | 'won' | 'lost';
   createdAt: string;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  internalNotes?: string;
+  assignedTo?: string;
+  complexity?: 'Basic' | 'Standard' | 'Premium' | 'Advanced' | 'Enterprise';
+  selected_addons?: string[];
+  estimated_min_price?: number;
+  estimated_max_price?: number;
+  user_budget_preference?: string;
 }
 
 export interface CareerApplication {

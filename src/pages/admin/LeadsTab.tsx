@@ -5,6 +5,8 @@ import {
   User, CheckCircle, XSquare, PlusSquare, ArrowLeft, MessageSquare, Tag, Bookmark
 } from 'lucide-react';
 import { Lead } from '../../types';
+import CustomSelect from '../../components/CustomSelect';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 interface LeadsTabProps {
   leads: Lead[];
@@ -13,6 +15,7 @@ interface LeadsTabProps {
 }
 
 export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTabProps) {
+  const { showToast, showConfirm } = useCustomUi();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -172,43 +175,35 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
 
           {/* Select Service */}
           <div className="md:col-span-3">
-            <select
+            <CustomSelect
               value={selectedService}
-              onChange={(e) => setSelectedService(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#FFFDF8] border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all cursor-pointer"
-            >
-              <option value="All">All Core Services</option>
-              {servicesList.slice(1).map(srv => (
-                <option key={srv} value={srv}>{srv}</option>
-              ))}
-            </select>
+              onChange={setSelectedService}
+              options={[
+                { value: 'All', label: 'All Core Services' },
+                ...servicesList.slice(1).map(srv => ({ value: srv, label: srv }))
+              ]}
+            />
           </div>
 
           {/* Select Status */}
           <div className="md:col-span-2">
-            <select
+            <CustomSelect
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#FFFDF8] border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all cursor-pointer"
-            >
-              {statusesList.map(st => (
-                <option key={st.value} value={st.value}>{st.label}</option>
-              ))}
-            </select>
+              onChange={setSelectedStatus}
+              options={statusesList}
+            />
           </div>
 
           {/* Select Priority */}
           <div className="md:col-span-2">
-            <select
+            <CustomSelect
               value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#FFFDF8] border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all cursor-pointer"
-            >
-              <option value="All">All Priorities</option>
-              {prioritiesList.slice(1).map(pr => (
-                <option key={pr} value={pr}>{pr.toUpperCase()} Priority</option>
-              ))}
-            </select>
+              onChange={setSelectedPriority}
+              options={[
+                { value: 'All', label: 'All Priorities' },
+                ...prioritiesList.slice(1).map(pr => ({ value: pr, label: `${pr.toUpperCase()} Priority` }))
+              ]}
+            />
           </div>
 
         </div>
@@ -291,9 +286,15 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
                           </button>
                           <button
                             onClick={() => {
-                              if (confirm(`Are you absolutely sure you want to permanently delete lead: ${lead.name}?`)) {
-                                onDeleteLead(lead.id);
-                              }
+                              showConfirm({
+                                title: 'Delete Lead Entry?',
+                                message: `Are you absolutely certain you want to permanently delete lead: ${lead.name}?`,
+                                confirmText: 'Confirm Delete',
+                                onConfirm: () => {
+                                  onDeleteLead(lead.id);
+                                  showToast(`Lead: ${lead.name} has been successfully deleted!`, 'success');
+                                }
+                              });
                             }}
                             className="p-1.5 bg-[#FFFDF8] hover:bg-rose-50 border border-gray-100 hover:border-rose-200 text-[#8A8178] hover:text-rose-600 rounded-lg transition-all cursor-pointer"
                             title="Delete Lead"
@@ -391,10 +392,36 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
                         <span className="text-[10px] text-[#8A8178] block">Requested Sprint Deadline:</span>
                         <span className="font-bold text-rose-700">{editingLead.desiredTimeline}</span>
                       </div>
-                      <div className="col-span-2">
-                        <span className="text-[10px] text-[#8A8178] block">Validated Budget Scale:</span>
-                        <span className="font-bold text-[#BFA15A]">{editingLead.budgetRange}</span>
+                      <div>
+                        <span className="text-[10px] text-[#8A8178] block">Project Complexity:</span>
+                        <span className="px-2.5 py-0.5 bg-neutral-100 text-neutral-800 text-[10px] font-bold uppercase rounded-md inline-block mt-0.5">
+                          {(editingLead as any).complexity || 'Standard'}
+                        </span>
                       </div>
+                      <div>
+                        <span className="text-[10px] text-[#8A8178] block">Budget Selection Preference:</span>
+                        <span className="font-bold text-emerald-700">
+                          {(editingLead as any).user_budget_preference || 'Not Selected'}
+                        </span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-[10px] text-[#8A8178] block">Price Estimate Range:</span>
+                        <span className="font-bold text-[#BFA15A] text-sm">
+                          {(editingLead as any).estimated_min_price ? `₹${(editingLead as any).estimated_min_price.toLocaleString('en-IN')} - ₹${((editingLead as any).estimated_max_price || 0).toLocaleString('en-IN')}` : editingLead.budgetRange}
+                        </span>
+                      </div>
+                      {((editingLead as any).selected_addons && (editingLead as any).selected_addons.length > 0) && (
+                        <div className="col-span-2">
+                          <span className="text-[10px] text-[#8A8178] block mb-1">Selected Add-ons:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(editingLead as any).selected_addons.map((addon: string) => (
+                              <span key={addon} className="px-2 py-0.5 bg-[#FFFDF8] border border-[#D6B46A]/20 text-[#BFA15A] text-[9px] font-mono uppercase font-bold rounded">
+                                {addon}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-1 bg-neutral-50 p-4 rounded-xl border border-neutral-100">
@@ -422,32 +449,21 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
                       {/* Priority dropdown selector */}
                       <div>
                         <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Inquiry Lead Priority</label>
-                        <select
+                        <CustomSelect
                           value={getLeadPriority(editingLead)}
-                          onChange={(e) => setEditingLead({ ...editingLead, ...{ priority: e.target.value } })}
-                          className="w-full px-3 py-2 bg-[#FFFDF8] border border-[#D6B46A]/25 text-xs font-semibold text-[#111111] rounded-xl outline-none"
-                        >
-                          <option value="low">Low Priority</option>
-                          <option value="medium">Medium Priority</option>
-                          <option value="high">High Priority</option>
-                          <option value="urgent">Urgent / Priority 48h</option>
-                        </select>
+                          onChange={(val) => setEditingLead({ ...editingLead, ...{ priority: val } })}
+                          options={prioritiesList.slice(1).map(pr => ({ value: pr, label: `${pr.charAt(0).toUpperCase() + pr.slice(1)} Priority` }))}
+                        />
                       </div>
 
                       {/* Status select input */}
                       <div>
                         <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Client Status State</label>
-                        <select
+                        <CustomSelect
                           value={editingLead.status}
-                          onChange={(e) => setEditingLead({ ...editingLead, status: e.target.value as any })}
-                          className="w-full px-3 py-2 bg-[#FFFDF8] border border-[#D6B46A]/25 text-xs font-semibold text-[#111111] rounded-xl outline-none"
-                        >
-                          <option value="new">New Inquiry</option>
-                          <option value="contacted">Contacted</option>
-                          <option value="negotiating">Qualified / Demo Sent</option>
-                          <option value="won">Won / In Production</option>
-                          <option value="lost">Lost / Archived</option>
-                        </select>
+                          onChange={(val) => setEditingLead({ ...editingLead, status: val as any })}
+                          options={statusesList.slice(1)}
+                        />
                       </div>
                     </div>
 

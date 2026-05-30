@@ -208,8 +208,11 @@ export default function Careers() {
                   Digital Growth Consultant (Remote)
                 </h3>
                 
-                <p className="text-xs sm:text-sm font-semibold text-emerald-800 font-mono bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-100/60 mt-2 leading-relaxed">
-                  📢 <strong className="text-matte-black uppercase font-bold tracking-wider">Potential:</strong> ₹30,000 - ₹70,000+ / Month (Incentive-Based)
+                <p className="text-xs sm:text-sm font-semibold text-emerald-800 font-mono bg-emerald-50/50 p-3.5 rounded-xl border border-emerald-100/60 mt-2 leading-relaxed flex items-center gap-2">
+                  <BadgeDollarSign className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    <strong className="text-matte-black uppercase font-bold tracking-wider">Potential:</strong> ₹30,000 - ₹70,000+ / Month (Incentive-Based)
+                  </span>
                 </p>
               </div>
 
@@ -494,31 +497,40 @@ export default function Careers() {
 
                 {/* Level Tier Strips */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-center font-sans">
-                  <div className="bg-[#FAF8F5] border border-champagne-gold/15 rounded-xl p-3 flex flex-col items-center justify-center">
-                    <span className="text-lg">🥉</span>
-                    <strong className="text-xs text-matte-black font-semibold mt-1">Level 1</strong>
-                    <span className="text-[9.5px] text-warm-grey font-mono mt-0.5">Deals 1 to 3</span>
-                    <p className="text-[11.5px] font-mono font-bold text-[#BFA15A] mt-1.5">₹2,000 / deal</p>
+                  <div className="bg-[#FAF8F5] border border-champagne-gold/15 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5">
+                    <Award className="w-5 h-5 text-amber-700/80" />
+                    <div>
+                      <strong className="text-xs text-matte-black font-semibold block">Level 1</strong>
+                      <span className="text-[9.5px] text-warm-grey font-mono block mt-0.5">Deals 1 to 3</span>
+                    </div>
+                    <p className="text-[11.5px] font-mono font-bold text-[#BFA15A] mt-1">₹2,000 / deal</p>
                   </div>
 
-                  <div className="bg-[#FAF8F5] border border-champagne-gold/15 rounded-xl p-3 flex flex-col items-center justify-center">
-                    <span className="text-lg">🥈</span>
-                    <strong className="text-xs text-matte-black font-semibold mt-1">Level 2</strong>
-                    <span className="text-[9.5px] text-warm-grey font-mono mt-0.5">Deals 4 to 7</span>
-                    <p className="text-[11.5px] font-mono font-bold text-[#BFA15A] mt-1.5">₹3,000 / deal</p>
+                  <div className="bg-[#FAF8F5] border border-champagne-gold/15 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5">
+                    <Award className="w-5 h-5 text-slate-400" />
+                    <div>
+                      <strong className="text-xs text-matte-black font-semibold block">Level 2</strong>
+                      <span className="text-[9.5px] text-warm-grey font-mono block mt-0.5">Deals 4 to 7</span>
+                    </div>
+                    <p className="text-[11.5px] font-mono font-bold text-[#BFA15A] mt-1">₹3,000 / deal</p>
                   </div>
 
-                  <div className="bg-[#FAF8F5] border border-champagne-gold/15 rounded-xl p-3 flex flex-col items-center justify-center">
-                    <span className="text-lg">🥇</span>
-                    <strong className="text-xs text-matte-black font-semibold mt-1">Level 3</strong>
-                    <span className="text-[9.5px] text-warm-grey font-mono mt-0.5">Deals 8 & Above</span>
-                    <p className="text-[11.5px] font-mono font-bold text-emerald-800 mt-1.5">₹4,000 / deal</p>
+                  <div className="bg-[#FAF8F5] border border-champagne-gold/15 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5">
+                    <Award className="w-5 h-5 text-yellow-500" />
+                    <div>
+                      <strong className="text-xs text-matte-black font-semibold block">Level 3</strong>
+                      <span className="text-[9.5px] text-warm-grey font-mono block mt-0.5">Deals 8 & Above</span>
+                    </div>
+                    <p className="text-[11.5px] font-mono font-bold text-emerald-800 mt-1">₹4,000 / deal</p>
                   </div>
                 </div>
 
                 {/* Example sentence */}
-                <div className="bg-emerald-50/15 border border-emerald-100 rounded-xl p-3.5 text-xs text-warm-grey leading-relaxed italic mt-3 font-sans">
-                  💡 <strong className="text-matte-black">Example:</strong> Closing just 10 deals a month earns you <strong className="text-emerald-800 font-bold not-italic">₹40,000+</strong>, completely from home with flexible working hours.
+                <div className="bg-emerald-50/15 border border-emerald-100 rounded-xl p-3.5 text-xs text-warm-grey leading-relaxed mt-3 font-sans flex items-start gap-2.5">
+                  <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                  <div>
+                    <strong className="text-matte-black font-semibold uppercase tracking-wider text-[10px]">Example:</strong> Closing just 10 deals a month earns you <strong className="text-emerald-800 font-extrabold not-italic font-mono">₹40,000+</strong>, completely from home with flexible working hours.
+                  </div>
                 </div>
               </div>
 

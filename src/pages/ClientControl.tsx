@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, CheckCircle, Smartphone, Database, Shield, Layout, Sparkles, CheckSquare, Edit3, MessageCircle, BarChart3, AlertCircle } from 'lucide-react';
 import SEO from '../components/SEO';
+import CustomSelect from '../components/CustomSelect';
 
 interface ClientControlProps {
   setCurrentPage: (page: string) => void;
@@ -111,15 +112,15 @@ export default function ClientControl({ setCurrentPage }: ClientControlProps) {
               {/* Action 1: Banner Selector */}
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-mono uppercase text-[#C5BCAE] font-bold">1. Manage Announcement Header:</label>
-                <select 
+                <CustomSelect 
                   value={promoBanner}
-                  onChange={(e) => setPromoBanner(e.target.value)}
-                  className="bg-charcoal border border-champagne-gold/20 text-xs text-soft-ivory p-3.5 rounded-xl cursor-pointer font-sans"
-                >
-                  <option value="SamaXon Special Offer: 48-Hour Web Launch">48-Hour Premium Promo Header</option>
-                  <option value="🇮🇳 Mega Independence Launch Deal: Get Free Bot">Independence Special Bot Promo</option>
-                  <option value="⚠️ Staging Notice: Maintenance at 02:00 UTC">Maintenance System Broadcast Alert</option>
-                </select>
+                  onChange={(val) => setPromoBanner(val)}
+                  options={[
+                    { value: "SamaXon Special Offer: 48-Hour Web Launch", label: "48-Hour Premium Promo Header" },
+                    { value: "Mega Independence Launch Deal: Get Free Bot", label: "Independence Special Bot Promo" },
+                    { value: "Staging Notice: Maintenance at 02:00 UTC", label: "Maintenance System Broadcast Alert" }
+                  ]}
+                />
               </div>
 
               {/* Action 2: Text Modifier */}
@@ -194,8 +195,9 @@ export default function ClientControl({ setCurrentPage }: ClientControlProps) {
                 <div className="p-5 text-left space-y-4 font-sans select-none">
                   
                   {/* Staged header announcement */}
-                  <div className="py-2.5 px-4 bg-matte-black text-soft-ivory font-mono text-[9px] text-center uppercase tracking-widest rounded-lg border border-champagne-gold/10 transition-all font-bold">
-                    🔥 {promoBanner}
+                  <div className="py-2.5 px-4 bg-matte-black text-soft-ivory font-mono text-[9px] text-center uppercase tracking-widest rounded-lg border border-champagne-gold/10 transition-all font-bold flex items-center justify-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-champagne-gold shrink-0 animate-pulse" />
+                    <span>{promoBanner}</span>
                   </div>
 
                   {/* Staged Navbar */}

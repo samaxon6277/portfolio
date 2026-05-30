@@ -6,6 +6,8 @@ import {
   Download, Award, Sparkles, User, HelpCircle, GraduationCap, Clock, CheckCircle2, MinusCircle, Info
 } from 'lucide-react';
 import { JobApplication } from '../../types';
+import CustomSelect from '../../components/CustomSelect';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 interface CareersTabProps {
   jobApplications: JobApplication[];
@@ -18,6 +20,7 @@ export default function CareersTab({
   onUpdateJobApplication, 
   onDeleteJobApplication 
 }: CareersTabProps) {
+  const { showConfirm, showToast } = useCustomUi();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -211,28 +214,22 @@ export default function CareersTab({
           </div>
 
           <div className="md:col-span-3">
-            <select
+            <CustomSelect
               value={selectedPosition}
-              onChange={(e) => setSelectedPosition(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#FFFDF8] border border-[#D6B46A]/15 focus:border-[#D6B46A] text-xs font-semibold text-matte-black rounded-xl outline-none transition-all cursor-pointer"
-            >
-              <option value="All">All Positions</option>
-              {positionsList.slice(1).map(role => (
-                <option key={role} value={role}>{role}</option>
-              ))}
-            </select>
+              onChange={setSelectedPosition}
+              options={[
+                { value: 'All', label: 'All Positions' },
+                ...positionsList.slice(1).map(role => ({ value: role, label: role }))
+              ]}
+            />
           </div>
 
           <div className="md:col-span-3">
-            <select
+            <CustomSelect
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#FFFDF8] border border-[#D6B46A]/15 focus:border-[#D6B46A] text-xs font-semibold text-matte-black rounded-xl outline-none transition-all cursor-pointer"
-            >
-              {statusesList.map(st => (
-                <option key={st.value} value={st.value}>{st.label}</option>
-              ))}
-            </select>
+              onChange={setSelectedStatus}
+              options={statusesList}
+            />
           </div>
 
         </div>
@@ -433,9 +430,15 @@ export default function CareersTab({
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => {
-                        if (confirm(`Confirm you want to hire applicant "${activeApp.full_name}"?`)) {
-                          handleUpdateStatus(activeApp, 'Hired');
-                        }
+                        showConfirm({
+                          title: 'Hire Candidate?',
+                          message: `Confirm you want to hire applicant "${activeApp.full_name}"? This action flags them as a selected onboarding specialist.`,
+                          confirmText: 'Confirm Hire',
+                          onConfirm: () => {
+                            handleUpdateStatus(activeApp, 'Hired');
+                            showToast(`Applicant ${activeApp.full_name} is officially hired!`, 'success');
+                          }
+                        });
                       }}
                       className="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                     >
@@ -445,9 +448,15 @@ export default function CareersTab({
 
                     <button
                       onClick={() => {
-                        if (confirm(`Confirm you want to reject applicant "${activeApp.full_name}"?`)) {
-                          handleUpdateStatus(activeApp, 'Rejected');
-                        }
+                        showConfirm({
+                          title: 'Reject Applications?',
+                          message: `Confirm you want to reject applicant "${activeApp.full_name}"? This will move them to the Rejected stage.`,
+                          confirmText: 'Reject Prospect',
+                          onConfirm: () => {
+                            handleUpdateStatus(activeApp, 'Rejected');
+                            showToast(`Applicant ${activeApp.full_name} marked as rejected.`, 'info');
+                          }
+                        });
                       }}
                       className="px-4 py-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
@@ -461,10 +470,16 @@ export default function CareersTab({
                     <span className="font-mono text-[10px] text-warm-grey">Danger Zone operations</span>
                     <button
                       onClick={() => {
-                        if (confirm(`Are you absolutely sure you want to permanently delete application of "${activeApp.full_name}"?`)) {
-                          onDeleteJobApplication(activeApp.id);
-                          setActiveApp(null);
-                        }
+                        showConfirm({
+                          title: 'Delete Job Application Permanently?',
+                          message: `Are you absolutely sure you want to permanently delete the application of "${activeApp.full_name}"? This behavior is irreversible.`,
+                          confirmText: 'Proceed and Delete',
+                          onConfirm: () => {
+                            onDeleteJobApplication(activeApp.id);
+                            setActiveApp(null);
+                            showToast(`Application deleted successfully.`, 'success');
+                          }
+                        });
                       }}
                       className="text-xs font-bold uppercase tracking-wider hover:underline text-red-700"
                     >

@@ -67,6 +67,7 @@ export interface WebsiteSettings {
   phoneWhatsapp: string;
   telegramLink: string;
   linkedinLink: string;
+  instagramLink: string;
   address: string;
   defaultSeoTitle: string;
   defaultSeoDescription: string;
@@ -567,6 +568,7 @@ const defaultWebsiteSettings: WebsiteSettings = {
   phoneWhatsapp: '+91 80000 00000',
   telegramLink: 'https://t.me/samaxon_studio',
   linkedinLink: 'https://linkedin.com/company/samaxon',
+  instagramLink: 'https://instagram.com/samaxon_studio',
   address: 'SamaXon Tech Suites, Level 8, DLF CyberCity, Gurugram, HR, India',
   defaultSeoTitle: 'SamaXon | India\'s Premium 48-Hour Digital & Systems Studio',
   defaultSeoDescription: 'SamaXon engineers luxury websites, lightning-fast mobile apps, advanced automations, custom telegram bots, and bespoke digital control hubs in 48 hours.',

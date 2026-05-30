@@ -50,7 +50,14 @@ CREATE TABLE IF NOT EXISTS client_inquiries (
     priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
     notes TEXT,
     assigned_to TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    desired_timeline TEXT,
+    budget_range TEXT,
+    complexity TEXT,
+    selected_addons TEXT[],
+    estimated_min_price INTEGER,
+    estimated_max_price INTEGER,
+    user_budget_preference TEXT
 );
 
 -- Enable RLS for client_inquiries
