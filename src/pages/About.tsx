@@ -1,14 +1,16 @@
+import { useNavigate } from 'react-router-dom';
 import { Crown, Sparkles, Code, Terminal, Eye, Hammer, ShieldAlert, CheckCircle, Zap } from 'lucide-react';
 import SEO from '../components/SEO';
 
 interface AboutProps {
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 export default function About({ setCurrentPage }: AboutProps) {
+  const navigate = useNavigate();
   const handleAction = (page: string) => {
-    setCurrentPage(page);
-    window.location.hash = page === 'home' ? '' : page;
+    const target = page === 'home' ? '/' : `/${page}`;
+    navigate(target);
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 
@@ -153,14 +155,14 @@ export default function About({ setCurrentPage }: AboutProps) {
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={() => handleAction('contact')}
-                  className="px-6 py-3.5 bg-matte-black hover:bg-charcoal text-white font-bold uppercase tracking-widest text-[10px] rounded-full flex items-center gap-1.5 transition-colors cursor-pointer border border-champagne-gold/20"
+                  className="px-6 py-3.5 bg-matte-black hover:bg-charcoal text-white font-bold uppercase tracking-widest text-[10px] rounded-full flex items-center gap-1.5 transition-colors cursor-pointer border border-champagne-gold/20 font-mono"
                 >
                   Start Build Now
                   <Zap className="w-3.5 h-3.5 text-champagne-gold" />
                 </button>
                 <button
-                  onClick={() => setCurrentPage('contact')}
-                  className="px-6 py-3.5 bg-transparent text-matte-black hover:bg-[#F0EAE1] font-bold uppercase tracking-widest text-[10px] rounded-full border border-matte-black/10 transition-colors"
+                  onClick={() => handleAction('contact')}
+                  className="px-6 py-3.5 bg-transparent text-matte-black hover:bg-[#F0EAE1] font-bold uppercase tracking-widest text-[10px] rounded-full border border-matte-black/10 transition-colors font-mono"
                 >
                   Request A Meeting
                 </button>

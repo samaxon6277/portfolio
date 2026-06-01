@@ -305,7 +305,7 @@ export default function CareersTab({
                     Mail Email
                   </a>
                   <a 
-                    href={`https://wa.me/${activeApp.whatsapp.replace(/[^0-9]/g, '')}`}
+                    href={`https://wa.me/${(activeApp?.whatsapp || '').replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noreferrer"
                     className="px-3.5 py-2 bg-emerald-600/35 hover:bg-emerald-600 border border-emerald-500/40 text-[#FFFDF8] rounded-lg transition-colors flex items-center gap-1.5"

@@ -1,15 +1,16 @@
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Flame, ShieldAlert, Sparkles, Terminal, Award, HelpCircle } from 'lucide-react';
 import SEO from '../components/SEO';
 import { EDGE_BULLETS } from '../data';
 
 interface SamaXonEdgeProps {
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 export default function SamaXonEdge({ setCurrentPage }: SamaXonEdgeProps) {
+  const navigate = useNavigate();
   const handleInquire = () => {
-    setCurrentPage('contact');
-    window.location.hash = 'contact';
+    navigate('/contact');
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 

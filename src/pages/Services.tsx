@@ -1,19 +1,20 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Code, Layers, Crown, Sparkles, FileSpreadsheet, MessageCircle, BarChart3, Database, ShieldAlert } from 'lucide-react';
 import SEO from '../components/SEO';
 import { SERVICES_DATA } from '../data';
 
 interface ServicesProps {
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 export default function Services({ setCurrentPage }: ServicesProps) {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const handleAction = (serviceId: string) => {
     // Keep it integrated, route directly to contact or pre-fill query
-    setCurrentPage('contact');
-    window.location.hash = 'contact';
+    navigate('/contact');
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 

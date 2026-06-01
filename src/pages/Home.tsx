@@ -1,16 +1,19 @@
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Target, Star, Layers, Code, Sparkles, MessageCircle, ArrowUpRight, PlayCircle, Trophy, BarChart3, Database, ShieldCheck, Mail, Users, FileSpreadsheet, Crown } from 'lucide-react';
 import { motion } from 'motion/react';
 import SEO from '../components/SEO';
 import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
+import { PAGE_TO_ROUTE } from '../utils/navigation';
 
 interface HomeProps {
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 export default function Home({ setCurrentPage }: HomeProps) {
+  const navigate = useNavigate();
   const handleAction = (page: string) => {
-    setCurrentPage(page);
-    window.location.hash = page === 'home' ? '' : page;
+    const targetRoute = PAGE_TO_ROUTE[page] || '/';
+    navigate(targetRoute);
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 

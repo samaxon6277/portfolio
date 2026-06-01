@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Smartphone, Database, Shield, Layout, Sparkles, CheckSquare, Edit3, MessageCircle, BarChart3, AlertCircle } from 'lucide-react';
 import SEO from '../components/SEO';
 import CustomSelect from '../components/CustomSelect';
 
 interface ClientControlProps {
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 export default function ClientControl({ setCurrentPage }: ClientControlProps) {
+  const navigate = useNavigate();
   // Interactive Simulator States
   const [promoBanner, setPromoBanner] = useState<string>("SamaXon Special Offer: 48-Hour Web Launch");
   const [webHeadline, setWebHeadline] = useState<string>("Premium Luxury Estate Builders India");
@@ -15,8 +17,7 @@ export default function ClientControl({ setCurrentPage }: ClientControlProps) {
   const [leadSimStatus, setLeadSimStatus] = useState<'idle' | 'submitted' | 'processing'>('idle');
 
   const handleInquire = () => {
-    setCurrentPage('contact');
-    window.location.hash = 'contact';
+    navigate('/contact');
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 

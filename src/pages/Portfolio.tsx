@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Star, ShieldCheck, CheckSquare, Sparkles, Filter, Smile } from 'lucide-react';
 import SEO from '../components/SEO';
 import { PORTFOLIO_DATA } from '../data';
 import { supabaseService } from '../utils/supabaseService';
 
 interface PortfolioProps {
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 function SmartThumbnail({ src, alt }: { src: string; alt: string }) {
@@ -38,6 +39,7 @@ function SmartThumbnail({ src, alt }: { src: string; alt: string }) {
 }
 
 export default function Portfolio({ setCurrentPage }: PortfolioProps) {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [projectsList, setProjectsList] = useState<any[]>([]);
 
@@ -75,8 +77,7 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
     : projectsList.filter((p) => p.category === activeFilter);
 
   const handleInquire = () => {
-    setCurrentPage('contact');
-    window.location.hash = 'contact';
+    navigate('/contact');
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 

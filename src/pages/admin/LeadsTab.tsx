@@ -60,18 +60,18 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
     const headers = ['ID', 'Name', 'Business', 'Phone', 'Email', 'City', 'Service', 'Problem', 'Timeline', 'Budget', 'Status', 'Priority', 'Notes', 'Created At'];
     const rows = filteredLeads.map(lead => [
       lead.id,
-      `"${lead.name.replace(/"/g, '""')}"`,
-      `"${lead.businessName.replace(/"/g, '""')}"`,
+      `"${(lead.name || '').replace(/"/g, '""')}"`,
+      `"${(lead.businessName || '').replace(/"/g, '""')}"`,
       `'${lead.phone}`,
       lead.email,
       lead.city,
       lead.serviceNeeded,
       `"${lead.currentProblem?.replace(/"/g, '""') || ''}"`,
       lead.desiredTimeline,
-      `"${lead.budgetRange.replace(/"/g, '""')}"`,
+      `"${(lead.budgetRange || '').replace(/"/g, '""')}"`,
       lead.status,
       getLeadPriority(lead),
-      `"${getLeadNotes(lead).replace(/"/g, '""')}"`,
+      `"${(getLeadNotes(lead) || '').replace(/"/g, '""')}"`,
       lead.createdAt
     ]);
 

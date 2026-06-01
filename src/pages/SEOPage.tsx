@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, HelpCircle, BadgeCheck, AlertCircle, Quote, Sparkles, LayoutDashboard, Share2, Star, Calendar, MessageSquare, Flame } from 'lucide-react';
 import SEO from '../components/SEO';
 import { supabaseService } from '../utils/supabaseService';
@@ -97,12 +98,51 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
       { q: "What is the speed guarantee of SamaXon custom engines?", a: "WordPress or elementor sites depend on heavy databases. We deploy compiled, hand-written static files, consistently score 99%+ on Google Lighthouse Vitals, and load within a blink." },
       { q: "Do we receive an administrative panel to review submissions?", a: "Yes. Every client receives credentials to our robust Admin panel, enabling you to inspect incoming client inquiries, update portfolio cards, and handle lead logs." }
     ]
+  },
+  school: {
+    title: 'Premium School, Academy & K12 Portal Design Agency',
+    description: 'SamaXon designs beautiful, high-converting school and educational institution websites with interactive academic calendars, fee calculators, admission inquiry systems, and custom content management zero monthly commissions.',
+    canonicalPath: '/school-website-design',
+    headline: 'Secure Student Enrollments with Custom Academy Portals',
+    painPoint: 'Tired of losing parent attention to slow-loading school portals, or struggles with endless manual paperwork?',
+    sol: 'Our bespoke educational portals feature dynamic academic highlights, fast online admission forms, teacher-parent communication modules, and real-time inquiry management matrices.',
+    keywords: ['school portal development', 'academy web designs', 'college admissions sites', 'student management setups'],
+    faqs: [
+      { q: "How are student admission inquiries tracked?", a: "All submissions load instantly in your central administrative panel. Admins can view complete contact data, parent details, and targeted grades." },
+      { q: "Can we publish digital newsletters and school event calendars?", a: "Yes. Adding newsletters, upcoming sports events, and exam timetables is simple and can be done instantly in the administration console." }
+    ]
+  },
+  clinic: {
+    title: 'Specialized Medical Clinics, Doctors & Wellness Web Design',
+    description: 'Bespoke medical clinic, diagnostic center, and doctor practice branding web solutions. Includes patient slot booking calendars, therapist profiles, and automated WhatsApp healthcare inquiry routers.',
+    canonicalPath: '/clinic-website-design',
+    headline: 'Multiply Patient Bookings with Secure Healthcare Portals',
+    painPoint: 'Losing valued patients to expensive hospital booking aggregators, or managing patient schedules with phone calls and spreadsheets?',
+    sol: 'We develop beautiful, HIPAA-ready doctor and clinic websites with premium doctors cards, direct appointments calendars, healthcare packages cost estimators, and direct patient acquisition panels.',
+    keywords: ['doctor clinic websites', 'medical facility custom design', 'wellness center slots system', 'physiotherapist schedule web'],
+    faqs: [
+      { q: "Does the booking form connect to our WhatsApp or email?", a: "Yes. Patients can submit booking details which immediately fire alerts to your clinic's WhatsApp line and emails for easy verification." },
+      { q: "Can we showcase specialized medical packages?", a: "Yes. Show health checkup packages with full cost details and let patients secure their clinic slot online." }
+    ]
+  },
+  interior: {
+    title: 'Interior Designers, Architecture Studios & Decors Web Design',
+    description: 'Immersive interior designer and architecture brand websites. Features luxury cinematic portfolio matrices, projects catalog folder downloads, and consultation scheduler integrations.',
+    canonicalPath: '/interior-designer-website-design',
+    headline: 'Secure Premium Clients with Immersive Architectural Portals',
+    painPoint: 'Failing to display high-resolution visual mastery, or losing high-ticket design contracts to lower-tier competitors?',
+    sol: 'Our design studio packages feature ultra-low weight 8K graphics capabilities, project categories filters, budget calculators, and booking systems built to convert high-budget leads.',
+    keywords: ['interior design portfolio sites', 'architect web development', 'premium decoration portfolios', 'high-ticket design funnels'],
+    faqs: [
+      { q: "Can clients filter your portfolio by design style or project type?", a: "Yes. Your dynamic project filter lets clients view residential, commercial, or modular kitchen segments instantly without page reloads." },
+      { q: "How do potential clients schedule an initial consultation?", a: "We place clean consultation cards throughout the portal, scheduling direct project calls on your team's calendar slot." }
+    ]
   }
 };
 
 interface SEOPageProps {
   niche: string;
-  setCurrentPage: (page: string) => void;
+  setCurrentPage?: (page: string) => void;
 }
 
 export default function SEOPage({ niche = 'business', setCurrentPage }: SEOPageProps) {
@@ -237,9 +277,9 @@ export default function SEOPage({ niche = 'business', setCurrentPage }: SEOPageP
         
         {/* TOP PATH TRACE / SUB-HEADER */}
         <div className="mb-6 flex flex-wrap items-center gap-1.5 text-[10px] font-mono tracking-wider text-warm-grey uppercase font-bold">
-          <button onClick={() => setCurrentPage('home')} className="hover:text-champagne-gold transition-colors">SamaXon</button>
+          <Link to="/" className="hover:text-champagne-gold transition-colors">SamaXon</Link>
           <span>/</span>
-          <button onClick={() => setCurrentPage('services')} className="hover:text-champagne-gold transition-colors">Services</button>
+          <Link to="/services" className="hover:text-champagne-gold transition-colors">Services</Link>
           <span>/</span>
           <span className="text-matte-black">{niche} Web Development</span>
         </div>

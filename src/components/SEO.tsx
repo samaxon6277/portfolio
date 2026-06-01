@@ -124,6 +124,15 @@ export default function SEO({
       document.head.appendChild(script);
     });
 
+    // 5. Update canonical link elements
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', `https://samaxon.site${canonicalPath}`);
+
     // Scroll to top of the page on route load
     window.scrollTo({ top: 0, behavior: 'instant' as any });
 
