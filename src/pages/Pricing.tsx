@@ -136,7 +136,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Matrix Layout */}
-        <div className={`grid grid-cols-1 gap-6 items-stretch ${
+        <div className={`grid grid-cols-1 gap-6 pt-6 md:pt-8 items-stretch ${
           filteredPlans.length === 1
             ? 'max-w-md mx-auto'
             : filteredPlans.length === 2
@@ -157,7 +157,7 @@ export default function Pricing() {
               
               {/* Popular stamp */}
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-matte-black text-white text-[8px] font-mono font-bold uppercase tracking-widest border border-champagne-gold/45">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-matte-black text-white text-[8px] font-mono font-bold uppercase tracking-widest border border-champagne-gold/45 whitespace-nowrap z-20 shadow-sm">
                   RECOMMENDED PLATFORM
                 </div>
               )}
