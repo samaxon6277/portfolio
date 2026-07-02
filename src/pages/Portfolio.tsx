@@ -72,9 +72,10 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
     loadProjects();
   }, []);
 
-  const filteredProjects = activeFilter === 'all'
+  const filteredProjects = (activeFilter === 'all'
     ? projectsList
-    : projectsList.filter((p) => p.category === activeFilter);
+    : projectsList.filter((p) => p.category === activeFilter)
+  ).filter(p => !!p.thumbnailUrl);
 
   const handleInquire = () => {
     navigate('/contact');
@@ -118,6 +119,7 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
             { label: 'Websites', id: 'websites' },
             { label: 'Apps', id: 'apps' },
             { label: 'Brand Identity', id: 'brand-identity' },
+            { label: 'Graphics', id: 'graphics' },
             { label: 'Automations', id: 'automations' },
             { label: 'Telegram Bots', id: 'bots' },
             { label: 'Admin-Ready', id: 'admin-ready' },

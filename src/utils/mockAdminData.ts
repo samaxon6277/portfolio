@@ -74,6 +74,11 @@ export interface WebsiteSettings {
   maintenanceMode: boolean;
   globalCtaText: string;
   footerText: string;
+  statTotalProjects: string;
+  statActiveClients: string;
+  statTeamMembers: string;
+  statIndustriesServed: string;
+  statYearsExperience: string;
 }
 
 // Initial mock data definitions
@@ -297,36 +302,171 @@ const defaultServices: Service[] = [
 const defaultProjects: PortfolioProject[] = [
   {
     id: 'proj-1',
-    title: 'Deccan Royal Spices e-Commerce',
-    type: 'Luxury Web Platform',
+    title: 'Elite Real Estate Showcase',
+    type: 'Premium Website Build',
     category: 'websites',
-    problem: 'Their international spice catalog web application took 7 seconds to display and generated a bounce rate of nearly 52%.',
-    solution: 'Re-engineered the platform using Next.js static page generation and premium dark wood typography highlights.',
-    result: 'Achieved a 0.8s load speed and a subsequent 142% volume growth in international client inquiries inside 30 days.',
+    problem: 'A premium luxury developer in Mumbai had strong trust offline but their online website looked like a basic template, driving affluent home buyers away.',
+    solution: 'SamaXon created an immersive champagne-gold & dark charcoal multi-page presentation using Soft UI elements, interactive floor plans, instant WhatsApp click-to-chat, and optimized fast image rendering.',
+    result: 'Visual credibility established immediately. Organic buyer inquiries increased by 160% in the first month alone due to fast load speeds and premium site aesthetics.',
     visualTag: 'websites',
-    accentColor: '#D6B46A'
+    accentColor: '#D6B46A',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 'proj-2',
-    title: 'Goa Premium Villa Rent Control',
-    type: 'Bespoke Mobile Companion',
-    category: 'apps',
-    problem: 'High-end estate bookings suffered from overlapping reserve calendars and lack of immediate push reminders.',
-    solution: 'Built an offline-first premium mobile booking companion application with custom reactive synchronizations.',
-    result: 'Zero booking collusions recorded till date, elevating user satisfaction indices by 4.8 / 5 points.',
-    visualTag: 'apps',
-    accentColor: '#BFA15A'
+    title: 'Nouveau Jewellery Brand Design',
+    type: 'Luxury Brand Identity',
+    category: 'brand-identity',
+    problem: 'An elite heritage boutique wanted to pivot to a minimalist, younger millennial luxury audience but had a crowded, heavy 1990s style visual logo.',
+    solution: 'Our specialized Design Studio engineered a refined custom monogram logo, defined a Pearl & Soft Ivory grid system for social assets, and prepared high-converting ad layout grids.',
+    result: 'The brand successfully pivoted, positioning itself alongside world-class luxury houses and commanding a 40% margin premium on debut collection launches.',
+    visualTag: 'brand-identity',
+    accentColor: '#FFFDF8',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 'proj-3',
-    title: 'Aura Premium Wellness',
-    type: 'High-End Rebranding Package',
+    title: 'Aura SPA Booking Wrapper',
+    type: 'Mobile App Interface',
+    category: 'apps',
+    problem: 'A multiple-location premium wellness spa needed a fast way for VIP customers to schedule slots directly from mobile screens without calling phone lines.',
+    solution: 'SamaXon developed a lightweight, fluid WebView app wrapping an elegant, optimized Pearl-White reservation engine with localized SMS alerts and reminder notes.',
+    result: 'No more double booking. Reduced customer drop-offs by 45% and improved appointment volumes by automating notifications 2 hours prior to schedules.',
+    visualTag: 'apps',
+    accentColor: '#BFA15A',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-4',
+    title: 'Apex Consulting Lead Flow',
+    type: 'Lead Automation System',
+    category: 'automations',
+    problem: 'A business consulting firm was losing hot visual ad leads because team members took over 5 hours to copy lead data from platforms and initiate contact.',
+    solution: 'We engineered an advanced automation pipeline that fetches leads instantly, syncs with Google Sheets, and updates the sales team’s priority list within 60 seconds.',
+    result: 'Reduced response time from 5 hours to 45 seconds. Contact rates improved by 220%, leading to an immediate boost in booked consultative calls.',
+    visualTag: 'automations',
+    accentColor: '#8A8178',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-5',
+    title: 'Centurion Logistics Control Room',
+    type: 'Admin Dashboard System',
+    category: 'admin-ready',
+    problem: 'The business owner had no way to keep track of daily booking requests and leads without calling developers or searching Excel sheets.',
+    solution: 'Prepared the foundation for SamaXon Client Control in under 48 hours. Created a premium dashboard design preview with structured tables, quick content toggles, and unified lead listings.',
+    result: 'The business foundation is completely ready to scale. Future integrations are secured on standard TypeScript bindings for seamless system extensions.',
+    visualTag: 'admin-ready',
+    accentColor: '#262626',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-6',
+    title: 'Vanguard Realty Lead Alert Bot',
+    type: 'Telegram Bot Workflow',
+    category: 'bots',
+    problem: 'Leads from Facebook and Google Ads were gathering dust on server directories while field executives sat idle waiting for updates.',
+    solution: 'SamaXon created a secure Telegram notification bot that pings executive smartphones the instant a lead form is filled, displaying client names, services, and phone numbers.',
+    result: 'Team responds instantly. Lead conversion rate grew by 180% as callers contacted buyers while they were actively browsing the platform.',
+    visualTag: 'bots',
+    accentColor: '#111111',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-7',
+    title: 'Bharat AgriTech PWA',
+    type: 'IoT Farming Monitor',
+    category: 'apps',
+    problem: 'Organic cold-press oil exporters in Maharashtra struggled with tracking real-time cold-storage moisture levels, causing a 12% crop spoilage rate.',
+    solution: 'SamaXon engineered a high-performance Progressive Web Application (PWA) with live Recharts visualizers, SMS alerts for temperature fluctuations, and offline cache backup capabilities.',
+    result: 'Crop spoilage rate crashed to zero. Soil and yield forecast efficiency grew by 45%, saving the farming cooperative lakhs in monthly operational costs.',
+    visualTag: 'apps',
+    accentColor: '#4CAF50',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1562408590-e32931084e23?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-8',
+    title: 'Dharmasutra Heritage Textiles',
+    type: 'Ethnic Luxury Brand',
     category: 'brand-identity',
-    problem: 'Wellness center brand appeared like a mass-market chemist shop, repelling premium health candidates.',
-    solution: 'Designed a premium minimalist visual identity using Pearl textures and spacious typography guides.',
-    result: 'Increased average ticket size per client by 85% by establishing aesthetic authority.',
+    problem: 'A premium Banarasi silk weaver household had an incredible legacy since 1948 but lacked a premium, modern visual brand, making it hard to target luxury global boutiques.',
+    solution: 'Designed a majestic heritage monogram logo, premium copper-trim typography guides, custom physical packaging templates, and high-contrast lookbook presentation patterns.',
+    result: 'The brand successfully debuted in London and Milan exhibitions, commanding premium prices starting at ₹1,5,000 per saree with an immediate 5-month preorder booking waitlist.',
     visualTag: 'brand-identity',
-    accentColor: '#111111'
+    accentColor: '#BFA15A',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-9',
+    title: 'Mumbai QuickCommerce Dispatch Bot',
+    type: 'Automated Courier Routing',
+    category: 'bots',
+    problem: 'A fast-growing Mumbai gourmet dessert kitchen had delivery dispatchers spending 4 hours daily copying order addresses to courier apps.',
+    solution: 'Built an automated Telegram Dispatch Bot connected directly to their Shopify order webhook, auto-allocating deliveries to the nearest courier partner based on geofencing.',
+    result: 'Reduced kitchen-to-door delivery transit delay by 18 minutes. Eliminated administrative manual copy errors completely.',
+    visualTag: 'bots',
+    accentColor: '#2196F3',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-10',
+    title: 'Kolkata Legal Systems Automation',
+    type: 'Supreme Court Doc Sync',
+    category: 'automations',
+    problem: 'A tier-1 litigation firm in Kolkata spent hundreds of manual paralegal hours checking national court case calendars and daily case listings.',
+    solution: 'Programmed a scheduled web scraping script and data pipeline that auto-checks official supreme court registries, updates active case spreadsheets, and emails case-status digests at 8 AM.',
+    result: 'Saved 22 Paralegal hours per week. Eliminated missed hearing risks entirely, securing 100% schedule accuracy.',
+    visualTag: 'automations',
+    accentColor: '#FF5722',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-11',
+    title: 'Zenith Diagnostic Centers',
+    type: 'Multi-City Medical Platform',
+    category: 'websites',
+    problem: 'A premium healthcare and diagnostics chain in Hyderabad had a slow, chaotic website where senior patients struggled to schedule lab packages or find reports.',
+    solution: 'Created a fully custom-engineered React-based medical booking ecosystem featuring 0.4s page loading, high-contrast typography, and intuitive 3-click report downloads.',
+    result: 'Online bookings skyrocketed by 135% within 3 weeks. Reduced call center overload by 55% as patients seamlessly downloaded report PDFs themselves.',
+    visualTag: 'websites',
+    accentColor: '#3F51B5',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-12',
+    title: 'Jaipur Royal Rugs Admin Hub',
+    type: 'Global Inventory Console',
+    category: 'admin-ready',
+    problem: 'Luxury rug manufacturers in Rajasthan had no unified digital control screen to track active weaves, raw wool inventory, and worldwide shipping container numbers.',
+    solution: 'Configured the ultimate SamaXon Client Admin Console with live status tracking, inventory warning logs, and integrated currency fluctuation estimators.',
+    result: 'The complete logistics workflow is now managed under one screen, preparing the brand for rapid North American retail store expansions.',
+    visualTag: 'admin-ready',
+    accentColor: '#E91E63',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-13',
+    title: 'Saffron Luxe Graphics Suite',
+    type: 'High-Converting Ad Visuals',
+    category: 'graphics',
+    problem: 'A high-end organic skincare brand had great products but basic, cluttered social media banner creatives that led to high advertising customer acquisition costs (CAC).',
+    solution: 'Produced a cohesive, high-contrast visual design suite, custom 3D gold-embossed serum bottles mockups, and minimal modern advertising templates.',
+    result: 'Social media ad click-through rates (CTR) rose from 1.1% to 4.2%, while client acquisition cost dropped by 35% in 15 days.',
+    visualTag: 'graphics',
+    accentColor: '#FF9800',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'proj-14',
+    title: 'Himalayan Nectar Branding Assets',
+    type: 'High-End Graphic Package',
+    category: 'graphics',
+    problem: 'An organic honey and pure herbal products startup in Dehradun lacked high-converting aesthetic visuals for their digital storefront launched on Shopify.',
+    solution: 'SamaXon designed customized high-contrast modern web product banners, detailed brand vector patterns, and elegant digital visual templates.',
+    result: 'User scroll time on the storefront increased by 140%, resulting in a 48% growth in initial basket checkout counts during the launch week.',
+    visualTag: 'graphics',
+    accentColor: '#FFB300',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
   }
 ];
 
@@ -574,7 +714,12 @@ const defaultWebsiteSettings: WebsiteSettings = {
   defaultSeoDescription: 'SamaXon engineers luxury websites, lightning-fast mobile apps, advanced automations, custom telegram bots, and bespoke digital control hubs in 48 hours.',
   maintenanceMode: false,
   globalCtaText: 'Start Your 48h Build',
-  footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.'
+  footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.',
+  statTotalProjects: '42+',
+  statActiveClients: '18+',
+  statTeamMembers: '8+',
+  statIndustriesServed: '12+',
+  statYearsExperience: '5+'
 };
 
 const defaultLegalPages = {
@@ -629,9 +774,22 @@ export function initializeDatabase() {
   if (!localStorage.getItem('samaxon_services')) {
     localStorage.setItem('samaxon_services', JSON.stringify(defaultServices));
   }
-  if (!localStorage.getItem('samaxon_portfolio_projects')) {
+  
+  // For portfolio projects, automatically load defaultProjects if empty or if it contains fewer than 10 projects (to ensure our massive upgrade loads instantly)
+  const existingProjectsStr = localStorage.getItem('samaxon_portfolio_projects');
+  if (!existingProjectsStr) {
     localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(defaultProjects));
+  } else {
+    try {
+      const parsed = JSON.parse(existingProjectsStr);
+      if (!Array.isArray(parsed) || parsed.length < 10) {
+        localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(defaultProjects));
+      }
+    } catch (e) {
+      localStorage.setItem('samaxon_portfolio_projects', JSON.stringify(defaultProjects));
+    }
   }
+
   if (!localStorage.getItem('samaxon_testimonials')) {
     localStorage.setItem('samaxon_testimonials', JSON.stringify(defaultTestimonials));
   }

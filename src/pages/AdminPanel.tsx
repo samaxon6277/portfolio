@@ -78,7 +78,12 @@ export default function AdminPanel() {
       defaultSeoDescription: 'SamaXon engineers luxury websites, lightning-fast mobile apps, advanced automations, custom telegram bots, and bespoke digital control hubs in 48 hours.',
       maintenanceMode: false,
       globalCtaText: 'Start Your 48h Build',
-      footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.'
+      footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.',
+      statTotalProjects: '42+',
+      statActiveClients: '18+',
+      statTeamMembers: '8+',
+      statIndustriesServed: '12+',
+      statYearsExperience: '5+'
     };
   });
 

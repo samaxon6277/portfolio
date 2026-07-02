@@ -4,7 +4,8 @@ import {
   FolderEdit, Sparkles, Check, Trash2, Plus, Edit2, Copy, Globe, EyeOff, Info, Award, FileText,
   Smartphone, X, Link as LinkIcon
 } from 'lucide-react';
-import { Service, PortfolioProject, Testimonial, BlogPost } from '../../types';
+import { Service, PortfolioProject, Testimonial, BlogPost, PricingPlan } from '../../types';
+import { DEFAULT_PRICING } from '../../utils/defaultData';
 import { PageSectionContent, WebsiteSettings } from '../../utils/mockAdminData';
 import { compressImage, cropAndCompressImage } from '../../utils/imageCompressor';
 import CustomSelect from '../../components/CustomSelect';
@@ -53,7 +54,7 @@ export default function ContentSettingsTab({
   onUpdateServices, onUpdatePortfolio, onUpdateTestimonials, onUpdatePageSections, onUpdateBlogs, onUpdateLegalPages
 }: ContentSettingsTabProps) {
   const { showToast, showConfirm } = useCustomUi();
-  const [subTab, setSubTab] = useState<'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal'>('services');
+  const [subTab, setSubTab] = useState<'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing'>('services');
 
   // Unified editing entity modals tracker
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -61,6 +62,28 @@ export default function ContentSettingsTab({
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [editingSection, setEditingSection] = useState<PageSectionContent | null>(null);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [editingPlan, setEditingPlan] = useState<PricingPlan | null>(null);
+
+  // States for pricing plans loaded from localStorage
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('samaxon_pricing_plans');
+      if (stored) {
+        setPricingPlans(JSON.parse(stored));
+      } else {
+        setPricingPlans(DEFAULT_PRICING);
+      }
+    } catch {
+      setPricingPlans(DEFAULT_PRICING);
+    }
+  }, []);
+
+  const handleSavePricingPlans = (updatedPlans: PricingPlan[]) => {
+    setPricingPlans(updatedPlans);
+    localStorage.setItem('samaxon_pricing_plans', JSON.stringify(updatedPlans));
+  };
 
   // States for thumbnail uploading & category tracking
   const [portfolioCategory, setPortfolioCategory] = useState<string>('all');
@@ -261,6 +284,7 @@ export default function ContentSettingsTab({
             { id: 'testimonials', label: 'Quotes' },
             { id: 'pages', label: 'Page Text' },
             { id: 'blog', label: 'Insights blog' },
+            { id: 'pricing', label: 'Pricing Plans' },
             { id: 'legal', label: 'Legal text' }
           ].map(tab => (
             <button
@@ -351,6 +375,7 @@ export default function ContentSettingsTab({
                 { id: 'websites', label: 'Websites' },
                 { id: 'apps', label: 'Apps' },
                 { id: 'brand-identity', label: 'Brand Identity' },
+                { id: 'graphics', label: 'Graphics' },
                 { id: 'automations', label: 'Automations' },
                 { id: 'bots', label: 'Telegram Bots' },
                 { id: 'admin-ready', label: 'Admin-Ready Systems' }
@@ -391,6 +416,12 @@ export default function ContentSettingsTab({
                 className="px-3 py-2 bg-[#FFFDF8] hover:bg-neutral-50 text-[10px] text-[#111111] font-mono font-bold uppercase tracking-wider rounded-xl border border-[#D6B46A]/25 transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-3 h-3 text-[#BFA15A]" /> + Brand Identity
+              </button>
+              <button 
+                onClick={() => handleAddProject('graphics')}
+                className="px-3 py-2 bg-[#FFFDF8] hover:bg-neutral-50 text-[10px] text-[#111111] font-mono font-bold uppercase tracking-wider rounded-xl border border-[#D6B46A]/25 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-3 h-3 text-[#BFA15A]" /> + Graphics
               </button>
               <button 
                 onClick={() => handleAddProject('automations')}
@@ -692,6 +723,112 @@ export default function ContentSettingsTab({
         </div>
       )}
 
+      {/* --- PRICING PLANS SUB MODE --- */}
+      {subTab === 'pricing' && (
+        <div className="space-y-6 text-left" id="subtab-pricing-view">
+          <div className="bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[#D6B46A]/10 pb-4">
+              <div>
+                <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-[#BFA15A] block">Public Package Tiers</span>
+                <p className="text-xs text-[#8A8178] mt-0.5">Customize your pricing packages, details, delivery terms, and checklists directly below.</p>
+              </div>
+              <button 
+                onClick={() => {
+                  const newPlan: PricingPlan = {
+                    id: `price-${Date.now()}`,
+                    name: 'New Starter Setup',
+                    price: '₹15,000',
+                    subtitle: 'Elegant Micro-Business Website',
+                    features: ['3 Pages Custom Layout', 'Mobile Responsive design', 'Contact form integration', 'Free Static Hosting'],
+                    popular: false,
+                    deliveryTime: '48 Hours',
+                    sortOrder: pricingPlans.length + 1
+                  };
+                  const updated = [...pricingPlans, newPlan];
+                  handleSavePricingPlans(updated);
+                  setEditingPlan(newPlan);
+                }}
+                className="px-4 py-2 bg-[#111111] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:text-[#D6B46A] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add New Package
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {pricingPlans.map((plan) => (
+                <div 
+                  key={plan.id} 
+                  className={`border rounded-2xl p-5 shadow-sm space-y-4 flex flex-col justify-between transition-all relative ${
+                    plan.popular ? 'border-[#D6B46A] bg-[#FFFDF8]' : 'border-neutral-200 bg-white'
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#111111] text-[#D6B46A] text-[7.5px] font-mono font-bold uppercase tracking-wider">
+                      Popular Tier
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 bg-neutral-100 rounded text-[#8A8178]">
+                        Sort: {plan.sortOrder}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[#FFFDF8] border border-[#D6B46A]/20 rounded text-[#BFA15A] uppercase">
+                        {plan.category === 'website' ? 'Website' : plan.category === 'app' ? 'App' : plan.category === 'bot' ? 'Bot' : plan.category === 'automation' ? 'Automation' : (plan.category || 'Website')}
+                      </span>
+                      <h4 className="font-display font-bold text-sm uppercase text-neutral-900 w-full mt-1">{plan.name}</h4>
+                    </div>
+
+                    <p className="text-[10px] font-mono font-bold text-[#BFA15A] tracking-wider uppercase">
+                      Price: {plan.price} / Timeline: {plan.deliveryTime}
+                    </p>
+                    <p className="text-[11px] text-[#8A8178] italic leading-tight">{plan.subtitle}</p>
+
+                    <div className="border-t border-neutral-100 pt-2.5 mt-2 space-y-1.5">
+                      <span className="text-[9px] uppercase font-mono tracking-widest text-[#BFA15A] font-bold block mb-1">Included Features:</span>
+                      {plan.features.map((feat, fi) => (
+                        <div key={fi} className="flex gap-1.5 items-center text-[10.5px] text-[#8A8178]">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="line-clamp-1">{feat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2.5 border-t border-neutral-100 pt-3.5 mt-2">
+                    <button 
+                      onClick={() => setEditingPlan(plan)}
+                      className="px-3.5 py-1.5 bg-[#FFFDF8] border border-[#D6B46A]/20 hover:border-[#D6B46A] text-[9.5px] font-mono font-bold text-[#BFA15A] hover:text-[#111111] rounded-lg transition-colors cursor-pointer uppercase tracking-widest flex items-center gap-1"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      Configure
+                    </button>
+                    <button 
+                      onClick={() => {
+                        showConfirm({
+                          title: 'Remove Pricing Package?',
+                          message: `Are you absolutely sure you want to permanently delete the "${plan.name}" pricing package? This will instantly remove it from the pricing matrix on the website.`,
+                          confirmText: 'Yes, Delete',
+                          onConfirm: () => {
+                            const updated = pricingPlans.filter(p => p.id !== plan.id);
+                            handleSavePricingPlans(updated);
+                            showToast('Pricing package deleted successfully.', 'success');
+                          }
+                        });
+                      }}
+                      className="p-1.5 bg-neutral-50 hover:bg-rose-50 border border-neutral-100 hover:border-rose-200 text-[#8A8178] hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- EDIT MODAL OVERLAYS DIRECT CONTROLS --- */}
       <AnimatePresence>
         
@@ -728,6 +865,99 @@ export default function ContentSettingsTab({
                   onUpdateServices(services.map(s => s.id === editingService.id ? editingService : s));
                   setEditingService(null);
                 }} className="px-5 py-2 bg-[#111111] text-white text-xs font-bold uppercase tracking-wider rounded-xl">Save Changes</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* EDITING PRICING PLAN MODAL */}
+        {editingPlan && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.5 }} exit={{ opacity: 0 }} onClick={() => setEditingPlan(null)} className="fixed inset-0 bg-neutral-900/60 backdrop-blur-xs" />
+            
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="relative bg-white border border-[#D6B46A]/35 rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-4 text-left my-8 z-10">
+              <h4 className="font-display font-black text-base text-[#111111]">Update Package Details</h4>
+              
+              <div className="space-y-3 text-xs max-h-[60vh] overflow-y-auto pr-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Package Name</label>
+                    <input type="text" value={editingPlan.name} onChange={e => setEditingPlan({ ...editingPlan, name: e.target.value })} className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Price Label</label>
+                    <input type="text" value={editingPlan.price} onChange={e => setEditingPlan({ ...editingPlan, price: e.target.value })} className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Subtitle / Target Audience</label>
+                  <input type="text" value={editingPlan.subtitle} onChange={e => setEditingPlan({ ...editingPlan, subtitle: e.target.value })} className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Delivery Timeline</label>
+                    <input type="text" value={editingPlan.deliveryTime} onChange={e => setEditingPlan({ ...editingPlan, deliveryTime: e.target.value })} className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Sort Order</label>
+                    <input type="number" value={editingPlan.sortOrder} onChange={e => setEditingPlan({ ...editingPlan, sortOrder: parseInt(e.target.value) || 1 })} className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 py-1.5">
+                  <input 
+                    type="checkbox" 
+                    id="popular-tier-checkbox" 
+                    checked={editingPlan.popular || false} 
+                    onChange={e => setEditingPlan({ ...editingPlan, popular: e.target.checked })} 
+                    className="w-4 h-4 rounded text-[#BFA15A] border-[#D6B46A]/30 focus:ring-[#BFA15A]"
+                  />
+                  <label htmlFor="popular-tier-checkbox" className="text-[11px] font-bold text-[#111111] uppercase select-none cursor-pointer">
+                    Flag as Popular/Recommended Tier
+                  </label>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Package Category</label>
+                  <CustomSelect
+                    value={editingPlan.category || 'website'}
+                    onChange={val => setEditingPlan({ ...editingPlan, category: val })}
+                    options={[
+                      { value: 'website', label: 'Website Development' },
+                      { value: 'app', label: 'Mobile/Web Apps' },
+                      { value: 'bot', label: 'Custom Bots' },
+                      { value: 'automation', label: 'Workflow Automation' }
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-[#8A8178] uppercase block mb-1">Included Features (One per line)</label>
+                  <textarea 
+                    rows={5} 
+                    value={editingPlan.features.join('\n')} 
+                    onChange={e => setEditingPlan({ ...editingPlan, features: e.target.value.split('\n').filter(Boolean) })} 
+                    className="w-full px-3 py-2 border border-[#D6B46A]/20 rounded-lg font-sans text-xs outline-none"
+                    placeholder="Enter one feature statement per line"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3.5 pt-4 border-t border-neutral-100">
+                <button onClick={() => setEditingPlan(null)} className="px-4 py-2 border border-neutral-200 text-xs text-[#8A8178] rounded-xl font-bold uppercase tracking-wider cursor-pointer">Cancel</button>
+                <button 
+                  onClick={() => {
+                    const updated = pricingPlans.map(p => p.id === editingPlan.id ? editingPlan : p);
+                    handleSavePricingPlans(updated);
+                    setEditingPlan(null);
+                    showToast('Package configuration saved!', 'success');
+                  }} 
+                  className="px-5 py-2 bg-[#111111] text-white text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer"
+                >
+                  Save Configuration
+                </button>
               </div>
             </motion.div>
           </div>

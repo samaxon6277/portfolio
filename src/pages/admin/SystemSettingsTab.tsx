@@ -850,6 +850,58 @@ export default function SystemSettingsTab({
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
               </div>
+
+              {/* Trust Builders Stats Block */}
+              <div className="col-span-1 md:col-span-2 border-t border-[#D6B46A]/10 pt-4 mt-2">
+                <span className="text-[9.5px] uppercase font-bold tracking-widest text-[#BFA15A] block mb-3 font-mono">Trust Builder Stats Counters (Homepage)</span>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  <div>
+                    <label className="text-[8.5px] uppercase font-bold text-[#8A8178] block mb-1">Total Projects</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.statTotalProjects || ''}
+                      onChange={e => setLocalSettings({ ...localSettings, statTotalProjects: e.target.value })}
+                      className="w-full px-2.5 py-1.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-lg font-bold font-mono text-[10px]" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[8.5px] uppercase font-bold text-[#8A8178] block mb-1">Active Clients</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.statActiveClients || ''}
+                      onChange={e => setLocalSettings({ ...localSettings, statActiveClients: e.target.value })}
+                      className="w-full px-2.5 py-1.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-lg font-bold font-mono text-[10px]" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[8.5px] uppercase font-bold text-[#8A8178] block mb-1">Team Members</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.statTeamMembers || ''}
+                      onChange={e => setLocalSettings({ ...localSettings, statTeamMembers: e.target.value })}
+                      className="w-full px-2.5 py-1.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-lg font-bold font-mono text-[10px]" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[8.5px] uppercase font-bold text-[#8A8178] block mb-1">Industries Served</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.statIndustriesServed || ''}
+                      onChange={e => setLocalSettings({ ...localSettings, statIndustriesServed: e.target.value })}
+                      className="w-full px-2.5 py-1.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-lg font-bold font-mono text-[10px]" 
+                    />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="text-[8.5px] uppercase font-bold text-[#8A8178] block mb-1">Years Experience</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.statYearsExperience || ''}
+                      onChange={e => setLocalSettings({ ...localSettings, statYearsExperience: e.target.value })}
+                      className="w-full px-2.5 py-1.5 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-lg font-bold font-mono text-[10px]" 
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

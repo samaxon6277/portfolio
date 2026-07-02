@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Wrench, RefreshCw } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ConversionOptimiser from './components/ConversionOptimiser';
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -15,6 +16,12 @@ import Contact from './pages/Contact';
 import LegalPages from './pages/LegalPages';
 import AdminPanel from './pages/AdminPanel';
 import SEOPage from './pages/SEOPage';
+import Founder from './pages/Founder';
+import Team from './pages/Team';
+import Company from './pages/Company';
+import CaseStudies from './pages/CaseStudies';
+import Pricing from './pages/Pricing';
+import SelectDirection from './pages/SelectDirection';
 import { analytics } from './utils/analytics';
 
 function ScrollToTop() {
@@ -171,6 +178,9 @@ function MainAppContent() {
       {/* Dynamic Floating Navbar */}
       <Navbar />
 
+      {/* Global CTA Conversion Optimiser (WhatsApp, booking paths, and mobile dock) */}
+      <ConversionOptimiser />
+
       {/* Main viewport with elegant page entry transitions */}
       <main className="flex-grow">
         <AnimatePresence mode="wait">
@@ -194,6 +204,13 @@ function MainAppContent() {
               <Route path="/privacy" element={<LegalPages type="privacy" />} />
               <Route path="/terms" element={<LegalPages type="terms" />} />
               <Route path="/refund" element={<LegalPages type="refund" />} />
+              
+              <Route path="/founder" element={<Founder />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/company" element={<Company />} />
+              <Route path="/case-studies" element={<CaseStudies />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/select-direction" element={<SelectDirection />} />
               
               {/* Niche Landing Pages */}
               <Route path="/banquet-hall-website-design" element={<SEOPage niche="banquet" />} />

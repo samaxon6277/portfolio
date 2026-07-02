@@ -29,11 +29,7 @@ export default function CareersTab({
   // Positions list
   const positionsList = [
     'All', 
-    'Female Telecaller', 
-    'Sales Executive', 
-    'Business Development Intern', 
-    'Website Consultant', 
-    'Lead Generation Executive'
+    'Digital Growth Consultant'
   ];
 
   // Statuses list

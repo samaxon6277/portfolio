@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Target, Star, Layers, Code, Sparkles, MessageCircle, ArrowUpRight, PlayCircle, Trophy, BarChart3, Database, ShieldCheck, Mail, Users, FileSpreadsheet, Crown } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -5,12 +6,314 @@ import SEO from '../components/SEO';
 import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
 import { PAGE_TO_ROUTE } from '../utils/navigation';
 
+function AnimatedCounter({ value }: { value: string }) {
+  const [count, setCount] = useState(0);
+  const elementRef = useRef<HTMLSpanElement>(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const match = value.match(/^([^\d]*)(\d+)(.*)$/);
+    if (!match) return;
+    const target = parseInt(match[2], 10);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          const duration = 2000; // Premium deceleration duration
+          const startTime = performance.now();
+
+          const animate = (timestamp: number) => {
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing: easeOutQuint for extremely professional and smooth deceleration
+            const easeProgress = 1 - Math.pow(1 - progress, 5);
+            const currentCount = Math.floor(easeProgress * target);
+            
+            setCount(currentCount);
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              setCount(target);
+            }
+          };
+
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [value, hasAnimated]);
+
+  const match = value.match(/^([^\d]*)(\d+)(.*)$/);
+  if (!match) {
+    return <span>{value}</span>;
+  }
+  const prefix = match[1] || '';
+  const suffix = match[3] || '';
+
+  return (
+    <span ref={elementRef} className="tabular-nums font-black text-champagne-gold">
+      {prefix}
+      {hasAnimated ? count : 0}
+      {suffix}
+    </span>
+  );
+}
+
+function StatCard({ value, label, colSpan = "" }: { value: string; label: string; colSpan?: string }) {
+  return (
+    <motion.div 
+      variants={{
+        hidden: { opacity: 0, y: 30 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 90, damping: 14 } }
+      }}
+      whileHover={{ 
+        y: -4, 
+        borderColor: 'rgba(214, 180, 106, 0.45)', 
+        backgroundColor: 'rgba(20, 20, 20, 0.6)',
+        boxShadow: "0 15px 35px -10px rgba(214, 180, 106, 0.18)"
+      }}
+      className={`group p-6 md:p-8 rounded-[1.5rem] bg-[#111111]/45 backdrop-blur-md border border-white/5 flex flex-col justify-center items-center transition-all duration-300 select-none cursor-default ${colSpan}`}
+    >
+      <span className="block text-3xl md:text-4xl font-display font-black text-champagne-gold tracking-tight mb-1">
+        <AnimatedCounter value={value} />
+      </span>
+      <span className="block text-[9px] uppercase tracking-widest text-[#A89F91] font-bold font-mono group-hover:text-white transition-colors duration-300">
+        {label}
+      </span>
+    </motion.div>
+  );
+}
+
+function InteractiveStatsGrid({ stats }: { stats: any }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'unavailable'>('unavailable');
+  
+  // High performance coordinates for buttery-smooth liquid motion
+  const targetX = useRef(50); 
+  const targetY = useRef(50); 
+  const currentX = useRef(50);
+  const currentY = useRef(50);
+  
+  const glowElementRef = useRef<HTMLDivElement>(null);
+
+  // Check if permission prompt is required for iOS/Safari
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function'
+    ) {
+      // iOS devices need permission
+      setPermissionState('prompt');
+    } else {
+      // Android / Desktop does not require explicit iOS prompt API
+      setPermissionState('granted');
+    }
+  }, []);
+
+  const requestPermission = async () => {
+    if (
+      typeof window !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function'
+    ) {
+      try {
+        const result = await (DeviceOrientationEvent as any).requestPermission();
+        if (result === 'granted') {
+          setPermissionState('granted');
+        } else {
+          setPermissionState('unavailable');
+        }
+      } catch (err) {
+        console.error('Error requesting orientation permission:', err);
+        setPermissionState('unavailable');
+      }
+    }
+  };
+
+  useEffect(() => {
+    let animationFrameId: number;
+    
+    // Smooth update loop (LERP with direct DOM styling bypasses React re-render lags)
+    const updatePosition = () => {
+      // Luxurious slow interpolation for heavy liquid look (0.057)
+      currentX.current += (targetX.current - currentX.current) * 0.057;
+      currentY.current += (targetY.current - currentY.current) * 0.057;
+      
+      if (glowElementRef.current) {
+        glowElementRef.current.style.background = `radial-gradient(circle 420px at ${currentX.current}% ${currentY.current}%, rgba(214, 180, 106, 0.35) 0%, rgba(214, 180, 106, 0.12) 40%, rgba(191, 161, 90, 0.02) 70%, transparent 100%)`;
+      }
+      
+      animationFrameId = requestAnimationFrame(updatePosition);
+    };
+    
+    animationFrameId = requestAnimationFrame(updatePosition);
+
+    // Mouse handler
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      targetX.current = Math.max(0, Math.min(100, x));
+      targetY.current = Math.max(0, Math.min(100, y));
+    };
+
+    // Touch handler - supports seamless drag triggers on touch devices
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!containerRef.current || e.touches.length === 0) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = ((touch.clientX - rect.left) / rect.width) * 100;
+      const y = ((touch.clientY - rect.top) / rect.height) * 100;
+      targetX.current = Math.max(0, Math.min(100, x));
+      targetY.current = Math.max(0, Math.min(100, y));
+    };
+
+    // Auto-calibrating variables for starting angle baselines
+    let initialBeta: number | null = null;
+    let initialGamma: number | null = null;
+
+    // Gyroscope handler with strong low-pass filter to eliminate raw hardware micro-jitter/shaking
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      const beta = e.beta; 
+      const gamma = e.gamma; 
+
+      if (beta !== null && gamma !== null) {
+        // Calibrate baseline dynamically on the first event
+        if (initialBeta === null) initialBeta = beta;
+        if (initialGamma === null) initialGamma = gamma;
+
+        // Delta relative to initial holding posture (clamp comfortable active range to 30deg)
+        const deltaBeta = Math.max(-30, Math.min(30, beta - initialBeta));
+        const deltaGamma = Math.max(-30, Math.min(30, gamma - initialGamma));
+
+        // Soft, non-jittery mapping from hardware delta to responsive fluid coordinate system
+        const targetXRaw = 50 + (deltaGamma / 30) * 45;
+        const targetYRaw = 50 + (deltaBeta / 30) * 45;
+
+        // Apply progressive dampening filter on inputs before target assignment
+        targetX.current = targetX.current * 0.85 + Math.max(5, Math.min(95, targetXRaw)) * 0.15;
+        targetY.current = targetY.current * 0.85 + Math.max(5, Math.min(95, targetYRaw)) * 0.15;
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('mousemove', handleMouseMove);
+      container.addEventListener('touchmove', handleTouchMove, { passive: true });
+      container.addEventListener('touchstart', handleTouchMove, { passive: true });
+    }
+    
+    window.addEventListener('deviceorientation', handleOrientation);
+
+    return () => {
+      if (container) {
+        container.removeEventListener('mousemove', handleMouseMove);
+        container.removeEventListener('touchmove', handleTouchMove);
+        container.removeEventListener('touchstart', handleTouchMove);
+      }
+      window.removeEventListener('deviceorientation', handleOrientation);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <div 
+      ref={containerRef}
+      className="relative p-0.5 rounded-[2.5rem] bg-gradient-to-b from-[#D6B46A]/20 to-transparent overflow-hidden isolate"
+    >
+      {/* Butter-smooth Dynamic Golden Liquid Light Glow */}
+      <div 
+        ref={glowElementRef}
+        className="absolute inset-0 pointer-events-none -z-10 transition-opacity duration-1000"
+        style={{
+          background: `radial-gradient(circle 380px at 50% 50%, rgba(214, 180, 106, 0.12) 0%, transparent 100%)`,
+        }}
+      />
+      
+      {/* Dark premium matte backdrop */}
+      <div className="absolute inset-0 bg-[#0B0B0B]/98 -z-20 rounded-[2.5rem]" />
+      
+      <motion.div 
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.08
+            }
+          }
+        }}
+        className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 p-4 md:p-8 text-center font-sans relative z-10"
+      >
+        <StatCard value={stats.totalProjects} label="Total Projects" />
+        <StatCard value={stats.activeClients} label="Active Clients" />
+        <StatCard value={stats.teamMembers} label="Team Members" />
+        <StatCard value={stats.industriesServed} label="Industries Served" />
+        <StatCard value={stats.yearsExperience} label="Years Experience" colSpan="col-span-2 md:col-span-1" />
+      </motion.div>
+
+      {/* iOS Gyroscope Activation Banner */}
+      {permissionState === 'prompt' && (
+        <div className="absolute inset-x-0 bottom-4 flex justify-center z-20 px-4">
+          <button
+            onClick={requestPermission}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#D6B46A] to-[#BFA15A] text-matte-black text-[10px] font-bold uppercase tracking-widest shadow-lg border border-white/10 hover:scale-105 active:scale-95 transition-all duration-300"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>✨ Enable 3D Gyro Motion</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface HomeProps {
   setCurrentPage?: (page: string) => void;
 }
 
 export default function Home({ setCurrentPage }: HomeProps) {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    totalProjects: '42+',
+    activeClients: '18+',
+    teamMembers: '8+',
+    industriesServed: '12+',
+    yearsExperience: '5+'
+  });
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('samaxon_website_settings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setStats({
+          totalProjects: parsed.statTotalProjects || '42+',
+          activeClients: parsed.statActiveClients || '18+',
+          teamMembers: parsed.statTeamMembers || '8+',
+          industriesServed: parsed.statIndustriesServed || '12+',
+          yearsExperience: parsed.statYearsExperience || '5+'
+        });
+      }
+    } catch {}
+  }, []);
+
   const handleAction = (page: string) => {
     const targetRoute = PAGE_TO_ROUTE[page] || '/';
     navigate(targetRoute);
@@ -212,17 +515,23 @@ export default function Home({ setCurrentPage }: HomeProps) {
         </div>
       </section>
 
-      {/* --- TRUST BAR / COHESIVE SPEED PROMISE --- */}
-      <section className="bg-matte-black border-y border-champagne-gold/15 py-10 relative overflow-hidden" id="trust-bar-section">
+      {/* --- TRUST BAR / COHESIVE SPEED PROMISE & TRUST BUILDERS --- */}
+      <section className="bg-matte-black border-y border-champagne-gold/15 py-12 relative overflow-hidden" id="trust-bar-section">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-champagne-gold/5 to-transparent pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 text-center flex flex-col items-center gap-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-champagne-gold">
-            Built for business owners who want speed without compromising class.
-          </p>
-          <div className="h-px bg-champagne-gold/15 w-24 my-1" />
-          <p className="text-xs text-[#E5DBCF]/80 max-w-4xl leading-relaxed">
-            No endless waiting. No basic templates. No confusing process. SamaXon brings senior engineering, high-caliber aesthetic design, smart workflow automation, and dashboard systems under one premium execution studio.
-          </p>
+        <div className="max-w-7xl mx-auto px-6 space-y-10">
+          
+          {/* STATS COUNT GRID (Trust Builders with 3D Parallax Gyro & Hover Tracking) */}
+          <InteractiveStatsGrid stats={stats} />
+
+          <div className="text-center flex flex-col items-center gap-4">
+            <p className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] font-bold">
+              Built for business owners who want speed without compromising class.
+            </p>
+            <div className="h-px bg-champagne-gold/15 w-24 my-1" />
+            <p className="text-xs text-[#E5DBCF]/80 max-w-4xl leading-relaxed">
+              No endless waiting. No basic templates. No confusing process. SamaXon brings senior engineering, high-caliber aesthetic design, smart workflow automation, and dashboard systems under one premium execution studio.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -538,12 +847,23 @@ export default function Home({ setCurrentPage }: HomeProps) {
 
           {/* Quick Portfolio Grid preview: First 3 items */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PORTFOLIO_DATA.slice(0, 3).map((project) => (
+            {PORTFOLIO_DATA.filter(p => !!p.thumbnailUrl).slice(0, 3).map((project) => (
               <div 
                 key={project.id}
                 className="bg-white/60 border border-champagne-gold/15 p-8 rounded-3xl hover:border-champagne-gold transition-all duration-300 gold-shadow-sm flex flex-col justify-between group"
               >
                 <div>
+                  {project.thumbnailUrl && (
+                    <div className="w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 border border-champagne-gold/15 bg-matte-black/5">
+                      <img 
+                        src={project.thumbnailUrl} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-500"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-start mb-6 border-b border-champagne-gold/10 pb-4">
                     <span className="px-3 py-1 bg-matte-black text-soft-ivory text-[9px] font-mono uppercase tracking-widest rounded-full border border-champagne-gold/20">
                       {project.visualTag}

@@ -1,6 +1,6 @@
 {
   "name": "SamaXon",
   "description": "India’s fastest premium digital studio delivering websites, apps, branding assets, automations, bots, and admin-powered digital systems in under 48 hours.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["accelerometer", "gyroscope"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

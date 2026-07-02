@@ -29,6 +29,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     { label: 'About', id: 'about', path: '/about' },
     { label: 'Services', id: 'services', path: '/services' },
     { label: 'Portfolio', id: 'portfolio', path: '/projects' },
+    { label: 'Pricing', id: 'pricing', path: '/pricing' },
     { label: 'SamaXon Edge', id: 'edge', path: '/edge' },
     { label: 'Client Control', id: 'control', path: '/control' },
     { label: 'Careers', id: 'careers', path: '/careers' },

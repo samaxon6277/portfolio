@@ -98,6 +98,9 @@ export interface Testimonial {
   role: string;
   company: string;
   founderNote?: boolean;
+  rating?: number;
+  photoUrl?: string;
+  logoUrl?: string;
 }
 
 export interface BlogPost {
@@ -121,4 +124,102 @@ export interface MediaAsset {
   url: string;
   mimeType: string;
   uploadedAt: string;
+}
+
+export type DepartmentType = 'Leadership' | 'Development' | 'Design' | 'SEO' | 'Sales' | 'HR' | 'Operations';
+
+export interface DirectoryTeamMember {
+  id: string;
+  name: string;
+  photoUrl: string;
+  position: string;
+  department: DepartmentType;
+  experience: string;
+  skills: string[];
+  socialLinks: {
+    linkedin?: string;
+    twitter?: string;
+    email?: string;
+  };
+  status: 'Show' | 'Hide';
+  sortOrder: number;
+}
+
+export interface FounderDetails {
+  photoUrl: string;
+  name: string;
+  designation: string;
+  bio: string;
+  story: string;
+  mission: string;
+  vision: string;
+  message: string;
+  experience: string[];
+  achievements: string[];
+  socialLinks: {
+    linkedin?: string;
+    twitter?: string;
+    email?: string;
+  };
+}
+
+export interface CompanyDetails {
+  overview: string;
+  mission: string;
+  vision: string;
+  coreValues: {
+    title: string;
+    description: string;
+    iconName?: string;
+  }[];
+  workingProcess: {
+    step: string;
+    title: string;
+    description: string;
+  }[];
+  industriesServed: string[];
+}
+
+export interface CaseStudy {
+  id: string;
+  clientName: string;
+  industry: string;
+  beforeState: string;
+  afterState: string;
+  results: string[];
+  testimonial: {
+    quote: string;
+    author: string;
+    role: string;
+    photoUrl?: string;
+  };
+  screenshotUrl?: string;
+  sortOrder: number;
+}
+
+export interface PricingPlan {
+  id: string;
+  name: string;
+  price: string;
+  subtitle: string;
+  features: string[];
+  popular?: boolean;
+  deliveryTime: string;
+  sortOrder: number;
+  category?: string;
+}
+
+export interface JobListing {
+  id: string;
+  title: string;
+  department: DepartmentType;
+  experienceLevel: string;
+  salaryRange: string;
+  type: 'Full-time' | 'Part-time' | 'Contract' | 'Remote';
+  location: string;
+  description: string;
+  requirements: string[];
+  benefits: string[];
+  status: 'Open' | 'Closed';
+  createdAt: string;
 }

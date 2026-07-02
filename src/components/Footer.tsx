@@ -138,11 +138,17 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             >
               The Demo-First Model
             </Link>
-            <Link 
+             <Link 
               to="/control" 
               className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               Client Control Scaffolding
+            </Link>
+            <Link 
+              to="/pricing" 
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block font-bold text-champagne-gold"
+            >
+              Bespoke Pricing Plans
             </Link>
             <Link 
               to="/careers" 
