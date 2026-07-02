@@ -5,6 +5,7 @@ import {
   BadgeDollarSign, Heart, ExternalLink, Bookmark, MapPin, Calendar, Clock
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import CustomSelect from '../components/CustomSelect';
 import { JobApplication, JobListing, DepartmentType } from '../types';
 import { supabaseService } from '../utils/supabaseService';
 import { analytics } from '../utils/analytics';
@@ -447,32 +448,40 @@ export default function Careers() {
                     {/* Position Selector */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[9px] font-mono uppercase text-neutral-600 font-bold">Position Interested In *</label>
-                      <select
-                        name="position"
+                      <CustomSelect
                         value={formData.position}
-                        onChange={handleInputChange}
-                        className="w-full bg-white border p-3 border-[#D6B46A]/20 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
-                      >
-                        <option value="Digital Growth Consultant (Remote)">Digital Growth Consultant (Remote)</option>
-                        {jobs.map(j => (
-                          <option key={j.id} value={`${j.title} (${j.location})`}>{j.title} ({j.location})</option>
-                        ))}
-                      </select>
+                        onChange={(val) => {
+                          if (!hasTrackedFormStart) {
+                            analytics.trackFormStart();
+                            setHasTrackedFormStart(true);
+                          }
+                          setFormData(prev => ({ ...prev, position: val }));
+                        }}
+                        options={Array.from(new Set([
+                          "Digital Growth Consultant (Remote)",
+                          ...jobs.map(j => `${j.title} (${j.location})`)
+                        ])).map(pos => ({ value: pos, label: pos }))}
+                      />
                     </div>
 
                     {/* Experience level */}
                     <div className="flex flex-col gap-1">
                       <label className="text-[9px] font-mono uppercase text-neutral-600 font-bold">Years of Experience *</label>
-                      <select
-                        name="experience"
+                      <CustomSelect
                         value={formData.experience}
-                        onChange={handleInputChange}
-                        className="w-full bg-white border p-3 border-[#D6B46A]/20 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
-                      >
-                        <option value="Fresher / Learner">Fresher / Learner</option>
-                        <option value="1 to 3 Years">1 - 3 Years</option>
-                        <option value="4+ Years (Senior)">4+ Years (Senior)</option>
-                      </select>
+                        onChange={(val) => {
+                          if (!hasTrackedFormStart) {
+                            analytics.trackFormStart();
+                            setHasTrackedFormStart(true);
+                          }
+                          setFormData(prev => ({ ...prev, experience: val }));
+                        }}
+                        options={[
+                          { value: "Fresher / Learner", label: "Fresher / Learner" },
+                          { value: "1 to 3 Years", label: "1 - 3 Years" },
+                          { value: "4+ Years (Senior)", label: "4+ Years (Senior)" }
+                        ]}
+                      />
                     </div>
                   </div>
 

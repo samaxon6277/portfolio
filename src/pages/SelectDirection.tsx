@@ -7,6 +7,7 @@ import {
   FileText, User, Layers
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import CustomSelect from '../components/CustomSelect';
 import { DEFAULT_PRICING } from '../utils/defaultData';
 import { PricingPlan, Lead } from '../types';
 import { supabaseService } from '../utils/supabaseService';
@@ -308,25 +309,22 @@ ${formData.name}`;
               <div className="space-y-2">
                 <span className="text-[10px] font-mono text-[#BFA15A] font-bold uppercase tracking-wider block">Currently Selected</span>
                 <div className="relative">
-                  <select
+                  <CustomSelect
                     value={selectedPlanId}
-                    onChange={(e) => setSelectedPlanId(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#FFFDF8] border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900 focus:border-[#D6B46A] focus:outline-none appearance-none cursor-pointer pr-10"
-                  >
-                    <optgroup label="Website Packages">
-                      {plans.filter(p => p.category === 'website' || !p.category).map(plan => (
-                        <option key={plan.id} value={plan.id}>{plan.name} ({plan.price})</option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Mobile, Bots & Automation">
-                      {plans.filter(p => p.category === 'apps-bots-automation').map(plan => (
-                        <option key={plan.id} value={plan.id}>{plan.name} ({plan.price})</option>
-                      ))}
-                    </optgroup>
-                  </select>
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
-                    <Layers className="w-4 h-4" />
-                  </div>
+                    onChange={(val) => setSelectedPlanId(val)}
+                    options={[
+                      ...plans.filter(p => p.category === 'website' || !p.category).map(plan => ({
+                        value: plan.id,
+                        label: `${plan.name} (${plan.price})`,
+                        group: 'Website Packages'
+                      })),
+                      ...plans.filter(p => p.category === 'apps-bots-automation').map(plan => ({
+                        value: plan.id,
+                        label: `${plan.name} (${plan.price})`,
+                        group: 'Mobile, Bots & Automation'
+                      }))
+                    ]}
+                  />
                 </div>
               </div>
 
