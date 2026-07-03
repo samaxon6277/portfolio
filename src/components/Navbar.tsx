@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Zap, Crown, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -24,6 +24,39 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     };
   }, [isOpen]);
 
+  // Scroll logic for hide-on-scroll
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (isOpen) {
+        setIsVisible(true);
+        return;
+      }
+
+      // Show if near top, hide on scroll down, show on scroll up
+      if (currentScrollY < 30) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY.current) {
+        // Scrolling down
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY.current - 5) {
+        // Scrolling up (with 5px threshold to prevent jitter)
+        setIsVisible(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isOpen]);
+
   const navItems = [
     { label: 'Home', id: 'home', path: '/' },
     { label: 'About', id: 'about', path: '/about' },
@@ -37,8 +70,24 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
 
   return (
     <>
-      {/* Floating Glassmorphism Header */}
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-50 transition-all duration-300">
+      {/* Floating Glassmorphism Header with Spring transition */}
+      <motion.header 
+        className="fixed top-4 left-1/2 w-[92%] max-w-7xl z-50 origin-top"
+        style={{ x: '-50%', perspective: 1000 }}
+        animate={{
+          y: isVisible ? 0 : -110,
+          opacity: isVisible ? 1 : 0,
+          scale: isVisible ? 1 : 0.92,
+          rotateX: isVisible ? 0 : -15,
+          filter: isVisible ? "blur(0px)" : "blur(6px)",
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 150,
+          damping: 19,
+          mass: 0.6
+        }}
+      >
         <nav className="glass-panel rounded-full px-6 py-3.5 flex items-center justify-between gold-shadow-sm">
           {/* Logo Brand */}
           <Link 
@@ -115,7 +164,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </nav>
-      </header>
+      </motion.header>
 
       {/* Mobile Slide-Out Menu */}
       <AnimatePresence>

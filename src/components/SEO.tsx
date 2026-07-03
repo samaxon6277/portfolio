@@ -133,9 +133,6 @@ export default function SEO({
     }
     canonicalLink.setAttribute('href', `https://samaxon.site${canonicalPath}`);
 
-    // Scroll to top of the page on route load
-    window.scrollTo({ top: 0, behavior: 'instant' as any });
-
   }, [title, description, canonicalPath, schemaType, schemaData, schemas]);
 
   return null;
