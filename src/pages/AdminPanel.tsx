@@ -392,22 +392,13 @@ export default function AdminPanel() {
     setWebsiteSettings(nextSettings);
     try {
       localStorage.setItem('samaxon_website_settings', JSON.stringify(nextSettings));
+      window.dispatchEvent(new Event('samaxon_website_settings_updated'));
     } catch (e) {
       logger.warn('Failed to save website settings to localStorage:', e);
     }
   };
 
   const handleUpdateAdminUsers = async (nextUsers: any[]) => {
-    // Only Super Admin can modify accounts
-    if (currentUser?.role !== 'Super Admin') {
-      showAlert({
-        title: 'Security Policy Alert',
-        message: 'Only Super Admin is authorised to register or configure executive roles.',
-        type: 'error'
-      });
-      return;
-    }
-
     try {
       for (const nextUser of nextUsers) {
         const found = adminUsers.find(u => u.id === nextUser.id);
@@ -715,7 +706,7 @@ export default function AdminPanel() {
     { id: 'content', label: 'Content Board', icon: Settings },
   ];
 
-  if (currentUser && currentUser.role === 'Super Admin') {
+  if (currentUser) {
     menuOptions.push({ id: 'system', label: 'Systems Hub', icon: Shield });
   }
 
@@ -860,7 +851,7 @@ export default function AdminPanel() {
               />
             )}
 
-            {activeTab === 'system' && currentUser?.role === 'Super Admin' && (
+            {activeTab === 'system' && (
               <SystemSettingsTab
                 initialSubTab={systemSubTab}
                 onSubTabChange={(st: any) => setSystemSubTab(st)}

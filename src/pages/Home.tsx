@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Target, Star, Layers, Code, Sparkles, MessageCircle, ArrowUpRight, PlayCircle, Trophy, BarChart3, Database, ShieldCheck, Mail, Users, FileSpreadsheet, Crown } from 'lucide-react';
+import { ArrowRight, Zap, Target, Star, Layers, Code, Sparkles, MessageCircle, ArrowUpRight, PlayCircle, Trophy, BarChart3, Database, ShieldCheck, Mail, Users, FileSpreadsheet, Crown, Plus, Minus } from 'lucide-react';
 import { motion } from 'motion/react';
 import SEO from '../components/SEO';
 import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
@@ -290,6 +290,7 @@ interface HomeProps {
 
 export default function Home({ setCurrentPage }: HomeProps) {
   const navigate = useNavigate();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [stats, setStats] = useState({
     totalProjects: '42+',
     activeClients: '18+',
@@ -320,12 +321,121 @@ export default function Home({ setCurrentPage }: HomeProps) {
     window.scrollTo({ top: 0, behavior: 'instant' as any });
   };
 
+  const defaultOrgSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "SamaXon Digital Solutions",
+    "alternateName": [
+      "SamaXon",
+      "SamaXon Digital Studio",
+      "SamaXon Digital Solutions",
+      "SamaXon Studio",
+      "SamaXon digital"
+    ],
+    "description": "SamaXon is India's premier website developer agency and digital studio, widely recognized as the best website developer and custom software company. We build speed-optimized corporate portals, luxury business sites, hotel/resort systems, and custom admin dashboards with express 48-hour delivery.",
+    "knowsAbout": [
+      "website development",
+      "web developer agency Noida",
+      "best website developer Delhi NCR",
+      "premium UI/UX design",
+      "custom booking solutions",
+      "corporate portal development",
+      "SamaXon digital solutions"
+    ],
+    "image": "https://samaxon.site/og-image.jpg",
+    "@id": "https://samaxon.site/#organization",
+    "url": "https://samaxon.site",
+    "telephone": "+918000000000",
+    "priceRange": "$$$$",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "SamaXon Elite Hub, MG Road",
+      "addressLocality": "Noida",
+      "addressRegion": "Uttar Pradesh",
+      "postalCode": "201301",
+      "addressCountry": "IN"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "opens": "00:00",
+      "closes": "23:59"
+    }
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does 48-hour delivery work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "SamaXon's 48-hour delivery works by utilizing pre-compiled speed frameworks, modular custom blueprints, and our unique Demo-First model. Instead of endless wireframing, we build a fully working, premium visual prototype within 24 hours. Once you review and confirm, we complete fine-tuning and deploy it to enterprise-grade servers within the next 24 hours."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need tech skills to manage my website?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not at all. Every SamaXon website includes an intuitive, bespoke client administration panel. You can easily manage bookings, content, images, portfolios, and settings without writing a single line of code. We also provide a complete custom video walkthrough guide on launch."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the Demo-First model?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In our Demo-First model, we do not waste weeks on theoretical wireframes or presentations. We listen to your requirements and build a real, high-performance, live-interactive prototype first. You experience the actual page speed, layout, and system features on your own phone or computer before any formal contract. What you see is exactly what you get."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does SamaXon support custom API integrations?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. We configure secure API routes, webhook events, and server-side authentication proxies. Whether you need Google Sheets syncing, Razorpay/Stripe checkout, custom WhatsApp responders, or booking managers, we build real, secure, server-side integrations."
+        }
+      }
+    ]
+  };
+
+  const faqItems = [
+    {
+      q: "How does 48-hour delivery work?",
+      a: "SamaXon's 48-hour delivery works by utilizing pre-compiled speed frameworks, modular custom blueprints, and our unique Demo-First model. Instead of endless wireframing, we build a fully working, premium visual prototype within 24 hours. Once you review and confirm, we complete fine-tuning and deploy it to enterprise-grade servers within the next 24 hours."
+    },
+    {
+      q: "Do I need tech skills to manage my website?",
+      a: "Not at all. Every SamaXon website includes an intuitive, bespoke client administration panel. You can easily manage bookings, content, images, portfolios, and settings without writing a single line of code. We also provide a complete custom video walkthrough guide on launch."
+    },
+    {
+      q: "What is the Demo-First model?",
+      a: "In our Demo-First model, we do not waste weeks on theoretical wireframes or presentations. We listen to your requirements and build a real, high-performance, live-interactive prototype first. You experience the actual page speed, layout, and system features on your own phone or computer before any formal contract. What you see is exactly what you get."
+    },
+    {
+      q: "Does SamaXon support custom API integrations?",
+      a: "Absolutely. We configure secure API routes, webhook events, and server-side authentication proxies. Whether you need Google Sheets syncing, Razorpay/Stripe checkout, custom WhatsApp responders, or booking managers, we build real, secure, server-side integrations."
+    }
+  ];
+
   return (
     <div id="home-page-container">
       <SEO 
         title="Speed-Driven Premium Digital Studio India"
         description="SamaXon builds elite business websites, mobile apps, brand identities, custom automations, and Telegram bots in under 48 hours with a Demo-First model."
         canonicalPath="/"
+        schemas={[defaultOrgSchema, faqSchema]}
       />
 
       {/* --- HERO SECTION --- */}
@@ -956,6 +1066,59 @@ export default function Home({ setCurrentPage }: HomeProps) {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- FAQ SECTION FOR AEO & VOICE SEARCH --- */}
+      <section className="py-24 bg-[#FFFDF8] border-t border-champagne-gold/15" id="home-faq-section">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center flex flex-col items-center gap-4 mb-16">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+              Direct Clarity · Answer Engine Optimised
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black uppercase">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xs sm:text-sm text-warm-grey max-w-2xl leading-relaxed font-sans">
+              Get direct, transparent answers to our delivery cycles, client controls, and our Demo-First methodology. Fully structured for human and voice search crawlers.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {faqItems.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div 
+                  key={idx} 
+                  className="bg-white border border-[#D6B46A]/20 rounded-[20px] p-5 sm:p-6 shadow-sm hover:border-[#D6B46A] transition-all"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full flex justify-between items-center text-left font-display font-bold text-xs sm:text-sm text-neutral-900 uppercase tracking-wide cursor-pointer focus:outline-none"
+                  >
+                    <span>{faq.q}</span>
+                    <span className="text-[#BFA15A] w-6 h-6 rounded-full bg-[#D6B46A]/10 border border-[#D6B46A]/25 flex items-center justify-center shrink-0 ml-4">
+                      {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                    </span>
+                  </button>
+                  <motion.div
+                    initial={false}
+                    animate={{ 
+                      height: isOpen ? 'auto' : 0, 
+                      opacity: isOpen ? 1 : 0,
+                      marginTop: isOpen ? 12 : 0
+                    }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <p className="text-xs sm:text-sm text-warm-grey leading-relaxed pl-4 border-l-2 border-[#D6B46A]/25 font-sans pt-1">
+                      {faq.a}
+                    </p>
+                  </motion.div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

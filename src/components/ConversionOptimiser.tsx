@@ -7,7 +7,31 @@ export default function ConversionOptimiser() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [phoneWhatsapp, setPhoneWhatsapp] = useState('918000000000');
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadSettings = () => {
+      try {
+        const stored = localStorage.getItem('samaxon_website_settings');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const rawPhone = parsed.phoneWhatsapp || '918000000000';
+          // Sanitize raw phone to digits only for the direct WhatsApp link
+          const sanitized = rawPhone.replace(/[^\d]/g, '');
+          setPhoneWhatsapp(sanitized || '918000000000');
+        }
+      } catch (e) {
+        // Safe fail
+      }
+    };
+
+    loadSettings();
+    window.addEventListener('samaxon_website_settings_updated', loadSettings);
+    return () => {
+      window.removeEventListener('samaxon_website_settings_updated', loadSettings);
+    };
+  }, []);
 
   // Click outside to close the expandable floating menu - ONLY when open to prevent race conditions
   useEffect(() => {
@@ -29,7 +53,7 @@ export default function ConversionOptimiser() {
 
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open('https://wa.me/918000000000?text=Hello%20SamaXon%20team,%20I%20am%20interested%20in%20initiating%20a%2048-hour%20digital%20upgrade.', '_blank', 'noopener,noreferrer');
+    window.open(`https://wa.me/${phoneWhatsapp}?text=Hello%20SamaXon%20team,%20I%20am%20interested%20in%20initiating%20a%2048-hour%20digital%20upgrade.`, '_blank', 'noopener,noreferrer');
     setIsOpen(false);
   };
 

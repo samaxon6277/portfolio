@@ -56,9 +56,7 @@ interface ComplexityOption {
 const COMPLEXITY_OPTIONS: ComplexityOption[] = [
   { value: 'Basic', multiplier: 1.0, badge: 'Lite Build', description: 'Clean MVP framework, essential features.' },
   { value: 'Standard', multiplier: 1.2, badge: 'Balanced Core', description: 'Sophisticated design, full responsiveness.' },
-  { value: 'Premium', multiplier: 1.3, badge: 'Luxury Finish', description: 'High-end layout animations, custom components.' },
-  { value: 'Advanced', multiplier: 1.4, badge: 'Industrial Tier', description: 'Complex data models, custom hooks, heavy integrations.' },
-  { value: 'Enterprise', multiplier: 1.5, badge: 'Elite Standard', description: 'Multi-agent systems, VIP speed compliance, maximum security.' }
+  { value: 'Premium', multiplier: 1.3, badge: 'Luxury Finish', description: 'High-end layout animations, custom components.' }
 ];
 
 interface AddonOption {
@@ -69,10 +67,7 @@ interface AddonOption {
 }
 
 const ADDON_OPTIONS: AddonOption[] = [
-  { id: 'ai-chat', label: 'Interactive AI Chat core integration', price: 6000, description: 'Grounds your domain knowledge on responsive conversational AI. [✦ Royal 80% Partner Rate]' },
-  { id: 'cdn-ddos', label: 'Ultra-Secure CDN & DDOS Hardening', price: 3500, description: 'Protects customer access with rapid global servers and web-firewall locks. [✦ Special Commission Rate]' },
   { id: 'seo-schema', label: 'Advanced SEO Structured Schema script injection', price: 2000, description: 'Optimizes rich indexing metadata tags for Page 1 ranks. [✦ Special Commission Rate]' },
-  { id: 'whatsapp-alert', label: 'Dedicated WhatsApp Instant Webhook alert module', price: 3000, description: 'Sends automated receipts, team notifications, and alerts. [✦ Special Commission Rate]' },
   { id: 'maintenance', label: '12-Month Senior Maintenance retainer SLA', price: 15000, description: 'Continuous protection, system upgrades, and minor layout modifications. [✦ Special Commission Rate]' }
 ];
 
@@ -86,21 +81,29 @@ export default function Contact() {
   });
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('samaxon_website_settings');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setWebsiteSettings({
-          contactEmail: parsed.contactEmail || 'build@samaxon.pro',
-          phoneWhatsapp: parsed.phoneWhatsapp || '+91 80000 00000',
-          telegramLink: parsed.telegramLink || 'https://t.me/samaxon_studio',
-          instagramLink: parsed.instagramLink || 'https://instagram.com/samaxon_studio',
-          linkedinLink: parsed.linkedinLink || 'https://linkedin.com/company/samaxon'
-        });
+    const loadSettings = () => {
+      try {
+        const stored = localStorage.getItem('samaxon_website_settings');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setWebsiteSettings({
+            contactEmail: parsed.contactEmail || 'build@samaxon.pro',
+            phoneWhatsapp: parsed.phoneWhatsapp || '+91 80000 00000',
+            telegramLink: parsed.telegramLink || 'https://t.me/samaxon_studio',
+            instagramLink: parsed.instagramLink || 'https://instagram.com/samaxon_studio',
+            linkedinLink: parsed.linkedinLink || 'https://linkedin.com/company/samaxon'
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to load settings:', e);
       }
-    } catch (e) {
-      console.warn('Failed to load settings:', e);
-    }
+    };
+
+    loadSettings();
+    window.addEventListener('samaxon_website_settings_updated', loadSettings);
+    return () => {
+      window.removeEventListener('samaxon_website_settings_updated', loadSettings);
+    };
   }, []);
 
   const [hasTrackedFormStart, setHasTrackedFormStart] = useState(false);
@@ -112,7 +115,7 @@ export default function Contact() {
     city: '',
     serviceNeeded: 'Single Page Landing Website',
     complexity: 'Standard',
-    desiredTimeline: 'Under 48 Hours',
+    desiredTimeline: '1 - 2 Weeks',
     selectedAddons: [] as string[],
     userBudgetPreference: 'Looks good',
     currentProblem: '',
@@ -258,7 +261,7 @@ export default function Contact() {
         city: '',
         serviceNeeded: 'Single Page Landing Website',
         complexity: 'Standard',
-        desiredTimeline: 'Under 48 Hours',
+        desiredTimeline: '1 - 2 Weeks',
         selectedAddons: [],
         userBudgetPreference: 'Looks good',
         currentProblem: '',
@@ -590,39 +593,6 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  {/* DESIRED TIMELINE SECTOR */}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono uppercase text-[#BFA15A] block tracking-wide font-extrabold select-none">Requested Sprint Duration</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {TIMELINE_OPTIONS.map((t) => {
-                        const isSelected = formData.desiredTimeline === t.value;
-                        return (
-                          <button
-                            key={t.value}
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, desiredTimeline: t.value }))}
-                            className={`p-3 text-left rounded-xl border transition-all cursor-pointer ${
-                              isSelected 
-                                ? 'bg-matte-black text-soft-ivory border-rose-500/40 shadow-md ring-1 ring-rose-500/20' 
-                                : 'bg-pearl-white/20 border-champagne-gold/10 text-charcoal hover:border-champagne-gold/30 hover:bg-[#FFFDF8]'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold block">{t.value}</span>
-                              {t.multiplier > 1.2 && (
-                                <span className="text-[7px] font-mono uppercase px-1 py-0.5 bg-rose-500/20 text-rose-300 rounded">
-                                  Prioritized
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[8px] opacity-75 block font-mono mt-0.5">{t.multiplier}x Scale</span>
-                            <p className="text-[8px] text-[#A6A29E] mt-1 leading-tight min-h-[24px] hidden sm:block">{t.description}</p>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
                   {/* OPTIONAL PREMIUM ADD-ONS LIST */}
                   <div className="flex flex-col gap-2 bg-[#FFFDF8] border border-champagne-gold/15 p-4 rounded-3xl">
                     <span className="text-[10px] font-mono uppercase text-[#BFA15A] block tracking-wider font-extrabold select-none">Optional Strategic Add-Ons</span>
@@ -665,7 +635,7 @@ export default function Contact() {
                         <h4 className="font-display font-medium text-xs text-soft-ivory uppercase tracking-wider">Dynamic Staging Estimate</h4>
                       </div>
                       <span className="px-2.5 py-0.5 bg-champagne-gold/10 border border-champagne-gold/20 text-[#BFA15A] text-[8px] font-mono uppercase tracking-widest rounded-md">
-                        {selectedTimeline.badge}
+                        {selectedComplexity.badge}
                       </span>
                     </div>
 
@@ -690,7 +660,7 @@ export default function Contact() {
                           </span>
                         </div>
                         <span className="text-[9px] text-warm-grey font-mono block mt-1 leading-snug">
-                          All-inclusive of build, QA auditing, and staging hosting parameters under {formData.desiredTimeline}.
+                          All-inclusive of build, QA auditing, and staging hosting parameters.
                         </span>
                       </div>
 
@@ -702,10 +672,6 @@ export default function Contact() {
                         <div className="flex justify-between">
                           <span>Service category:</span>
                           <span className="text-[#D6B46A] truncate max-w-[100px]" title={selectedService.value}>{selectedService.value}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Timeline scale:</span>
-                          <span className="text-soft-ivory">{selectedTimeline.multiplier}x ({formData.desiredTimeline})</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Complexity scale:</span>

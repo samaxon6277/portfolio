@@ -4,6 +4,7 @@ interface SEOProps {
   title: string;
   description: string;
   canonicalPath: string;
+  keywords?: string;
   schemaType?: string;
   schemaData?: Record<string, any>;
   schemas?: any[];
@@ -13,6 +14,7 @@ export default function SEO({
   title,
   description,
   canonicalPath,
+  keywords,
   schemaType = 'ProfessionalService',
   schemaData,
   schemas
@@ -31,21 +33,31 @@ export default function SEO({
     }
     metaDescription.setAttribute('content', description);
 
+    // 2b. Set Meta Keywords
+    const defaultKeywords = "Premium Digital Studio, Express Website Development India, 48-Hour Website Delivery, High-End Portfolio Design Noida, B2B Web Automation, SamaXon Digital";
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.setAttribute('name', 'keywords');
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', keywords || defaultKeywords);
+
     // 3. Set Open Graph (OG) Tags
     const ogTags = {
       'og:title': fullTitle,
       'og:description': description,
       'og:type': 'website',
       'og:url': `https://samaxon.site${canonicalPath}`,
-      'og:image': 'https://samaxon.site/og-image.png',
-      'og:image:secure_url': 'https://samaxon.site/og-image.png',
-      'og:image:type': 'image/png',
-      'og:image:width': '1730',
-      'og:image:height': '909',
+      'og:image': 'https://samaxon.site/og-image.jpg',
+      'og:image:secure_url': 'https://samaxon.site/og-image.jpg',
+      'og:image:type': 'image/jpeg',
+      'og:image:width': '1200',
+      'og:image:height': '630',
       'twitter:card': 'summary_large_image',
       'twitter:title': fullTitle,
       'twitter:description': description,
-      'twitter:image': 'https://samaxon.site/og-image.png'
+      'twitter:image': 'https://samaxon.site/og-image.jpg'
     };
 
     Object.entries(ogTags).forEach(([property, content]) => {
@@ -71,7 +83,7 @@ export default function SEO({
       "@context": "https://schema.org",
       "@type": schemaType,
       "name": "SamaXon Digital Solutions",
-      "image": "https://samaxon.site/og-image.png",
+      "image": "https://samaxon.site/og-image.jpg",
       "@id": "https://samaxon.site/#organization",
       "url": "https://samaxon.site",
       "telephone": "+918000000000",
@@ -79,9 +91,9 @@ export default function SEO({
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "SamaXon Elite Hub, MG Road",
-        "addressLocality": "Bengaluru",
-        "addressRegion": "Karnataka",
-        "postalCode": "560001",
+        "addressLocality": "Noida",
+        "addressRegion": "Uttar Pradesh",
+        "postalCode": "201301",
         "addressCountry": "IN"
       },
       "openingHoursSpecification": {
@@ -100,7 +112,7 @@ export default function SEO({
       },
       "sameAs": [
         "https://linkedin.com/company/samaxon",
-        "https://twitter.com/samaxon"
+        "https://twitter.com/samaxon_studio"
       ]
     };
 

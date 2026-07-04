@@ -5,6 +5,7 @@ import { Wrench, RefreshCw } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ConversionOptimiser from './components/ConversionOptimiser';
+import CookieConsent from './components/CookieConsent';
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
@@ -180,6 +181,9 @@ function MainAppContent() {
 
       {/* Global CTA Conversion Optimiser (WhatsApp, booking paths, and mobile dock) */}
       <ConversionOptimiser />
+
+      {/* Professional Cookie Consent Banner */}
+      <CookieConsent />
 
       {/* Main viewport with elegant page entry transitions */}
       <main className="flex-grow">

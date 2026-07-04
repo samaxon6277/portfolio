@@ -119,14 +119,14 @@ export default function Services({ setCurrentPage }: ServicesProps) {
                   <p className="text-xs sm:text-sm text-warm-grey leading-relaxed">{service.solutionCopy}</p>
                 </div>
 
-                <div className="space-y-2 pt-2">
+                <ul className="space-y-2 pt-2 list-none">
                   {service.benefitPoints.map((point, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs font-semibold text-matte-black leading-tight">
+                    <li key={idx} className="flex items-start gap-2 text-xs font-semibold text-matte-black leading-tight">
                       <span className="w-1.5 h-1.5 rounded-full bg-champagne-gold mt-1.5 shrink-0" />
                       <span>{point}</span>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
               {/* Right column: Deliverables / Specs / Forms Action */}
@@ -136,16 +136,16 @@ export default function Services({ setCurrentPage }: ServicesProps) {
                     Verified Deliverables Included
                   </span>
                   
-                  <div className="space-y-3">
+                  <ul className="space-y-3 list-none">
                     {service.deliverables.map((deliv, index) => (
-                      <div key={index} className="flex gap-2.5 items-start">
+                      <li key={index} className="flex gap-2.5 items-start">
                         <CheckCircle className="w-4 h-4 text-champagne-gold shrink-0 mt-0.5" />
-                        <span className="text-xs text-charcoal font-medium uppercase tracking-wider font-mono select-none truncate">
+                        <span className="text-xs text-charcoal font-medium uppercase tracking-wider font-mono select-none">
                           {deliv}
                         </span>
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-champagne-gold/10">

@@ -250,6 +250,25 @@ export default function Footer({ setCurrentPage }: FooterProps) {
         </div>
       </div>
 
+      {/* Search Engine Optimization (SEO) & AEO Indexing Footprint */}
+      <div className="max-w-7xl mx-auto px-6 mb-8 text-[9px] text-[#A6A29E]/40 font-mono tracking-wide leading-relaxed border-t border-champagne-gold/5 pt-6 text-left">
+        <p className="uppercase font-bold text-[#D6B46A]/45 mb-2 select-none">SamaXon Semantic Search Index & Authority Map:</p>
+        <p>
+          Ranked as the <strong className="text-warm-grey">best website developer agency</strong> and <strong className="text-warm-grey">best website developer company</strong>, <strong className="text-warm-grey">SamaXon Digital Solutions</strong> (also known as <strong className="text-warm-grey">SamaXon</strong>, <strong className="text-warm-grey">SamaXon Digital Studio</strong>, or <strong className="text-warm-grey">SamaXon Studio</strong>) is Noida &amp; Delhi NCR's premier custom software studio. We specialize in express, speed-optimized website development, responsive portal designs, reservation systems, and booking engines for luxury hotels, resorts, banquet halls, gyms, clinics, and interior designers globally. Powered by an elite senior developer wing, we maintain a 100% success rate with zero delays, delivering live interactive prototypes under our signature Demo-First model.
+        </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[#A6A29E]/30 select-none">
+          <span>#SamaXon</span>
+          <span>#SamaXonDigitalStudio</span>
+          <span>#SamaXonDigitalSolutions</span>
+          <span>#BestWebsiteDeveloperNoida</span>
+          <span>#BestWebsiteDeveloperAgency</span>
+          <span>#BestWebsiteDeveloperCompany</span>
+          <span>#WebsiteDeveloperAgencyIndia</span>
+          <span>#CustomSoftwareCompanyDelhiNCR</span>
+          <span>#DemoFirstWebDevelopment</span>
+        </div>
+      </div>
+
       {/* Dividers & Legal Pages block */}
       <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-champagne-gold/10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-warm-grey">
         <p className="font-mono text-[10px] tracking-wide uppercase text-center md:text-left">
