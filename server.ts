@@ -14,6 +14,14 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 function getBotName(ua: string): string | null {
   const normUA = ua.toLowerCase();
   
+  // Explicitly detect requested AI User-Agents
+  if (normUA.includes('gptbot')) return 'GPTBot';
+  if (normUA.includes('chatgpt-user')) return 'ChatGPT-User';
+  if (normUA.includes('claudebot')) return 'ClaudeBot';
+  if (normUA.includes('claude-web')) return 'Claude-Web';
+  if (normUA.includes('google-extended')) return 'Google-Extended';
+  if (normUA.includes('perplexitybot')) return 'PerplexityBot';
+  
   if (normUA.includes('googlebot-mobile')) return 'Googlebot-Mobile';
   if (normUA.includes('googlebot')) return 'Googlebot';
   if (normUA.includes('bingbot')) return 'Bingbot';

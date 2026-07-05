@@ -14,7 +14,7 @@ export interface AdminUser {
 export interface BotVisit {
   id: string;
   botName: string;
-  category: 'Googlebot' | 'Bingbot' | 'Social Preview Bot' | 'SEO Tool Bot' | 'Unknown Bot' | 'Suspicious Bot';
+  category: 'Googlebot' | 'Bingbot' | 'Social Preview Bot' | 'SEO Tool Bot' | 'Unknown Bot' | 'Suspicious Bot' | 'AI Crawler Bot';
   userAgent: string;
   pagePath: string;
   ipHash: string;

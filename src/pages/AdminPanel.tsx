@@ -140,10 +140,27 @@ export default function AdminPanel() {
         const normUA = userAgent.toLowerCase();
         const normName = botName.toLowerCase();
         let category = 'Unknown Bot';
-        if (normName.includes('google') || normUA.includes('google')) category = 'Googlebot';
-        else if (normName.includes('bing') || normUA.includes('bing')) category = 'Bingbot';
-        else if (normName.includes('telegram') || normName.includes('twitter') || normName.includes('facebook') || normUA.includes('telegram') || normUA.includes('twitter') || normUA.includes('facebook') || normUA.includes('whatsapp')) category = 'Social Preview Bot';
-        else if (normName.includes('ahrefs') || normName.includes('semrush') || normUA.includes('ahrefs') || normUA.includes('semrush')) category = 'SEO Tool Bot';
+        if (
+          normName.includes('gptbot') || normUA.includes('gptbot') ||
+          normName.includes('chatgpt-user') || normUA.includes('chatgpt-user') ||
+          normName.includes('claudebot') || normUA.includes('claudebot') ||
+          normName.includes('claude-web') || normUA.includes('claude-web') ||
+          normName.includes('google-extended') || normUA.includes('google-extended') ||
+          normName.includes('perplexitybot') || normUA.includes('perplexitybot') ||
+          normName.includes('chatgpt') || normUA.includes('chatgpt') ||
+          normName.includes('claude') || normUA.includes('claude') ||
+          normName.includes('perplexity') || normUA.includes('perplexity')
+        ) {
+          category = 'AI Crawler Bot';
+        } else if (normName.includes('google') || normUA.includes('google')) {
+          category = 'Googlebot';
+        } else if (normName.includes('bing') || normUA.includes('bing')) {
+          category = 'Bingbot';
+        } else if (normName.includes('telegram') || normName.includes('twitter') || normName.includes('facebook') || normUA.includes('telegram') || normUA.includes('twitter') || normUA.includes('facebook') || normUA.includes('whatsapp')) {
+          category = 'Social Preview Bot';
+        } else if (normName.includes('ahrefs') || normName.includes('semrush') || normUA.includes('ahrefs') || normUA.includes('semrush')) {
+          category = 'SEO Tool Bot';
+        }
         
         return {
           id: l.id,

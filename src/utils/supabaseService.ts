@@ -870,12 +870,12 @@ export const supabaseService = {
   // 9. EVENT TRACKING & CRAWLERS LOGS
   async trackSiteEvent(eventType: string, metadata: any = {}) {
     const ua = navigator.userAgent || '';
-    const isBot = /Googlebot|Bingbot|AhrefsBot|SemrushBot|FacebookExternalHit|Twitterbot|WhatsApp/i.test(ua);
+    const isBot = /Googlebot|Bingbot|AhrefsBot|SemrushBot|FacebookExternalHit|Twitterbot|WhatsApp|GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|Google-Extended|PerplexityBot/i.test(ua);
 
     if (checkHasKeys()) {
       try {
         if (isBot) {
-          const botName = ua.match(/(Googlebot|Bingbot|AhrefsBot|SemrushBot|FacebookExternalHit|Twitterbot|WhatsApp)/i)?.[0] || 'Unknown Bot';
+          const botName = ua.match(/(Googlebot|Bingbot|AhrefsBot|SemrushBot|FacebookExternalHit|Twitterbot|WhatsApp|GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|Google-Extended|PerplexityBot)/i)?.[0] || 'Unknown Bot';
           await supabase
             .from('crawler_logs')
             .insert({
