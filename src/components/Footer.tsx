@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare, ArrowUpRight } from 'lucide-react';
+import { Zap, Crown, Shield, CheckCircle, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare } from 'lucide-react';
 
 interface FooterProps {
   setCurrentPage?: (page: string) => void;
@@ -28,7 +28,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
           });
         }
       } catch (e) {
-        // Suppress logs
+        // Suppress logs under secure logging rule
       }
     };
 
@@ -40,253 +40,262 @@ export default function Footer({ setCurrentPage }: FooterProps) {
   }, []);
 
   return (
-    <footer 
-      className="border-t pt-20 pb-12 overflow-hidden relative bg-[#FAF6EE]/80 backdrop-blur-xl text-[#1D1D1F] border-black/[0.08]"
-    >
-      {/* Subtle Ambient Light Ring */}
-      <div 
-        className="absolute top-0 right-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none opacity-25 bg-[#D6B46A]" 
-        aria-hidden="true" 
-      />
+    <footer className="bg-matte-black text-[#E5DBCF] border-t border-champagne-gold/15 pt-20 pb-10 overflow-hidden relative">
+      {/* Decorative Golden Accent Ring (Ambient Light) */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-champagne-gold/5 rounded-full blur-[100px] pointer-events-none -z-1" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-champagne-gold/5 rounded-full blur-[100px] pointer-events-none -z-1" />
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 pb-16">
         
         {/* Brand Information Column */}
-        <div className="flex flex-col gap-5 text-left">
+        <div className="flex flex-col gap-6">
           <Link 
             to="/"
-            className="flex items-center gap-2.5 cursor-pointer group w-fit block"
+            className="flex items-center gap-2 cursor-pointer group w-fit block"
           >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center border transition-all bg-white border-black/10 text-[#1D1D1F] shadow-sm">
-              <span className="font-display font-black text-sm">S</span>
+            <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center border border-champagne-gold/30">
+              <Zap className="w-5 h-5 text-champagne-gold fill-champagne-gold/10" />
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-display font-bold uppercase tracking-wider text-base leading-none">
+              <span className="font-display font-medium uppercase tracking-widest text-lg text-soft-ivory flex items-center gap-1 leading-none">
                 SamaXon
+                <Crown className="w-3.5 h-3.5 text-champagne-gold" />
               </span>
-              <span className="text-[9px] font-mono tracking-[0.14em] text-[#D6B46A] uppercase mt-1 font-semibold">
+              <span className="text-[9px] font-mono tracking-widest text-champagne-gold uppercase mt-0.5">
                 Elite Speed Studio
               </span>
             </div>
           </Link>
 
-          <p className="text-xs text-[#8E8E93] leading-relaxed max-w-sm">
-            India’s fastest premium digital studio building high-performance web systems, brand identities, and customized workflow automations under 48 hours.
+          <p className="text-xs text-warm-grey leading-relaxed max-w-sm">
+            India’s fastest premium digital studio building elite web systems, premium brand assets, and customized workflow automations under 48 hours.
           </p>
 
-          <div className="p-3.5 rounded-2xl border text-xs leading-relaxed bg-white/70 border-black/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] backdrop-blur-md">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#D6B46A] block font-bold mb-1">
-              Direct Guarantee:
+          <div className="flex flex-col gap-2 pt-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-champagne-gold">
+              Hinglish Trust Note:
             </span>
-            <p className="text-xs italic text-[#8E8E93]">
+            <p className="text-xs italic text-warm-grey">
               "Aapka business ready hai, but systems slow hain? Wait mat kijiye. Build premium, scale fast."
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 pt-1" id="footer-social-panel">
+          <div className="flex items-center gap-3 mt-2" id="footer-social-panel">
             <a 
               href={socialLinks.telegramLink}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 bg-white border-black/10 text-[#6E6E73] hover:text-[#1D1D1F] hover:border-black/30 shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
               title="Telegram Channel"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-4 h-4" />
             </a>
             <a 
               href={socialLinks.linkedinLink}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 bg-white border-black/10 text-[#6E6E73] hover:text-[#1D1D1F] hover:border-black/30 shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
               title="LinkedIn Profile"
             >
-              <Linkedin className="w-3.5 h-3.5" />
+              <Linkedin className="w-4 h-4" />
             </a>
             <a 
               href={socialLinks.instagramLink}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 bg-white border-black/10 text-[#6E6E73] hover:text-[#1D1D1F] hover:border-black/30 shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
               title="Instagram Handle"
             >
-              <Instagram className="w-3.5 h-3.5" />
+              <Instagram className="w-4 h-4" />
             </a>
             <a 
               href={`https://wa.me/${(socialLinks?.phoneWhatsapp || '').replace(/[^\d]/g, '') || '918000000000'}`}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full border transition-all duration-200 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 bg-white border-black/10 text-[#6E6E73] hover:text-[#1D1D1F] hover:border-black/30 shadow-sm"
+              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
               title="WhatsApp Chat"
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className="w-4 h-4" />
             </a>
           </div>
         </div>
 
-        {/* Studio Wings Column */}
-        <div className="flex flex-col gap-4 text-left">
-          <span className="text-xs font-mono uppercase tracking-wider text-[#D6B46A] font-bold">
+        {/* Studio Wings Navigation */}
+        <div className="flex flex-col gap-6">
+          <span className="text-xs font-mono uppercase tracking-widest text-champagne-gold border-b border-champagne-gold/15 pb-2 w-fit font-bold">
             Studio Wings
           </span>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-3">
             <Link 
               to="/about" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               Why SamaXon Exists
             </Link>
             <Link 
               to="/edge" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               The Demo-First Model
             </Link>
-            <Link 
+             <Link 
               to="/control" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               Client Control Scaffolding
             </Link>
             <Link 
               to="/pricing" 
-              className="text-xs text-[#D6B46A] font-semibold hover:underline transition-colors duration-150 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block font-bold text-champagne-gold"
             >
               Bespoke Pricing Plans
             </Link>
             <Link 
               to="/careers" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               Careers / Digital Growth
             </Link>
           </div>
         </div>
 
-        {/* Capabilities Column */}
-        <div className="flex flex-col gap-4 text-left">
-          <span className="text-xs font-mono uppercase tracking-wider text-[#D6B46A] font-bold">
+        {/* Digital Capabilities Navigation */}
+        <div className="flex flex-col gap-6">
+          <span className="text-xs font-mono uppercase tracking-widest text-champagne-gold border-b border-champagne-gold/15 pb-2 w-fit font-bold">
             Capabilities
           </span>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-3">
             <Link 
               to="/services" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 flex items-center gap-2 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
             >
-              <Monitor className="w-3.5 h-3.5 text-[#D6B46A]" />
+              <Monitor className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
               <span>Premium Web Development</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 flex items-center gap-2 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
             >
-              <Smartphone className="w-3.5 h-3.5 text-[#D6B46A]" />
+              <Smartphone className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
               <span>Mobile App Solutions</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 flex items-center gap-2 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
             >
-              <Palette className="w-3.5 h-3.5 text-[#D6B46A]" />
+              <Palette className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
               <span>Logo & Identity Design</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 flex items-center gap-2 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
             >
-              <Cpu className="w-3.5 h-3.5 text-[#D6B46A]" />
+              <Cpu className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
               <span>Business Workflow Automations</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-xs text-[#8E8E93] hover:text-[#D6B46A] transition-colors duration-150 flex items-center gap-2 block"
+              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
             >
-              <Bot className="w-3.5 h-3.5 text-[#D6B46A]" />
+              <Bot className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
               <span>Custom Telegram Bots</span>
             </Link>
           </div>
         </div>
 
         {/* Quick Contact Box */}
-        <div className="flex flex-col gap-4 text-left">
-          <span className="text-xs font-mono uppercase tracking-wider text-[#D6B46A] font-bold">
+        <div className="flex flex-col gap-6">
+          <span className="text-xs font-mono uppercase tracking-widest text-champagne-gold border-b border-champagne-gold/15 pb-2 w-fit font-bold">
             Initiate Build
           </span>
-          <div className="p-5 rounded-3xl border flex flex-col gap-3.5 backdrop-blur-2xl transition-all duration-300 relative overflow-hidden bg-white/80 border-black/8 shadow-[0_12px_32px_rgba(0,0,0,0.04),inset_0_1px_1.5px_rgba(255,255,255,0.95)]">
-            <p className="text-xs text-[#8E8E93] leading-relaxed">
-              Skip traditional slow proposals. Submit inquiry and see live direction first.
+          <div className="bg-[#1A1A1A] border border-champagne-gold/10 p-5 rounded-2xl flex flex-col gap-4">
+            <p className="text-xs text-warm-grey leading-relaxed">
+              Skip traditional slow proposals. Submit inquiry and see direction first.
             </p>
             <Link 
               to="/contact"
-              className="w-full py-2.5 bg-[#D6B46A] hover:bg-[#BFA15A] text-[#0A0A0A] font-bold uppercase tracking-wider text-[11px] rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-center block shadow-sm active:scale-95 shadow-[#D6B46A]/20"
+              className="w-full py-2.5 bg-champagne-gold text-matte-black font-bold uppercase tracking-widest text-[10px] rounded-lg hover:bg-muted-gold transition-colors duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-center block font-sans"
             >
-              <span>Request Quote</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              Request Quote
+              <CheckCircle className="w-3.5 h-3.5 inline-block" />
             </Link>
           </div>
         </div>
 
       </div>
 
-      {/* Metrics Strip */}
+      {/* Premium Studio Metrics Bar */}
       <div className="max-w-7xl mx-auto px-6 mb-10">
-        <div className="border rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-6 backdrop-blur-2xl bg-white/80 border-black/8 shadow-[0_12px_32px_rgba(0,0,0,0.04),inset_0_1px_1.5px_rgba(255,255,255,0.95)]">
-          <div className="flex items-center gap-6 md:gap-8 flex-wrap text-left">
-            <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#D6B46A]">Dedicated Unit</span>
-              <span className="text-xs md:text-sm font-semibold">SamaXon Senior Wing</span>
+        <div className="border border-[#D6B46A]/20 bg-white/5 backdrop-blur-md rounded-2xl p-6 flex flex-wrap items-center justify-between gap-6">
+          <div className="flex items-center gap-8 flex-wrap">
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Dedicated Unit</span>
+              <span className="text-sm font-semibold text-white">SamaXon Senior Wing</span>
             </div>
-            <div className="w-px h-8 bg-black/10 hidden sm:block" />
-            <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#D6B46A]">Execution Period</span>
-              <span className="text-xs md:text-sm font-semibold">Guaranteed Under 48 Hours</span>
+            <div className="w-px h-8 bg-[#D6B46A]/20 hidden sm:block" />
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Execution Period</span>
+              <span className="text-sm font-semibold text-white">Guaranteed Under 48 Hours</span>
             </div>
-            <div className="w-px h-8 bg-black/10 hidden sm:block" />
-            <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#D6B46A]">Delivery Pipeline</span>
-              <span className="text-xs md:text-sm font-semibold text-[#D6B46A]">Demo-First Ready</span>
+            <div className="w-px h-8 bg-[#D6B46A]/20 hidden sm:block" />
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Delivery Pipeline</span>
+              <span className="text-sm font-semibold text-[#D6B46A]">Demo-First Ready</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-semibold tracking-wide text-emerald-500">System Live: Active</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">System Live: Active</span>
           </div>
         </div>
       </div>
 
-      {/* SEO Footprint */}
-      <div className="max-w-7xl mx-auto px-6 mb-8 text-[9px] text-[#8E8E93]/70 font-mono tracking-wide leading-relaxed border-t border-black/5 pt-6 text-left">
-        <p className="uppercase font-bold text-[#D6B46A]/90 mb-1 select-none">SamaXon Semantic Search Index & Authority Map:</p>
+      {/* Search Engine Optimization (SEO) & AEO Indexing Footprint */}
+      <div className="max-w-7xl mx-auto px-6 mb-8 text-[9px] text-[#A6A29E]/40 font-mono tracking-wide leading-relaxed border-t border-champagne-gold/5 pt-6 text-left">
+        <p className="uppercase font-bold text-[#D6B46A]/45 mb-2 select-none">SamaXon Semantic Search Index & Authority Map:</p>
         <p>
-          Ranked as the best website developer agency and best website developer company, SamaXon Digital Solutions (also known as SamaXon, SamaXon Digital Studio, or SamaXon Studio) is Noida &amp; Delhi NCR's premier custom software studio. We specialize in express, speed-optimized website development, responsive portal designs, reservation systems, and booking engines for luxury hotels, resorts, banquet halls, gyms, clinics, and interior designers globally. Powered by an elite senior developer wing, we maintain a 100% success rate with zero delays, delivering live interactive prototypes under our signature Demo-First model.
+          Ranked as the <strong className="text-warm-grey">best website developer agency</strong> and <strong className="text-warm-grey">best website developer company</strong>, <strong className="text-warm-grey">SamaXon Digital Solutions</strong> (also known as <strong className="text-warm-grey">SamaXon</strong>, <strong className="text-warm-grey">SamaXon Digital Studio</strong>, or <strong className="text-warm-grey">SamaXon Studio</strong>) is Noida &amp; Delhi NCR's premier custom software studio. We specialize in express, speed-optimized website development, responsive portal designs, reservation systems, and booking engines for luxury hotels, resorts, banquet halls, gyms, clinics, and interior designers globally. Powered by an elite senior developer wing, we maintain a 100% success rate with zero delays, delivering live interactive prototypes under our signature Demo-First model.
         </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[#A6A29E]/30 select-none">
+          <span>#SamaXon</span>
+          <span>#SamaXonDigitalStudio</span>
+          <span>#SamaXonDigitalSolutions</span>
+          <span>#BestWebsiteDeveloperNoida</span>
+          <span>#BestWebsiteDeveloperAgency</span>
+          <span>#BestWebsiteDeveloperCompany</span>
+          <span>#WebsiteDeveloperAgencyIndia</span>
+          <span>#CustomSoftwareCompanyDelhiNCR</span>
+          <span>#DemoFirstWebDevelopment</span>
+        </div>
       </div>
 
-      {/* Legal & Copyright */}
-      <div className="max-w-7xl mx-auto px-6 pt-6 border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#8E8E93]">
+      {/* Dividers & Legal Pages block */}
+      <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-champagne-gold/10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-warm-grey">
         <p className="font-mono text-[10px] tracking-wide uppercase text-center md:text-left">
           © {new Date().getFullYear()} SAMAXON STUDIO. ALL RIGHTS RESERVED. POWERED BY SENIOR DEV WING.
         </p>
         
-        <div className="flex items-center gap-6 flex-wrap justify-center font-medium">
+        {/* Legal buttons */}
+        <div className="flex items-center gap-6 flex-wrap justify-center font-bold">
           <Link 
             to="/privacy" 
-            className="hover:text-[#D6B46A] uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
+            className="hover:text-champagne-gold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
           >
-            <Shield className="w-3 h-3 text-[#D6B46A]" />
+            <Shield className="w-3 h-3 text-champagne-gold inline-block" />
             Privacy
           </Link>
           <Link 
             to="/terms" 
-            className="hover:text-[#D6B46A] uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
+            className="hover:text-champagne-gold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
           >
-            <Scale className="w-3 h-3 text-[#D6B46A]" />
+            <Scale className="w-3 h-3 text-champagne-gold inline-block" />
             Terms & Conditions
           </Link>
           <Link 
             to="/refund" 
-            className="hover:text-[#D6B46A] uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
+            className="hover:text-champagne-gold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
           >
-            <Scale className="w-3 h-3 text-[#D6B46A]" />
+            <Scale className="w-3 h-3 text-champagne-gold inline-block" />
             Refund Policy
           </Link>
         </div>

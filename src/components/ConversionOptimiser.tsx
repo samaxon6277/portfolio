@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MessageSquare, Calendar, Zap, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import LiquidButton from './LiquidButton';
 
 export default function ConversionOptimiser() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [isOpen, setIsOpen] = useState(false);
   const [phoneWhatsapp, setPhoneWhatsapp] = useState('918000000000');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,6 +17,7 @@ export default function ConversionOptimiser() {
         if (stored) {
           const parsed = JSON.parse(stored);
           const rawPhone = parsed.phoneWhatsapp || '918000000000';
+          // Sanitize raw phone to digits only for the direct WhatsApp link
           const sanitized = rawPhone.replace(/[^\d]/g, '');
           setPhoneWhatsapp(sanitized || '918000000000');
         }
@@ -34,7 +33,7 @@ export default function ConversionOptimiser() {
     };
   }, []);
 
-  // Click outside to close
+  // Click outside to close the expandable floating menu - ONLY when open to prevent race conditions
   useEffect(() => {
     if (!isOpen) return;
 
@@ -52,20 +51,20 @@ export default function ConversionOptimiser() {
     };
   }, [isOpen]);
 
-  const handleWhatsAppClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(`https://wa.me/${phoneWhatsapp}?text=Hello%20SamaXon%20team,%20I%20am%20interested%20in%20initiating%20a%2048-hour%20digital%20upgrade.`, '_blank', 'noopener,noreferrer');
     setIsOpen(false);
   };
 
-  const handleBookConsultation = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+  const handleBookConsultation = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate('/contact', { state: { source: 'floating-cta-consult' } });
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsOpen(false);
   };
 
-  const handleStartProject = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+  const handleStartProject = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate('/contact', { state: { source: 'floating-cta-start-project' } });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -76,75 +75,82 @@ export default function ConversionOptimiser() {
     setIsOpen(prev => !prev);
   };
 
+  // Hide on Admin Panel to avoid covering control dashboards (safe early return after hooks)
   if (location.pathname === '/admin') return null;
 
   return (
     <div id="conversion-optimiser-global-hooks">
+      {/* UNIFIED EXPANDABLE FLOATING ACTION BUTTON (FAB) FOR ALL SCREEN SIZES */}
       <div 
         ref={containerRef}
         className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-end font-sans"
       >
-        {/* Expanded Action Stack in Liquid Glass Sheet Container */}
+        {/* Expanded Action Stack */}
         <AnimatePresence>
           {isOpen && (
             <motion.div 
-              initial={{ opacity: 0, y: 15, scale: 0.92, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: 10, scale: 0.92, filter: 'blur(4px)' }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-end gap-2.5 mb-3 p-2 rounded-3xl backdrop-blur-2xl bg-white/40 dark:bg-black/40 border border-black/5 dark:border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 15, scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className="flex flex-col items-end gap-3 mb-3"
             >
               {/* Action 1: Start Project */}
-              <LiquidButton
-                variant="gold"
-                size="sm"
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleStartProject}
-                icon={<Zap className="w-3.5 h-3.5 fill-current" />}
+                className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[#D6B46A] to-[#BFA15A] text-[#111111] rounded-full shadow-xl font-bold text-[10px] md:text-xs uppercase tracking-widest whitespace-nowrap border border-white/15 cursor-pointer hover:shadow-2xl hover:shadow-[#D6B46A]/20 transition-all"
               >
-                Start Project
-              </LiquidButton>
+                <Zap className="w-4 h-4 text-[#111111] fill-current" />
+                <span>Start Project</span>
+              </motion.button>
 
               {/* Action 2: Book Consultation */}
-              <LiquidButton
-                variant="glass"
-                size="sm"
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleBookConsultation}
-                icon={<Calendar className="w-3.5 h-3.5 text-[#D6B46A]" />}
+                className="flex items-center gap-2 px-4 py-3 bg-[#111111]/95 backdrop-blur-md text-white rounded-full shadow-xl font-bold text-[10px] md:text-xs uppercase tracking-widest whitespace-nowrap border border-[#D6B46A]/30 cursor-pointer hover:border-[#D6B46A] hover:bg-[#161616] transition-all"
               >
-                Consultation
-              </LiquidButton>
+                <Calendar className="w-4 h-4 text-[#D6B46A]" />
+                <span>Consultation</span>
+              </motion.button>
 
               {/* Action 3: WhatsApp Chat */}
-              <LiquidButton
-                variant="emerald"
-                size="sm"
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleWhatsAppClick}
-                icon={<MessageSquare className="w-3.5 h-3.5 fill-white text-white" />}
+                className="flex items-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-full shadow-xl font-bold text-[10px] md:text-xs uppercase tracking-widest whitespace-nowrap border border-emerald-500/20 cursor-pointer hover:bg-emerald-700 transition-all"
               >
-                WhatsApp Chat
-              </LiquidButton>
+                <MessageSquare className="w-4 h-4 fill-white text-white" />
+                <span>WhatsApp Chat</span>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Master Trigger Liquid Button */}
+        {/* Master FAB Trigger Button */}
         <motion.button
           onClick={toggleMenu}
-          whileHover={{ scale: 1.06 }}
-          whileTap={{ scale: 0.94 }}
-          className="w-13 h-13 md:w-14 md:h-14 rounded-full bg-gradient-to-b from-[#E7C77E] via-[#D6B46A] to-[#C49E4E] text-[#0A0A0A] flex items-center justify-center shadow-[0_10px_35px_rgba(214,180,106,0.45),inset_0_1px_1.5px_rgba(255,255,255,0.9)] border border-white/30 cursor-pointer focus:outline-none relative overflow-hidden active:shadow-inner"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.92 }}
+          className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-[#D6B46A] to-[#BFA15A] text-matte-black flex items-center justify-center shadow-2xl border border-white/25 cursor-pointer focus:outline-none relative overflow-hidden group"
           title="SamaXon Quick Actions"
-          aria-label="Quick action menu"
         >
+          {/* Subtle pulse effect inside the trigger button */}
+          <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          
           <motion.div
-            animate={{ rotate: isOpen ? 90 : 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ rotate: isOpen ? 135 : 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
             className="flex items-center justify-center"
           >
             {isOpen ? (
-              <X className="w-5 h-5 md:w-6 md:h-6" />
+              <X className="w-6 h-6 md:w-7 md:h-7 text-matte-black" />
             ) : (
-              <Zap className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+              <Zap className="w-6 h-6 md:w-7 md:h-7 text-matte-black fill-matte-black/5" />
             )}
           </motion.div>
         </motion.button>

@@ -1,56 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-pearl-white: #FAF8F5;
-  --color-soft-ivory: #F5F1E8;
-  --color-creamy-white: #FAF6EE;
+  --color-pearl-white: #F8F4EE;
+  --color-soft-ivory: #FFFDF8;
   --color-champagne-gold: #D6B46A;
   --color-muted-gold: #BFA15A;
-  --color-matte-black: #0A0A0A;
-  --color-charcoal: #151515;
-  --color-warm-grey: #8E8E93;
-
-  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Space Grotesk", -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --color-matte-black: #111111;
+  --color-charcoal: #262626;
+  --color-warm-grey: #8A8178;
+  
+  --font-sans: "Inter", "Helvetica Neue", system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
 }
 
-:root {
-  --bg-primary: #FAF8F5;
-  --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #F6F3EC;
-  --text-primary: #1D1D1F;
-  --text-secondary: #6E6E73;
-  --text-tertiary: #86868B;
-  --border-subtle: rgba(0, 0, 0, 0.07);
-  --border-highlight: rgba(214, 180, 106, 0.4);
-  --card-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
-  --card-shadow-hover: 0 24px 56px -12px rgba(0, 0, 0, 0.08), 0 6px 20px -2px rgba(0, 0, 0, 0.03);
-  --liquid-glass-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.02), inset 0 1.5px 2px rgba(255, 255, 255, 0.98), inset 0 -1px 1.5px rgba(255, 255, 255, 0.4);
-  --liquid-specular-top: inset 0 1.5px 2px rgba(255, 255, 255, 0.98);
+@layer utilities {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(214, 180, 106, 0.22);
+  }
+
+  .glass-panel-dark {
+    background: rgba(26, 26, 26, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(214, 180, 106, 0.15);
+  }
+
+  .gold-shadow {
+    box-shadow: 0 10px 30px -15px rgba(214, 180, 106, 0.3);
+  }
+
+  .gold-shadow-sm {
+    box-shadow: 0 4px 20px -8px rgba(214, 180, 106, 0.2);
+  }
+
+  .gold-glow {
+    text-shadow: 0 0 12px rgba(214, 180, 106, 0.4);
+  }
 }
 
-/* Base Body Styles */
+/* Custom Base Styles for Pearl & Champagne UX */
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: #F8F4EE;
+  color: #111111;
   font-family: var(--font-sans);
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: #D6B46A transparent;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  scrollbar-color: #D6B46A #FFFDF8;
 }
 
-/* Custom Scrollbars */
+/* Custom webkit scrollbars for premium feel */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #FFFDF8;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -62,128 +72,44 @@ body {
   background: #BFA15A;
 }
 
-/* Liquid Ripple & Water Sheen Animation Keyframes */
-@keyframes liquidRipple {
-  0% {
-    transform: scale(0.1);
-    opacity: 0.85;
-  }
-  50% {
-    opacity: 0.45;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
+/* Custom subtle animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
 }
 
-@keyframes waterGlossSweep {
-  0% {
-    transform: translateX(-100%) skewX(-20deg);
-  }
-  50%, 100% {
-    transform: translateX(200%) skewX(-20deg);
-  }
+@keyframes float-reverse {
+  0% { transform: translateY(0px) rotate(1deg); }
+  50% { transform: translateY(8px) rotate(-1deg); }
+  100% { transform: translateY(0px) rotate(1deg); }
 }
 
-.animate-liquid-ripple {
-  animation: liquidRipple 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-floating {
+  animation: float 6s ease-in-out infinite;
 }
 
-.animate-water-gloss {
-  animation: waterGlossSweep 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.animate-floating-delayed {
+  animation: float 7s ease-in-out infinite;
+  animation-delay: 2s;
 }
 
-/* Liquid Glass Utilities with Realistic Water Surface & Meniscus Reflections */
-@layer utilities {
-  .liquid-glass-sheet {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0.65) 100%);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.02), inset 0 1.5px 2px rgba(255, 255, 255, 0.98), inset 0 -1.5px 2px rgba(255, 255, 255, 0.35);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .liquid-glass-pill {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.52) 100%);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04), inset 0 1.5px 2px rgba(255, 255, 255, 0.98), inset 0 -1px 1px rgba(255, 255, 255, 0.4);
-  }
-
-  .liquid-glass-dropdown {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.72) 100%);
-    backdrop-filter: blur(36px) saturate(190%);
-    -webkit-backdrop-filter: blur(36px) saturate(190%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.08), 0 6px 18px -2px rgba(0, 0, 0, 0.03), inset 0 1.5px 2px rgba(255, 255, 255, 1), inset 0 -1px 1.5px rgba(255, 255, 255, 0.5);
-  }
-
-  .glass-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0.65) 100%);
-    backdrop-filter: blur(24px) saturate(175%);
-    -webkit-backdrop-filter: blur(24px) saturate(175%);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02), inset 0 1.5px 2px rgba(255, 255, 255, 0.98), inset 0 -1px 1px rgba(255, 255, 255, 0.35);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .glass-card:hover {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0.78) 100%);
-    box-shadow: 0 24px 56px -12px rgba(0, 0, 0, 0.08), 0 6px 20px -2px rgba(0, 0, 0, 0.03), inset 0 1.5px 2px rgba(255, 255, 255, 1), inset 0 -1px 1px rgba(255, 255, 255, 0.5);
-    border-color: rgba(214, 180, 106, 0.45);
-  }
-
-  .liquid-water-card {
-    position: relative;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.38) 50%, rgba(255, 255, 255, 0.6) 100%);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.02), inset 0 1.5px 2px rgba(255, 255, 255, 0.98), inset 0 -1.5px 2px rgba(255, 255, 255, 0.4);
-  }
-
-  .gold-gradient-text {
-    background: linear-gradient(135deg, #E5C578 0%, #D6B46A 50%, #BFA15A 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .gold-shadow {
-    box-shadow: 0 12px 36px -10px rgba(214, 180, 106, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.75), inset 0 -1px 1px rgba(0, 0, 0, 0.1);
-  }
-
-  .gold-shadow-sm {
-    box-shadow: 0 6px 22px -4px rgba(214, 180, 106, 0.25), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
-  }
+.animate-floating-reverse {
+  animation: float-reverse 8s ease-in-out infinite;
 }
 
-/* Custom form inputs & placeholders styling - Liquid Glass Transparent Water Aesthetic */
+/* For form controls styling */
 input, textarea, select {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.35) 100%) !important;
-  color: var(--text-primary) !important;
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, 0.95), inset 0 -1px 1px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-input::placeholder, textarea::placeholder {
-  color: rgba(142, 142, 147, 0.75) !important;
-  font-weight: 400;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 input:focus, textarea:focus, select:focus {
-  outline: none !important;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.55) 100%) !important;
-  border-color: rgba(214, 180, 106, 0.85) !important;
-  box-shadow: 0 0 0 3.5px rgba(214, 180, 106, 0.22), 0 8px 24px -4px rgba(214, 180, 106, 0.18), inset 0 1.5px 2px rgba(255, 255, 255, 1) !important;
+  outline: none;
+  border-color: #D6B46A;
+  box-shadow: 0 0 0 3px rgba(214, 180, 106, 0.2);
 }
 
-/* Custom autofill overrides */
+/* Custom reset for WebKit browser autofill light-blue background issue */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus,
@@ -192,18 +118,9 @@ textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus,
 textarea:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--bg-surface) inset !important;
-  box-shadow: 0 0 0 1000px var(--bg-surface) inset !important;
-  -webkit-text-fill-color: var(--text-primary) !important;
+  -webkit-box-shadow: 0 0 0 1000px #FAF6F0 inset !important;
+  box-shadow: 0 0 0 1000px #FAF6F0 inset !important;
+  -webkit-text-fill-color: #111111 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Reduced motion accessibility */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
