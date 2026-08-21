@@ -1,0 +1,58 @@
+import { AccentColorToken, BrandAccentKey } from '../types';
+
+export const THEME_ACCENTS: Record<BrandAccentKey, AccentColorToken> = {
+  'champagne-gold': {
+    id: 'champagne-gold',
+    name: 'Champagne Gold',
+    hex: '#D6B46A',
+    rgb: '214, 180, 106',
+    glow: 'rgba(214, 180, 106, 0.45)',
+    borderHover: 'rgba(214, 180, 106, 0.6)',
+    bgGrad: 'from-[#D6B46A] to-[#BFA15A]',
+    badgeBg: 'rgba(214, 180, 106, 0.12)',
+    badgeText: '#BFA15A',
+    buttonBg: '#D6B46A',
+    buttonText: '#111111',
+  },
+  'cyber-emerald': {
+    id: 'cyber-emerald',
+    name: 'Cyber Emerald',
+    hex: '#10B981',
+    rgb: '16, 185, 129',
+    glow: 'rgba(16, 185, 129, 0.45)',
+    borderHover: 'rgba(16, 185, 129, 0.6)',
+    bgGrad: 'from-emerald-500 to-teal-600',
+    badgeBg: 'rgba(16, 185, 129, 0.12)',
+    badgeText: '#10B981',
+    buttonBg: '#10B981',
+    buttonText: '#FFFFFF',
+  },
+  'deep-sapphire': {
+    id: 'deep-sapphire',
+    name: 'Deep Sapphire',
+    hex: '#3B82F6',
+    rgb: '59, 130, 246',
+    glow: 'rgba(59, 130, 246, 0.45)',
+    borderHover: 'rgba(59, 130, 246, 0.6)',
+    bgGrad: 'from-blue-500 to-indigo-600',
+    badgeBg: 'rgba(59, 130, 246, 0.12)',
+    badgeText: '#3B82F6',
+    buttonBg: '#3B82F6',
+    buttonText: '#FFFFFF',
+  },
+  'rose-titanium': {
+    id: 'rose-titanium',
+    name: 'Rose Titanium',
+    hex: '#EC4899',
+    rgb: '236, 72, 153',
+    glow: 'rgba(236, 72, 153, 0.45)',
+    borderHover: 'rgba(236, 72, 153, 0.6)',
+    bgGrad: 'from-pink-500 to-rose-600',
+    badgeBg: 'rgba(236, 72, 153, 0.12)',
+    badgeText: '#EC4899',
+    buttonBg: '#EC4899',
+    buttonText: '#FFFFFF',
+  },
+};
+
+export const INITIAL_ACCENT: BrandAccentKey = 'champagne-gold';

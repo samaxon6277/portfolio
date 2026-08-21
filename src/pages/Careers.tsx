@@ -10,6 +10,7 @@ import { JobApplication, JobListing, DepartmentType } from '../types';
 import { supabaseService } from '../utils/supabaseService';
 import { analytics } from '../utils/analytics';
 import { DEFAULT_JOBS } from '../utils/defaultData';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 export default function Careers() {
   const [hasTrackedFormStart, setHasTrackedFormStart] = useState(false);
@@ -389,7 +390,7 @@ export default function Careers() {
                         name="full_name"
                         value={formData.full_name}
                         onChange={handleInputChange}
-                        placeholder="e.g. Advait Sharma"
+                        placeholder="e.g. Alexander Vance"
                         className={`w-full bg-pearl-white/40 border p-3 border-champagne-gold/15 text-xs text-matte-black rounded-lg outline-none transition-all ${
                           formErrors.full_name ? 'border-red-400 focus:border-red-400' : 'focus:border-champagne-gold'
                         }`}
@@ -423,7 +424,7 @@ export default function Careers() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="e.g. advait@example.com"
+                        placeholder="e.g. alexander.vance@gmail.com"
                         className="w-full bg-pearl-white/40 border p-3 border-champagne-gold/15 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
                         required
                       />
@@ -616,11 +617,11 @@ export default function Careers() {
               <div className="pt-4 space-y-1.5 font-mono text-[10px]">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Talent Desk Email:</span>
-                  <a href="mailto:careers@samaxon.com" className="text-champagne-gold hover:underline">careers@samaxon.com</a>
+                  <a href={`mailto:${SITE_CONFIG.careersEmail}`} className="text-champagne-gold hover:underline">{SITE_CONFIG.careersEmail}</a>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500 font-mono">Whatsapp Helpline:</span>
-                  <span className="text-neutral-200">+91 80000 00000</span>
+                  <span className="text-neutral-200">{SITE_CONFIG.phoneWhatsapp}</span>
                 </div>
               </div>
             </div>

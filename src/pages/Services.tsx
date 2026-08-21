@@ -75,18 +75,18 @@ export default function Services({ setCurrentPage }: ServicesProps) {
         {/* --- DETAILED SERVICES VIRTUAL STACK --- */}
         <div className="space-y-12" id="services-detail-list">
           {filteredServices.map((service, index) => (
-            <div 
+            <div
               key={service.id}
-              className="bg-white/60 border border-champagne-gold/15 rounded-[40px] p-8 sm:p-12 text-left relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-12 items-start hover:border-champagne-gold duration-300 transition-all gold-shadow-sm"
+              className="bg-white/80 border border-[#D6B46A]/20 rounded-[36px] p-8 sm:p-12 text-left relative overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start hover:border-[#D6B46A]/60 duration-300 transition-all shadow-[0_4px_20px_-2px_rgba(17,17,17,0.05),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_18px_42px_-6px_rgba(17,17,17,0.1),0_4px_14px_-2px_rgba(214,180,106,0.18)] hover:-translate-y-1"
               id={`service-card-${service.id}`}
             >
               {/* Card visual ambient lighting */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-champagne-gold/3 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-champagne-gold/5 rounded-full blur-3xl pointer-events-none" />
 
               {/* Left column: Overview / Pain and Solution */}
               <div className="lg:col-span-7 flex flex-col gap-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-matte-black text-champagne-gold border border-champagne-gold/30 flex items-center justify-center">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-matte-black text-champagne-gold border border-champagne-gold/30 flex items-center justify-center shadow-md">
                     {service.id === 'web-dev' && <Code className="w-5.5 h-5.5" />}
                     {service.id === 'app-dev' && <Layers className="w-5.5 h-5.5" />}
                     {service.id === 'identity-design' && <Crown className="w-5.5 h-5.5" />}
@@ -97,16 +97,16 @@ export default function Services({ setCurrentPage }: ServicesProps) {
                     {service.id === 'seo-perf' && <BarChart3 className="w-5.5 h-5.5" />}
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-warm-grey block">
+                    <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-warm-grey block font-bold">
                       Capabilities Wing {index + 1}
                     </span>
-                    <h2 className="font-display font-bold text-xl sm:text-2xl text-matte-black">
+                    <h2 className="font-display font-bold text-xl sm:text-2xl text-matte-black tracking-tight">
                       {service.title}
                     </h2>
                   </div>
                 </div>
 
-                <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-2xl flex gap-3">
+                <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-2xl flex gap-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
                   <ShieldAlert className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-[10px] font-mono text-red-600 uppercase font-bold tracking-widest">Pain Point Highlight:</h4>
@@ -130,9 +130,9 @@ export default function Services({ setCurrentPage }: ServicesProps) {
               </div>
 
               {/* Right column: Deliverables / Specs / Forms Action */}
-              <div className="lg:col-span-5 bg-pearl-white/80 border border-champagne-gold/15 rounded-3xl p-6 sm:p-8 flex flex-col justify-between h-full hover:border-champagne-gold duration-200">
+              <div className="lg:col-span-5 bg-pearl-white/90 border border-champagne-gold/20 rounded-3xl p-6 sm:p-8 flex flex-col justify-between h-full hover:border-champagne-gold/50 shadow-xs duration-200">
                 <div className="space-y-4">
-                  <span className="text-[9px] font-mono text-warm-grey uppercase tracking-widest block font-bold border-b border-champagne-gold/10 pb-2">
+                  <span className="text-[9px] font-mono text-warm-grey uppercase tracking-[0.14em] block font-bold border-b border-champagne-gold/15 pb-2">
                     Verified Deliverables Included
                   </span>
                   
@@ -148,13 +148,13 @@ export default function Services({ setCurrentPage }: ServicesProps) {
                   </ul>
                 </div>
 
-                <div className="mt-8 pt-4 border-t border-champagne-gold/10">
+                <div className="mt-8 pt-4 border-t border-champagne-gold/15">
                   <button
                     onClick={() => handleAction(service.id)}
-                    className="w-full py-4 bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold uppercase tracking-widest text-[10px] rounded-xl border border-champagne-gold/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="w-full py-3.5 bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold uppercase tracking-[0.12em] text-[10px] rounded-xl border border-champagne-gold/30 shadow-[0_4px_14px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.28)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer"
                   >
                     {service.ctaText}
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                   </button>
                   <p className="text-[9px] text-warm-grey text-center mt-3 uppercase tracking-widest font-mono">
                     Demo-First approach · Build begins in 24 hours

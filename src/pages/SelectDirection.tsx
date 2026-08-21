@@ -12,6 +12,7 @@ import { DEFAULT_PRICING } from '../utils/defaultData';
 import { PricingPlan, Lead } from '../types';
 import { supabaseService } from '../utils/supabaseService';
 import { analytics } from '../utils/analytics';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 export default function SelectDirection() {
   const location = useLocation();
@@ -37,8 +38,8 @@ export default function SelectDirection() {
 
   // Contact settings (WhatsApp number & email)
   const [contactSettings, setContactSettings] = useState({
-    contactEmail: 'build@samaxon.pro',
-    phoneWhatsapp: '+91 80000 00000',
+    contactEmail: SITE_CONFIG.contactEmail,
+    phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
   });
 
   // Identify pre-selected values from state primitives to avoid infinite render loops on object references
@@ -70,8 +71,8 @@ export default function SelectDirection() {
       if (storedSettings) {
         const parsed = JSON.parse(storedSettings);
         setContactSettings({
-          contactEmail: parsed.contactEmail || 'build@samaxon.pro',
-          phoneWhatsapp: parsed.phoneWhatsapp || '+91 80000 00000',
+          contactEmail: parsed.contactEmail || SITE_CONFIG.contactEmail,
+          phoneWhatsapp: parsed.phoneWhatsapp || SITE_CONFIG.phoneWhatsapp,
         });
       }
     } catch (e) {

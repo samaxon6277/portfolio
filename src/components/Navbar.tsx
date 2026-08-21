@@ -72,46 +72,46 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     <>
       {/* Floating Glassmorphism Header with Spring transition */}
       <motion.header 
-        className="fixed top-4 left-1/2 w-[92%] max-w-7xl z-50 origin-top"
+        className="fixed top-4 left-1/2 w-[94%] max-w-7xl z-50 origin-top"
         style={{ x: '-50%', perspective: 1000 }}
         animate={{
           y: isVisible ? 0 : -110,
           opacity: isVisible ? 1 : 0,
-          scale: isVisible ? 1 : 0.92,
-          rotateX: isVisible ? 0 : -15,
-          filter: isVisible ? "blur(0px)" : "blur(6px)",
+          scale: isVisible ? 1 : 0.94,
+          rotateX: isVisible ? 0 : -12,
+          filter: isVisible ? "blur(0px)" : "blur(4px)",
         }}
         transition={{
           type: "spring",
-          stiffness: 150,
-          damping: 19,
+          stiffness: 160,
+          damping: 20,
           mass: 0.6
         }}
       >
-        <nav className="glass-panel rounded-full px-6 py-3.5 flex items-center justify-between gold-shadow-sm">
+        <nav className="glass-header rounded-full px-5 sm:px-7 py-3 flex items-center justify-between transition-all duration-300">
           {/* Logo Brand */}
           <Link 
             to="/" 
-            className="flex items-center gap-2.5 cursor-pointer group"
+            className="flex items-center gap-3 cursor-pointer group select-none"
             id="brand-logo"
             onClick={() => setIsOpen(false)}
           >
-            <div className="w-10 h-10 bg-matte-black flex items-center justify-center rounded-xl border border-champagne-gold/30 group-hover:border-champagne-gold transition-all shadow-xl">
-              <span className="text-champagne-gold font-bold text-lg font-display">S</span>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-matte-black flex items-center justify-center rounded-xl border border-champagne-gold/35 group-hover:border-champagne-gold group-hover:shadow-[0_0_16px_rgba(214,180,106,0.35)] transition-all duration-300 shadow-md">
+              <span className="text-champagne-gold font-bold text-base sm:text-lg font-display">S</span>
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-display font-bold tracking-widest text-base text-matte-black flex items-center gap-1 leading-none uppercase">
+              <span className="font-display font-bold tracking-[0.16em] text-sm sm:text-base text-matte-black flex items-center gap-1 leading-none uppercase">
                 SamaXon
                 <Crown className="w-3.5 h-3.5 text-champagne-gold fill-champagne-gold/20" />
               </span>
-              <span className="text-[9px] font-mono tracking-[0.12em] text-warm-grey uppercase leading-none mt-1 font-bold">
+              <span className="text-[8.5px] sm:text-[9px] font-mono tracking-[0.15em] text-warm-grey uppercase leading-none mt-1 font-semibold">
                 48-HR Digital Studio
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
+          {/* Desktop Navigation Container with Strict Relative Coordinate Space */}
+          <div className="hidden lg:flex items-center gap-0.5 p-1 rounded-full bg-matte-black/[0.03] border border-champagne-gold/15 relative">
             {navItems.map((item) => (
               <NavLink
                 key={item.id}
@@ -119,10 +119,10 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                 end={item.path === '/'}
                 id={`nav-${item.id}`}
                 className={({ isActive }) =>
-                  `px-4 py-2 text-[10px] font-bold tracking-widest uppercase transition-all duration-200 rounded-full relative inline-block ${
+                  `relative px-3.5 py-1.5 text-[13px] font-medium tracking-[0.01em] rounded-full transition-colors duration-200 cursor-pointer select-none ${
                     isActive 
                       ? 'text-matte-black' 
-                      : 'text-warm-grey hover:text-[#D6B46A] hover:bg-champagne-gold/5'
+                      : 'text-matte-black/60 hover:text-matte-black hover:bg-champagne-gold/10'
                   }`
                 }
               >
@@ -130,12 +130,12 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                   <>
                     {isActive && (
                       <motion.span 
-                        layoutId="active-nav-indicator"
-                        className="absolute inset-0 bg-gradient-to-r from-[#D6B46A]/10 to-[#D6B46A]/20 rounded-full border border-champagne-gold/30 -z-1"
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                        layoutId="activeNavPill"
+                        className="absolute inset-0 bg-gradient-to-r from-champagne-gold/20 via-champagne-gold/30 to-champagne-gold/20 rounded-full border border-champagne-gold/45 shadow-[0_2px_8px_rgba(214,180,106,0.22)] -z-0"
+                        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                       />
                     )}
-                    {item.label}
+                    <span className="relative z-10">{item.label}</span>
                   </>
                 )}
               </NavLink>
@@ -147,10 +147,10 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             <Link
               to="/contact"
               id="desktop-cta-start"
-              className="px-6 py-3 bg-[#D6B46A] hover:bg-muted-gold text-white text-[10px] font-bold tracking-widest uppercase rounded-full shadow-lg shadow-[#D6B46A]/10 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-1.5 cursor-pointer text-center inline-block"
+              className="px-5 py-2 bg-champagne-gold hover:bg-muted-gold text-matte-black text-xs font-semibold tracking-[0.04em] rounded-full shadow-[0_4px_14px_rgba(214,180,106,0.32)] hover:shadow-[0_8px_24px_rgba(214,180,106,0.42)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5 cursor-pointer text-center inline-block"
             >
               Start Build
-              <ArrowRight className="w-3.5 h-3.5 inline-block ml-1" />
+              <ArrowRight className="w-3.5 h-3.5 inline-block ml-0.5" />
             </Link>
           </div>
 
@@ -158,10 +158,10 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
           <button
             onClick={() => setIsOpen(!isOpen)}
             id="mobile-menu-toggle"
-            className="lg:hidden p-2 text-matte-black hover:text-champagne-gold transition-colors focus:outline-none cursor-pointer"
+            className="lg:hidden p-2 text-matte-black hover:text-champagne-gold transition-colors focus:outline-none cursor-pointer rounded-lg hover:bg-champagne-gold/10"
             aria-label="Toggle navigation menu"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </nav>
       </motion.header>

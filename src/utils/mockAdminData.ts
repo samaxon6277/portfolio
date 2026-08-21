@@ -218,7 +218,7 @@ const defaultServices: Service[] = [
     solutionCopy: 'Custom-built speed-optimized React platforms using luxury display typography.',
     deliverables: ['Custom React App', 'Lighthouse 95+ Score', 'Tailwind Fluid Layout', 'Vercel Fast Ingress Deployment'],
     ctaText: 'Deploy in 48h',
-    benefitPoints: ['Zero-flicker loading', 'Luxury high contrast UI', 'Hinglish target copywriting']
+    benefitPoints: ['Zero-flicker loading', 'Luxury high contrast UI', 'High-Conversion B2B copywriting']
   },
   {
     id: 'srv-2',
@@ -701,25 +701,25 @@ const defaultAdminUsers: AdminUser[] = [
 ];
 
 const defaultWebsiteSettings: WebsiteSettings = {
-  brandName: 'SamaXon',
+  brandName: 'SamaXon Digital Solutions',
   logoUrl: 'S',
   faviconUrl: '/favicon.ico',
-  contactEmail: 'build@samaxon.com',
-  phoneWhatsapp: '+91 80000 00000',
+  contactEmail: 'contact@samaxon.site',
+  phoneWhatsapp: '+91 98188 54321',
   telegramLink: 'https://t.me/samaxon_studio',
   linkedinLink: 'https://linkedin.com/company/samaxon',
   instagramLink: 'https://instagram.com/samaxon_studio',
-  address: 'SamaXon Tech Suites, Level 8, DLF CyberCity, Gurugram, HR, India',
-  defaultSeoTitle: 'SamaXon | India\'s Premium 48-Hour Digital & Systems Studio',
-  defaultSeoDescription: 'SamaXon engineers luxury websites, lightning-fast mobile apps, advanced automations, custom telegram bots, and bespoke digital control hubs in 48 hours.',
+  address: 'SamaXon Elite Studio Hub, Sector 62, Noida, Uttar Pradesh, India',
+  defaultSeoTitle: 'SamaXon Digital Solutions | Speed-Driven Premium Digital Studio',
+  defaultSeoDescription: 'High-Performance Digital Architecture, Delivered in 48 Hours. Precision web applications, bespoke UI/UX, workflow automation, and custom software systems for modern scale.',
   maintenanceMode: false,
   globalCtaText: 'Start Your 48h Build',
-  footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.',
-  statTotalProjects: '42+',
-  statActiveClients: '18+',
-  statTeamMembers: '8+',
-  statIndustriesServed: '12+',
-  statYearsExperience: '5+'
+  footerText: `© ${new Date().getFullYear()} SAMAXON DIGITAL SOLUTIONS. ALL RIGHTS RESERVED.`,
+  statTotalProjects: '48+',
+  statActiveClients: '24+',
+  statTeamMembers: '12+',
+  statIndustriesServed: '15+',
+  statYearsExperience: '6+'
 };
 
 const defaultLegalPages = {
@@ -746,7 +746,7 @@ const defaultPageSections: PageSectionContent[] = [
     pageName: 'Home',
     sectionKey: 'hero',
     sectionTitle: 'The Future of Digital Branding, Delivered in 48 Hours.',
-    sectionSubtitle: 'India’s Premium 48-Hour Digital Studio',
+    sectionSubtitle: 'Speed-Driven Premium Digital Studio',
     content: 'SamaXon builds high-performance websites, mobile apps, premium brand identities, automations, and business control systems for founders who do not have time for slow agencies and average execution.',
     ctaText: 'Start Your 48-Hour Build',
     ctaLink: '#contact',
@@ -757,8 +757,8 @@ const defaultPageSections: PageSectionContent[] = [
     id: 'sec-2',
     pageName: 'Home',
     sectionKey: 'sub-quote',
-    sectionTitle: 'Hinglish Quick Manifesto',
-    content: '“Aapka business ready hai, but website, branding aur systems slow hain? SamaXon ka Senior Engineering Team aapke business ko premium digital presence deta hai — fast, polished, and conversion-ready.”',
+    sectionTitle: 'Elite B2B Studio Manifesto',
+    content: '“Stop losing high-ticket clients to sluggish agency cycles. SamaXon engineers fast, precision-built digital assets and automated workflows ready for modern enterprise scale.”',
     displayOrder: 2,
     isVisible: true
   }

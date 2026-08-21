@@ -5,6 +5,7 @@ import { Lead } from '../types';
 import { supabaseService } from '../utils/supabaseService';
 import { analytics } from '../utils/analytics';
 import CustomSelect from '../components/CustomSelect';
+import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 
 // 15 Standard Premium Service Options with upfront Base Prices (₹ - INR)
 interface ServiceOption {
@@ -73,11 +74,11 @@ const ADDON_OPTIONS: AddonOption[] = [
 
 export default function Contact() {
   const [websiteSettings, setWebsiteSettings] = useState<any>({
-    contactEmail: 'build@samaxon.pro',
-    phoneWhatsapp: '+91 80000 00000',
-    telegramLink: 'https://t.me/samaxon_studio',
-    instagramLink: 'https://instagram.com/samaxon_studio',
-    linkedinLink: 'https://linkedin.com/company/samaxon'
+    contactEmail: SITE_CONFIG.contactEmail,
+    phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
+    telegramLink: SITE_CONFIG.social.telegram,
+    instagramLink: SITE_CONFIG.social.instagram,
+    linkedinLink: SITE_CONFIG.social.linkedin
   });
 
   useEffect(() => {
@@ -87,11 +88,11 @@ export default function Contact() {
         if (stored) {
           const parsed = JSON.parse(stored);
           setWebsiteSettings({
-            contactEmail: parsed.contactEmail || 'build@samaxon.pro',
-            phoneWhatsapp: parsed.phoneWhatsapp || '+91 80000 00000',
-            telegramLink: parsed.telegramLink || 'https://t.me/samaxon_studio',
-            instagramLink: parsed.instagramLink || 'https://instagram.com/samaxon_studio',
-            linkedinLink: parsed.linkedinLink || 'https://linkedin.com/company/samaxon'
+            contactEmail: parsed.contactEmail || SITE_CONFIG.contactEmail,
+            phoneWhatsapp: parsed.phoneWhatsapp || SITE_CONFIG.phoneWhatsapp,
+            telegramLink: parsed.telegramLink || SITE_CONFIG.social.telegram,
+            instagramLink: parsed.instagramLink || SITE_CONFIG.social.instagram,
+            linkedinLink: parsed.linkedinLink || SITE_CONFIG.social.linkedin
           });
         }
       } catch (e) {
@@ -303,10 +304,10 @@ export default function Contact() {
           <div className="lg:col-span-5 text-left space-y-8">
             <div className="space-y-4">
               <span className="text-[10px] font-mono text-[#BFA15A] tracking-wider block font-bold uppercase">
-                Hinglish Project Guideline
+                Project Discovery Protocol
               </span>
               <p className="text-xs sm:text-sm text-warm-grey leading-relaxed">
-                "Aap apna business goal share kijiye. Our team will decode the requirement immediately and suggest the fastest premium execution plan."
+                "Provide your core business objectives, desired timeline, and functional requirements. Our Senior Developer Wing will analyze the scope immediately and return an actionable 48-hour prototype roadmap."
               </p>
             </div>
 
@@ -334,7 +335,7 @@ export default function Contact() {
               <div className="space-y-3" id="social-cta-stack">
                 {/* WHATSAPP CTA */}
                 <a 
-                  href={`https://wa.me/${(websiteSettings.phoneWhatsapp || '918000000000').replace(/[^\d]/g, '') || '918000000000'}?text=SamaXon%20Start%20Build`}
+                  href={getWhatsAppInquiryUrl('Hello SamaXon team, I would like to discuss a custom build.')}
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => analytics.trackWhatsAppClick()}

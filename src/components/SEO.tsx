@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { SITE_CONFIG, generateStudioSchemas } from '../config/siteConfig';
 
 interface SEOProps {
   title: string;
@@ -21,7 +22,7 @@ export default function SEO({
 }: SEOProps) {
   useEffect(() => {
     // 1. Set dynamic page title
-    const fullTitle = `${title} | SamaXon Premium Digital Studio India`;
+    const fullTitle = `${title} | ${SITE_CONFIG.name}`;
     document.title = fullTitle;
 
     // 2. Set Meta Description
@@ -34,7 +35,7 @@ export default function SEO({
     metaDescription.setAttribute('content', description);
 
     // 2b. Set Meta Keywords
-    const defaultKeywords = "Premium Digital Studio, Express Website Development India, 48-Hour Website Delivery, High-End Portfolio Design Noida, B2B Web Automation, SamaXon Digital";
+    const defaultKeywords = "Premium Digital Studio, High-Performance Web Development, 48-Hour Web Delivery, Enterprise Software Noida Delhi NCR, B2B Web Automation, Tier 1 Digital Studio, SamaXon Digital";
     let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (!metaKeywords) {
       metaKeywords = document.createElement('meta');
@@ -43,21 +44,21 @@ export default function SEO({
     }
     metaKeywords.setAttribute('content', keywords || defaultKeywords);
 
-    // 3. Set Open Graph (OG) Tags
-    const ogTags = {
+    // 3. Set Open Graph (OG) and Twitter Tags
+    const ogTags: Record<string, string> = {
       'og:title': fullTitle,
       'og:description': description,
       'og:type': 'website',
-      'og:url': `https://samaxon.site${canonicalPath}`,
-      'og:image': 'https://samaxon.site/og-image.jpg',
-      'og:image:secure_url': 'https://samaxon.site/og-image.jpg',
+      'og:url': `${SITE_CONFIG.baseUrl}${canonicalPath}`,
+      'og:image': `${SITE_CONFIG.baseUrl}/og-image.jpg`,
+      'og:image:secure_url': `${SITE_CONFIG.baseUrl}/og-image.jpg`,
       'og:image:type': 'image/jpeg',
       'og:image:width': '1200',
       'og:image:height': '630',
       'twitter:card': 'summary_large_image',
       'twitter:title': fullTitle,
       'twitter:description': description,
-      'twitter:image': 'https://samaxon.site/og-image.jpg'
+      'twitter:image': `${SITE_CONFIG.baseUrl}/og-image.jpg`
     };
 
     Object.entries(ogTags).forEach(([property, content]) => {
@@ -71,8 +72,7 @@ export default function SEO({
       tag.setAttribute('content', content);
     });
 
-    // 4. Inject JSON-LD structured data
-    // Clear any previous schema script tags
+    // 4. Clean previous schema tags
     document.querySelectorAll('.samaxon-jsonld-script').forEach(el => el.remove());
     const existingOldScript = document.getElementById('samaxon-jsonld');
     if (existingOldScript) {
@@ -83,63 +83,17 @@ export default function SEO({
     if (schemas && schemas.length > 0) {
       schemasToInject.push(...schemas);
     } else {
-      // 1. Build Organization Schema
-      const organizationSchema = {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "@id": "https://samaxon.site/#organization",
-        "name": "SamaXon Digital Solutions",
-        "url": "https://samaxon.site",
-        "logo": "https://samaxon.site/logo.png",
-        "image": "https://samaxon.site/og-image.jpg",
-        "telephone": "+918000000000",
-        "sameAs": [
-          "https://linkedin.com/company/samaxon",
-          "https://twitter.com/samaxon_studio"
-        ]
-      };
+      // Inject standard Organization, ProfessionalService, and WebSite schemas
+      schemasToInject.push(...generateStudioSchemas(canonicalPath));
 
-      // 2. Build LocalBusiness (ProfessionalService) Schema
-      const localBusinessSchema = {
-        "@context": "https://schema.org",
-        "@type": "ProfessionalService",
-        "@id": `https://samaxon.site${canonicalPath}#localbusiness`,
-        "name": "SamaXon Digital Solutions",
-        "url": `https://samaxon.site${canonicalPath}`,
-        "telephone": "+918000000000",
-        "priceRange": "₹₹₹₹",
-        "image": "https://samaxon.site/og-image.jpg",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "SamaXon Elite Hub, MG Road",
-          "addressLocality": "Noida",
-          "addressRegion": "Uttar Pradesh",
-          "postalCode": "201301",
-          "addressCountry": "IN"
-        },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": "28.5355",
-          "longitude": "77.3910"
-        },
-        "openingHoursSpecification": {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": [
-            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-          ],
-          "opens": "00:00",
-          "closes": "23:59"
-        }
-      };
-
-      // 3. Build BreadcrumbList Schema
+      // Build BreadcrumbList Schema
       const pathSegments = canonicalPath.split('/').filter(Boolean);
       const breadcrumbItems = [
         {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://samaxon.site/"
+          "item": `${SITE_CONFIG.baseUrl}/`
         }
       ];
 
@@ -155,7 +109,7 @@ export default function SEO({
           "@type": "ListItem",
           "position": index + 2,
           "name": humanizedName,
-          "item": `https://samaxon.site${accumulatedPath}`
+          "item": `${SITE_CONFIG.baseUrl}${accumulatedPath}`
         });
       });
 
@@ -165,9 +119,9 @@ export default function SEO({
         "itemListElement": breadcrumbItems
       };
 
-      schemasToInject.push(organizationSchema, localBusinessSchema, breadcrumbListSchema);
+      schemasToInject.push(breadcrumbListSchema);
 
-      // 4. Build Custom Niche Service or Product Schema if custom data provided
+      // Custom Service or Product Schema if extra schemaData is passed
       if (schemaData) {
         const customServiceSchema = {
           "@context": "https://schema.org",
@@ -175,8 +129,9 @@ export default function SEO({
           "name": title,
           "description": description,
           "provider": {
-            "@type": "LocalBusiness",
-            "name": "SamaXon Digital Solutions"
+            "@type": "ProfessionalService",
+            "name": SITE_CONFIG.name,
+            "url": SITE_CONFIG.baseUrl
           },
           ...schemaData
         };
@@ -200,9 +155,10 @@ export default function SEO({
       canonicalLink.setAttribute('rel', 'canonical');
       document.head.appendChild(canonicalLink);
     }
-    canonicalLink.setAttribute('href', `https://samaxon.site${canonicalPath}`);
+    canonicalLink.setAttribute('href', `${SITE_CONFIG.baseUrl}${canonicalPath}`);
 
   }, [title, description, canonicalPath, schemaType, schemaData, schemas]);
 
   return null;
 }
+

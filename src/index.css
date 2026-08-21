@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,36 +10,115 @@
   --color-charcoal: #262626;
   --color-warm-grey: #8A8178;
   
-  --font-sans: "Inter", "Helvetica Neue", system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --font-sans: "Inter", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --shadow-soft-xs: 0 1px 2px 0 rgba(17, 17, 17, 0.04), 0 1px 3px 0 rgba(17, 17, 17, 0.02);
+  --shadow-soft-sm: 0 2px 5px 0 rgba(17, 17, 17, 0.04), 0 1px 2px 0 rgba(17, 17, 17, 0.03);
+  --shadow-soft-md: 0 6px 18px -2px rgba(17, 17, 17, 0.06), 0 2px 6px -1px rgba(17, 17, 17, 0.03);
+  --shadow-soft-lg: 0 12px 30px -4px rgba(17, 17, 17, 0.08), 0 4px 10px -2px rgba(17, 17, 17, 0.04);
+  --shadow-soft-xl: 0 20px 45px -6px rgba(17, 17, 17, 0.10), 0 8px 18px -4px rgba(17, 17, 17, 0.05);
+  
+  --shadow-gold-soft: 0 8px 24px -4px rgba(214, 180, 106, 0.22), 0 2px 8px -1px rgba(214, 180, 106, 0.10);
+  --shadow-gold-glow: 0 16px 36px -6px rgba(214, 180, 106, 0.32), 0 4px 12px -2px rgba(214, 180, 106, 0.14);
+}
+
+@layer utilities {
+  .tracking-tight-display {
+    letter-spacing: -0.03em;
+  }
+
+  .tracking-heading {
+    letter-spacing: -0.02em;
+  }
+
+  .tracking-badge {
+    letter-spacing: 0.10em;
+  }
+
+  .tracking-nav {
+    letter-spacing: 0.01em;
+  }
+}
+
+@layer base {
+  h1 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+
+  h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  p {
+    line-height: 1.6;
+  }
 }
 
 @layer utilities {
   .glass-panel {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(214, 180, 106, 0.22);
+    box-shadow: 0 8px 28px -4px rgba(17, 17, 17, 0.06), 0 2px 8px -1px rgba(17, 17, 17, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .glass-header {
+    background: rgba(248, 244, 238, 0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(214, 180, 106, 0.24);
+    box-shadow: 0 8px 30px -4px rgba(17, 17, 17, 0.07), 0 2px 8px -1px rgba(17, 17, 17, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
   }
 
   .glass-panel-dark {
-    background: rgba(26, 26, 26, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(214, 180, 106, 0.15);
+    background: rgba(20, 20, 20, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(214, 180, 106, 0.20);
+    box-shadow: 0 12px 35px -6px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .card-elevated {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(214, 180, 106, 0.18);
+    box-shadow: 0 6px 18px -2px rgba(17, 17, 17, 0.05), 0 2px 6px -1px rgba(17, 17, 17, 0.03);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  }
+
+  .card-elevated:hover {
+    transform: translateY(-4px);
+    border-color: rgba(214, 180, 106, 0.45);
+    box-shadow: 0 18px 40px -6px rgba(17, 17, 17, 0.09), 0 6px 16px -2px rgba(214, 180, 106, 0.16);
   }
 
   .gold-shadow {
-    box-shadow: 0 10px 30px -15px rgba(214, 180, 106, 0.3);
+    box-shadow: 0 10px 30px -10px rgba(214, 180, 106, 0.28), 0 2px 6px -1px rgba(214, 180, 106, 0.12);
   }
 
   .gold-shadow-sm {
-    box-shadow: 0 4px 20px -8px rgba(214, 180, 106, 0.2);
+    box-shadow: 0 4px 18px -4px rgba(214, 180, 106, 0.20), 0 1px 3px 0 rgba(214, 180, 106, 0.08);
+  }
+
+  .gold-shadow-lg {
+    box-shadow: 0 18px 45px -8px rgba(214, 180, 106, 0.35), 0 6px 16px -2px rgba(214, 180, 106, 0.15);
   }
 
   .gold-glow {
-    text-shadow: 0 0 12px rgba(214, 180, 106, 0.4);
+    text-shadow: 0 0 16px rgba(214, 180, 106, 0.45);
+  }
+
+  .subtle-lift {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .subtle-lift:hover {
+    transform: translateY(-2px);
   }
 }
 
@@ -51,6 +130,8 @@ body {
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: #D6B46A #FFFDF8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom webkit scrollbars for premium feel */
@@ -72,17 +153,17 @@ body {
   background: #BFA15A;
 }
 
-/* Custom subtle animations */
+/* Fluid keyframe animations */
 @keyframes float {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
   100% { transform: translateY(0px); }
 }
 
 @keyframes float-reverse {
-  0% { transform: translateY(0px) rotate(1deg); }
-  50% { transform: translateY(8px) rotate(-1deg); }
-  100% { transform: translateY(0px) rotate(1deg); }
+  0% { transform: translateY(0px) rotate(0.5deg); }
+  50% { transform: translateY(6px) rotate(-0.5deg); }
+  100% { transform: translateY(0px) rotate(0.5deg); }
 }
 
 .animate-floating {
@@ -98,18 +179,54 @@ body {
   animation: float-reverse 8s ease-in-out infinite;
 }
 
-/* For form controls styling */
-input, textarea, select {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* Premium Form Controls Styling with Recessed Depth and Diffuse Focus Glow */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  background-color: #FFFDF8;
+  border: 1px solid rgba(214, 180, 106, 0.22);
+  box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="tel"]:hover,
+input[type="number"]:hover,
+input[type="password"]:hover,
+input[type="search"]:hover,
+textarea:hover,
+select:hover {
+  border-color: rgba(214, 180, 106, 0.45);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
   outline: none;
   border-color: #D6B46A;
-  box-shadow: 0 0 0 3px rgba(214, 180, 106, 0.2);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3.5px rgba(214, 180, 106, 0.18), 0 4px 14px -2px rgba(17, 17, 17, 0.04);
 }
 
-/* Custom reset for WebKit browser autofill light-blue background issue */
+::placeholder {
+  color: #8A8178;
+  opacity: 0.65;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Custom reset for WebKit browser autofill */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus,

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Crown, Shield, CheckCircle, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare } from 'lucide-react';
+import { Zap, Crown, Shield, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 
 interface FooterProps {
   setCurrentPage?: (page: string) => void;
@@ -8,10 +9,10 @@ interface FooterProps {
 
 export default function Footer({ setCurrentPage }: FooterProps) {
   const [socialLinks, setSocialLinks] = useState({
-    telegramLink: 'https://t.me/samaxon_studio',
-    linkedinLink: 'https://linkedin.com/company/samaxon',
-    instagramLink: 'https://instagram.com/samaxon_studio',
-    phoneWhatsapp: '+91 80000 00000'
+    telegramLink: SITE_CONFIG.social.telegram,
+    linkedinLink: SITE_CONFIG.social.linkedin,
+    instagramLink: SITE_CONFIG.social.instagram,
+    phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
   });
 
   useEffect(() => {
@@ -21,14 +22,14 @@ export default function Footer({ setCurrentPage }: FooterProps) {
         if (stored) {
           const parsed = JSON.parse(stored);
           setSocialLinks({
-            telegramLink: parsed.telegramLink || 'https://t.me/samaxon_studio',
-            linkedinLink: parsed.linkedinLink || 'https://linkedin.com/company/samaxon',
-            instagramLink: parsed.instagramLink || 'https://instagram.com/samaxon_studio',
-            phoneWhatsapp: parsed.phoneWhatsapp || '+91 80000 00000'
+            telegramLink: parsed.telegramLink || SITE_CONFIG.social.telegram,
+            linkedinLink: parsed.linkedinLink || SITE_CONFIG.social.linkedin,
+            instagramLink: parsed.instagramLink || SITE_CONFIG.social.instagram,
+            phoneWhatsapp: parsed.phoneWhatsapp || SITE_CONFIG.phoneWhatsapp,
           });
         }
       } catch (e) {
-        // Suppress logs under secure logging rule
+        // Safe fallback
       }
     };
 
@@ -39,63 +40,59 @@ export default function Footer({ setCurrentPage }: FooterProps) {
     };
   }, []);
 
-  return (
-    <footer className="bg-matte-black text-[#E5DBCF] border-t border-champagne-gold/15 pt-20 pb-10 overflow-hidden relative">
-      {/* Decorative Golden Accent Ring (Ambient Light) */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-champagne-gold/5 rounded-full blur-[100px] pointer-events-none -z-1" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-champagne-gold/5 rounded-full blur-[100px] pointer-events-none -z-1" />
+  const whatsappInquiryLink = getWhatsAppInquiryUrl('Hello SamaXon Team, I would like to request a quote for a custom digital build.');
 
+  return (
+    <footer className="bg-[#0D0D0D] text-[#E5DBCF] border-t border-[#D6B46A]/20 pt-20 pb-12 overflow-hidden relative">
+      {/* Decorative Golden Ambient Aura */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#D6B46A]/5 rounded-full blur-[120px] pointer-events-none -z-1" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#D6B46A]/5 rounded-full blur-[120px] pointer-events-none -z-1" />
+
+      {/* Main 4-Column Footer Layout */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 pb-16">
         
-        {/* Brand Information Column */}
+        {/* Column 1: Brand Information & Social Profiles */}
         <div className="flex flex-col gap-6">
           <Link 
             to="/"
-            className="flex items-center gap-2 cursor-pointer group w-fit block"
+            className="flex items-center gap-2.5 cursor-pointer group w-fit block"
+            aria-label="SamaXon Home"
           >
-            <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center border border-champagne-gold/30">
-              <Zap className="w-5 h-5 text-champagne-gold fill-champagne-gold/10" />
+            <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center border border-[#D6B46A]/30 group-hover:border-[#D6B46A] transition-colors duration-300">
+              <Zap className="w-5 h-5 text-[#D6B46A] fill-[#D6B46A]/10" />
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-display font-medium uppercase tracking-widest text-lg text-soft-ivory flex items-center gap-1 leading-none">
+              <span className="font-display font-medium uppercase tracking-widest text-lg text-white flex items-center gap-1.5 leading-none">
                 SamaXon
-                <Crown className="w-3.5 h-3.5 text-champagne-gold" />
+                <Crown className="w-3.5 h-3.5 text-[#D6B46A]" />
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-champagne-gold uppercase mt-0.5">
-                Elite Speed Studio
+              <span className="text-[9px] font-mono tracking-widest text-[#D6B46A] uppercase mt-0.5">
+                Speed-Driven Digital Studio
               </span>
             </div>
           </Link>
 
-          <p className="text-xs text-warm-grey leading-relaxed max-w-sm">
-            India’s fastest premium digital studio building elite web systems, premium brand assets, and customized workflow automations under 48 hours.
+          <p className="text-xs text-[#A6A29E] leading-relaxed max-w-sm">
+            High-Performance Digital Architecture, Delivered in 48 Hours. Precision-built digital assets, bespoke user interfaces, and automated workflows engineered for modern enterprise scale.
           </p>
 
-          <div className="flex flex-col gap-2 pt-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-champagne-gold">
-              Hinglish Trust Note:
+          <div className="flex flex-col gap-2 pt-2 border-l-2 border-[#D6B46A]/40 pl-3.5 py-1 bg-white/[0.02] rounded-r-lg">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B46A] font-semibold">
+              The Studio Standard:
             </span>
-            <p className="text-xs italic text-warm-grey">
-              "Aapka business ready hai, but systems slow hain? Wait mat kijiye. Build premium, scale fast."
+            <p className="text-xs text-[#D8D2C9] leading-normal font-sans">
+              No wireframe delays. Real interactive prototypes delivered within 48 hours.
             </p>
           </div>
 
           <div className="flex items-center gap-3 mt-2" id="footer-social-panel">
             <a 
-              href={socialLinks.telegramLink}
-              target="_blank"
-              rel="noreferrer"
-              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
-              title="Telegram Channel"
-            >
-              <Send className="w-4 h-4" />
-            </a>
-            <a 
               href={socialLinks.linkedinLink}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
+              className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
               title="LinkedIn Profile"
+              aria-label="LinkedIn"
             >
               <Linkedin className="w-4 h-4" />
             </a>
@@ -103,199 +100,205 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               href={socialLinks.instagramLink}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
+              className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
               title="Instagram Handle"
+              aria-label="Instagram"
             >
               <Instagram className="w-4 h-4" />
             </a>
             <a 
-              href={`https://wa.me/${(socialLinks?.phoneWhatsapp || '').replace(/[^\d]/g, '') || '918000000000'}`}
+              href={socialLinks.telegramLink}
               target="_blank"
               rel="noreferrer"
-              className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-champagne-gold/20 hover:border-champagne-gold hover:text-champagne-gold transition-all duration-300 flex items-center justify-center text-warm-grey cursor-pointer hover:scale-105 active:scale-95"
-              title="WhatsApp Chat"
+              className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
+              title="Telegram Channel"
+              aria-label="Telegram"
+            >
+              <Send className="w-4 h-4" />
+            </a>
+            <a 
+              href={whatsappInquiryLink}
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
+              title="Official WhatsApp Inquiry"
+              aria-label="WhatsApp"
             >
               <MessageSquare className="w-4 h-4" />
             </a>
           </div>
         </div>
 
-        {/* Studio Wings Navigation */}
+        {/* Column 2: Digital Capabilities & Services */}
         <div className="flex flex-col gap-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-champagne-gold border-b border-champagne-gold/15 pb-2 w-fit font-bold">
-            Studio Wings
+          <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
+            Core Capabilities
+          </span>
+          <div className="flex flex-col gap-3.5">
+            <Link 
+              to="/services" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+            >
+              <Monitor className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <span>High-Performance Web Systems</span>
+            </Link>
+            <Link 
+              to="/services" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <span>Full-Stack Mobile Applications</span>
+            </Link>
+            <Link 
+              to="/services" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+            >
+              <Palette className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <span>Brand Identity & Design Systems</span>
+            </Link>
+            <Link 
+              to="/services" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+            >
+              <Cpu className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <span>Business Workflow Automations</span>
+            </Link>
+            <Link 
+              to="/services" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+            >
+              <Bot className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <span>AI Integration & Telegram Bots</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Column 3: Studio Ecosystem & Navigation */}
+        <div className="flex flex-col gap-6">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
+            Studio Ecosystem
           </span>
           <div className="flex flex-col gap-3">
             <Link 
               to="/about" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               Why SamaXon Exists
             </Link>
             <Link 
               to="/edge" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               The Demo-First Model
             </Link>
-             <Link 
+            <Link 
+              to="/projects" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+            >
+              Selected Portfolio
+            </Link>
+            <Link 
               to="/control" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
               Client Control Scaffolding
             </Link>
             <Link 
               to="/pricing" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block font-bold text-champagne-gold"
+              className="text-left text-xs text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider block font-semibold"
             >
               Bespoke Pricing Plans
             </Link>
             <Link 
               to="/careers" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
-              Careers / Digital Growth
+              Careers / Senior Dev Wing
             </Link>
           </div>
         </div>
 
-        {/* Digital Capabilities Navigation */}
+        {/* Column 4: Initiate Build & Direct Inquiries */}
         <div className="flex flex-col gap-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-champagne-gold border-b border-champagne-gold/15 pb-2 w-fit font-bold">
-            Capabilities
-          </span>
-          <div className="flex flex-col gap-3">
-            <Link 
-              to="/services" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
-            >
-              <Monitor className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
-              <span>Premium Web Development</span>
-            </Link>
-            <Link 
-              to="/services" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
-            >
-              <Smartphone className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
-              <span>Mobile App Solutions</span>
-            </Link>
-            <Link 
-              to="/services" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
-            >
-              <Palette className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
-              <span>Logo & Identity Design</span>
-            </Link>
-            <Link 
-              to="/services" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
-            >
-              <Cpu className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
-              <span>Business Workflow Automations</span>
-            </Link>
-            <Link 
-              to="/services" 
-              className="text-left text-xs text-warm-grey hover:text-champagne-gold hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer block"
-            >
-              <Bot className="w-3.5 h-3.5 text-champagne-gold/75 group-hover:text-champagne-gold transition-colors duration-200" />
-              <span>Custom Telegram Bots</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Quick Contact Box */}
-        <div className="flex flex-col gap-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-champagne-gold border-b border-champagne-gold/15 pb-2 w-fit font-bold">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
             Initiate Build
           </span>
-          <div className="bg-[#1A1A1A] border border-champagne-gold/10 p-5 rounded-2xl flex flex-col gap-4">
-            <p className="text-xs text-warm-grey leading-relaxed">
-              Skip traditional slow proposals. Submit inquiry and see direction first.
+          <div className="bg-[#161616] border border-[#D6B46A]/20 p-5 rounded-2xl flex flex-col gap-4">
+            <p className="text-xs text-[#A6A29E] leading-relaxed">
+              Skip cumbersome discovery loops. Submit your requirements and review an interactive demo within 48 hours.
             </p>
             <Link 
               to="/contact"
-              className="w-full py-2.5 bg-champagne-gold text-matte-black font-bold uppercase tracking-widest text-[10px] rounded-lg hover:bg-muted-gold transition-colors duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-center block font-sans"
+              className="w-full py-3 bg-[#D6B46A] text-[#111111] font-bold uppercase tracking-widest text-[11px] rounded-xl hover:bg-[#BFA15A] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-center font-sans shadow-lg shadow-[#D6B46A]/10 active:scale-[0.98]"
             >
               Request Quote
-              <CheckCircle className="w-3.5 h-3.5 inline-block" />
+              <CheckCircle2 className="w-3.5 h-3.5 inline-block" />
             </Link>
+            <a 
+              href={`mailto:${SITE_CONFIG.contactEmail}`}
+              className="text-[11px] font-mono text-[#D6B46A] hover:underline flex items-center justify-center gap-1 mt-1 text-center"
+            >
+              {SITE_CONFIG.contactEmail}
+              <ArrowUpRight className="w-3 h-3" />
+            </a>
           </div>
         </div>
 
       </div>
 
-      {/* Premium Studio Metrics Bar */}
-      <div className="max-w-7xl mx-auto px-6 mb-10">
-        <div className="border border-[#D6B46A]/20 bg-white/5 backdrop-blur-md rounded-2xl p-6 flex flex-wrap items-center justify-between gap-6">
+      {/* Studio Operational Guarantee Banner */}
+      <div className="max-w-7xl mx-auto px-6 mb-8">
+        <div className="border border-[#D6B46A]/20 bg-white/[0.03] backdrop-blur-md rounded-2xl p-5 flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-8 flex-wrap">
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Dedicated Unit</span>
-              <span className="text-sm font-semibold text-white">SamaXon Senior Wing</span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Engineering Unit</span>
+              <span className="text-xs sm:text-sm font-semibold text-white">SamaXon Senior Developer Wing</span>
             </div>
-            <div className="w-px h-8 bg-[#D6B46A]/20 hidden sm:block" />
+            <div className="w-px h-7 bg-[#D6B46A]/20 hidden sm:block" />
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Execution Period</span>
-              <span className="text-sm font-semibold text-white">Guaranteed Under 48 Hours</span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Turnaround SLA</span>
+              <span className="text-xs sm:text-sm font-semibold text-white">48-Hour Interactive Delivery</span>
             </div>
-            <div className="w-px h-8 bg-[#D6B46A]/20 hidden sm:block" />
+            <div className="w-px h-7 bg-[#D6B46A]/20 hidden sm:block" />
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Delivery Pipeline</span>
-              <span className="text-sm font-semibold text-[#D6B46A]">Demo-First Ready</span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Delivery Architecture</span>
+              <span className="text-xs sm:text-sm font-semibold text-[#D6B46A]">Demo-First Execution</span>
             </div>
           </div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">System Live: Active</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-500/30">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300">Active Production Pipeline</span>
           </div>
         </div>
       </div>
 
-      {/* Search Engine Optimization (SEO) & AEO Indexing Footprint */}
-      <div className="max-w-7xl mx-auto px-6 mb-8 text-[9px] text-[#A6A29E]/40 font-mono tracking-wide leading-relaxed border-t border-champagne-gold/5 pt-6 text-left">
-        <p className="uppercase font-bold text-[#D6B46A]/45 mb-2 select-none">SamaXon Semantic Search Index & Authority Map:</p>
-        <p>
-          Ranked as the <strong className="text-warm-grey">best website developer agency</strong> and <strong className="text-warm-grey">best website developer company</strong>, <strong className="text-warm-grey">SamaXon Digital Solutions</strong> (also known as <strong className="text-warm-grey">SamaXon</strong>, <strong className="text-warm-grey">SamaXon Digital Studio</strong>, or <strong className="text-warm-grey">SamaXon Studio</strong>) is Noida &amp; Delhi NCR's premier custom software studio. We specialize in express, speed-optimized website development, responsive portal designs, reservation systems, and booking engines for luxury hotels, resorts, banquet halls, gyms, clinics, and interior designers globally. Powered by an elite senior developer wing, we maintain a 100% success rate with zero delays, delivering live interactive prototypes under our signature Demo-First model.
-        </p>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[#A6A29E]/30 select-none">
-          <span>#SamaXon</span>
-          <span>#SamaXonDigitalStudio</span>
-          <span>#SamaXonDigitalSolutions</span>
-          <span>#BestWebsiteDeveloperNoida</span>
-          <span>#BestWebsiteDeveloperAgency</span>
-          <span>#BestWebsiteDeveloperCompany</span>
-          <span>#WebsiteDeveloperAgencyIndia</span>
-          <span>#CustomSoftwareCompanyDelhiNCR</span>
-          <span>#DemoFirstWebDevelopment</span>
-        </div>
-      </div>
-
-      {/* Dividers & Legal Pages block */}
-      <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-champagne-gold/10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-warm-grey">
+      {/* Bottom Bar: Copyright & Legal */}
+      <div className="max-w-7xl mx-auto px-6 pt-6 border-t border-[#D6B46A]/10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#A6A29E]">
         <p className="font-mono text-[10px] tracking-wide uppercase text-center md:text-left">
-          © {new Date().getFullYear()} SAMAXON STUDIO. ALL RIGHTS RESERVED. POWERED BY SENIOR DEV WING.
+          © {new Date().getFullYear()} {SITE_CONFIG.legalName.toUpperCase()}. ALL RIGHTS RESERVED.
         </p>
         
-        {/* Legal buttons */}
-        <div className="flex items-center gap-6 flex-wrap justify-center font-bold">
+        {/* Clean Legal Links */}
+        <div className="flex items-center gap-6 flex-wrap justify-center font-medium">
           <Link 
             to="/privacy" 
-            className="hover:text-champagne-gold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
+            className="hover:text-[#D6B46A] uppercase tracking-wider text-[10px] font-mono flex items-center gap-1.5 transition-colors"
           >
-            <Shield className="w-3 h-3 text-champagne-gold inline-block" />
-            Privacy
+            <Shield className="w-3 h-3 text-[#D6B46A]" />
+            Privacy Policy
           </Link>
           <Link 
             to="/terms" 
-            className="hover:text-champagne-gold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
+            className="hover:text-[#D6B46A] uppercase tracking-wider text-[10px] font-mono flex items-center gap-1.5 transition-colors"
           >
-            <Scale className="w-3 h-3 text-champagne-gold inline-block" />
-            Terms & Conditions
+            <Scale className="w-3 h-3 text-[#D6B46A]" />
+            Terms of Service
           </Link>
           <Link 
             to="/refund" 
-            className="hover:text-champagne-gold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1 block"
+            className="hover:text-[#D6B46A] uppercase tracking-wider text-[10px] font-mono flex items-center gap-1.5 transition-colors"
           >
-            <Scale className="w-3 h-3 text-champagne-gold inline-block" />
+            <Scale className="w-3 h-3 text-[#D6B46A]" />
             Refund Policy
           </Link>
         </div>

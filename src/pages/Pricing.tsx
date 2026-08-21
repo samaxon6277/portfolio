@@ -78,15 +78,15 @@ export default function Pricing() {
 
         {/* Categories Tab Selector */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex flex-wrap justify-center p-1.5 bg-white border border-neutral-200/80 rounded-2xl shadow-sm gap-2">
+          <div className="inline-flex flex-wrap justify-center p-1.5 bg-white/80 backdrop-blur-md border border-[#D6B46A]/20 rounded-2xl shadow-[0_4px_16px_-2px_rgba(17,17,17,0.05)] gap-2">
             
             {/* Website Packages Tab */}
             <button
               onClick={() => setActiveTab('website')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
                 activeTab === 'website'
-                  ? 'bg-matte-black text-white shadow-sm'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-50'
+                  ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
+                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
               }`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -96,10 +96,10 @@ export default function Pricing() {
             {/* Apps Tab */}
             <button
               onClick={() => setActiveTab('app')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
                 activeTab === 'app'
-                  ? 'bg-matte-black text-white shadow-sm'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-50'
+                  ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
+                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -109,10 +109,10 @@ export default function Pricing() {
             {/* Bots Tab */}
             <button
               onClick={() => setActiveTab('bot')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
                 activeTab === 'bot'
-                  ? 'bg-matte-black text-white shadow-sm'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-50'
+                  ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
+                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
               }`}
             >
               <Bot className="w-4 h-4" />
@@ -122,10 +122,10 @@ export default function Pricing() {
             {/* Automation Tab */}
             <button
               onClick={() => setActiveTab('automation')}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
                 activeTab === 'automation'
-                  ? 'bg-matte-black text-white shadow-sm'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-50'
+                  ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
+                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -148,16 +148,16 @@ export default function Pricing() {
           {filteredPlans.map((plan) => (
             <div 
               key={plan.id}
-              className={`bg-white rounded-3xl border p-6 flex flex-col justify-between relative shadow-sm transition-all hover:shadow-md ${
+              className={`bg-white/80 rounded-3xl border p-7 flex flex-col justify-between relative shadow-[0_4px_18px_-2px_rgba(17,17,17,0.05),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_16px_36px_-6px_rgba(17,17,17,0.1),0_4px_12px_-2px_rgba(214,180,106,0.18)] hover:-translate-y-1.5 transition-all duration-300 ${
                 plan.popular 
-                  ? 'border-champagne-gold ring-1 ring-champagne-gold/50 bg-[#FFFDF8]' 
-                  : 'border-neutral-200/60'
+                  ? 'border-champagne-gold ring-1 ring-champagne-gold/60 bg-[#FFFDF8]' 
+                  : 'border-[#D6B46A]/20 hover:border-[#D6B46A]/50'
               }`}
             >
               
               {/* Popular stamp */}
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-matte-black text-white text-[8px] font-mono font-bold uppercase tracking-widest border border-champagne-gold/45 whitespace-nowrap z-20 shadow-sm">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-matte-black text-champagne-gold text-[8.5px] font-mono font-bold uppercase tracking-[0.14em] border border-champagne-gold/45 whitespace-nowrap z-20 shadow-[0_4px_12px_rgba(0,0,0,0.25)]">
                   RECOMMENDED PLATFORM
                 </div>
               )}
@@ -165,7 +165,7 @@ export default function Pricing() {
               <div className="space-y-4">
                 {/* Header package name */}
                 <div className="space-y-1 text-center">
-                  <h3 className="font-display font-bold text-sm uppercase text-neutral-900">
+                  <h3 className="font-display font-bold text-sm uppercase tracking-wide text-neutral-900">
                     {plan.name}
                   </h3>
                   <span className="text-[10px] text-[#8A8178] block min-h-8">
@@ -174,11 +174,11 @@ export default function Pricing() {
                 </div>
 
                 {/* Price block */}
-                <div className="py-4 border-y border-[#D6B46A]/10 text-center space-y-1">
+                <div className="py-4 border-y border-[#D6B46A]/15 text-center space-y-1">
                   <div className="text-2xl font-display font-black text-neutral-950">
                     {plan.price}
                   </div>
-                  <div className="flex items-center justify-center gap-1.5 text-[9px] font-mono text-[#BFA15A] uppercase font-bold">
+                  <div className="flex items-center justify-center gap-1.5 text-[9px] font-mono text-[#BFA15A] uppercase font-bold tracking-wider">
                     <Clock className="w-3.5 h-3.5" />
                     <span>Deployment: {plan.deliveryTime}</span>
                   </div>
@@ -203,10 +203,10 @@ export default function Pricing() {
                     navigate('/select-direction', { state: { packageNeeded: plan.name, packageId: plan.id } });
                     window.scrollTo(0, 0);
                   }}
-                  className={`w-full py-3.5 rounded-xl font-bold uppercase tracking-widest text-[9px] transition-colors cursor-pointer text-center block ${
+                  className={`w-full py-3.5 rounded-xl font-bold uppercase tracking-[0.12em] text-[9.5px] transition-all duration-200 cursor-pointer text-center block ${
                     plan.popular
-                      ? 'bg-matte-black text-white hover:bg-[#1C1C1C]'
-                      : 'bg-[#FFFDF8] border border-matte-black/15 text-matte-black hover:bg-neutral-50'
+                      ? 'bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-[#1a1a1a] shadow-[0_4px_14px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:translate-y-0'
+                      : 'bg-[#FFFDF8] border border-[#D6B46A]/30 text-matte-black hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
                   }`}
                 >
                   Select This Direction

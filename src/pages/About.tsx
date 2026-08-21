@@ -58,7 +58,7 @@ export default function About({ setCurrentPage }: AboutProps) {
 
             <div className="border-l-4 border-champagne-gold pl-4 py-2 bg-champagne-gold/5 rounded-r-xl max-w-2xl">
               <p className="text-xs sm:text-sm font-semibold text-matte-black italic leading-relaxed">
-                “Hum simple websites nahi banate. We build digital confidence. Premium speed with luxurious aesthetics so your brand commands immediate premium posture.”
+                “We do not build ordinary websites. We engineer digital authority. Uncompromising speed paired with bespoke aesthetics so your enterprise commands immediate market confidence.”
               </p>
             </div>
           </div>
@@ -176,11 +176,11 @@ export default function About({ setCurrentPage }: AboutProps) {
               
               <div className="space-y-3">
                 {[
-                  "Mobile Load In &lt; 2.2 Secs",
-                  "Lighthouse SEO Score 95+",
-                  "Semantic Tag Compliance",
-                  "Pixel-Perfect Soft UI Standards",
-                  "Admin-Ready Data Structure Schema"
+                  "Mobile Load Time < 2.0s",
+                  "Lighthouse Performance 95+",
+                  "Semantic Tag & Schema Compliance",
+                  "Bespoke High-Contrast UI Standards",
+                  "Admin-Ready Data Structure Architecture"
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <div className="w-5 h-5 rounded-full bg-matte-black flex items-center justify-center shrink-0 border border-champagne-gold/20">

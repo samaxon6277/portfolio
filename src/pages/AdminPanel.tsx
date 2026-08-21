@@ -10,6 +10,7 @@ import { supabase } from '../utils/supabase';
 import { analytics } from '../utils/analytics';
 import { useCustomUi } from '../context/CustomUiContext';
 import { logger } from '../utils/logger';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 // Tab components imports
 import DashboardTab from './admin/DashboardTab';
@@ -65,25 +66,25 @@ export default function AdminPanel() {
       logger.warn('Failed to parse website settings from localStorage:', e);
     }
     return {
-      brandName: 'SamaXon',
+      brandName: SITE_CONFIG.name,
       logoUrl: 'S',
       faviconUrl: '/favicon.ico',
-      contactEmail: 'build@samaxon.com',
-      phoneWhatsapp: '+91 80000 00000',
-      telegramLink: 'https://t.me/samaxon_studio',
-      linkedinLink: 'https://linkedin.com/company/samaxon',
-      instagramLink: 'https://instagram.com/samaxon_studio',
-      address: 'SamaXon Tech Suites, Level 8, DLF CyberCity, Gurugram, HR, India',
-      defaultSeoTitle: "SamaXon | India's Premium 48-Hour Digital & Systems Studio",
-      defaultSeoDescription: 'SamaXon engineers luxury websites, lightning-fast mobile apps, advanced automations, custom telegram bots, and bespoke digital control hubs in 48 hours.',
+      contactEmail: SITE_CONFIG.contactEmail,
+      phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
+      telegramLink: SITE_CONFIG.social.telegram,
+      linkedinLink: SITE_CONFIG.social.linkedin,
+      instagramLink: SITE_CONFIG.social.instagram,
+      address: `${SITE_CONFIG.address.street}, ${SITE_CONFIG.address.city}, ${SITE_CONFIG.address.region}, India`,
+      defaultSeoTitle: `${SITE_CONFIG.name} | ${SITE_CONFIG.tagline}`,
+      defaultSeoDescription: SITE_CONFIG.description,
       maintenanceMode: false,
       globalCtaText: 'Start Your 48h Build',
-      footerText: '© 2026 SAMAXON STUDIO. ALL RIGHTS PROTECTED.',
-      statTotalProjects: '42+',
-      statActiveClients: '18+',
-      statTeamMembers: '8+',
-      statIndustriesServed: '12+',
-      statYearsExperience: '5+'
+      footerText: `© ${new Date().getFullYear()} ${SITE_CONFIG.legalName.toUpperCase()}. ALL RIGHTS RESERVED.`,
+      statTotalProjects: '48+',
+      statActiveClients: '24+',
+      statTeamMembers: '12+',
+      statIndustriesServed: '15+',
+      statYearsExperience: '6+'
     };
   });
 

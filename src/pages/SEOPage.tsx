@@ -1123,7 +1123,7 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
                     name="name"
                     value={leadForm.name}
                     onChange={handleInputChange}
-                    placeholder="e.g. Advait Kumar"
+                    placeholder="e.g. Alexander Vance"
                     className="w-full bg-white border border-[#D6B46A]/15 p-2.5 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
                     required
                   />

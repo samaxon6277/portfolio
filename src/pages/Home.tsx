@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import SEO from '../components/SEO';
 import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
 import { PAGE_TO_ROUTE } from '../utils/navigation';
+import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 
 function AnimatedCounter({ value }: { value: string }) {
   const [count, setCount] = useState(0);
@@ -342,18 +343,18 @@ export default function Home({ setCurrentPage }: HomeProps) {
       "corporate portal development",
       "SamaXon digital solutions"
     ],
-    "image": "https://samaxon.site/og-image.jpg",
-    "@id": "https://samaxon.site/#organization",
-    "url": "https://samaxon.site",
-    "telephone": "+918000000000",
-    "priceRange": "$$$$",
+    "image": `${SITE_CONFIG.baseUrl}/og-image.jpg`,
+    "@id": `${SITE_CONFIG.baseUrl}/#organization`,
+    "url": SITE_CONFIG.baseUrl,
+    "telephone": SITE_CONFIG.phoneWhatsapp,
+    "priceRange": SITE_CONFIG.priceRange,
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "SamaXon Elite Hub, MG Road",
-      "addressLocality": "Noida",
-      "addressRegion": "Uttar Pradesh",
-      "postalCode": "201301",
-      "addressCountry": "IN"
+      "streetAddress": SITE_CONFIG.address.street,
+      "addressLocality": SITE_CONFIG.address.city,
+      "addressRegion": SITE_CONFIG.address.region,
+      "postalCode": SITE_CONFIG.address.postalCode,
+      "addressCountry": SITE_CONFIG.address.countryCode
     },
     "openingHoursSpecification": {
       "@type": "OpeningHoursSpecification",
@@ -479,15 +480,15 @@ export default function Home({ setCurrentPage }: HomeProps) {
               SamaXon builds high-performance websites, mobile apps, premium brand identities, automations, and business control systems for founders who do not have time for slow agencies and average execution.
             </motion.p>
 
-            {/* Light Hinglish Pain-Point text */}
+            {/* Elite B2B Studio Trust Note */}
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="border-l-2 border-[#D6B46A] pl-4 py-1.5 my-2 bg-[#D6B46A]/5 rounded-r-xl max-w-xl"
+              className="border-l-2 border-[#D6B46A] pl-4 py-2 my-2 bg-[#D6B46A]/5 rounded-r-xl max-w-xl"
             >
-              <p className="text-xs font-semibold text-matte-black/95 italic leading-relaxed">
-                “Aapka business ready hai, but website, branding aur systems slow hain? SamaXon ka Senior Engineering Team aapke business ko premium digital presence deta hai — fast, polished, and conversion-ready.”
+              <p className="text-xs font-semibold text-matte-black/95 leading-relaxed">
+                “Stop losing high-ticket clients to sluggish agency cycles. SamaXon engineers fast, precision-built digital assets and automated workflows ready for modern enterprise scale.”
               </p>
             </motion.div>
 
@@ -501,15 +502,15 @@ export default function Home({ setCurrentPage }: HomeProps) {
               <button
                 onClick={() => handleAction('contact')}
                 id="hero-primary-cta"
-                className="w-full sm:w-auto px-8 py-5 bg-[#111111] text-white hover:text-[#D6B46A] hover:bg-charcoal font-bold text-xs uppercase tracking-widest rounded-xl border border-[#D6B46A]/20 shadow-2xl flex items-center justify-center gap-2 cursor-pointer duration-300 transform active:scale-95 transition-all"
+                className="w-full sm:w-auto px-8 py-4.5 bg-[#111111] text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold text-xs uppercase tracking-[0.14em] rounded-xl border border-champagne-gold/30 shadow-[0_6px_20px_rgba(17,17,17,0.35)] hover:shadow-[0_10px_28px_rgba(17,17,17,0.5)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
               >
                 Start Your 48-Hour Build
-                <ArrowRight className="w-4 h-4 text-[#D6B46A]" />
+                <ArrowRight className="w-4 h-4 text-champagne-gold ml-1" />
               </button>
               <button
                 onClick={() => handleAction('services')}
                 id="hero-secondary-cta"
-                className="w-full sm:w-auto px-8 py-5 bg-white/45 border border-[#D6B46A]/40 text-[#111111] hover:bg-[#D6B46A]/5 font-bold text-xs uppercase tracking-widest rounded-xl backdrop-blur-sm flex items-center justify-center gap-2 cursor-pointer duration-300 transform active:scale-95 transition-all"
+                className="w-full sm:w-auto px-8 py-4.5 bg-white/70 border border-champagne-gold/40 text-[#111111] hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black font-bold text-xs uppercase tracking-[0.14em] rounded-xl backdrop-blur-sm shadow-[0_2px_8px_rgba(17,17,17,0.04)] hover:shadow-[0_6px_18px_rgba(17,17,17,0.1)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
               >
                 Explore Capabilities
               </button>
@@ -902,9 +903,9 @@ export default function Home({ setCurrentPage }: HomeProps) {
             ].map((step, idx) => (
               <div 
                 key={idx}
-                className="bg-white/40 border border-champagne-gold/15 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between h-72 group hover:border-champagne-gold duration-300"
+                className="bg-white/60 backdrop-blur-sm border border-champagne-gold/25 hover:border-champagne-gold/60 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between h-72 group transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-[#D6B46A]/5"
               >
-                <div className="absolute top-2 right-4 font-display font-bold text-6xl text-champagne-gold/10 group-hover:text-champagne-gold/15 duration-200">
+                <div className="absolute top-2 right-4 font-display font-black text-6xl text-[#D6B46A]/30 group-hover:text-[#D6B46A]/50 transition-colors duration-300 select-none">
                   {step.num}
                 </div>
                 <div>
@@ -1138,7 +1139,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
           </h2>
 
           <p className="text-sm sm:text-base text-warm-grey max-w-2xl leading-relaxed">
-            Aapka product strong hai. Service strong hai. Ab digital presence bhi strong honi chahiye. SamaXon brings premium design, fast engineering, and business-ready systems together in one elite studio.
+            Your product and services are exceptional. Your digital presence should reflect that caliber. SamaXon unifies world-class design, rapid engineering, and scalable business systems into one premier studio.
           </p>
 
           <div className="h-px w-24 bg-champagne-gold/30 my-2" />
@@ -1147,15 +1148,15 @@ export default function Home({ setCurrentPage }: HomeProps) {
             <button
               onClick={() => handleAction('contact')}
               id="cta-bottom-start"
-              className="w-full sm:w-auto px-10 py-5 bg-champagne-gold text-matte-black hover:bg-muted-gold font-bold uppercase tracking-widest text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-colors gold-shadow"
+              className="w-full sm:w-auto px-9 py-4.5 bg-champagne-gold text-matte-black hover:bg-muted-gold font-bold uppercase tracking-[0.12em] text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_6px_20px_rgba(214,180,106,0.35)] hover:shadow-[0_10px_28px_rgba(214,180,106,0.48)] hover:-translate-y-0.5 active:translate-y-0"
             >
               Start Your 48-Hour Build
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 ml-1" />
             </button>
             <button
               onClick={() => handleAction('about')}
               id="cta-bottom-talk"
-              className="w-full sm:w-auto px-10 py-5 bg-transparent border border-champagne-gold/30 hover:border-champagne-gold text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-widest text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all"
+              className="w-full sm:w-auto px-9 py-4.5 bg-transparent border border-champagne-gold/35 hover:border-champagne-gold text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-[0.12em] text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0"
             >
               Who is SamaXon?
             </button>
