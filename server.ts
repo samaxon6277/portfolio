@@ -497,14 +497,18 @@ async function startServer() {
       // Check if we have pre-rendered metadata for this route
       const metadata = PRERENDER_MAP[route] || PRERENDER_MAP['/'];
       
-      let html = cachedIndexHtml;
-      if (!html) {
-        try {
-          html = fs.readFileSync(path.join(distPath, 'index.html'), 'utf-8');
-        } catch (e) {
+      let html = '';
+      try {
+        html = fs.readFileSync(path.join(distPath, 'index.html'), 'utf-8');
+      } catch (e) {
+        html = cachedIndexHtml;
+        if (!html) {
           return res.status(500).send('System is compiling...');
         }
       }
+
+      const ua = req.headers['user-agent'] || '';
+      const botName = getBotName(ua);
 
       if (metadata) {
         // Replace Title Tag
@@ -522,11 +526,18 @@ async function startServer() {
         // Replace Canonical URL
         html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"/i, `<link rel="canonical" href="https://samaxon.site${route}"`);
 
-        // Replace <div id="root">...</div> with the route-specific prerendered body
-        html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, `<div id="root">${metadata.bodyHtml}</div>`);
+        // Only inject raw HTML for SEO bots/crawlers; human users receive the clean React SPA container
+        if (botName && metadata.bodyHtml) {
+          html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, `<div id="root">${metadata.bodyHtml}</div>`);
+        } else {
+          html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, `<div id="root"></div>`);
+        }
       }
 
       res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.send(html);
     });
   }
