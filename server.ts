@@ -457,6 +457,9 @@ async function startServer() {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
+  // Serve static public assets directly (favicon.ico, robots.txt, sitemap.xml, images, etc.)
+  app.use(express.static(path.join(process.cwd(), 'public')));
+
   // Dev vs Prod Asset Delivery Integration
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -478,9 +481,17 @@ async function startServer() {
     app.get('*', (req, res) => {
       const route = req.path;
       
-      // If it is an asset, let express.static handle it or skip
+      // If it is an asset, check if exists, otherwise respond 404
       if (/\.(js|css|png|jpg|jpeg|gif|svg|ico|json|map|xml|txt|woff|woff2|ttf|eot)$/i.test(route)) {
-        return res.sendFile(path.join(distPath, route));
+        const distFile = path.join(distPath, route);
+        if (fs.existsSync(distFile)) {
+          return res.sendFile(distFile);
+        }
+        const publicFile = path.join(process.cwd(), 'public', route);
+        if (fs.existsSync(publicFile)) {
+          return res.sendFile(publicFile);
+        }
+        return res.status(404).send('Asset not found');
       }
 
       // Check if we have pre-rendered metadata for this route
