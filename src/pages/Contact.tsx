@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle, Mail, Phone, MapPin, Sparkles, AlertCircle, Loader2, MessageSquare, ShieldCheck, Send, Linkedin, Instagram, Crown } from 'lucide-react';
+import { ArrowRight, CheckCircle, Mail, Sparkles, Loader2, MessageSquare, ShieldCheck, Send, Linkedin, Instagram, Crown } from 'lucide-react';
 import SEO from '../components/SEO';
 import { Lead } from '../types';
 import { supabaseService } from '../utils/supabaseService';
 import { analytics } from '../utils/analytics';
 import CustomSelect from '../components/CustomSelect';
+import { useTheme } from '../context/ThemeContext';
 
-// 15 Standard Premium Service Options with upfront Base Prices (₹ - INR)
 interface ServiceOption {
   value: string;
   label: string;
@@ -72,6 +72,9 @@ const ADDON_OPTIONS: AddonOption[] = [
 ];
 
 export default function Contact() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const [websiteSettings, setWebsiteSettings] = useState<any>({
     contactEmail: 'build@samaxon.pro',
     phoneWhatsapp: '+91 80000 00000',
@@ -126,7 +129,6 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Derive and calculate precise price quotes in real-time
   const selectedService = SERVICE_CATEGORIES.find(s => s.value === formData.serviceNeeded) || SERVICE_CATEGORIES[0];
   const selectedTimeline = TIMELINE_OPTIONS.find(t => t.value === formData.desiredTimeline) || TIMELINE_OPTIONS[0];
   const selectedComplexity = COMPLEXITY_OPTIONS.find(c => c.value === formData.complexity) || COMPLEXITY_OPTIONS[1];
@@ -219,7 +221,6 @@ export default function Contact() {
       message: formattedMessage,
       status: 'new',
       createdAt: new Date().toISOString(),
-      // Smart metadata
       complexity: formData.complexity,
       selected_addons: formData.selectedAddons.map(id => ADDON_OPTIONS.find(a => a.id === id)?.label || id),
       estimated_min_price: minCalculatedPrice,
@@ -229,11 +230,9 @@ export default function Contact() {
     } as any;
 
     try {
-      // Save live Supabase pipeline
       await supabaseService.upsertLead(newLead);
       analytics.trackFormSubmit();
 
-      // Backup save to mock storage so it updates instantly in client local dashboard fallback
       try {
         const storedLeadsStr = localStorage.getItem('samaxon_leads');
         const storedLeads = storedLeadsStr ? JSON.parse(storedLeadsStr) : [];
@@ -245,14 +244,13 @@ export default function Contact() {
       }
 
     } catch (err) {
-      console.error('Direct Supabase insert failed, but saved locally:', err);
+      console.error('Direct Supabase insert failed:', err);
     }
 
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
 
-      // Reset form variables
       setFormData({
         name: '',
         businessName: '',
@@ -271,7 +269,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-soft-ivory min-h-screen pt-32 pb-24" id="contact-page">
+    <div className="min-h-screen pt-24 md:pt-32 pb-24 transition-colors duration-300 font-sans" id="contact-page">
       <SEO 
         title="Start Your 48-Hour Build - Direct Contact"
         description="Aap apna business goal share kijiye. Submit our premium inquiry form to schedule your demo direction or reach us instantly via WhatsApp/Telegram."
@@ -281,42 +279,51 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-6">
         
         {/* --- HEADER --- */}
-        <div className="text-left flex flex-col items-start gap-4 mb-16 max-w-4xl border-b border-champagne-gold/15 pb-12">
-          <div className="px-3.5 py-1.5 bg-champagne-gold/10 border border-champagne-gold/25 text-[#BFA15A] text-[9px] font-mono uppercase font-bold tracking-widest rounded-full">
-            Direct Project Initiation
+        <div className="text-left flex flex-col items-start gap-4 mb-16 max-w-4xl border-b border-black/5 dark:border-white/5 pb-12">
+          <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-[10px] font-mono uppercase tracking-widest font-semibold backdrop-blur-md ${
+            isDark
+              ? 'bg-white/[0.04] border-white/10 text-[#D6B46A]'
+              : 'bg-black/[0.03] border-black/10 text-[#BFA15A]'
+          }`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D6B46A]" />
+            <span>Direct Project Initiation</span>
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-matte-black leading-tight">
+
+          <h1 className={`font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] ${
+            isDark ? 'text-[#F5F5F7]' : 'text-[#1D1D1F]'
+          }`}>
             Ready to Build <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-champagne-gold via-muted-gold to-matte-black">
-              Something Premium?
-            </span>
+            <span className="text-[#D6B46A]">Something Premium?</span>
           </h1>
-          <p className="text-base text-warm-grey leading-relaxed mt-2 max-w-2xl">
+
+          <p className="text-base sm:text-lg text-[#8E8E93] leading-relaxed max-w-2xl mt-1">
             Tell us what your enterprise needs. SamaXon will move from high-level idea structures to pristine digital execution with speed, strict validation, and visual authority.
           </p>
         </div>
 
         {/* --- CONTENT grid --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
           {/* Quick actions sidebar columns */}
-          <div className="lg:col-span-5 text-left space-y-8">
-            <div className="space-y-4">
-              <span className="text-[10px] font-mono text-[#BFA15A] tracking-wider block font-bold uppercase">
-                Hinglish Project Guideline
+          <div className="lg:col-span-5 text-left space-y-6">
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono text-[#D6B46A] tracking-wider block font-bold uppercase">
+                Project Guideline
               </span>
-              <p className="text-xs sm:text-sm text-warm-grey leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#8E8E93] leading-relaxed">
                 "Aap apna business goal share kijiye. Our team will decode the requirement immediately and suggest the fastest premium execution plan."
               </p>
             </div>
 
             {/* Verification box */}
-            <div className="bg-white border border-champagne-gold/15 rounded-3xl p-6 space-y-4">
+            <div className={`border rounded-2xl p-5 space-y-3 ${
+              isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-sm'
+            }`}>
               <div className="flex gap-3">
-                <ShieldCheck className="w-5.5 h-5.5 text-champagne-gold shrink-0 mt-0.5" />
+                <ShieldCheck className="w-5 h-5 text-[#D6B46A] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-display font-medium text-xs uppercase tracking-wider text-matte-black">NDA Protected & Secured:</h4>
-                  <p className="text-xs text-warm-grey leading-relaxed mt-1">
+                  <h4 className="font-display font-bold text-xs uppercase tracking-wider">NDA Protected &amp; Secured:</h4>
+                  <p className="text-xs text-[#8E8E93] leading-relaxed mt-1">
                     Your personal particulars, business details, and trade challenges are kept absolutely confidential on isolated local frameworks. No third-party data tracking.
                   </p>
                 </div>
@@ -324,32 +331,34 @@ export default function Contact() {
             </div>
 
             {/* Direct Instant Channels Card */}
-            <div className="bg-matte-black text-soft-ivory rounded-[32px] border border-champagne-gold/25 p-8 space-y-6">
+            <div className={`rounded-3xl border p-7 space-y-5 ${
+              isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-md'
+            }`}>
               
-              <div className="border-b border-champagne-gold/15 pb-4">
-                <span className="text-[9px] font-mono uppercase text-[#D6B46A] block font-bold">BYPASS THE INQUIRY GRID</span>
-                <h3 className="font-display font-bold text-base text-soft-ivory mt-1">Direct Instant Access Channels</h3>
+              <div className="border-b border-black/5 dark:border-white/5 pb-3">
+                <span className="text-[9px] font-mono uppercase text-[#D6B46A] block font-bold">DIRECT ACCESS CHANNELS</span>
+                <h3 className="font-display font-bold text-base mt-0.5">Connect With Us Directly</h3>
               </div>
 
-              <div className="space-y-3" id="social-cta-stack">
+              <div className="space-y-2.5" id="social-cta-stack">
                 {/* WHATSAPP CTA */}
                 <a 
                   href={`https://wa.me/${(websiteSettings.phoneWhatsapp || '918000000000').replace(/[^\d]/g, '') || '918000000000'}?text=SamaXon%20Start%20Build`}
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => analytics.trackWhatsAppClick()}
-                  className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between hover:bg-emerald-500/15 duration-200 transition-all cursor-pointer block text-left hover:scale-[1.02] active:scale-[0.98]"
+                  className="p-3.5 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-white/40 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between hover:bg-emerald-500/15 transition-all cursor-pointer block text-left shadow-[0_4px_16px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-sm">
                       <MessageSquare className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-soft-ivory uppercase tracking-wider">Talk on WhatsApp</h4>
-                      <p className="text-[10px] text-warm-grey">Connect with Lead Consultant instantly</p>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#1D1D1F]">Talk on WhatsApp</h4>
+                      <p className="text-[10px] text-[#8E8E93]">Connect with Lead Consultant instantly</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#A6FCB8]" />
+                  <ArrowRight className="w-4 h-4 text-emerald-500" />
                 </a>
 
                 {/* TELEGRAM CTA */}
@@ -357,18 +366,18 @@ export default function Contact() {
                   href={websiteSettings.telegramLink || 'https://t.me/samaxon_studio'}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-4 bg-sky-500/10 border border-sky-500/20 rounded-2xl flex items-center justify-between hover:bg-sky-500/15 duration-200 transition-all cursor-pointer block text-left hover:scale-[1.02] active:scale-[0.98]"
+                  className="p-3.5 bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-white/40 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between hover:bg-sky-500/15 transition-all cursor-pointer block text-left shadow-[0_4px_16px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-sky-500 text-white flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-sm">
                       <Send className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-soft-ivory uppercase tracking-wider">Connect on Telegram</h4>
-                      <p className="text-[10px] text-warm-grey">Alert bot triggers demo pipelines</p>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#1D1D1F]">Connect on Telegram</h4>
+                      <p className="text-[10px] text-[#8E8E93]">Alert bot triggers demo pipelines</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#A1D6FC]" />
+                  <ArrowRight className="w-4 h-4 text-sky-500" />
                 </a>
 
                 {/* LINKEDIN CTA */}
@@ -376,18 +385,18 @@ export default function Contact() {
                   href={websiteSettings.linkedinLink || 'https://linkedin.com/company/samaxon'}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-between hover:bg-blue-500/15 duration-200 transition-all cursor-pointer block text-left hover:scale-[1.02] active:scale-[0.98]"
+                  className="p-3.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-white/40 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between hover:bg-blue-500/15 transition-all cursor-pointer block text-left shadow-[0_4px_16px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
                       <Linkedin className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-soft-ivory uppercase tracking-wider">LinkedIn Profiles</h4>
-                      <p className="text-[10px] text-warm-grey">View our verified company wing details</p>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#1D1D1F]">LinkedIn</h4>
+                      <p className="text-[10px] text-[#8E8E93]">View verified company details</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#C1DBFF]" />
+                  <ArrowRight className="w-4 h-4 text-blue-500" />
                 </a>
 
                 {/* INSTAGRAM CTA */}
@@ -395,81 +404,83 @@ export default function Contact() {
                   href={websiteSettings.instagramLink || 'https://instagram.com/samaxon_studio'}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-4 bg-pink-500/10 border border-pink-500/20 rounded-2xl flex items-center justify-between hover:bg-pink-500/15 duration-200 transition-all cursor-pointer block text-left hover:scale-[1.02] active:scale-[0.98]"
+                  className="p-3.5 bg-gradient-to-r from-pink-500/10 via-pink-500/5 to-white/40 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between hover:bg-pink-500/15 transition-all cursor-pointer block text-left shadow-[0_4px_16px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 text-white flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 text-white flex items-center justify-center shadow-sm">
                       <Instagram className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-soft-ivory uppercase tracking-wider">Instagram Studio</h4>
-                      <p className="text-[10px] text-warm-grey">Examine scroll-stopping visual design feeds</p>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#1D1D1F]">Instagram Studio</h4>
+                      <p className="text-[10px] text-[#8E8E93]">Visual design portfolio reels</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#FFD0EA]" />
+                  <ArrowRight className="w-4 h-4 text-pink-500" />
                 </a>
 
                 {/* EMAIL CTA */}
                 <a 
                   href={`mailto:${websiteSettings.contactEmail || 'build@samaxon.pro'}`}
-                  className="p-4 bg-[#BFA15A]/10 border border-[#BFA15A]/20 rounded-2xl flex items-center justify-between hover:bg-[#BFA15A]/15 duration-200 transition-all cursor-pointer block text-left hover:scale-[1.02] active:scale-[0.98]"
+                  className="p-3.5 bg-gradient-to-r from-[#D6B46A]/10 via-[#D6B46A]/5 to-white/40 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between hover:bg-[#D6B46A]/15 transition-all cursor-pointer block text-left shadow-[0_4px_16px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#BFA15A] text-white flex items-center justify-center">
-                      <Mail className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-xl bg-[#D6B46A] text-[#0A0A0A] flex items-center justify-center shadow-sm">
+                      <Mail className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-soft-ivory uppercase tracking-wider">Send Project Brief</h4>
-                      <p className="text-[10px] text-warm-grey">Email detailed structural requirements</p>
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#1D1D1F]">Send Project Brief</h4>
+                      <p className="text-[10px] text-[#8E8E93]">Email detailed requirements</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#FFFDF8]" />
+                  <ArrowRight className="w-4 h-4 text-[#D6B46A]" />
                 </a>
               </div>
-
-              <p className="text-[9px] font-mono text-warm-grey tracking-widest text-center uppercase border-t border-champagne-gold/15 pt-4">
-                "No confusing agency circles. Direct core systems, elite speed."
-              </p>
             </div>
           </div>
 
-          {/* Core Build Inquiry form columns */}
+          {/* Form column */}
           <div className="lg:col-span-7">
-            <div className="bg-white rounded-[40px] border border-champagne-gold/15 p-6 sm:p-10 text-left shadow-xl" id="contact-form-container">
+            <div className="rounded-3xl p-6 sm:p-9 text-left transition-all relative overflow-hidden backdrop-blur-3xl backdrop-saturate-200 bg-gradient-to-br from-white/80 via-white/45 to-white/70 border border-white/90 shadow-[0_24px_60px_-10px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.02),inset_0_1.5px_2.5px_rgba(255,255,255,1),inset_0_-1.5px_2px_rgba(255,255,255,0.4)]" id="contact-form-container">
               
-              <div className="border-b border-champagne-gold/10 pb-6 mb-8">
+              {/* Convex Top Meniscus Reflection */}
+              <div 
+                className="absolute top-0 left-0 right-0 h-1/3 pointer-events-none rounded-t-3xl bg-gradient-to-b from-white/50 via-white/10 to-transparent opacity-80" 
+                aria-hidden="true" 
+              />
+              
+              <div className="border-b border-black/5 pb-5 mb-6 relative z-10">
                 <div className="flex flex-wrap items-start sm:items-center justify-between gap-2">
-                  <span className="text-[9px] font-mono uppercase text-[#BFA15A] tracking-widest font-bold">SMART ESTIMATION INQUIRY SYSTEM</span>
-                  <span className="bg-gradient-to-r from-[#181512] to-[#0A0908] text-[#D6B46A] font-mono text-[9px] font-bold uppercase tracking-widest px-4 py-2 rounded-lg select-none flex items-center gap-2 shadow-xl border border-[#D6B46A]/35 hover:border-[#D6B46A]/60 transition-all duration-350">
-                    <Crown className="w-3.5 h-3.5 text-[#D6B46A] fill-[#D6B46A]/20 animate-pulse" /> ✦ ROYAL COVENANT: 80% PLATINUM RATE ACTIVE
+                  <span className="text-[9px] font-mono uppercase text-[#D6B46A] tracking-widest font-bold">SMART ESTIMATION INQUIRY SYSTEM</span>
+                  <span className="font-mono text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full select-none flex items-center gap-1.5 border border-white/80 bg-white/60 text-[#BFA15A] shadow-[inset_0_1px_1px_rgba(255,255,255,1)]">
+                    <Crown className="w-3 h-3 text-[#D6B46A]" /> 80% PLATINUM RATE ACTIVE
                   </span>
                 </div>
-                <h3 className="font-display font-semibold text-xl text-matte-black mt-1">Staging Allocation Brief</h3>
-                <p className="text-[11px] text-[#8A8178]">Specify your parameters below. Our real-time formula will propose an upfront pricing schedule (Exclusive 80% VIP Platinum rate applied automatically to all builds).</p>
+                <h3 className="font-display font-bold text-xl mt-1 text-[#1D1D1F]">Staging Allocation Brief</h3>
+                <p className="text-xs text-[#8E8E93] mt-0.5">Specify your parameters below. Our real-time formula will propose an upfront pricing schedule.</p>
               </div>
 
               {isSubmitted ? (
-                <div className="py-16 text-center space-y-6" id="contact-form-success">
-                  <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 flex items-center justify-center mx-auto">
-                    <CheckCircle className="w-8 h-8" />
+                <div className="py-16 text-center space-y-4 relative z-10" id="contact-form-success">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle className="w-6 h-6" />
                   </div>
-                  <h4 className="font-display font-bold text-lg text-matte-black">Inquiry Logged Securely</h4>
-                  <p className="text-xs text-warm-grey max-w-sm mx-auto leading-relaxed">
-                    Submission complete! The data models have cataloged the record. Our Senior Developer Wing will isolate your project parameters and map the staging visual template in the next 12 hours.
+                  <h4 className="font-display font-bold text-lg text-[#1D1D1F]">Inquiry Logged Securely</h4>
+                  <p className="text-xs text-[#8E8E93] max-w-sm mx-auto leading-relaxed">
+                    Submission complete! Our Senior Developer Wing will isolate your project parameters and map the staging visual template in the next 12 hours.
                   </p>
                   <button 
                     onClick={() => setIsSubmitted(false)}
-                    className="px-8 py-3 bg-matte-black text-white hover:text-champagne-gold text-xs font-mono uppercase tracking-widest rounded-xl transition-all cursor-pointer"
+                    className="px-6 py-2.5 bg-gradient-to-b from-[#F2D898] via-[#D6B46A] to-[#BD9D54] hover:shadow-lg text-[#0A0A0A] text-xs font-bold uppercase tracking-wider rounded-2xl transition-all cursor-pointer shadow-md border border-white/60"
                   >
                     Initiate Another Project
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6" id="contact-inquiry-form">
+                <form onSubmit={handleSubmit} className="space-y-5 relative z-10" id="contact-inquiry-form">
                   
                   {/* Name Fields */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Your Full Name *</label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Your Full Name *</label>
                     <input 
                       type="text"
                       name="name"
@@ -477,16 +488,14 @@ export default function Contact() {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="e.g. Sameer Khan"
-                      className={`w-full bg-pearl-white/40 border p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors ${
-                        formErrors.name ? 'border-red-400' : 'border-champagne-gold/15'
-                      }`}
+                      className={`w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all ${formErrors.name ? '!border-red-400' : ''}`}
                     />
-                    {formErrors.name && <span className="text-[10px] text-red-500 font-mono font-medium">{formErrors.name}</span>}
+                    {formErrors.name && <span className="text-[10px] text-red-500 font-mono">{formErrors.name}</span>}
                   </div>
 
                   {/* Business Name */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Business / Enterprise Name *</label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Business / Enterprise Name *</label>
                     <input 
                       type="text"
                       name="businessName"
@@ -494,17 +503,15 @@ export default function Contact() {
                       value={formData.businessName}
                       onChange={handleInputChange}
                       placeholder="e.g. Khan Premium Agro India"
-                      className={`w-full bg-pearl-white/40 border p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors ${
-                        formErrors.businessName ? 'border-red-400' : 'border-champagne-gold/15'
-                      }`}
+                      className={`w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all ${formErrors.businessName ? '!border-red-400' : ''}`}
                     />
-                    {formErrors.businessName && <span className="text-[10px] text-red-500 font-mono font-medium">{formErrors.businessName}</span>}
+                    {formErrors.businessName && <span className="text-[10px] text-red-500 font-mono">{formErrors.businessName}</span>}
                   </div>
 
                   {/* Contacts fields: phone and email */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">WhatsApp Number *</label>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">WhatsApp Number *</label>
                       <input 
                         type="tel"
                         name="phone"
@@ -512,15 +519,13 @@ export default function Contact() {
                         value={formData.phone}
                         onChange={handleInputChange}
                         placeholder="e.g. +91 91234 56789"
-                        className={`w-full bg-pearl-white/40 border p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors ${
-                          formErrors.phone ? 'border-red-400' : 'border-champagne-gold/15'
-                        }`}
+                        className={`w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all ${formErrors.phone ? '!border-red-400' : ''}`}
                       />
-                      {formErrors.phone && <span className="text-[10px] text-red-500 font-mono font-medium">{formErrors.phone}</span>}
+                      {formErrors.phone && <span className="text-[10px] text-red-500 font-mono">{formErrors.phone}</span>}
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Business Email *</label>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Business Email *</label>
                       <input 
                         type="email"
                         name="email"
@@ -528,18 +533,16 @@ export default function Contact() {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="e.g. contact@khanagro.com"
-                        className={`w-full bg-pearl-white/40 border p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors ${
-                          formErrors.email ? 'border-red-400' : 'border-champagne-gold/15'
-                        }`}
+                        className={`w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all ${formErrors.email ? '!border-red-400' : ''}`}
                       />
-                      {formErrors.email && <span className="text-[10px] text-red-500 font-mono font-medium">{formErrors.email}</span>}
+                      {formErrors.email && <span className="text-[10px] text-red-500 font-mono">{formErrors.email}</span>}
                     </div>
                   </div>
 
                   {/* Location Area & Service Capability */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Base City, India *</label>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Base City, India *</label>
                       <input 
                         type="text"
                         name="city"
@@ -547,15 +550,13 @@ export default function Contact() {
                         value={formData.city}
                         onChange={handleInputChange}
                         placeholder="e.g. Kolkata"
-                        className={`w-full bg-pearl-white/40 border p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors ${
-                          formErrors.city ? 'border-red-400' : 'border-champagne-gold/15'
-                        }`}
+                        className={`w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all ${formErrors.city ? '!border-red-400' : ''}`}
                       />
-                      {formErrors.city && <span className="text-[10px] text-red-500 font-mono font-medium">{formErrors.city}</span>}
+                      {formErrors.city && <span className="text-[10px] text-red-500 font-mono">{formErrors.city}</span>}
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Required Service Capability *</label>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Required Service Capability *</label>
                       <CustomSelect 
                         value={formData.serviceNeeded}
                         onChange={(val) => setFormData(prev => ({ ...prev, serviceNeeded: val }))}
@@ -567,10 +568,10 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  {/* PROJECT COMPLEXITY SELECTOR CARD GRID */}
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-mono uppercase text-[#BFA15A] block tracking-wide font-extrabold select-none">Project Type & Complexity Class</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {/* COMPLEXITY SELECTOR */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-mono uppercase text-[#D6B46A] block tracking-wide font-bold select-none">Project Type &amp; Complexity Class</label>
+                    <div className="grid grid-cols-3 gap-2">
                       {COMPLEXITY_OPTIONS.map((c) => {
                         const isSelected = formData.complexity === c.value;
                         return (
@@ -578,48 +579,47 @@ export default function Contact() {
                             key={c.value}
                             type="button"
                             onClick={() => setFormData(prev => ({ ...prev, complexity: c.value }))}
-                            className={`p-2.5 text-left rounded-xl border transition-all cursor-pointer ${
+                            className={`p-3 text-left rounded-2xl border transition-all cursor-pointer relative overflow-hidden ${
                               isSelected 
-                                ? 'bg-matte-black text-soft-ivory border-champagne-gold/50 shadow-md ring-1 ring-[#D6B46A]/30' 
-                                : 'bg-pearl-white/20 border-champagne-gold/10 text-charcoal hover:border-champagne-gold/30 hover:bg-[#FFFDF8]'
+                                ? 'bg-gradient-to-b from-[#F2D898] via-[#D6B46A] to-[#BD9D54] text-[#0A0A0A] border-white/60 font-bold shadow-[0_4px_16px_rgba(214,180,106,0.35),inset_0_1px_1.5px_rgba(255,255,255,0.95)]' 
+                                : 'bg-white/50 backdrop-blur-md border-white/80 text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-white/70 shadow-[0_2px_8px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]'
                             }`}
                           >
-                            <span className="text-[10px] font-bold block">{c.value}</span>
-                            <span className="text-[8px] opacity-75 block font-mono mt-0.5">{c.multiplier}x multiplier</span>
-                            <span className="text-[8px] text-[#A6A29E] sm:hidden block mt-1 leading-tight">{c.description}</span>
+                            <span className="text-xs font-bold block">{c.value}</span>
+                            <span className="text-[8px] font-mono block opacity-80 mt-0.5">{c.multiplier}x multiplier</span>
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* OPTIONAL PREMIUM ADD-ONS LIST */}
-                  <div className="flex flex-col gap-2 bg-[#FFFDF8] border border-champagne-gold/15 p-4 rounded-3xl">
-                    <span className="text-[10px] font-mono uppercase text-[#BFA15A] block tracking-wider font-extrabold select-none">Optional Strategic Add-Ons</span>
-                    <div className="space-y-2 mt-1">
+                  {/* ADD-ONS */}
+                  <div className="p-4 rounded-2xl border border-white/80 bg-white/40 backdrop-blur-xl shadow-[0_4px_16px_rgba(0,0,0,0.02),inset_0_1px_1.5px_rgba(255,255,255,1)]">
+                    <span className="text-[10px] font-mono uppercase text-[#D6B46A] block tracking-wider font-bold select-none mb-2">Optional Strategic Add-Ons</span>
+                    <div className="space-y-2">
                       {ADDON_OPTIONS.map((a) => {
                         const isChecked = formData.selectedAddons.includes(a.id);
                         return (
                           <div 
                             key={a.id}
                             onClick={() => toggleAddon(a.id)}
-                            className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-colors cursor-pointer ${
+                            className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
                               isChecked 
-                                ? 'bg-champagne-gold/5 border-champagne-gold/45' 
-                                : 'bg-pearl-white/10 border-[#D6B46A]/10 hover:border-[#D6B46A]/30'
+                                ? 'bg-white/80 border-[#D6B46A] shadow-[0_2px_10px_rgba(214,180,106,0.2),inset_0_1px_1.5px_rgba(255,255,255,1)]' 
+                                : 'bg-white/30 border-white/70 hover:bg-white/50'
                             }`}
                           >
-                            <div className={`w-4 h-4 rounded border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
-                              isChecked ? 'bg-matte-black border-champagne-gold text-champagne-gold' : 'border-[#D6B46A]/30'
+                            <div className={`w-4 h-4 rounded border mt-0.5 flex items-center justify-center shrink-0 ${
+                              isChecked ? 'bg-[#D6B46A] border-[#D6B46A] text-[#0A0A0A]' : 'border-neutral-400'
                             }`}>
-                              {isChecked && <div className="w-1.5 h-1.5 bg-champagne-gold rounded-sm" />}
+                              {isChecked && <div className="w-1.5 h-1.5 bg-[#0A0A0A] rounded-sm" />}
                             </div>
                             <div className="space-y-0.5">
                               <div className="flex flex-wrap items-center gap-x-2 text-xs">
-                                <span className="font-semibold text-matte-black">{a.label}</span>
-                                <span className="font-mono text-[9px] text-[#BFA15A] font-bold">+₹{a.price.toLocaleString('en-IN')}</span>
+                                <span className="font-semibold text-[#1D1D1F]">{a.label}</span>
+                                <span className="font-mono text-[9px] text-[#D6B46A] font-bold">+₹{a.price.toLocaleString('en-IN')}</span>
                               </div>
-                              <p className="text-[10px] text-warm-grey leading-tight">{a.description}</p>
+                              <p className="text-[10px] text-[#8E8E93] leading-tight">{a.description}</p>
                             </div>
                           </div>
                         );
@@ -627,67 +627,52 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  {/* REAL-TIME DYNAMIC AUTO PRICE ESTIMATE CARD */}
-                  <div className="bg-matte-black text-soft-ivory p-6 rounded-[28px] border border-champagne-gold/30 mt-8 space-y-4 shadow-xl" id="price-estimator-card">
-                    <div className="flex items-center justify-between border-b border-champagne-gold/15 pb-3">
-                      <div className="space-y-0.5">
-                        <span className="text-[8px] font-mono uppercase text-[#D6B46A] tracking-wider block font-bold">AUTOMATED ALGORITHMIC QUOTE</span>
-                        <h4 className="font-display font-medium text-xs text-soft-ivory uppercase tracking-wider">Dynamic Staging Estimate</h4>
-                      </div>
-                      <span className="px-2.5 py-0.5 bg-champagne-gold/10 border border-champagne-gold/20 text-[#BFA15A] text-[8px] font-mono uppercase tracking-widest rounded-md">
+                  {/* DYNAMIC ESTIMATE CARD */}
+                  <div className="p-5 rounded-2xl border border-white/85 bg-white/50 backdrop-blur-xl space-y-3 shadow-[0_8px_24px_-4px_rgba(0,0,0,0.03),inset_0_1.5px_2px_rgba(255,255,255,1)]" id="price-estimator-card">
+                    <div className="flex items-center justify-between border-b border-black/5 pb-2">
+                      <span className="text-[8px] font-mono uppercase text-[#D6B46A] tracking-wider font-bold">AUTOMATED ESTIMATE</span>
+                      <span className="px-2.5 py-0.5 bg-[#D6B46A]/15 text-[#BFA15A] text-[8px] font-mono uppercase tracking-widest rounded-full font-bold border border-[#D6B46A]/20">
                         {selectedComplexity.badge}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center py-2" id="price-range-nums">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center py-1">
                       <div>
-                        <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                          <span className="text-[10px] text-warm-grey block">Recommended Staging Budget:</span>
-                          <span className="px-2 py-1 bg-[#D6B46A]/10 border border-[#D6B46A]/35 text-[#D6B46A] tracking-wider text-[8px] font-mono uppercase rounded-md font-bold flex items-center gap-1 shadow-sm select-none">
-                            <Crown className="w-2.5 h-2.5 text-[#D6B46A] fill-[#D6B46A]/20" /> ✦ 80% PLATINUM PRIVILEGE ACTIVE
-                          </span>
-                        </div>
-                        <div className="text-xs text-rose-400 line-through font-mono opacity-85 tracking-widest decoration-1">
+                        <span className="text-[10px] text-[#8E8E93] block">Recommended Staging Budget:</span>
+                        <div className="text-xs text-rose-500 line-through font-mono opacity-80">
                           ₹{Math.round(minCalculatedPrice * 5).toLocaleString('en-IN')} - ₹{Math.round(maxCalculatedPrice * 5).toLocaleString('en-IN')}
                         </div>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl sm:text-3xl font-display font-extrabold text-white">
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                          <span className="text-2xl font-display font-bold text-[#D6B46A]">
                             ₹{minCalculatedPrice.toLocaleString('en-IN')}
                           </span>
-                          <span className="text-sm text-warm-grey font-mono">-</span>
-                          <span className="text-xl sm:text-2xl font-display font-extrabold text-[#D6B46A]">
+                          <span className="text-xs text-[#8E8E93] font-mono">-</span>
+                          <span className="text-xl font-display font-bold text-[#1D1D1F]">
                              ₹{maxCalculatedPrice.toLocaleString('en-IN')}
                           </span>
                         </div>
-                        <span className="text-[9px] text-warm-grey font-mono block mt-1 leading-snug">
-                          All-inclusive of build, QA auditing, and staging hosting parameters.
-                        </span>
                       </div>
 
-                      <div className="bg-[#111111] p-3 rounded-xl border border-[#D6B46A]/10 text-[9px] font-mono text-warm-grey space-y-1">
+                      <div className="p-2.5 rounded-xl border border-white/80 bg-white/60 text-[9px] font-mono text-[#8E8E93] space-y-1 shadow-sm">
                         <div className="flex justify-between">
                           <span>Base level (80% OFF):</span>
-                          <span className="text-soft-ivory">₹{selectedService.basePrice.toLocaleString('en-IN')}</span>
+                          <span className="font-semibold text-neutral-800">₹{selectedService.basePrice.toLocaleString('en-IN')}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Service category:</span>
-                          <span className="text-[#D6B46A] truncate max-w-[100px]" title={selectedService.value}>{selectedService.value}</span>
+                          <span>Multiplier:</span>
+                          <span className="font-semibold text-neutral-800">{selectedComplexity.multiplier}x</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Complexity scale:</span>
-                          <span className="text-soft-ivory">{selectedComplexity.multiplier}x ({formData.complexity})</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Paid add-ons total:</span>
+                          <span>Add-ons:</span>
                           <span className="text-[#D6B46A] font-bold">+₹{addonsTotal.toLocaleString('en-IN')}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* BUDGET PREFERENCE SEGMENT CONTROL */}
-                    <div className="border-t border-champagne-gold/10 pt-4 space-y-2">
-                      <span className="text-[10px] text-warm-grey block uppercase font-mono tracking-widest font-bold">How does this recommended estimate fit?</span>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+                    {/* BUDGET PREFERENCE */}
+                    <div className="border-t border-black/5 pt-3 space-y-1.5">
+                      <span className="text-[9px] text-[#8E8E93] block uppercase font-mono tracking-widest font-bold">Budget Fit:</span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                         {[
                           { value: 'Looks good', label: 'Looks good' },
                           { value: 'Need cheaper plan', label: 'Cheaper build' },
@@ -700,10 +685,10 @@ export default function Contact() {
                               key={opt.value}
                               type="button"
                               onClick={() => setFormData(prev => ({ ...prev, userBudgetPreference: opt.value }))}
-                              className={`py-2 px-1 text-center rounded-lg border text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${
+                              className={`py-1.5 px-1 text-center rounded-xl border text-[9px] font-mono uppercase font-bold transition-all cursor-pointer ${
                                 active 
-                                  ? 'bg-[#D6B46A] text-matte-black border-[#D6B46A] font-extrabold shadow-sm' 
-                                  : 'bg-[#111111] border-neutral-800 text-warm-grey hover:border-[#D6B46A]/30 hover:text-soft-ivory'
+                                  ? 'bg-gradient-to-b from-[#F2D898] via-[#D6B46A] to-[#BD9D54] text-[#0A0A0A] border-white/60 shadow-[0_2px_8px_rgba(214,180,106,0.3),inset_0_1px_1.5px_rgba(255,255,255,0.95)]' 
+                                  : 'bg-white/50 border-white/80 text-[#6E6E73] hover:text-[#1D1D1F] hover:bg-white/70'
                               }`}
                             >
                               {opt.label}
@@ -715,52 +700,57 @@ export default function Contact() {
                   </div>
 
                   {/* Problem Statement */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Define Your Current Problem / Digital Gap *</label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Current Problem / Digital Gap *</label>
                     <textarea 
                       name="currentProblem"
                       required
                       value={formData.currentProblem}
                       onChange={handleInputChange}
-                      placeholder="e.g. Our current landing page is extremely slow, looks template-made, and is losing hot buyer leads..."
+                      placeholder="e.g. Our current landing page is slow and is losing hot buyer leads..."
                       rows={3}
-                      className={`w-full bg-pearl-white/40 border p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors ${
-                        formErrors.currentProblem ? 'border-red-400' : 'border-champagne-gold/15'
-                      }`}
+                      className={`w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all ${formErrors.currentProblem ? '!border-red-400' : ''}`}
                     />
-                    {formErrors.currentProblem && <span className="text-[10px] text-red-500 font-mono font-medium">{formErrors.currentProblem}</span>}
+                    {formErrors.currentProblem && <span className="text-[10px] text-red-500 font-mono">{formErrors.currentProblem}</span>}
                   </div>
 
                   {/* Optional message fields */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-mono uppercase text-charcoal font-bold select-none">Subsequent Notes / Supplementary Requests (Optional)</label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono uppercase text-[#8E8E93] font-bold select-none">Subsequent Notes (Optional)</label>
                     <textarea 
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
                       placeholder="Specify any localized design preferences or auxiliary tool setups..."
                       rows={2}
-                      className="w-full bg-pearl-white/40 border border-champagne-gold/15 p-3.5 text-xs text-matte-black rounded-xl focus:border-[#D6B46A] focus:outline-none transition-colors"
+                      className="w-full p-3.5 text-xs rounded-2xl focus:outline-none transition-all"
                     />
                   </div>
 
-                  {/* SUBMIT SPRINT TRIGGER */}
+                  {/* SUBMIT */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold uppercase tracking-widest text-[10px] rounded-xl border border-champagne-gold/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-4 bg-gradient-to-b from-[#F2D898] via-[#D6B46A] to-[#BD9D54] hover:shadow-[0_12px_32px_rgba(214,180,106,0.45)] text-[#0A0A0A] font-bold uppercase tracking-wider text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-[0_8px_24px_rgba(214,180,106,0.35),inset_0_1.5px_2px_rgba(255,255,255,0.95)] border border-white/60 relative overflow-hidden"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin text-champagne-gold" />
-                        Logging Sprint &amp; Triggering Automations...
-                      </>
-                    ) : (
-                      <>
-                        {getSubmitButtonText()}
-                        <ArrowRight className="w-4 h-4 text-champagne-gold" />
-                      </>
-                    )}
+                    {/* Top Meniscus Button Gloss */}
+                    <span 
+                      className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none rounded-t-2xl bg-gradient-to-b from-white/50 via-white/10 to-transparent opacity-90" 
+                      aria-hidden="true" 
+                    />
+                    <span className="relative z-10 flex items-center gap-2">
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Routing Blueprint...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{getSubmitButtonText()}</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </span>
                   </button>
                 </form>
               )}

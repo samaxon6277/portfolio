@@ -119,19 +119,32 @@ export default function CaseStudies() {
                     "{study.testimonial.quote}"
                   </p>
                   
-                  <div className="flex items-center gap-3">
-                    {study.testimonial.photoUrl && (
-                      <img 
-                        src={study.testimonial.photoUrl} 
-                        alt="Author Quote"
-                        referrerPolicy="no-referrer"
-                        className="w-8 h-8 rounded-full object-cover border border-champagne-gold/25"
-                      />
-                    )}
-                    <div className="text-[10px]">
-                      <span className="font-bold text-neutral-900 block uppercase font-mono tracking-tight">{study.testimonial.author}</span>
-                      <span className="text-[#8A8178] block font-mono">{study.testimonial.role}, {study.clientName}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                    <div className="flex items-center gap-3">
+                      {study.testimonial.photoUrl && (
+                        <img 
+                          src={study.testimonial.photoUrl} 
+                          alt="Author Quote"
+                          referrerPolicy="no-referrer"
+                          className="w-8 h-8 rounded-full object-cover border border-champagne-gold/25"
+                        />
+                      )}
+                      <div className="text-[10px]">
+                        <span className="font-bold text-neutral-900 block uppercase font-mono tracking-tight">{study.testimonial.author}</span>
+                        <span className="text-[#8A8178] block font-mono">{study.testimonial.role}, {study.clientName}</span>
+                      </div>
                     </div>
+
+                    <button
+                      onClick={() => {
+                        navigate(`/case-study/${study.id}`);
+                        window.scrollTo(0, 0);
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-[9.5px] font-mono bg-matte-black hover:bg-[#1C1C1C] text-white hover:text-champagne-gold uppercase tracking-wider rounded-xl transition-all border border-[#D6B46A]/10 cursor-pointer shadow-sm shrink-0"
+                    >
+                      Read Technical Study
+                      <ArrowRight className="w-3.5 h-3.5 text-champagne-gold" />
+                    </button>
                   </div>
                 </div>
 

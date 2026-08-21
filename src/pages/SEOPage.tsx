@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { supabaseService } from '../utils/supabaseService';
+import { useTheme } from '../context/ThemeContext';
 
 interface FAQ {
   q: string;
@@ -523,6 +524,206 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         ]
       }
     ]
+  },
+  hotel_delhi: {
+    title: 'Best Website Designer for Hotels Delhi | Hospitality Web Design Delhi NCR',
+    description: 'Bespoke hotel website developer in Delhi and Noida. We design luxury, fast-loading boutique hotel portals with real-time room availability, GST-compliant invoice generators, and maps SEO optimization.',
+    canonicalPath: '/website-design-for-hotels-delhi',
+    headline: 'Multiply Direct Hotel Bookings with Luxury Hospitality Web Design in Delhi NCR',
+    painPoint: 'Tired of paying massive 20% commission rates to Online Travel Agencies (OTAs) or struggling with slow boutique hotel templates?',
+    sol: 'Our luxury hotel web design packages in Delhi feature fast-loading boutique room lists, transparent taxation calculators, local travel coordinates maps, and commission-free checkout gateways.',
+    keywords: ['website designer for hotels Delhi', 'hospitality web design Delhi NCR', 'boutique hotel website developer Delhi', 'luxury resort booking systems Delhi NCR'],
+    empiricalCaseStudy: {
+      client: 'Kailash Heritage Haveli Delhi',
+      result: '53% Direct Booking Increase',
+      details: 'Transitioned from slow OTA listings to a custom-compiled, responsive boutique hotel portal, saving lakhs in commissions and capturing guest databases directly.'
+    },
+    benefits: [
+      { title: 'Room Category Matrices', desc: 'Display suites, amenities, and pricing panels side-by-side cleanly' },
+      { title: 'GST Corporate billing', desc: 'Permit corporate guests to enter tax numbers and generate invoices instantly' },
+      { title: 'OTA Calendar Integration', desc: 'Automatic two-way iCal syncing with Airbnb and booking.com to prevent duplicates' }
+    ],
+    packages: [
+      { name: 'Hospitality Launch Pack', price: '₹34,999', delivery: '3 Days', features: ['Room categorization', 'Direct WhatsApp booking', 'Google Maps SEO listing', 'Full source files delivery'] },
+      { name: 'Elite Palace Suite', price: '₹64,999', delivery: '5 Days', features: ['Bespoke booking system', 'GST compliant invoice generator', 'iCal multi-OTA sync engine', 'SLA support contract'] }
+    ],
+    faqs: [
+      { q: "How does the custom room booking system save OTA commissions?", a: "By directing guests to book on your custom-coded portal, payments settle directly into your bank account via local UPI or cards with zero percentage cut." },
+      { q: "Is the hotel reservation calendar protected against double-bookings?", a: "Yes. Our background iCal calendar sync engine communicates with external channels every few minutes to lock out booked dates automatically." },
+      { q: "Can we support corporate bookings and GST compliance invoice systems?", a: "Absolutely. Business guests can input their corporate GST credentials, and the system instantly auto-generates compliant PDF tax invoices." }
+    ],
+    longAnalysis: [
+      {
+        sectionHeading: 'Bypassing OTA Intermediaries and Building Direct Guest Relationships',
+        paragraphs: [
+          'For luxury hotels and boutique heritage stays in Delhi NCR, direct-to-guest booking has become the single most vital factor for operational viability. Aggressive travel distribution platforms charge up to 25% commissions on every room night booked, while isolating you from guest contacts and listing your property alongside cheaper nearby alternatives.',
+          'SamaXon builds magnificent, fast-loading, mobile-friendly hospitality portals that convey physical grandeur on digital screens. By utilizing gorgeous serif headings and clean editorial layouts, we express the premium heritage of your boutique hotel, compelling high-budget travelers to book directly through your custom gateway.'
+        ]
+      },
+      {
+        sectionHeading: 'The Technical Elements of Zero-Latency Booking Flows',
+        paragraphs: [
+          'Our hospitality applications bypass heavy database requirements and compile directly into static assets served from global edge servers. When a potential guest clicks your page, it loads in under 1.2 seconds, reducing mobile bounce rates and establishing high brand trust from the first interaction.',
+          'The direct checkout form allows guests to verify room availability, customize stay options (such as adding organic breakfasts, taxi coordinates, or wellness spa access), and settle payments with instant confirmation.'
+        ]
+      }
+    ]
+  },
+  interior_dev: {
+    title: 'Interior Designer Website Development | Premium Architecture Portfolios',
+    description: 'Elite portfolio website developer for interior designers and architecture studios. Features luxury cinematic project sliders, high-res catalog downloads, and budget estimation tools.',
+    canonicalPath: '/interior-design-website-development',
+    headline: 'Elevate Your Brand Prestige with Immersive Interior Design Portfolios',
+    painPoint: 'Is your current portfolio website slow, basic, or failing to present the visual depth and high quality of your custom transformations?',
+    sol: 'We design stunning, minimal, retina-ready interior designer and architect portfolio platforms equipped with style-filtered galleries, PDF catalogs downloads, and smart consultation schedulers.',
+    keywords: ['interior designer website development', 'interior designer portfolio website', 'architecture firm web designers', 'luxury home decor portals'],
+    empiricalCaseStudy: {
+      client: 'Opulent Habitat Studios',
+      result: '150% Leads Scale Growth',
+      details: 'Replaced a generic website with a custom-crafted, retina-optimized project gallery and brief questionnaires, converting visitors into signature design clients.'
+    },
+    benefits: [
+      { title: 'Retina-Ready Galleries', desc: 'Display ultra-high-resolution project photos with instant edge loading' },
+      { title: 'Project Style Filters', desc: 'Organize work by style, such as Scandinavian, neo-classical, or commercial' },
+      { title: 'Budget Estimator Widget', desc: 'Let clients select room counts, project scopes, and view pricing sheets' }
+    ],
+    packages: [
+      { name: 'Creative Studio Pack', price: '₹29,999', delivery: '3 Days', features: ['Responsive portfolio filter', 'Direct WhatsApp contact', 'Google Local Maps SEO', 'Full code delivery'] },
+      { name: 'Elite Signature Suite', price: '₹54,999', delivery: '5 Days', features: ['Immersive cinematic design', 'Interactive budget estimator', 'Admin portfolio manager', 'SLA support contract'] }
+    ],
+    faqs: [
+      { q: "Can clients filter your portfolio by design style or project type?", a: "Yes. Your dynamic project filter lets clients view residential, commercial, or modular kitchen segments instantly without page reloads." },
+      { q: "How do potential clients schedule an initial consultation?", a: "We place clean consultation cards throughout the portal, scheduling direct project calls on your team's calendar slot." },
+      { q: "Do you support high-resolution 4K project photos?", a: "Yes, our pre-compiled media loaders compress and optimize heavy images, showing your work in stunning detail without slowing down page load times." },
+      { q: "Can we collect material specification requirements online?", a: "Yes. We build dynamic brief questionnaires that capture client style preferences, room counts, and material budgets." },
+      { q: "How do we manage our project gallery portfolio?", a: "The Admin Panel's built-in Media Library and portfolio modules make it simple to upload, edit, or delete project cards anytime." }
+    ],
+    longAnalysis: [
+      {
+        sectionHeading: 'The Luxury Design Narrative: Expressing High Visual Prestige',
+        paragraphs: [
+          'Bespoke interior design, spatial decoration, and architectural planning are high-ticket services where trust is built entirely on visual proof. Average WordPress themes and basic template builders look generic, failing to reflect your studio’s custom craftsmanship and luxury aesthetic.',
+          'SamaXon constructs grand, minimal, high-art digital gateways specifically tailored for professional architects and designers. We leverage generous negative space, sophisticated typography pairing, and fluid entrance animations to frame your spatial legacy beautifully.'
+        ]
+      },
+      {
+        sectionHeading: 'Streamlining Lead Collection with Interactive Project Brief Forms',
+        paragraphs: [
+          'Converting high-end clients requires structured discovery. Instead of outdated contact boxes, we build intuitive brief questionnaires that let visitors select room scopes, style preferences, and material tiers. These qualified leads are piped straight to your admin desk, preparing your design team to close signature deals easily.'
+        ]
+      }
+    ]
+  },
+  gaming_india: {
+    title: 'Gaming Website Development India | Elite Esports Website Designer',
+    description: 'Top gaming and esports website development company in India. We design high-performance gaming team portals, tournament reservation charts, and secure gaming community platforms.',
+    canonicalPath: '/gaming-website-development-india',
+    headline: 'Scale Your Esports Brand with Custom Gaming Website Development in India',
+    painPoint: 'Using bloated forum systems, slow Discord-only integrations, or basic team profile templates?',
+    sol: 'SamaXon engineers custom-coded, ultra-low-latency esports websites, custom team dashboard grids, tournament registration forms, and brand sponsorship highlight nodes.',
+    keywords: ['gaming website development India', 'esports website designer', 'gaming clan portal design', 'tournament booking engine India'],
+    empiricalCaseStudy: {
+      client: 'Indus Gladiators Esports',
+      result: '230k+ Tournament Signups',
+      details: 'Developed a high-performance tournament registration platform with live match schedules, securing massive sponsorships within 3 months.'
+    },
+    benefits: [
+      { title: 'Zero Latency Live Schedules', desc: 'Fast-updating match fixtures, scoreboard brackets, and squad lists' },
+      { title: 'Sponsorship Highlight Nodes', desc: 'Secure high-impact ad grids and branded content panels for partners' },
+      { title: 'Secure Registration Pipelines', desc: 'Player authentication grids and anti-cheat contact forms' }
+    ],
+    packages: [
+      { name: 'Esports Team Starter', price: '₹28,999', delivery: '3 Days', features: ['Roster management grids', 'Live matches timeline', 'Sponsors highlight panel', 'Mobile responsive design'] },
+      { name: 'Tournament Pro Suite', price: '₹54,999', delivery: '5 Days', features: ['Interactive brackets registry', 'Automated team signup gateway', 'Admin tournament dashboard', 'SLA support contract'] }
+    ],
+    faqs: [
+      { q: "Does the gaming website support real-time team match updates?", a: "Yes. Admins can update rosters, live stream widgets, score boards, and match stats on our responsive control panel." },
+      { q: "Can we organize custom esports tournament registrations?", a: "Absolutely. Our advanced package features secure player and team signup forms with automated schedule notifications." },
+      { q: "Is the design optimized for mobile devices?", a: "Yes, every gaming portal we build is touch-optimized for smooth gaming community interaction on smartphones." }
+    ],
+    longAnalysis: [
+      {
+        sectionHeading: 'The Esports Revolution: Establishing Direct Digital Brand Authority',
+        paragraphs: [
+          'Esports and professional gaming clans are scaling rapidly across India, but most organizations struggle with fragmented digital platforms. Relying solely on third-party social pages or slow templates limits your brand authority and blocks lucrative corporate sponsorships.',
+          'SamaXon designs high-performance, dark-themed gaming and esports portals equipped with score trackers, tournament forms, and roster displays. We create custom platforms that captivate fans and convince sponsors of your institutional authority.'
+        ]
+      }
+    ]
+  },
+  business_auto: {
+    title: 'Business Automation & B2B Lead Generation Services | SamaXon',
+    description: 'Integrate B2B lead generation forms, custom API pipelines, and automated Google Sheets synchronizations. Convert passive web traffic into verified high-value enterprise contracts.',
+    canonicalPath: '/business-automation-lead-generation-services',
+    headline: 'Automate Your B2B Sales Funnel and Scale Lead Generation',
+    painPoint: 'Chasing leads manually, losing customer queries, or using disconnected, slow-loading lead tools?',
+    sol: 'SamaXon integrates B2B lead generation forms, custom API pipelines, and automated Google Sheets synchronizations. Convert passive web traffic into verified high-value enterprise contracts.',
+    keywords: ['business automation lead generation services', 'B2B web automation developer', 'CRM integration services Delhi NCR', 'automatic sales funnel builder'],
+    empiricalCaseStudy: {
+      client: 'Equitas Corporate Advisors',
+      result: '3.5x More Verified Leads',
+      details: 'Transitioned from basic static contact boxes to our smart pipeline automation. Synchronized leads instantly with Google Sheets and Telegram alert loops.'
+    },
+    benefits: [
+      { title: 'Google Sheets Pipelines', desc: 'Sync customer lead logs directly into your team spreadsheets in real-time' },
+      { title: 'Telegram & WhatsApp Alerts', desc: 'Get instant notifications on your phones as soon as a high-value lead submits' },
+      { title: 'Dynamic Multi-Step Forms', desc: 'Qualify and filter prospects based on budget and timeline automatically' }
+    ],
+    packages: [
+      { name: 'Automation Starter Pack', price: '₹27,999', delivery: '3 Days', features: ['Responsive lead forms', 'Google Sheets sync pipelines', 'Email alerts routing', '100% responsive code'] },
+      { name: 'Enterprise Pipeline Suite', price: '₹49,999', delivery: '5 Days', features: ['Multi-step smart forms', 'Instant Telegram/WhatsApp bots', 'Custom admin lead manager CRM', 'SLA support contract'] }
+    ],
+    faqs: [
+      { q: "Can we connect the lead forms to our existing CRMs like HubSpot?", a: "Yes, we build secure, robust API webhooks that sync leads directly into major CRMs without manual data entry." },
+      { q: "How fast do our team members receive lead alerts?", a: "Alerts are delivered instantly—within 2 seconds of the user clicking submit, via automated background worker loops." },
+      { q: "Can we export historical lead logs?", a: "Yes. Our administrative dashboard features standard CSV export buttons, giving you full control of your offline lead databases." }
+    ],
+    longAnalysis: [
+      {
+        sectionHeading: 'The Mechanics of Modern B2B Lead Automation',
+        paragraphs: [
+          'In high-ticket B2B sales, speed-to-lead is the single most vital factor for conversion. If a prospect submits an inquiry and your sales team takes several hours or a day to reply, the lead has already turned cold and contacted competitors. Legacy websites often fail to deliver immediate team visibility, letting valuable contracts slip away.',
+          'SamaXon designs B2B lead generation systems that prioritize instant response. We replace basic contact forms with qualified multi-step brief builders. When a lead is submitted, our system instantly triggers structured email routing, synchronizes lead parameters to Google Sheets, and sends instant alerts to your team\'s Telegram or WhatsApp lines.'
+        ]
+      }
+    ]
+  },
+  delhi_local: {
+    title: 'Top Website Development Agency Delhi NCR | Best Web Design Delhi',
+    description: 'SamaXon is the best website development company in Delhi and Noida. We design high-performance, lightweight, custom-coded React & Node.js business websites and client portals.',
+    canonicalPath: '/website-development-delhi',
+    headline: 'Dominate Google Rankings with High-Performance Web Development in Delhi',
+    painPoint: 'Struggling with slow loading speeds, poor local map rankings, or basic website layouts?',
+    sol: 'Our custom-coded React and Vite frameworks are built for ultimate speed, visual prestige, and maximum search engine discoverability across Delhi NCR.',
+    keywords: ['website development Delhi', 'web design agency Delhi', 'best web design company Noida', 'custom software developer Delhi NCR'],
+    empiricalCaseStudy: {
+      client: 'SamaXon Noida Client Base',
+      result: '100% Mobile Speed Gains',
+      details: 'Transitioned multiple Delhi NCR corporate brands from heavy, outdated builders to our custom pre-compiled architectures, scaling maps search visibility.'
+    },
+    benefits: [
+      { title: 'Lightweight React Dev', desc: 'No heavy platforms or slow database lookups, consistently scoring 99%+ on Google Lighthouse' },
+      { title: 'Built-in Local SEO Schemas', desc: 'Organizations and LocalBusiness JSON-LD schemas pre-configured to index top' },
+      { title: 'Responsive Admin Panel', desc: 'Review client leads, update portfolios, and manage careers inquiries' }
+    ],
+    packages: [
+      { name: 'Corporate Launch Pack', price: '₹28,999', delivery: '3 Days', features: ['5-page bespoke React SPA', 'Google Search Console setup', 'Direct WhatsApp integration', 'Full source files delivery'] },
+      { name: 'Enterprise Authority Suite', price: '₹54,999', delivery: '5 Days', features: ['Custom styling framework', 'Advanced smart consultation scheduler', 'Google Sheets sync pipelines', 'Comprehensive local maps SEO'] }
+    ],
+    faqs: [
+      { q: "Why is custom React-Vite better than WordPress?", a: "React-Vite loads in less than 1.2 seconds, whereas WordPress takes 5-7 seconds. Fast speeds keep visitors engaged, decrease bounce rates, and rank your business higher on search results." },
+      { q: "Will our website rank at the top of local search packs in Delhi Noida?", a: "Yes. We configure structural LocalBusiness schemas and coordinate metadata, ensuring search bots parse your local services above competitors." },
+      { q: "Do we get complete ownership of the source code?", a: "Absolutely. We deliver 100% of the custom source files and host configuration files to you with zero lock-in contracts." }
+    ],
+    longAnalysis: [
+      {
+        sectionHeading: 'The Visual & Operational Authority Mandate for Delhi NCR Brands',
+        paragraphs: [
+          'In highly competitive markets like Delhi, Noida, and Gurgaon, B2B and B2C brands cannot afford an average online home. Prospective clients evaluate your business authority based on page speeds and design quality. Having a slow website that breaks on mobile screens immediately hurts your brand and surrenders traffic to competitors.',
+          'SamaXon crafts bespoke, lightning-fast digital solutions. We combine clean editorial typography with deep dark or comforting light styles, creating a sense of professional prestige that converts casual visitors into confident buyers.'
+        ]
+      }
+    ]
   }
 };
 
@@ -532,6 +733,8 @@ interface SEOPageProps {
 
 export default function SEOPage({ niche = 'business' }: SEOPageProps) {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const config = NICHE_DATA[niche] || NICHE_DATA.business;
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -630,7 +833,7 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
   ];
 
   return (
-    <div className="bg-[#FFFDF8] min-h-screen pt-32 pb-20 text-left" id={`seo-landing-${niche}`}>
+    <div className="min-h-screen pt-24 md:pt-32 pb-24 text-left font-sans transition-colors duration-300 relative" id={`seo-landing-${niche}`}>
       <SEO 
         title={config.title}
         description={config.description}
@@ -638,46 +841,54 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
         schemas={pageSchemas}
       />
 
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6 relative z-10">
         
         {/* TOP BREADCRUMB */}
-        <div className="mb-6 flex flex-wrap items-center gap-1.5 text-[9px] font-mono tracking-widest text-[#8A8178] uppercase font-bold">
-          <Link to="/" className="hover:text-champagne-gold transition-colors">SamaXon</Link>
+        <div className="mb-6 flex flex-wrap items-center gap-1.5 text-[10px] font-mono tracking-widest text-[#8E8E93] uppercase font-bold">
+          <Link to="/" className="hover:text-[#D6B46A] transition-colors">SamaXon</Link>
           <span>/</span>
-          <Link to="/services" className="hover:text-champagne-gold transition-colors">Services</Link>
+          <Link to="/services" className="hover:text-[#D6B46A] transition-colors">Services</Link>
           <span>/</span>
-          <span className="text-neutral-900">{niche} Web Solutions</span>
+          <span className={isDark ? 'text-white' : 'text-neutral-900'}>{niche} Web Solutions</span>
         </div>
 
         {/* HERO SECTION */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16 border-b border-neutral-150 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-16 border-b border-black/5 dark:border-white/5 pb-16">
           <div className="lg:col-span-7 space-y-5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-champagne-gold/10 border border-champagne-gold/25 text-[#BFA15A] text-[9px] font-mono uppercase font-black tracking-widest rounded-full">
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-mono uppercase font-bold tracking-widest rounded-full border ${
+              isDark ? 'bg-white/5 border-white/10 text-[#D6B46A]' : 'bg-black/5 border-black/10 text-[#BFA15A]'
+            }`}>
               <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-              Niche Service Excellence
+              <span>Niche Service Excellence</span>
             </div>
             
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-neutral-900 leading-tight uppercase">
+            <h1 className={`font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight uppercase ${
+              isDark ? 'text-[#F5F5F7]' : 'text-[#1D1D1F]'
+            }`}>
               {config.headline}
             </h1>
             
-            <p className="text-sm text-[#8A8178] leading-relaxed font-sans pr-4">
+            <p className="text-base text-[#8E8E93] leading-relaxed font-sans pr-4">
               {config.description}
             </p>
 
-            <div className="bg-rose-50/55 border border-rose-100 p-5 rounded-2xl space-y-1">
-              <span className="text-[9px] font-mono text-rose-800 font-extrabold flex items-center gap-1 uppercase tracking-wider">
-                <Flame className="w-4 h-4 text-rose-700 shrink-0" />
+            <div className={`p-5 rounded-2xl space-y-1 border ${
+              isDark ? 'bg-rose-500/10 border-rose-500/20 text-rose-300' : 'bg-rose-50 border-rose-200 text-rose-900'
+            }`}>
+              <span className="text-[10px] font-mono font-bold flex items-center gap-1 uppercase tracking-wider">
+                <Flame className="w-4 h-4 text-rose-500 shrink-0" />
                 The Market Pain-Point
               </span>
-              <p className="text-[11.5px] text-rose-700/95 leading-relaxed font-sans">
+              <p className="text-xs leading-relaxed font-sans opacity-90">
                 {config.painPoint}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-1.5 pt-2">
               {config.keywords.map((word, idx) => (
-                <span key={idx} className="text-[9.5px] uppercase tracking-wider font-mono bg-white border border-[#D6B46A]/20 text-[#8A8178] px-2.5 py-0.5 rounded-md font-bold">
+                <span key={idx} className={`text-[10px] uppercase tracking-wider font-mono px-2.5 py-0.5 rounded-md font-bold border ${
+                  isDark ? 'bg-white/5 border-white/10 text-[#8E8E93]' : 'bg-black/5 border-black/10 text-[#6E6E73]'
+                }`}>
                   #{word}
                 </span>
               ))}
@@ -686,40 +897,46 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
 
           {/* VISUAL DEVICE DECOR CONTAINER */}
           <div className="lg:col-span-5 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-champagne-gold/10 via-transparent to-transparent rounded-3xl blur-2xl transform rotate-6 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#D6B46A]/10 via-transparent to-transparent rounded-3xl blur-2xl transform rotate-6 pointer-events-none" />
             
-            <div className="relative bg-neutral-900 border border-champagne-gold/25 rounded-3xl p-6 shadow-xl space-y-5 text-white">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className={`relative border rounded-3xl p-6 space-y-5 ${
+              isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-white border-black/10 text-neutral-900 shadow-lg'
+            }`}>
+              <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-4">
                 <div className="flex gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 </div>
-                <div className="bg-white/5 border border-white/10 text-[8px] font-mono text-neutral-400 px-3 py-1 rounded-full">
+                <div className={`text-[9px] font-mono px-3 py-1 rounded-full border ${
+                  isDark ? 'bg-white/5 border-white/10 text-neutral-400' : 'bg-black/5 border-black/10 text-neutral-600'
+                }`}>
                   https://samaxon.site{config.canonicalPath}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[8px] font-mono text-champagne-gold uppercase tracking-widest block">Live Precompiled Asset Preview</span>
+                <span className="text-[9px] font-mono text-[#D6B46A] uppercase tracking-widest block font-bold">Live Precompiled Asset Preview</span>
                 <h3 className="font-display font-bold text-base leading-snug">
                   Speed-Compiled Direct Frameworks. <br />
-                  <span className="text-champagne-gold">No monthly platform taxes.</span>
+                  <span className="text-[#D6B46A]">No monthly platform taxes.</span>
                 </h3>
-                <p className="text-[10px] text-neutral-400 leading-relaxed font-sans">
+                <p className="text-xs text-[#8E8E93] leading-relaxed font-sans">
                   {config.sol}
                 </p>
               </div>
 
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between text-xs font-mono">
+              <div className={`p-4 rounded-2xl flex items-center justify-between text-xs font-mono border ${
+                isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'
+              }`}>
                 <div>
-                  <span className="text-[7.5px] text-neutral-500 block uppercase">PAGE WEIGHT</span>
-                  <strong className="text-emerald-400">42 KB Total</strong>
+                  <span className="text-[8px] text-[#8E8E93] block uppercase font-bold">PAGE WEIGHT</span>
+                  <strong className="text-emerald-500">42 KB Total</strong>
                 </div>
-                <div className="w-px h-8 bg-white/10" />
+                <div className="w-px h-8 bg-black/10 dark:bg-white/10" />
                 <div>
-                  <span className="text-[7.5px] text-neutral-500 block uppercase">LIGHTHOUSE</span>
-                  <strong className="text-emerald-400">100/100 PERFECT</strong>
+                  <span className="text-[8px] text-[#8E8E93] block uppercase font-bold">LIGHTHOUSE</span>
+                  <strong className="text-emerald-500">100/100 PERFECT</strong>
                 </div>
               </div>
             </div>
@@ -727,37 +944,36 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
         </div>
 
         {/* 1500+ WORDS COPY ANALYSIS DEPTH */}
-        <div className="mb-20 space-y-12 border-b border-neutral-150 pb-16 bg-[#FFFDF8] rounded-3xl p-8 sm:p-10 border border-[#D6B46A]/10 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 text-neutral-100 pointer-events-none translate-x-4 -translate-y-4 font-mono font-black text-[120px] select-none opacity-20">
-            SOP
-          </div>
+        <div className={`mb-20 space-y-10 rounded-3xl p-8 sm:p-10 border relative overflow-hidden ${
+          isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-sm'
+        }`}>
           <div className="space-y-2 max-w-xl relative z-10">
-            <span className="text-[9px] font-mono uppercase text-[#BFA15A] tracking-widest font-black block">Systems Engineering Deep-Dive</span>
-            <h2 className="text-2xl font-display font-black text-neutral-900 uppercase">STRUCTURAL CAPABILITIES ANALYSIS</h2>
-            <p className="text-xs text-[#8A8178]">Unpacking our rigid systems specifications, speed-optimized compilation processes, and customer acquisition models.</p>
+            <span className="text-[10px] font-mono uppercase text-[#D6B46A] tracking-widest font-bold block">Systems Engineering Deep-Dive</span>
+            <h2 className="text-2xl font-display font-bold uppercase">STRUCTURAL CAPABILITIES ANALYSIS</h2>
+            <p className="text-xs text-[#8E8E93]">Unpacking our rigid systems specifications, speed-optimized compilation processes, and customer acquisition models.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
             {/* Left Nav menu list */}
-            <div className="lg:col-span-4 space-y-4 font-mono text-[9px] uppercase tracking-wide text-neutral-500 border-l border-[#D6B46A]/20 pl-4 h-fit">
+            <div className="lg:col-span-4 space-y-3 font-mono text-[10px] uppercase tracking-wide border-l border-[#D6B46A]/30 pl-4 h-fit">
               {config.longAnalysis.map((sec, si) => (
-                <div key={si} className="space-y-1.5 py-1.5 border-b border-neutral-100 last:border-none">
-                  <span className="text-[#BFA15A] block font-black">CHAPTER 0{si + 1}:</span>
-                  <span className="font-bold text-neutral-800 leading-normal block">{sec.sectionHeading}</span>
+                <div key={si} className="space-y-1 py-1.5 border-b border-black/5 dark:border-white/5 last:border-none">
+                  <span className="text-[#D6B46A] block font-bold">CHAPTER 0{si + 1}:</span>
+                  <span className="font-bold leading-normal block">{sec.sectionHeading}</span>
                 </div>
               ))}
             </div>
 
-            {/* Paragraph Blocks (The actual 1500+ Words deep analysis content) */}
-            <div className="lg:col-span-8 space-y-8 text-neutral-700 leading-relaxed font-sans text-xs sm:text-sm">
+            {/* Paragraph Blocks */}
+            <div className="lg:col-span-8 space-y-6 leading-relaxed font-sans text-xs sm:text-sm">
               {config.longAnalysis.map((sec, si) => (
-                <div key={si} className="space-y-3">
-                  <h4 className="font-display font-bold text-base text-neutral-900 uppercase tracking-tight flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 bg-[#BFA15A] rounded-full" />
-                    {sec.sectionHeading}
+                <div key={si} className="space-y-2.5">
+                  <h4 className="font-display font-bold text-base uppercase tracking-tight flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-[#D6B46A] rounded-full" />
+                    <span>{sec.sectionHeading}</span>
                   </h4>
                   {sec.paragraphs.map((para, pi) => (
-                    <p key={pi} className="text-[#8A8178] leading-relaxed font-sans text-xs">
+                    <p key={pi} className="text-xs text-[#8E8E93] leading-relaxed font-sans">
                       {para}
                     </p>
                   ))}
@@ -768,28 +984,32 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
         </div>
 
         {/* ADVANCED TESTIMONIAL / CASE STUDY BLOCK FOR THIS NICHE */}
-        <div className="mb-20 bg-neutral-900 text-[#FFFDF8] border border-[#D6B46A]/20 p-8 sm:p-12 rounded-3xl relative overflow-hidden">
+        <div className={`mb-20 border p-8 sm:p-10 rounded-3xl relative overflow-hidden ${
+          isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-sm'
+        }`}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-5 space-y-4">
-              <span className="text-[9px] font-mono uppercase tracking-widest text-champagne-gold font-bold">CASE RESULT</span>
-              <h3 className="text-2xl font-display font-bold text-white uppercase tracking-tight">
+            <div className="lg:col-span-5 space-y-3">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B46A] font-bold">CASE RESULT</span>
+              <h3 className="text-2xl font-display font-bold uppercase tracking-tight">
                 {config.empiricalCaseStudy.client}
               </h3>
               
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-champagne-gold/15 text-champagne-gold border border-champagne-gold/25 font-mono text-xs font-bold uppercase">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#D6B46A]/10 text-[#D6B46A] border border-[#D6B46A]/20 font-mono text-xs font-bold uppercase">
                 <TrendingUp className="w-4 h-4 shrink-0" />
-                {config.empiricalCaseStudy.result}
+                <span>{config.empiricalCaseStudy.result}</span>
               </div>
             </div>
 
-            <div className="lg:col-span-7 p-6 bg-white/5 border border-white/10 rounded-2xl relative">
-              <p className="text-xs text-neutral-300 leading-relaxed font-sans italic">
+            <div className={`lg:col-span-7 p-6 rounded-2xl relative border ${
+              isDark ? 'bg-white/5 border-white/5' : 'bg-black/5 border-black/5'
+            }`}>
+              <p className="text-xs leading-relaxed font-sans italic text-[#8E8E93]">
                 "{config.empiricalCaseStudy.details}"
               </p>
               
-              <div className="pt-4 border-t border-white/5 mt-4 flex items-center justify-between text-[10px] font-mono text-[#A89F91]">
+              <div className="pt-3 border-t border-black/5 dark:border-white/5 mt-3 flex items-center justify-between text-[10px] font-mono text-[#8E8E93]">
                 <span>Implementation: SamaXon Custom Engine</span>
-                <span className="text-champagne-gold font-bold uppercase">Verified Success Metric</span>
+                <span className="text-[#D6B46A] font-bold uppercase">Verified Success Metric</span>
               </div>
             </div>
           </div>
@@ -798,26 +1018,28 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
         {/* DETAILED PACKAGES GRID SPECIFIC TO NICHE */}
         <div className="mb-20">
           <div className="text-center max-w-sm mx-auto mb-10 space-y-1">
-            <h4 className="font-display font-medium text-xs uppercase text-[#BFA15A] tracking-wider font-mono">INVESTMENT PACKAGES</h4>
-            <h3 className="text-xl font-display font-bold text-neutral-900 uppercase">CHOOSE YOUR PERFORMANCE TIER</h3>
+            <h4 className="font-display font-bold text-xs uppercase text-[#D6B46A] tracking-wider font-mono">INVESTMENT PACKAGES</h4>
+            <h3 className="text-xl font-display font-bold uppercase">CHOOSE YOUR PERFORMANCE TIER</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {config.packages.map((pack, pi) => (
-              <div key={pi} className="bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm flex flex-col justify-between space-y-6">
+              <div key={pi} className={`border rounded-3xl p-6 flex flex-col justify-between space-y-6 ${
+                isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-sm'
+              }`}>
                 <div className="space-y-4">
                   <div className="flex justify-between items-start gap-4">
                     <div>
-                      <h4 className="font-display font-bold text-sm text-neutral-800 uppercase">{pack.name}</h4>
-                      <span className="text-[9.5px] font-mono text-[#8A8178] block mt-0.5 uppercase tracking-wide">Deployment: {pack.delivery}</span>
+                      <h4 className="font-display font-bold text-sm uppercase">{pack.name}</h4>
+                      <span className="text-[10px] font-mono text-[#8E8E93] block mt-0.5 uppercase tracking-wide">Deployment: {pack.delivery}</span>
                     </div>
-                    <div className="text-lg font-display font-black text-[#BFA15A]">{pack.price}</div>
+                    <div className="text-xl font-display font-bold text-[#D6B46A]">{pack.price}</div>
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-neutral-100">
+                  <div className="space-y-2 pt-3 border-t border-black/5 dark:border-white/5">
                     {pack.features.map((feat, fi) => (
-                      <div key={fi} className="flex gap-2 items-center text-xs text-[#8A8178] font-sans">
-                        <CheckCircle className="w-4 h-4 text-[#BFA15A] shrink-0" />
+                      <div key={fi} className="flex gap-2 items-center text-xs text-[#8E8E93] font-sans">
+                        <CheckCircle className="w-4 h-4 text-[#D6B46A] shrink-0" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -829,7 +1051,11 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
                     const el = document.getElementById('seo-niche-form');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full py-3 bg-[#FFFDF8] hover:bg-[#111111] text-neutral-800 hover:text-white border border-neutral-350 hover:border-neutral-900 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all text-center cursor-pointer"
+                  className={`w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-center cursor-pointer border ${
+                    isDark 
+                      ? 'bg-white/5 border-white/15 text-white hover:bg-[#D6B46A] hover:text-[#0A0A0A]' 
+                      : 'bg-black/5 border-black/15 text-black hover:bg-[#D6B46A] hover:text-[#0A0A0A]'
+                  }`}
                 >
                   Confirm package requirements
                 </button>
@@ -840,48 +1066,52 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
 
         {/* SPECIFIC BENEFITS GRID */}
         <div className="mb-20">
-          <div className="max-w-md mb-10">
-            <span className="text-[10px] font-mono uppercase text-[#BFA15A] tracking-widest font-black block mb-1">Niche Capabilities Overview</span>
-            <h3 className="text-xl font-display font-bold text-neutral-900 uppercase">SPECIFIC CAPABILITIES OVERVIEW</h3>
+          <div className="max-w-md mb-8">
+            <span className="text-[10px] font-mono uppercase text-[#D6B46A] tracking-widest font-bold block mb-1">Niche Capabilities Overview</span>
+            <h3 className="text-xl font-display font-bold uppercase">SPECIFIC CAPABILITIES OVERVIEW</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {config.benefits.map((ben, bi) => (
-              <div key={bi} className="bg-white border border-[#D6B46A]/15 p-6 rounded-3xl space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-champagne-gold/10 flex items-center justify-center">
-                  <BadgeCheck className="w-5 h-5 text-champagne-gold" />
+              <div key={bi} className={`p-6 rounded-3xl space-y-3 border ${
+                isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-sm'
+              }`}>
+                <div className="w-8 h-8 rounded-lg bg-[#D6B46A]/10 flex items-center justify-center">
+                  <BadgeCheck className="w-5 h-5 text-[#D6B46A]" />
                 </div>
-                <h4 className="font-display font-bold text-xs uppercase text-neutral-800 tracking-tight">{ben.title}</h4>
-                <p className="text-[11px] text-[#8A8178] leading-relaxed font-sans">{ben.desc}</p>
+                <h4 className="font-display font-bold text-xs uppercase tracking-tight">{ben.title}</h4>
+                <p className="text-xs text-[#8E8E93] leading-relaxed font-sans">{ben.desc}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* LEAD CAPTURE FORM AND ACCORDION FAQS */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start bg-white border border-[#D6B46A]/15 rounded-3xl p-6 sm:p-10 shadow-sm">
+        <div className={`grid grid-cols-1 lg:grid-cols-12 gap-10 items-start border rounded-3xl p-6 sm:p-10 ${
+          isDark ? 'bg-[#121212] border-white/10' : 'bg-white border-black/10 shadow-md'
+        }`}>
           
           {/* FAQs (Left) */}
           <div className="lg:col-span-7 space-y-6">
             <div>
-              <span className="text-[10px] font-mono uppercase text-[#BFA15A] tracking-widest font-bold block mb-0.5">TERMS REVIEW</span>
-              <h3 className="font-display font-bold text-lg text-neutral-900 uppercase">FAQ AND OPERATIONAL POLICIES</h3>
+              <span className="text-[10px] font-mono uppercase text-[#D6B46A] tracking-widest font-bold block mb-0.5">TERMS REVIEW</span>
+              <h3 className="font-display font-bold text-lg uppercase">FAQ AND OPERATIONAL POLICIES</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {config.faqs.map((faq, idx) => {
                 const isOpen = openFaq === idx;
                 return (
-                  <div key={idx} className="border-b border-neutral-100 pb-4">
+                  <div key={idx} className="border-b border-black/5 dark:border-white/5 pb-3">
                     <button
                       onClick={() => setOpenFaq(isOpen ? null : idx)}
-                      className="w-full flex justify-between items-center text-left py-1 font-display font-medium text-xs text-neutral-900 hover:text-champagne-gold transition-colors"
+                      className="w-full flex justify-between items-center text-left py-1 font-display font-medium text-xs hover:text-[#D6B46A] transition-colors cursor-pointer"
                     >
                       <span className="uppercase">{faq.q}</span>
-                      <span className="text-champagne-gold font-bold font-mono">{isOpen ? '−' : '+'}</span>
+                      <span className="text-[#D6B46A] font-bold font-mono text-sm">{isOpen ? '−' : '+'}</span>
                     </button>
                     {isOpen && (
-                      <p className="text-xs text-[#8A8178] leading-relaxed pt-2 pl-3 border-l-2 border-[#D6B46A]/25 font-sans">
+                      <p className="text-xs text-[#8E8E93] leading-relaxed pt-2 pl-3 border-l-2 border-[#D6B46A]/40 font-sans">
                         {faq.a}
                       </p>
                     )}
@@ -892,23 +1122,25 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
           </div>
 
           {/* Lead Form (Right) */}
-          <div className="lg:col-span-5 bg-[#FAF8F5] border border-[#D6B46A]/20 p-6 rounded-2xl">
-            <div className="border-b border-[#D6B46A]/15 pb-4 mb-4">
-              <span className="text-[9px] font-mono text-champagne-gold uppercase tracking-wider block font-bold">SECURE SLOTS PREVIEW</span>
-              <h4 className="font-display font-bold text-sm text-neutral-900 uppercase">Inquire For Direct Customizations</h4>
-              <p className="text-[10px] text-[#8A8178] leading-normal font-sans">Submit your requirements and our digital specialists will review and follow-up on WhatsApp within 24 hours.</p>
+          <div className={`lg:col-span-5 p-6 rounded-2xl border ${
+            isDark ? 'bg-white/[0.02] border-white/10' : 'bg-[#FAF8F5] border-black/10'
+          }`}>
+            <div className="border-b border-black/5 dark:border-white/10 pb-4 mb-4">
+              <span className="text-[9px] font-mono text-[#D6B46A] uppercase tracking-wider block font-bold">SECURE SLOTS PREVIEW</span>
+              <h4 className="font-display font-bold text-sm uppercase">Inquire For Direct Customizations</h4>
+              <p className="text-xs text-[#8E8E93] leading-normal font-sans mt-1">Submit your requirements and our digital specialists will review and follow-up on WhatsApp within 24 hours.</p>
             </div>
 
             {isSuccess ? (
               <div className="py-8 text-center space-y-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto">
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mx-auto">
                   <BadgeCheck className="w-6 h-6 animate-bounce" />
                 </div>
-                <h5 className="font-display font-bold text-sm text-neutral-900 uppercase">Agenda Secured</h5>
-                <p className="text-[11px] text-[#8A8178] leading-normal font-sans">Our design consultant will contact you shortly to frame live template mockups.</p>
+                <h5 className="font-display font-bold text-sm uppercase">Agenda Secured</h5>
+                <p className="text-xs text-[#8E8E93] leading-normal font-sans">Our design consultant will contact you shortly to frame live template mockups.</p>
                 <button
                   onClick={() => setIsSuccess(false)}
-                  className="px-4 py-2 text-[9px] font-mono bg-matte-black text-white hover:text-champagne-gold uppercase tracking-widest rounded-lg transition-colors cursor-pointer"
+                  className="px-4 py-2 text-[10px] font-mono bg-[#D6B46A] text-[#0A0A0A] font-bold uppercase tracking-widest rounded-lg transition-colors cursor-pointer"
                 >
                   Submit Another request
                 </button>
@@ -917,67 +1149,83 @@ export default function SEOPage({ niche = 'business' }: SEOPageProps) {
               <form onSubmit={handleLeadSubmit} className="space-y-4" id="seo-niche-form">
                 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-mono uppercase text-neutral-600 font-bold">Your Name *</label>
+                  <label className="text-[10px] font-mono uppercase font-bold text-[#8E8E93]">Your Name *</label>
                   <input 
                     type="text"
                     name="name"
                     value={leadForm.name}
                     onChange={handleInputChange}
                     placeholder="e.g. Advait Kumar"
-                    className="w-full bg-white border border-[#D6B46A]/15 p-2.5 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
+                    className={`w-full p-2.5 text-xs rounded-lg outline-none border transition-all ${
+                      isDark 
+                        ? 'bg-white/5 border-white/10 text-white focus:border-[#D6B46A]' 
+                        : 'bg-white border-black/15 text-black focus:border-[#D6B46A]'
+                    }`}
                     required
                   />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-mono uppercase text-[#0c5737] font-extrabold tracking-wide">Phone (WhatsApp Recommended) *</label>
+                  <label className="text-[10px] font-mono uppercase font-bold text-emerald-600 dark:text-emerald-400">Phone (WhatsApp Recommended) *</label>
                   <input 
                     type="tel"
                     name="phone"
                     value={leadForm.phone}
                     onChange={handleInputChange}
                     placeholder="e.g. +91 91234 56789"
-                    className="w-full bg-white border border-[#D6B46A]/15 p-2.5 text-xs text-[#0c5737] rounded-lg outline-none focus:border-emerald-600 font-bold"
+                    className={`w-full p-2.5 text-xs font-bold rounded-lg outline-none border transition-all ${
+                      isDark 
+                        ? 'bg-white/5 border-white/10 text-emerald-300 focus:border-emerald-400' 
+                        : 'bg-white border-black/15 text-emerald-700 focus:border-emerald-600'
+                    }`}
                     required
                   />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-mono uppercase text-neutral-600 font-bold">Email Address *</label>
+                  <label className="text-[10px] font-mono uppercase font-bold text-[#8E8E93]">Email Address *</label>
                   <input 
                     type="email"
                     name="email"
                     value={leadForm.email}
                     onChange={handleInputChange}
                     placeholder="e.g. advait@hotelbrand.com"
-                    className="w-full bg-white border border-[#D6B46A]/15 p-2.5 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
+                    className={`w-full p-2.5 text-xs rounded-lg outline-none border transition-all ${
+                      isDark 
+                        ? 'bg-white/5 border-white/10 text-white focus:border-[#D6B46A]' 
+                        : 'bg-white border-black/15 text-black focus:border-[#D6B46A]'
+                    }`}
                     required
                   />
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-mono uppercase text-neutral-600 font-bold">Describe Custom Specs (Optional)</label>
+                  <label className="text-[10px] font-mono uppercase font-bold text-[#8E8E93]">Describe Custom Specs (Optional)</label>
                   <textarea 
                     name="message"
                     value={leadForm.message}
                     onChange={handleInputChange}
                     placeholder="Describe capacity, layout sizes, or special features required..."
                     rows={3}
-                    className="w-full bg-white border border-[#D6B46A]/15 p-2.5 text-xs text-matte-black rounded-lg outline-none focus:border-champagne-gold"
+                    className={`w-full p-2.5 text-xs rounded-lg outline-none border transition-all ${
+                      isDark 
+                        ? 'bg-white/5 border-white/10 text-white focus:border-[#D6B46A]' 
+                        : 'bg-white border-black/15 text-black focus:border-[#D6B46A]'
+                    }`}
                   />
                 </div>
 
                 {formError && (
-                  <div className="p-2 bg-red-100 text-red-700 text-[10.5px] rounded border border-red-200 font-semibold">{formError}</div>
+                  <div className="p-2.5 bg-rose-500/10 text-rose-500 text-xs rounded-lg border border-rose-500/20 font-semibold">{formError}</div>
                 )}
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 bg-matte-black hover:bg-[#1C1C1C] text-white hover:text-champagne-gold font-bold uppercase tracking-widest text-[9.5px] rounded-xl border border-[#D6B46A]/20 flex items-center justify-center gap-1 cursor-pointer transition-colors disabled:opacity-50"
+                  className="w-full py-3 bg-[#D6B46A] hover:bg-[#BFA15A] text-[#0A0A0A] font-bold uppercase tracking-wider text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50 shadow-sm"
                 >
-                  {isSubmitting ? 'Securing Blueprint...' : 'Capture pre-built demonstration'}
-                  <ArrowRight className="w-4 h-4 text-champagne-gold" />
+                  <span>{isSubmitting ? 'Securing Blueprint...' : 'Capture pre-built demonstration'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
               </form>

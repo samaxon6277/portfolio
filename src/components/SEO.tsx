@@ -79,52 +79,109 @@ export default function SEO({
       existingOldScript.remove();
     }
 
-    const defaultSchema = {
-      "@context": "https://schema.org",
-      "@type": schemaType,
-      "name": "SamaXon Digital Solutions",
-      "image": "https://samaxon.site/og-image.jpg",
-      "@id": "https://samaxon.site/#organization",
-      "url": "https://samaxon.site",
-      "telephone": "+918000000000",
-      "priceRange": "$$$$",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "SamaXon Elite Hub, MG Road",
-        "addressLocality": "Noida",
-        "addressRegion": "Uttar Pradesh",
-        "postalCode": "201301",
-        "addressCountry": "IN"
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "00:00",
-        "closes": "23:59"
-      },
-      "sameAs": [
-        "https://linkedin.com/company/samaxon",
-        "https://twitter.com/samaxon_studio"
-      ]
-    };
-
     const schemasToInject: any[] = [];
     if (schemas && schemas.length > 0) {
       schemasToInject.push(...schemas);
     } else {
-      const finalSchema = {
-        ...defaultSchema,
-        ...(schemaData || {})
+      // 1. Build Organization Schema
+      const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://samaxon.site/#organization",
+        "name": "SamaXon Digital Solutions",
+        "url": "https://samaxon.site",
+        "logo": "https://samaxon.site/logo.png",
+        "image": "https://samaxon.site/og-image.jpg",
+        "telephone": "+918000000000",
+        "sameAs": [
+          "https://linkedin.com/company/samaxon",
+          "https://twitter.com/samaxon_studio"
+        ]
       };
-      schemasToInject.push(finalSchema);
+
+      // 2. Build LocalBusiness (ProfessionalService) Schema
+      const localBusinessSchema = {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "@id": `https://samaxon.site${canonicalPath}#localbusiness`,
+        "name": "SamaXon Digital Solutions",
+        "url": `https://samaxon.site${canonicalPath}`,
+        "telephone": "+918000000000",
+        "priceRange": "₹₹₹₹",
+        "image": "https://samaxon.site/og-image.jpg",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "SamaXon Elite Hub, MG Road",
+          "addressLocality": "Noida",
+          "addressRegion": "Uttar Pradesh",
+          "postalCode": "201301",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "28.5355",
+          "longitude": "77.3910"
+        },
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+          ],
+          "opens": "00:00",
+          "closes": "23:59"
+        }
+      };
+
+      // 3. Build BreadcrumbList Schema
+      const pathSegments = canonicalPath.split('/').filter(Boolean);
+      const breadcrumbItems = [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://samaxon.site/"
+        }
+      ];
+
+      let accumulatedPath = '';
+      pathSegments.forEach((segment, index) => {
+        accumulatedPath += `/${segment}`;
+        const humanizedName = segment
+          .split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+        
+        breadcrumbItems.push({
+          "@type": "ListItem",
+          "position": index + 2,
+          "name": humanizedName,
+          "item": `https://samaxon.site${accumulatedPath}`
+        });
+      });
+
+      const breadcrumbListSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": breadcrumbItems
+      };
+
+      schemasToInject.push(organizationSchema, localBusinessSchema, breadcrumbListSchema);
+
+      // 4. Build Custom Niche Service or Product Schema if custom data provided
+      if (schemaData) {
+        const customServiceSchema = {
+          "@context": "https://schema.org",
+          "@type": schemaType,
+          "name": title,
+          "description": description,
+          "provider": {
+            "@type": "LocalBusiness",
+            "name": "SamaXon Digital Solutions"
+          },
+          ...schemaData
+        };
+        schemasToInject.push(customServiceSchema);
+      }
     }
 
     schemasToInject.forEach((schema, i) => {

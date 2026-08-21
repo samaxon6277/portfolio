@@ -1,73 +1,103 @@
-import { useState, useEffect } from "react"
-import { motion } from "motion/react"
+import { useEffect, useRef, useState } from 'react';
 
 export default function CustomCursor() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isHovering, setIsHovering] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
+  const [enabled, setEnabled] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [clicked, setClicked] = useState(false);
+  
+  const cursorDotRef = useRef<HTMLDivElement>(null);
+  const cursorRingRef = useRef<HTMLDivElement>(null);
+
+  const mousePos = useRef({ x: -100, y: -100 });
+  const ringPos = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-      if (!isVisible) setIsVisible(true)
+    // Check if device supports fine pointer and is desktop
+    if (typeof window === 'undefined') return;
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (isTouch || prefersReducedMotion || window.innerWidth < 1024) {
+      setEnabled(false);
+      return;
     }
+    
+    setEnabled(true);
 
-    const handleMouseLeave = () => setIsVisible(false)
-    const handleMouseEnter = () => setIsVisible(true)
+    const onMouseMove = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY };
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      }
+    };
+
+    const onMouseDown = () => setClicked(true);
+    const onMouseUp = () => setClicked(false);
 
     const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (
-        target.tagName.toLowerCase() === 'a' ||
-        target.tagName.toLowerCase() === 'button' ||
-        target.closest('a') ||
-        target.closest('button')
-      ) {
-        setIsHovering(true)
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const interactiveEl = target.closest('a, button, input, textarea, select, [role="button"], .interactive, .cursor-pointer');
+      if (interactiveEl) {
+        setHovered(true);
       } else {
-        setIsHovering(false)
+        setHovered(false);
       }
-    }
+    };
 
-    window.addEventListener("mousemove", handleMouseMove)
-    window.addEventListener("mouseleave", handleMouseLeave)
-    window.addEventListener("mouseenter", handleMouseEnter)
-    window.addEventListener("mouseover", handleMouseOver)
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mouseover', handleMouseOver, { passive: true });
+
+    let animationFrameId: number;
+    const render = () => {
+      // Linear interpolation for smooth trailing ring
+      ringPos.current.x += (mousePos.current.x - ringPos.current.x) * 0.18;
+      ringPos.current.y += (mousePos.current.y - ringPos.current.y) * 0.18;
+
+      if (cursorRingRef.current) {
+        cursorRingRef.current.style.transform = `translate3d(${ringPos.current.x}px, ${ringPos.current.y}px, 0) translate(-50%, -50%)`;
+      }
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-      window.removeEventListener("mouseleave", handleMouseLeave)
-      window.removeEventListener("mouseenter", handleMouseEnter)
-      window.removeEventListener("mouseover", handleMouseOver)
-    }
-  }, [isVisible])
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mouseover', handleMouseOver);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
-  if (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) {
-    return null // Disable custom cursor on mobile devices
-  }
+  if (!enabled) return null;
 
   return (
-    <>
-      <motion.div
-        className="fixed top-0 left-0 w-4 h-4 rounded-full bg-neo-accent pointer-events-none z-[100] mix-blend-screen"
-        animate={{
-          x: mousePosition.x - 8,
-          y: mousePosition.y - 8,
-          scale: isHovering ? 2 : 1,
-          opacity: isVisible ? 1 : 0
-        }}
-        transition={{ type: "spring", stiffness: 500, damping: 28, mass: 0.5 }}
+    <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden" aria-hidden="true">
+      {/* Inner precise dot */}
+      <div
+        ref={cursorDotRef}
+        className={`fixed top-0 left-0 w-2 h-2 rounded-full bg-[#D6B46A] transition-opacity duration-150 ${
+          hovered ? 'opacity-0' : 'opacity-90'
+        }`}
+        style={{ willChange: 'transform' }}
       />
-      <motion.div
-        className="fixed top-0 left-0 w-24 h-24 rounded-full border border-neo-cyan/30 pointer-events-none z-[99]"
-        animate={{
-          x: mousePosition.x - 48,
-          y: mousePosition.y - 48,
-          scale: isHovering ? 0.5 : 1,
-          opacity: isVisible ? 1 : 0
-        }}
-        transition={{ type: "spring", stiffness: 250, damping: 20, mass: 0.8 }}
+
+      {/* Smooth trailing outer ring */}
+      <div
+        ref={cursorRingRef}
+        className={`fixed top-0 left-0 rounded-full border transition-all duration-200 ease-out flex items-center justify-center ${
+          hovered
+            ? 'w-10 h-10 border-[#D6B46A]/80 bg-[#D6B46A]/10 backdrop-blur-[1px]'
+            : clicked
+            ? 'w-5 h-5 border-[#D6B46A]/90 bg-[#D6B46A]/20'
+            : 'w-7 h-7 border-neutral-400/40 dark:border-white/30'
+        }`}
+        style={{ willChange: 'transform' }}
       />
-    </>
-  )
+    </div>
+  );
 }
