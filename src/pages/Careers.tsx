@@ -621,7 +621,7 @@ export default function Careers() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-500 font-mono">Whatsapp Helpline:</span>
-                  <span className="text-neutral-200">{SITE_CONFIG.phoneWhatsapp}</span>
+                  <a href={`https://wa.me/${SITE_CONFIG.phoneWhatsappRaw}`} target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:underline">{SITE_CONFIG.phoneWhatsapp}</a>
                 </div>
               </div>
             </div>

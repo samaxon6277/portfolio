@@ -276,29 +276,31 @@ export default function ContentSettingsTab({
           <h2 className="font-display text-2xl font-black text-[#111111] tracking-tight mt-0.5">Website Content Manager</h2>
         </div>
         
-        {/* Sub-navigation controls tab buttons */}
-        <div className="flex flex-wrap bg-[#FFFDF8] border border-[#D6B46A]/20 p-1 rounded-xl text-[10px] font-mono font-bold tracking-widest uppercase" id="content-sub-navigator">
-          {[
-            { id: 'services', label: 'Services' },
-            { id: 'portfolio', label: 'Portfolio' },
-            { id: 'testimonials', label: 'Quotes' },
-            { id: 'pages', label: 'Page Text' },
-            { id: 'blog', label: 'Insights blog' },
-            { id: 'pricing', label: 'Pricing Plans' },
-            { id: 'legal', label: 'Legal text' }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setSubTab(tab.id as any)}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                subTab === tab.id 
-                  ? 'bg-[#111111] text-white' 
-                  : 'text-[#8A8178] hover:text-[#111111]'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Sub-navigation controls touch-scrollable rail */}
+        <div className="relative max-w-full overflow-x-auto scrollbar-none py-1">
+          <div className="flex flex-nowrap items-center bg-[#FFFDF8] border border-[#D6B46A]/20 p-1 rounded-xl text-[10px] font-mono font-bold tracking-widest uppercase gap-1 whitespace-nowrap shadow-sm" id="content-sub-navigator">
+            {[
+              { id: 'services', label: 'Services' },
+              { id: 'portfolio', label: 'Portfolio' },
+              { id: 'testimonials', label: 'Quotes' },
+              { id: 'pages', label: 'Page Text' },
+              { id: 'blog', label: 'Insights blog' },
+              { id: 'pricing', label: 'Pricing Plans' },
+              { id: 'legal', label: 'Legal text' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setSubTab(tab.id as any)}
+                className={`px-3 py-1.5 rounded-lg transition-all shrink-0 cursor-pointer ${
+                  subTab === tab.id 
+                    ? 'bg-[#111111] text-white shadow-sm' 
+                    : 'text-[#8A8178] hover:text-[#111111] hover:bg-[#F4EFE6]/50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

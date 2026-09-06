@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink
+  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink, X
 } from 'lucide-react';
 
 import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, JobApplication } from '../types';
@@ -27,6 +27,7 @@ export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [systemSubTab, setSystemSubTab] = useState<'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile'>('media');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -749,13 +750,16 @@ export default function AdminPanel() {
     menuOptions.push({ id: 'system', label: 'Systems Hub', icon: Shield });
   }
 
+  const unreadLeadsCount = leads.filter(l => (l.status || 'new').toLowerCase() === 'new').length;
+  const unreadApplicantsCount = jobApplications.filter(j => (j.status || 'new').toLowerCase() === 'new').length;
+
   // Get name initials
   const initials = currentUser?.full_name
     ? currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     : 'EX';
 
   return (
-    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#111111] flex flex-col text-neutral-800 font-sans antialiased" id="admin-workspace-core">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#111111] flex flex-col text-neutral-800 font-sans antialiased" id="admin-workspace-core">
       {/* Top Universal Operating Command Bar */}
       <AdminHeader
         currentUser={currentUser}
@@ -765,7 +769,10 @@ export default function AdminPanel() {
         maintenanceMode={websiteSettings?.maintenanceMode || false}
         onRefreshDatabase={handleRefreshDatabase}
         onLogout={handleLogout}
+        activeTab={activeTab}
+        onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
         onNavigateTab={(tab) => {
+          setMobileDrawerOpen(false);
           if (tab === 'bot-logs') {
             setSystemSubTab('botlogs');
             setActiveTab('system');
@@ -778,9 +785,147 @@ export default function AdminPanel() {
         }}
       />
 
-      <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-        {/* 1. Luxurious Floating Left Navigation Sidebar */}
-        <aside className="w-full md:w-64 md:h-full bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/20 flex flex-col justify-between shrink-0 text-left overflow-y-auto custom-scrollbar">
+      {/* Off-canvas Mobile Navigation Drawer (viewports < 1024px) */}
+      <AnimatePresence>
+        {mobileDrawerOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setMobileDrawerOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
+            />
+
+            {/* Slide-out Drawer Panel */}
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+              className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/25 z-50 flex flex-col justify-between overflow-y-auto custom-scrollbar shadow-2xl lg:hidden text-left"
+            >
+              <div>
+                {/* Header block with Close button */}
+                <div className="p-4 sm:p-5 border-b border-[#D6B46A]/15 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 bg-[#FFFDF8] text-[#111111] rounded-xl font-display font-black text-sm flex items-center justify-center shadow">
+                      S
+                    </div>
+                    <div>
+                      <h2 className="font-display font-black text-sm text-white tracking-widest uppercase">SamaXon</h2>
+                      <span className="text-[8px] font-mono text-[#D6B46A] tracking-wider uppercase font-extrabold block">Remote Terminal</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setMobileDrawerOpen(false)}
+                    className="p-2 text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all min-w-[40px] min-h-[40px] flex items-center justify-center cursor-pointer"
+                    aria-label="Close Drawer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Action links */}
+                <div className="p-3.5 space-y-2 border-b border-white/5">
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-white/5 hover:bg-[#D6B46A]/15 border border-[#D6B46A]/25 text-[#D6B46A] text-[10px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all min-h-[40px]"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>View Live Website</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileDrawerOpen(false);
+                      navigate('/');
+                    }}
+                    className="w-full py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 text-[10px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[40px]"
+                  >
+                    <Home className="w-3.5 h-3.5" />
+                    <span>Return to Public Site</span>
+                  </button>
+                </div>
+
+                {/* Navigation Links */}
+                <nav className="p-3.5 space-y-1.5">
+                  <span className="text-[9px] font-mono uppercase text-[#8A8178] px-3 font-bold tracking-widest block mb-2">
+                    Command Modules
+                  </span>
+                  {menuOptions.map(opt => {
+                    const Icon = opt.icon;
+                    const count = opt.id === 'leads' ? unreadLeadsCount : opt.id === 'careers' ? unreadApplicantsCount : 0;
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setActiveTab(opt.id);
+                          setMobileDrawerOpen(false);
+                        }}
+                        className={`w-full py-3 px-3.5 rounded-xl flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px] ${
+                          activeTab === opt.id
+                            ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black'
+                            : 'text-white/70 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="w-4 h-4 shrink-0" />
+                          <span>{opt.label}</span>
+                        </div>
+                        {count > 0 && (
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black ${
+                            activeTab === opt.id
+                              ? 'bg-[#111111] text-[#D6B46A]'
+                              : 'bg-[#D6B46A] text-[#111111]'
+                          }`}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              {/* User Session profile controls */}
+              <div className="p-4 border-t border-[#D6B46A]/15 space-y-3 bg-black/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[#D6B46A]/15 border border-[#D6B46A]/40 flex items-center justify-center font-display text-[#D6B46A] font-black text-xs">
+                    {initials}
+                  </div>
+                  <div className="flex flex-col text-xs max-w-[150px] truncate select-none">
+                    <span className="font-bold text-white leading-tight truncate">{currentUser?.full_name}</span>
+                    <span className="text-[9px] font-mono text-[#D6B46A] uppercase font-bold truncate">{currentUser?.role}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setMobileDrawerOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 min-h-[44px]"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Disconnect Terminal
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+        {/* 1. Luxurious Floating Left Navigation Sidebar (Desktop viewports >= 1024px ONLY) */}
+        <aside className="hidden lg:flex lg:w-64 lg:h-full bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/20 flex-col justify-between shrink-0 text-left overflow-y-auto custom-scrollbar">
           <div>
             {/* Master branding block */}
             <div className="p-6 border-b border-[#D6B46A]/15 flex items-center justify-between">
@@ -798,7 +943,7 @@ export default function AdminPanel() {
               <button 
                 type="button"
                 onClick={() => navigate('/')}
-                className="p-1.5 px-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-[#D6B46A] border border-white/10 rounded transition-all cursor-pointer"
+                className="p-1.5 px-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-[#D6B46A] border border-white/10 rounded transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
                 title="Return to Public Website"
               >
                 <Home className="w-3.5 h-3.5" />
@@ -822,18 +967,30 @@ export default function AdminPanel() {
             <nav className="p-4 py-4 space-y-1.5">
               {menuOptions.map(opt => {
                 const Icon = opt.icon;
+                const count = opt.id === 'leads' ? unreadLeadsCount : opt.id === 'careers' ? unreadApplicantsCount : 0;
                 return (
                   <button
                     key={opt.id}
                     onClick={() => setActiveTab(opt.id)}
-                    className={`w-full py-3 px-4 rounded-xl flex items-center gap-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 relative cursor-pointer ${
+                    className={`w-full py-3 px-4 rounded-xl flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all duration-300 relative cursor-pointer ${
                       activeTab === opt.id 
                         ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black' 
                         : 'text-white/65 hover:text-[#FFFDF8] hover:bg-white/5'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{opt.label}</span>
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4" />
+                      <span>{opt.label}</span>
+                    </div>
+                    {count > 0 && (
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black ${
+                        activeTab === opt.id
+                          ? 'bg-[#111111] text-[#D6B46A]'
+                          : 'bg-[#D6B46A] text-[#111111]'
+                      }`}>
+                        {count}
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -863,7 +1020,7 @@ export default function AdminPanel() {
         </aside>
 
         {/* 2. Primary Workspace Body */}
-        <main className="flex-1 min-w-0 bg-[#FFFDF8] p-6 lg:p-10 md:h-full md:overflow-y-auto custom-scrollbar">
+        <main className="flex-1 min-w-0 bg-[#FFFDF8] p-4 sm:p-6 lg:p-10 w-full overflow-y-auto custom-scrollbar">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

@@ -61,6 +61,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     { label: 'Home', id: 'home', path: '/' },
     { label: 'About', id: 'about', path: '/about' },
     { label: 'Services', id: 'services', path: '/services' },
+    { label: 'AI Tools', id: 'tools', path: '/tools', badge: 'Free' },
     { label: 'Portfolio', id: 'portfolio', path: '/projects' },
     { label: 'Pricing', id: 'pricing', path: '/pricing' },
     { label: 'SamaXon Edge', id: 'edge', path: '/edge' },
@@ -135,7 +136,14 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                         transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                       />
                     )}
-                    <span className="relative z-10">{item.label}</span>
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      {item.label}
+                      {item.badge && (
+                        <span className="px-1.5 py-0.5 bg-[#D6B46A]/25 text-[#BFA15A] text-[8px] font-mono uppercase font-bold rounded">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
                   </>
                 )}
               </NavLink>
@@ -216,14 +224,19 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                       end={item.path === '/'}
                       onClick={() => setIsOpen(false)}
                       className={({ isActive }) =>
-                        `w-full text-left px-5 py-3.5 rounded-xl uppercase tracking-wider text-xs font-semibold transition-all inline-block ${
+                        `w-full text-left px-5 py-3.5 rounded-xl uppercase tracking-wider text-xs font-semibold transition-all flex items-center justify-between ${
                           isActive
                             ? 'bg-gradient-to-r from-champagne-gold/15 to-champagne-gold/5 border border-champagne-gold/30 text-matte-black font-bold'
                             : 'text-warm-grey hover:bg-champagne-gold/5 hover:text-matte-black'
                         }`
                       }
                     >
-                      {item.label}
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#BFA15A] text-[9px] font-mono uppercase font-bold rounded">
+                          {item.badge}
+                        </span>
+                      )}
                     </NavLink>
                   ))}
                 </div>

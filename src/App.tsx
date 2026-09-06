@@ -24,6 +24,8 @@ import CaseStudies from './pages/CaseStudies';
 import CaseStudyDetail from './pages/CaseStudyDetail';
 import Pricing from './pages/Pricing';
 import SelectDirection from './pages/SelectDirection';
+import Tools from './pages/Tools';
+import ServiceRequest from './pages/ServiceRequest';
 import { analytics } from './utils/analytics';
 
 function ScrollToTop() {
@@ -216,6 +218,15 @@ function MainAppContent() {
               <Route path="/case-studies" element={<CaseStudies />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/select-direction" element={<SelectDirection />} />
+              
+              {/* Creator & Business Tools Suite */}
+              <Route path="/tools" element={<Tools />} />
+              <Route path="/tools/compressor" element={<Tools />} />
+              <Route path="/tools/resizer" element={<Tools />} />
+
+              {/* Dedicated Service Experience & Request Portal */}
+              <Route path="/service-request" element={<ServiceRequest />} />
+              <Route path="/service-portal" element={<ServiceRequest />} />
               
               {/* Case Study Detail Page */}
               <Route path="/case-study/:id" element={<CaseStudyDetail />} />

@@ -14,6 +14,7 @@ export interface SiteConfig {
   contactEmail: string;
   careersEmail: string;
   founderEmail: string;
+  notificationForwarderEmail?: string;
   phoneWhatsapp: string;
   phoneWhatsappRaw: string;
   address: {
@@ -53,8 +54,9 @@ export const SITE_CONFIG: SiteConfig = {
   contactEmail: 'contact@samaxon.site',
   careersEmail: 'careers@samaxon.site',
   founderEmail: 'founder@samaxon.site',
-  phoneWhatsapp: '+91 98188 54321',
-  phoneWhatsappRaw: '919818854321',
+  notificationForwarderEmail: 'samaxon6277@gmail.com',
+  phoneWhatsapp: '+91 8076874034',
+  phoneWhatsappRaw: '918076874034',
   address: {
     street: 'SamaXon Elite Studio Hub, Sector 62',
     locality: 'Sector 62',

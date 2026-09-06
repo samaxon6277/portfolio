@@ -52,6 +52,8 @@ export default function SystemSettingsTab({
   };
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [searchAudit, setSearchAudit] = useState('');
+  const [auditEventFilter, setAuditEventFilter] = useState<'ALL' | 'LOGIN' | 'UPDATE' | 'LEAD' | 'PAGE_VIEW' | 'SETTINGS' | 'BOT'>('ALL');
+  const [auditCurrentPage, setAuditCurrentPage] = useState(1);
 
   // Real-time custom states for Webhook Delivery systems & Bot tracking
   const [expandedWebhooks, setExpandedWebhooks] = useState<Record<string, boolean>>({});
@@ -220,12 +222,29 @@ export default function SystemSettingsTab({
   };
 
   // Filtering activity logs
-  const filteredAudits = activityLogs.filter(log => 
-    log.adminUserName.toLowerCase().includes(searchAudit.toLowerCase()) ||
-    log.description.toLowerCase().includes(searchAudit.toLowerCase()) ||
-    log.actionType.toLowerCase().includes(searchAudit.toLowerCase()) ||
-    log.entityType.toLowerCase().includes(searchAudit.toLowerCase())
-  );
+  const filteredAudits = activityLogs.filter(log => {
+    const matchesKeyword = 
+      log.adminUserName.toLowerCase().includes(searchAudit.toLowerCase()) ||
+      log.description.toLowerCase().includes(searchAudit.toLowerCase()) ||
+      log.actionType.toLowerCase().includes(searchAudit.toLowerCase()) ||
+      log.entityType.toLowerCase().includes(searchAudit.toLowerCase());
+
+    if (!matchesKeyword) return false;
+
+    if (auditEventFilter === 'ALL') return true;
+    const action = (log.actionType || '').toUpperCase();
+    if (auditEventFilter === 'LOGIN') return action.includes('LOGIN') || action.includes('AUTH') || action.includes('SESSION');
+    if (auditEventFilter === 'UPDATE') return action.includes('UPDATE') || action.includes('EDIT') || action.includes('MODIFY') || action.includes('SERVICE') || action.includes('PORTFOLIO');
+    if (auditEventFilter === 'LEAD') return action.includes('LEAD') || action.includes('APPLICANT') || action.includes('CAREER') || action.includes('SHORTLIST');
+    if (auditEventFilter === 'PAGE_VIEW') return action.includes('PAGE_VIEW') || action.includes('VIEW') || action.includes('VISIT');
+    if (auditEventFilter === 'SETTINGS') return action.includes('SETTING') || action.includes('CONFIG') || action.includes('BRAND');
+    if (auditEventFilter === 'BOT') return action.includes('BOT') || action.includes('CRAWL') || action.includes('SECURITY');
+    return true;
+  });
+
+  const AUDIT_PAGE_SIZE = 12;
+  const auditTotalPages = Math.max(1, Math.ceil(filteredAudits.length / AUDIT_PAGE_SIZE));
+  const paginatedAudits = filteredAudits.slice((auditCurrentPage - 1) * AUDIT_PAGE_SIZE, auditCurrentPage * AUDIT_PAGE_SIZE);
 
   return (
     <div className="space-y-6" id="system-settings-manager">
@@ -238,31 +257,33 @@ export default function SystemSettingsTab({
         </div>
 
         {/* System Subtab Navigator */}
-        <div className="flex flex-wrap bg-[#FFFDF8] border border-[#D6B46A]/20 p-1 rounded-xl text-[10px] font-mono font-bold tracking-widest uppercase" id="system-sub-navigator">
-             {[
-            { id: 'media', label: 'Media Library', icon: Image },
-            { id: 'analytics', label: 'Full Analytics', icon: BarChart2 },
-            { id: 'botlogs', label: 'Webhooks & Bot logs', icon: ShieldAlert },
-            { id: 'team', label: 'Team Roles', icon: Users },
-            { id: 'brand', label: 'SEO Settings', icon: Radio },
-            { id: 'audit', label: 'Activity Audit', icon: History }
-          ].map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => changeSubTab(tab.id as any)}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                  subTab === tab.id 
-                    ? 'bg-[#111111] text-white' 
-                    : 'text-[#8A8178] hover:text-[#111111]'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        <div className="relative max-w-full overflow-x-auto scrollbar-none py-1">
+          <div className="flex flex-nowrap items-center bg-[#FFFDF8] border border-[#D6B46A]/20 p-1 rounded-xl text-[10px] font-mono font-bold tracking-widest uppercase gap-1 whitespace-nowrap shadow-sm" id="system-sub-navigator">
+            {[
+              { id: 'media', label: 'Media Library', icon: Image },
+              { id: 'analytics', label: 'Full Analytics', icon: BarChart2 },
+              { id: 'botlogs', label: 'Webhooks & Bot logs', icon: ShieldAlert },
+              { id: 'team', label: 'Team Roles', icon: Users },
+              { id: 'brand', label: 'SEO Settings', icon: Radio },
+              { id: 'audit', label: 'Activity Audit', icon: History }
+            ].map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => changeSubTab(tab.id as any)}
+                  className={`px-3 py-1.5 rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                    subTab === tab.id 
+                      ? 'bg-[#111111] text-white shadow-sm' 
+                      : 'text-[#8A8178] hover:text-[#111111] hover:bg-[#F4EFE6]/50'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -1005,56 +1026,120 @@ export default function SystemSettingsTab({
       {/* --- AUDIT TIMELINE EVENT LOG MATRIX --- */}
       {subTab === 'audit' && (
         <div className="space-y-4 text-left" id="subtab-audit-view">
-          <div className="bg-white border border-[#D6B46A]/15 rounded-3xl p-5 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white border border-[#D6B46A]/15 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#D6B46A]/10 pb-4">
               <div>
                 <h4 className="font-display font-black text-sm text-[#111111] uppercase tracking-wider">Chronological Audit Operations Index</h4>
-                <p className="text-xs text-[#8A8178] mt-0.5">Search and view verified changes compiled inside master frameworks</p>
+                <p className="text-xs text-[#8A8178] mt-0.5">Verified changes compiled inside master terminal frameworks</p>
               </div>
-              <div className="relative">
+              <div className="flex items-center gap-2.5">
                 <input 
                   type="text" 
                   placeholder="Filter by keyword..."
                   value={searchAudit}
-                  onChange={e => setSearchAudit(e.target.value)}
-                  className="px-3.5 py-1.5 bg-[#FFFDF8] border border-[#D6B46A]/20 focus:border-[#D6B46A] rounded-xl text-xs outline-none w-52" 
+                  onChange={e => {
+                    setSearchAudit(e.target.value);
+                    setAuditCurrentPage(1);
+                  }}
+                  className="px-3.5 py-2 bg-[#FFFDF8] border border-[#D6B46A]/20 focus:border-[#D6B46A] rounded-xl text-xs outline-none w-full sm:w-60 transition-all shadow-inner" 
                 />
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs whitespace-nowrap">
-                <thead>
-                  <tr className="border-b border-[#D6B46A]/12 text-[#8A8178] font-mono text-[9px] uppercase tracking-wider">
-                    <th className="py-2.5 px-4 animate-pulse">Session Executor</th>
-                    <th className="py-2.5 px-4">Command Action Event</th>
-                    <th className="py-2.5 px-4">Affected entity</th>
-                    <th className="py-2.5 px-4 text-right">Absolute Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAudits.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="text-center py-6 text-[#8A8178] italic">No logs match query keyword.</td>
+            {/* Event Category Filter Rail */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 text-[10px] font-mono font-bold uppercase tracking-wider">
+              {[
+                { id: 'ALL', label: 'All Events' },
+                { id: 'LOGIN', label: 'Sessions & Auth' },
+                { id: 'UPDATE', label: 'Content Updates' },
+                { id: 'LEAD', label: 'Leads & Careers' },
+                { id: 'PAGE_VIEW', label: 'Page Traffic' },
+                { id: 'SETTINGS', label: 'Brand & Config' },
+                { id: 'BOT', label: 'Bot & Security' }
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setAuditEventFilter(cat.id as any);
+                    setAuditCurrentPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg shrink-0 transition-all cursor-pointer ${
+                    auditEventFilter === cat.id
+                      ? 'bg-[#111111] text-white shadow'
+                      : 'bg-[#FFFDF8] text-[#8A8178] border border-[#D6B46A]/15 hover:text-[#111111] hover:border-[#D6B46A]/40'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Scroll-contained Table: max-h-[420px] overflow-y-auto */}
+            <div className="border border-[#D6B46A]/15 rounded-2xl overflow-hidden bg-[#FFFDF8]/30">
+              <div className="max-h-[420px] overflow-y-auto overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left text-xs whitespace-nowrap min-w-[600px]">
+                  <thead className="sticky top-0 bg-[#FFFDF8] border-b border-[#D6B46A]/15 z-10 shadow-xs">
+                    <tr className="text-[#8A8178] font-mono text-[9px] uppercase tracking-wider">
+                      <th className="py-2.5 px-4 animate-pulse">Session Executor</th>
+                      <th className="py-2.5 px-4">Command Action Event</th>
+                      <th className="py-2.5 px-4">Affected entity</th>
+                      <th className="py-2.5 px-4 text-right">Absolute Timestamp</th>
                     </tr>
-                  ) : (
-                    filteredAudits.map(log => (
-                      <tr key={log.id} className="border-b border-neutral-100 hover:bg-[#FFFDF8]/30 transition-colors">
-                        <td className="py-3 px-4 font-bold text-[#111111]">{log.adminUserName}</td>
-                        <td className="py-3 px-4 text-[#111111]/80 pr-12">{log.description}</td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 bg-[#FFFDF8] border border-[#D6B46A]/20 text-[#BFA15A] text-[9px] font-mono uppercase font-black rounded">
-                            {log.entityType}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 font-mono text-[#8A8178] text-right">
-                          {new Date(log.createdAt).toLocaleString()}
+                  </thead>
+                  <tbody>
+                    {paginatedAudits.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="text-center py-12 text-[#8A8178] italic">
+                          No audit records match the current filter or query keyword.
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      paginatedAudits.map(log => (
+                        <tr key={log.id} className="border-b border-neutral-100 hover:bg-[#FFFDF8] transition-colors">
+                          <td className="py-3 px-4 font-bold text-[#111111]">{log.adminUserName}</td>
+                          <td className="py-3 px-4 text-[#111111]/80 max-w-xs truncate pr-6">{log.description}</td>
+                          <td className="py-3 px-4">
+                            <span className="px-2 py-0.5 bg-[#FFFDF8] border border-[#D6B46A]/20 text-[#BFA15A] text-[9px] font-mono uppercase font-black rounded">
+                              {log.entityType}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-[#8A8178] text-right">
+                            {new Date(log.createdAt).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Pagination Controls Footer */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs font-mono text-[#8A8178]">
+              <div>
+                Showing <span className="font-bold text-[#111111]">{paginatedAudits.length}</span> of{' '}
+                <span className="font-bold text-[#111111]">{filteredAudits.length}</span> total verified logs
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <button
+                  onClick={() => setAuditCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={auditCurrentPage <= 1}
+                  className="px-3 py-1.5 rounded-lg border border-[#D6B46A]/20 bg-[#FFFDF8] text-[#111111] text-[10px] font-bold uppercase tracking-wider hover:border-[#D6B46A] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                >
+                  Previous
+                </button>
+                <span className="px-2 text-[11px] font-bold text-[#111111]">
+                  Page {auditCurrentPage} of {auditTotalPages}
+                </span>
+                <button
+                  onClick={() => setAuditCurrentPage(p => Math.min(auditTotalPages, p + 1))}
+                  disabled={auditCurrentPage >= auditTotalPages}
+                  className="px-3 py-1.5 rounded-lg border border-[#D6B46A]/20 bg-[#FFFDF8] text-[#111111] text-[10px] font-bold uppercase tracking-wider hover:border-[#D6B46A] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </div>

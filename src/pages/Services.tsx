@@ -13,9 +13,8 @@ export default function Services({ setCurrentPage }: ServicesProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const handleAction = (serviceId: string) => {
-    // Keep it integrated, route directly to contact or pre-fill query
-    navigate('/contact');
-    window.scrollTo({ top: 0, behavior: 'instant' as any });
+    navigate(`/service-request?service=${serviceId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const filteredServices = selectedCategory === 'all'
@@ -46,6 +45,30 @@ export default function Services({ setCurrentPage }: ServicesProps) {
           <p className="text-base text-warm-grey leading-relaxed mt-2 max-w-2xl">
             SamaXon executes your digital infrastructure under unified senior direction. No mismatched freelancers. No slow agency chains. Web development, app deployment, custom branding, bots, and automations delivered elegantly.
           </p>
+
+          {/* Quick AI Tools Highlight Banner */}
+          <div className="w-full bg-[#111111] text-soft-ivory p-4 sm:p-5 rounded-2xl border border-[#D6B46A]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#D6B46A]/15 text-[#D6B46A] flex items-center justify-center font-bold">
+                ✦
+              </div>
+              <div className="text-left">
+                <span className="text-[10px] font-mono text-[#D6B46A] uppercase font-bold tracking-wider block">
+                  Free Digital Creator Tools Live
+                </span>
+                <p className="text-xs text-warm-grey">
+                  Compress photos up to 95% and resize images to official Visa/Passport 300 DPI standards for free.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate('/tools')}
+              className="px-4 py-2 bg-[#D6B46A] hover:bg-white text-black font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shrink-0"
+            >
+              Open AI Tools Hub →
+            </button>
+          </div>
         </div>
 
         {/* --- CATEGORY FILTERS --- */}
@@ -153,11 +176,11 @@ export default function Services({ setCurrentPage }: ServicesProps) {
                     onClick={() => handleAction(service.id)}
                     className="w-full py-3.5 bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold uppercase tracking-[0.12em] text-[10px] rounded-xl border border-champagne-gold/30 shadow-[0_4px_14px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_22px_rgba(0,0,0,0.28)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer"
                   >
-                    {service.ctaText}
-                    <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+                    <span>Launch Service Sandbox & Request</span>
+                    <ArrowRight className="w-3.5 h-3.5 ml-0.5 text-[#D6B46A]" />
                   </button>
-                  <p className="text-[9px] text-warm-grey text-center mt-3 uppercase tracking-widest font-mono">
-                    Demo-First approach · Build begins in 24 hours
+                  <p className="text-[9px] text-[#BFA15A] text-center mt-2 uppercase tracking-widest font-mono font-bold">
+                    ✦ Test Drive In Live Sandbox · 48H Staging Guarantee
                   </p>
                 </div>
               </div>

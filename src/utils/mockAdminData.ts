@@ -711,7 +711,7 @@ const defaultWebsiteSettings: WebsiteSettings = {
   supportEmail: 'support@samaxon.site',
   founderEmail: 'founder@samaxon.site',
   careersEmail: 'careers@samaxon.site',
-  phoneWhatsapp: '+91 98188 54321',
+  phoneWhatsapp: '+91 8076874034',
   telegramLink: 'https://t.me/samaxon_studio',
   linkedinLink: 'https://linkedin.com/company/samaxon',
   instagramLink: 'https://instagram.com/samaxon_studio',

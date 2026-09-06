@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Home, ExternalLink, Bell, RefreshCw, LogOut, CheckCircle2, 
   AlertTriangle, Shield, Bot, FileSpreadsheet, Briefcase, Activity, 
-  Sparkles, X
+  Sparkles, X, Menu
 } from 'lucide-react';
 import { Lead, JobApplication } from '../../types';
 
@@ -22,6 +22,8 @@ interface AdminHeaderProps {
   onLogout: () => void;
   onNavigateTab: (tabId: string) => void;
   onSearchChange?: (query: string) => void;
+  activeTab?: string;
+  onOpenMobileDrawer?: () => void;
 }
 
 export default function AdminHeader({
@@ -32,7 +34,9 @@ export default function AdminHeader({
   maintenanceMode = false,
   onRefreshDatabase,
   onLogout,
-  onNavigateTab
+  onNavigateTab,
+  activeTab = 'dashboard',
+  onOpenMobileDrawer
 }: AdminHeaderProps) {
   const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -172,12 +176,31 @@ export default function AdminHeader({
     ? currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     : 'EX';
 
+  const tabLabels: Record<string, string> = {
+    dashboard: 'Overview',
+    leads: 'Client Inquiries',
+    careers: 'Applications',
+    content: 'Content Board',
+    system: 'Systems Hub',
+  };
+  const activeTabLabel = tabLabels[activeTab || 'dashboard'] || 'Overview';
+
   return (
-    <header className="w-full bg-[#111111] text-white border-b border-[#D6B46A]/20 px-4 sm:px-6 py-3 shrink-0 relative z-30 shadow-md">
-      <div className="flex items-center justify-between gap-3">
+    <header className="w-full bg-[#111111] text-white border-b border-[#D6B46A]/20 px-3 sm:px-6 py-2.5 sm:py-3 shrink-0 relative z-30 shadow-md">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
         
         {/* Left: Studio Identity & Live Operational Status */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Mobile Hamburger Drawer Trigger (viewports < 1024px) */}
+          <button
+            type="button"
+            onClick={onOpenMobileDrawer}
+            className="p-2 -ml-1 text-white/90 hover:text-[#D6B46A] hover:bg-white/10 rounded-xl transition-all cursor-pointer lg:hidden flex items-center justify-center min-w-[44px] min-h-[44px]"
+            aria-label="Open Mobile Navigation Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#D6B46A] text-[#111111] font-display font-black text-sm flex items-center justify-center shrink-0 shadow">
               S
@@ -197,10 +220,17 @@ export default function AdminHeader({
             </div>
           </div>
 
+          {/* Active Breadcrumb on Mobile (< 1024px) */}
+          <div className="flex items-center gap-1.5 lg:hidden pl-2 border-l border-white/15">
+            <span className="text-[10px] font-mono font-black text-[#D6B46A] uppercase tracking-widest truncate max-w-[130px]">
+              {activeTabLabel}
+            </span>
+          </div>
+
           <div className="h-6 w-px bg-white/10 hidden md:block" />
 
           {/* Node Health Beacon */}
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+          <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
             <span className={`w-2 h-2 rounded-full shrink-0 ${
               maintenanceMode 
                 ? 'bg-amber-400 animate-ping' 
@@ -218,24 +248,24 @@ export default function AdminHeader({
         </div>
 
         {/* Right: Actions, Notifications, User Profile */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           
-          {/* Action 1: Return to Public Site (Fixed Home Icon) */}
+          {/* Action 1: Return to Public Site (Desktop / Tablet) */}
           <button
             onClick={() => navigate('/')}
-            className="p-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-[#D6B46A] border border-white/10 hover:border-[#D6B46A]/40 rounded-xl transition-all cursor-pointer flex items-center justify-center"
+            className="hidden sm:flex p-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-[#D6B46A] border border-white/10 hover:border-[#D6B46A]/40 rounded-xl transition-all cursor-pointer items-center justify-center min-w-[40px] min-h-[40px]"
             title="Return to Public Website (Home)"
             aria-label="Return to Public Website"
           >
             <Home className="w-4 h-4" />
           </button>
 
-          {/* Action 2: View Live Website Button (Prominent) */}
+          {/* Action 2: View Live Website Button (Prominent on lg+) */}
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-[#FFFDF8] text-[#111111] hover:bg-[#D6B46A] text-[11px] font-bold uppercase tracking-wider rounded-xl transition-all shadow cursor-pointer flex items-center gap-1.5"
+            className="hidden lg:flex px-3 py-1.5 bg-[#FFFDF8] text-[#111111] hover:bg-[#D6B46A] text-[11px] font-bold uppercase tracking-wider rounded-xl transition-all shadow cursor-pointer items-center gap-1.5 min-h-[36px]"
             title="Open Live Public Website in New Tab"
           >
             <span>View Live Website</span>
@@ -246,24 +276,24 @@ export default function AdminHeader({
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-[#D6B46A] border border-white/10 rounded-xl transition-all cursor-pointer flex items-center justify-center disabled:opacity-50"
+            className="hidden sm:flex p-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-[#D6B46A] border border-white/10 rounded-xl transition-all cursor-pointer items-center justify-center disabled:opacity-50 min-w-[40px] min-h-[40px]"
             title="Sync Database Records Now"
             aria-label="Refresh Database"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#D6B46A]' : ''}`} />
           </button>
 
-          {/* Action 4: Notification Center Popover */}
+          {/* Action 4: Notification Center Popover (Always accessible) */}
           <div className="relative">
             <button
               onClick={() => setShowNotifications(prev => !prev)}
-              className="p-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-[#D6B46A] border border-white/10 rounded-xl transition-all cursor-pointer relative flex items-center justify-center"
+              className="p-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-[#D6B46A] border border-white/10 rounded-xl transition-all cursor-pointer relative flex items-center justify-center min-w-[44px] min-h-[44px]"
               title="Notification Center"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-mono font-bold flex items-center justify-center animate-pulse">
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-mono font-bold flex items-center justify-center animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -356,14 +386,14 @@ export default function AdminHeader({
             )}
           </div>
 
-          <div className="h-6 w-px bg-white/10 hidden sm:block" />
+          <div className="h-6 w-px bg-white/10 hidden lg:block" />
 
-          {/* User Session Chip & Logout */}
-          <div className="flex items-center gap-2">
+          {/* User Session Chip & Logout (Visible on lg+; on mobile it resides in the slide-out drawer) */}
+          <div className="hidden lg:flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#D6B46A]/20 border border-[#D6B46A]/40 flex items-center justify-center font-display text-[#D6B46A] font-black text-xs shrink-0">
               {initials}
             </div>
-            <div className="hidden md:flex flex-col text-left max-w-[120px]">
+            <div className="flex flex-col text-left max-w-[120px]">
               <span className="text-xs font-bold text-white truncate leading-tight">
                 {currentUser?.full_name || 'Admin'}
               </span>
@@ -373,7 +403,7 @@ export default function AdminHeader({
             </div>
             <button
               onClick={onLogout}
-              className="p-2 bg-white/5 hover:bg-rose-500/10 text-white/70 hover:text-rose-400 border border-white/10 rounded-xl transition-all cursor-pointer"
+              className="p-2 bg-white/5 hover:bg-rose-500/10 text-white/70 hover:text-rose-400 border border-white/10 rounded-xl transition-all cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center"
               title="Disconnect Terminal Session"
               aria-label="Log Out"
             >

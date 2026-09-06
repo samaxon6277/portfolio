@@ -210,6 +210,19 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               Bespoke Pricing Plans
             </Link>
             <Link 
+              to="/tools" 
+              className="text-left text-xs text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-bold"
+            >
+              <span>AI Tools Suite</span>
+              <span className="px-1.5 py-0.2 bg-[#D6B46A]/20 text-[#D6B46A] text-[8px] font-mono rounded">Free</span>
+            </Link>
+            <Link 
+              to="/service-request" 
+              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+            >
+              Interactive Service Portal
+            </Link>
+            <Link 
               to="/careers" 
               className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
             >
