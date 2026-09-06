@@ -13,6 +13,7 @@ export interface SiteConfig {
   supportEmail: string;
   contactEmail: string;
   careersEmail: string;
+  founderEmail: string;
   phoneWhatsapp: string;
   phoneWhatsappRaw: string;
   address: {
@@ -51,6 +52,7 @@ export const SITE_CONFIG: SiteConfig = {
   supportEmail: 'support@samaxon.site',
   contactEmail: 'contact@samaxon.site',
   careersEmail: 'careers@samaxon.site',
+  founderEmail: 'founder@samaxon.site',
   phoneWhatsapp: '+91 98188 54321',
   phoneWhatsappRaw: '919818854321',
   address: {
@@ -209,3 +211,22 @@ export function generateStudioSchemas(canonicalPath: string = '/') {
     },
   ];
 }
+
+/**
+ * Single source of truth for company communications.
+ * Respects admin websiteSettings overrides when available.
+ */
+export function getCompanyEmails(overrides?: {
+  supportEmail?: string;
+  contactEmail?: string;
+  careersEmail?: string;
+  founderEmail?: string;
+}) {
+  return {
+    support: overrides?.supportEmail || SITE_CONFIG.supportEmail,
+    contact: overrides?.contactEmail || SITE_CONFIG.contactEmail,
+    careers: overrides?.careersEmail || SITE_CONFIG.careersEmail,
+    founder: overrides?.founderEmail || SITE_CONFIG.founderEmail,
+  };
+}
+

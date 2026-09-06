@@ -450,7 +450,7 @@ ${formData.name}`;
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          placeholder="e.g. build@samaxon.pro"
+                          placeholder="e.g. contact@yourcompany.com"
                           className={`w-full px-4 py-3 bg-[#FFFDF8] border rounded-xl text-xs focus:outline-none transition-colors ${
                             errors.email ? 'border-red-500 focus:border-red-500' : 'border-neutral-200 focus:border-[#D6B46A]'
                           }`}

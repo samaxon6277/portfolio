@@ -64,6 +64,9 @@ export interface WebsiteSettings {
   logoUrl: string;
   faviconUrl: string;
   contactEmail: string;
+  supportEmail?: string;
+  founderEmail?: string;
+  careersEmail?: string;
   phoneWhatsapp: string;
   telegramLink: string;
   linkedinLink: string;
@@ -705,6 +708,9 @@ const defaultWebsiteSettings: WebsiteSettings = {
   logoUrl: 'S',
   faviconUrl: '/favicon.ico',
   contactEmail: 'contact@samaxon.site',
+  supportEmail: 'support@samaxon.site',
+  founderEmail: 'founder@samaxon.site',
+  careersEmail: 'careers@samaxon.site',
   phoneWhatsapp: '+91 98188 54321',
   telegramLink: 'https://t.me/samaxon_studio',
   linkedinLink: 'https://linkedin.com/company/samaxon',

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, Filter, FileSpreadsheet, Eye, Trash2, Check, Clock, AlertTriangle, 
-  User, CheckCircle, XSquare, PlusSquare, ArrowLeft, MessageSquare, Tag, Bookmark
+  User, CheckCircle, XSquare, PlusSquare, ArrowLeft, MessageSquare, Tag, Bookmark,
+  Mail, Phone, ExternalLink, Download, Code2
 } from 'lucide-react';
 import { Lead } from '../../types';
 import CustomSelect from '../../components/CustomSelect';
@@ -26,6 +27,26 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
   const getLeadPriority = (lead: any) => lead.priority || 'medium';
   const getLeadNotes = (lead: any) => lead.internalNotes || '';
   const getLeadAssigned = (lead: any) => lead.assignedTo || 'Unassigned';
+
+  // Metrics for quick stage filtering
+  const totalCount = leads.length;
+  const newCount = leads.filter(l => l.status === 'new').length;
+  const contactedCount = leads.filter(l => l.status === 'contacted').length;
+  const negotiatingCount = leads.filter(l => l.status === 'negotiating').length;
+  const wonCount = leads.filter(l => l.status === 'won').length;
+  const lostCount = leads.filter(l => l.status === 'lost').length;
+
+  const getWhatsAppLink = (phone: string, clientName: string) => {
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const message = encodeURIComponent(`Hello ${clientName}, this is the SamaXon Digital Solutions executive team following up on your project inquiry.`);
+    return `https://wa.me/${cleanPhone}?text=${message}`;
+  };
+
+  const getEmailLink = (email: string, clientName: string) => {
+    const subject = encodeURIComponent(`Regarding your SamaXon Sprint Inquiry`);
+    const body = encodeURIComponent(`Hi ${clientName},\n\nThank you for reaching out to SamaXon Digital Solutions regarding your digital build sprint. We would love to discuss your requirements in detail.\n\nBest regards,\nSamaXon Client Diagnostics Team`);
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
 
   // Available filters
   const servicesList = ['All', 'Web Development', 'App Development', 'Logo and Identity Design', '8K Graphic Designing', 'Advanced Automations', 'Custom Telegram Bots', 'Admin Dashboard Systems', 'Performance and SEO Optimization'];
@@ -84,6 +105,18 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    showToast('Leads exported as CSV', 'success');
+  };
+
+  const handleExportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredLeads, null, 2));
+    const link = document.createElement("a");
+    link.setAttribute("href", dataStr);
+    link.setAttribute("download", `samaxon_leads_export_${Date.now()}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Leads exported as JSON', 'success');
   };
 
   // Quick Action: update status directly in UI
@@ -146,13 +179,56 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
           <span className="text-[10px] font-mono uppercase text-[#BFA15A] tracking-widest font-bold">Client Inquiry Funnel</span>
           <h2 className="font-display text-2xl font-black text-[#111111] tracking-tight mt-0.5">Leads Management Suite</h2>
         </div>
-        <button
-          onClick={handleExportCSV}
-          className="px-4 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          Export Safe CSV
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleExportCSV}
+            className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            title="Export filtered records as CSV"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export CSV
+          </button>
+          <button
+            onClick={handleExportJSON}
+            className="px-4 py-2 bg-[#111111] text-[#D6B46A] hover:bg-[#1a1a1a] border border-[#D6B46A]/30 text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            title="Export filtered records as JSON"
+          >
+            <Code2 className="w-4 h-4" />
+            Export JSON
+          </button>
+        </div>
+      </div>
+
+      {/* Pipeline Stage Quick Switcher Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+        {[
+          { id: 'All', label: 'All Inquiries', count: totalCount, color: 'border-[#D6B46A]/30 text-[#111111]' },
+          { id: 'new', label: 'New', count: newCount, color: 'border-blue-300 text-blue-800' },
+          { id: 'contacted', label: 'Contacted', count: contactedCount, color: 'border-amber-300 text-amber-800' },
+          { id: 'negotiating', label: 'Qualified / Demo', count: negotiatingCount, color: 'border-[#D6B46A] text-[#BFA15A]' },
+          { id: 'won', label: 'Won / Deals', count: wonCount, color: 'border-emerald-300 text-emerald-800' },
+          { id: 'lost', label: 'Lost / Closed', count: lostCount, color: 'border-rose-300 text-rose-800' },
+        ].map(stage => {
+          const isActive = selectedStatus === stage.id;
+          return (
+            <button
+              key={stage.id}
+              onClick={() => setSelectedStatus(stage.id)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
+                isActive 
+                  ? 'bg-[#111111] text-[#D6B46A] border-[#111111] shadow-sm' 
+                  : `bg-white hover:bg-neutral-50 ${stage.color}`
+              }`}
+            >
+              <span>{stage.label}</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                isActive ? 'bg-[#D6B46A] text-[#111111] font-black' : 'bg-neutral-100 text-neutral-700'
+              }`}>
+                {stage.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters panels & Search bar */}
@@ -218,7 +294,7 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
               setSelectedStatus('All');
               setSelectedPriority('All');
             }} 
-            className="text-[#BFA15A] hover:text-[#111111] transition-colors uppercase tracking-wider"
+            className="text-[#BFA15A] hover:text-[#111111] transition-colors uppercase tracking-wider cursor-pointer"
           >
             Clear Filters
           </button>
@@ -276,10 +352,34 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <div className="flex items-center justify-end gap-2.5">
+                        <div className="flex items-center justify-end gap-2">
+                          {/* WhatsApp Quick Launcher */}
+                          {lead.phone && (
+                            <a
+                              href={getWhatsAppLink(lead.phone, lead.name)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg transition-all"
+                              title="Chat on WhatsApp"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+
+                          {/* Email Quick Launcher */}
+                          {lead.email && (
+                            <a
+                              href={getEmailLink(lead.email, lead.name)}
+                              className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all"
+                              title="Send Client Email"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+
                           <button
                             onClick={() => setEditingLead({ ...lead })}
-                            className="p-1.5 bg-[#FFFDF8] hover:bg-[#F8F4EE] border border-[#D6B46A]/20 hover:border-[#D6B46A] text-[#BFA15A] hover:text-[#111111] rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
+                            className="p-1.5 px-2.5 bg-[#FFFDF8] hover:bg-[#F8F4EE] border border-[#D6B46A]/20 hover:border-[#D6B46A] text-[#BFA15A] hover:text-[#111111] rounded-lg transition-all cursor-pointer inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             Command Drawer
@@ -296,10 +396,10 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
                                 }
                               });
                             }}
-                            className="p-1.5 bg-[#FFFDF8] hover:bg-rose-50 border border-gray-100 hover:border-rose-200 text-[#8A8178] hover:text-rose-600 rounded-lg transition-all cursor-pointer"
+                            className="p-2 bg-[#FFFDF8] hover:bg-rose-50 border border-gray-100 hover:border-rose-200 text-[#8A8178] hover:text-rose-600 rounded-lg transition-all cursor-pointer"
                             title="Delete Lead"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>
@@ -364,18 +464,44 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
                 <div className="p-6 space-y-6">
                   
                   {/* Contact channels fields */}
-                  <div className="bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-2xl p-4 grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-[#8A8178] block">Primary Email</span>
-                      <a href={`mailto:${editingLead.email}`} className="text-xs font-semibold text-[#111111] hover:underline break-all block mt-0.5">
-                        {editingLead.email}
-                      </a>
+                  <div className="bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-2xl p-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-[#8A8178] block">Primary Email</span>
+                        <a href={getEmailLink(editingLead.email, editingLead.name)} className="text-xs font-semibold text-[#111111] hover:underline break-all block mt-0.5">
+                          {editingLead.email}
+                        </a>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-[#8A8178] block">WhatsApp / Phone</span>
+                        <a href={getWhatsAppLink(editingLead.phone, editingLead.name)} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-[#D6B46A] hover:underline block mt-0.5">
+                          {editingLead.phone}
+                        </a>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-[#8A8178] block">WhatsApp / Phone</span>
-                      <a href={`tel:${editingLead.phone}`} className="text-xs font-semibold text-[#D6B46A] hover:underline block mt-0.5">
-                        {editingLead.phone}
-                      </a>
+
+                    {/* Direct Contact Buttons */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#D6B46A]/10">
+                      {editingLead.phone && (
+                        <a
+                          href={getWhatsAppLink(editingLead.phone, editingLead.name)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          Chat on WhatsApp
+                        </a>
+                      )}
+                      {editingLead.email && (
+                        <a
+                          href={getEmailLink(editingLead.email, editingLead.name)}
+                          className="py-2 px-3 bg-[#111111] hover:bg-[#262626] text-[#D6B46A] border border-[#D6B46A]/30 rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <Mail className="w-3.5 h-3.5" />
+                          Send Inquiry Email
+                        </a>
+                      )}
                     </div>
                   </div>
 

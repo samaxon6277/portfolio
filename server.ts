@@ -199,12 +199,12 @@ const PRERENDER_MAP: Record<string, PrerenderMetadata> = {
   },
   '/contact': {
     title: 'Initiate Your 48-Hour Build | Contact SamaXon Noida',
-    description: 'Get in touch with SamaXon, the best website developer company in Noida & Delhi NCR. Email: build@samaxon.pro, WhatsApp Support: +91 80000 00000.',
+    description: 'Get in touch with SamaXon, the best website developer company in Noida & Delhi NCR. Email: contact@samaxon.site, WhatsApp Support: +91 80000 00000.',
     bodyHtml: `
       <main style="max-width: 800px; margin: 50px auto; padding: 0 20px; font-family: sans-serif; line-height: 1.7; color: #333333;">
         <h1 style="font-size: 2.2rem; color: #111111; text-transform: uppercase;">Contact SamaXon Digital Solutions</h1>
         <h2 style="font-size: 1.25rem; color: #BFA15A; margin-bottom: 30px; font-weight: normal;">Start Your Risk-Free Demo-First Web Development Cycle</h2>
-        <p>WhatsApp Chat: <a href="https://wa.me/918000000000" style="color: #25D366; font-weight: bold;">+91 80000 00000</a> | Email: <a href="mailto:build@samaxon.pro" style="color: #BFA15A; font-weight: bold;">build@samaxon.pro</a></p>
+        <p>WhatsApp Chat: <a href="https://wa.me/918000000000" style="color: #25D366; font-weight: bold;">+91 80000 00000</a> | Email: <a href="mailto:contact@samaxon.site" style="color: #BFA15A; font-weight: bold;">contact@samaxon.site</a></p>
         <p>Studio: SamaXon Elite Hub, Noida Sector 62, Uttar Pradesh, 201301.</p>
       </main>
     `

@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, Search, Filter, Mail, Phone, Briefcase, Calendar, Check, X,
   ExternalLink, FileText, ChevronRight, MessageSquare, AlertCircle, Bookmark, Clipboard,
-  Download, Award, Sparkles, User, HelpCircle, GraduationCap, Clock, CheckCircle2, MinusCircle, Info
+  Download, Award, Sparkles, User, HelpCircle, GraduationCap, Clock, CheckCircle2, MinusCircle, Info,
+  Code2
 } from 'lucide-react';
 import { JobApplication } from '../../types';
 import CustomSelect from '../../components/CustomSelect';
@@ -46,8 +47,21 @@ export default function CareersTab({
   const totalApps = jobApplications.length;
   const newApps = jobApplications.filter(a => a.status === 'New').length;
   const shortlistedApps = jobApplications.filter(a => a.status === 'Shortlisted').length;
+  const interviewScheduledApps = jobApplications.filter(a => a.status === 'Interview Scheduled').length;
   const hiredApps = jobApplications.filter(a => a.status === 'Hired').length;
   const rejectedApps = jobApplications.filter(a => a.status === 'Rejected').length;
+
+  const getCandidateWhatsAppLink = (whatsappOrPhone: string, candidateName: string, position: string) => {
+    const cleanPhone = (whatsappOrPhone || '').replace(/[^0-9]/g, '');
+    const message = encodeURIComponent(`Hi ${candidateName}, this is the SamaXon Talent Acquisition Team regarding your application for the ${position || 'role'} position. Are you available for a preliminary conversation?`);
+    return `https://wa.me/${cleanPhone}?text=${message}`;
+  };
+
+  const getCandidateInterviewEmailLink = (email: string, candidateName: string, position: string) => {
+    const subject = encodeURIComponent(`Interview Invitation: ${position || 'Role'} at SamaXon`);
+    const body = encodeURIComponent(`Dear ${candidateName},\n\nThank you for applying to SamaXon Digital Solutions. We were impressed by your background and would like to invite you for an interview.\n\nPlease let us know your availability over the coming days.\n\nBest regards,\nSamaXon Talent Acquisition Team\ncareers@samaxon.site`);
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
 
   // Filter application dataset
   const filteredApplications = jobApplications.filter(app => {
@@ -139,6 +153,19 @@ export default function CareersTab({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    showToast('Candidates exported to CSV', 'success');
+  };
+
+  const exportToJSON = () => {
+    if (filteredApplications.length === 0) return;
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredApplications, null, 2));
+    const link = document.createElement("a");
+    link.setAttribute("href", dataStr);
+    link.setAttribute("download", `samaxon_job_applications_${Date.now()}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Candidates exported to JSON', 'success');
   };
 
   return (
@@ -150,46 +177,56 @@ export default function CareersTab({
           <span className="text-[10px] font-mono uppercase text-[#BFA15A] tracking-widest font-bold">Talent Acquisition Portals</span>
           <h2 className="font-display text-2xl font-black text-matte-black tracking-tight mt-0.5">Job Applications</h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={exportToCSV}
             disabled={filteredApplications.length === 0}
-            className="px-4 py-2 bg-matte-black text-soft-ivory hover:text-champagne-gold disabled:opacity-40 border border-[#D6B46A]/20 transition-all text-xs font-mono uppercase tracking-wider rounded-xl cursor-pointer flex items-center gap-2"
+            className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40 transition-all text-xs font-mono uppercase font-bold tracking-wider rounded-xl cursor-pointer flex items-center gap-2 shadow-sm active:scale-95"
           >
             <Download className="w-4 h-4" />
             Export CSV
           </button>
+          <button
+            onClick={exportToJSON}
+            disabled={filteredApplications.length === 0}
+            className="px-4 py-2 bg-[#111111] text-[#D6B46A] hover:bg-[#1a1a1a] border border-[#D6B46A]/30 disabled:opacity-40 transition-all text-xs font-mono uppercase font-bold tracking-wider rounded-xl cursor-pointer flex items-center gap-2 shadow-sm active:scale-95"
+          >
+            <Code2 className="w-4 h-4" />
+            Export JSON
+          </button>
         </div>
       </div>
 
-      {/* 2. Candidate Metrics Strips */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        
-        <div className="bg-white border border-[#D6B46A]/15 shadow-sm rounded-2xl p-4 flex flex-col justify-between">
-          <span className="text-[9px] font-mono text-[#8A8178] uppercase font-bold tracking-wider">Total Active</span>
-          <p className="text-2xl font-display font-black text-matte-black mt-2">{totalApps}</p>
-        </div>
-
-        <div className="bg-blue-50/35 border border-blue-100 shadow-sm rounded-2xl p-4 flex flex-col justify-between">
-          <span className="text-[9px] font-mono text-blue-700 uppercase font-bold tracking-wider">New</span>
-          <p className="text-2xl font-display font-black text-blue-900 mt-2">{newApps}</p>
-        </div>
-
-        <div className="bg-amber-50/35 border border-amber-100 shadow-sm rounded-2xl p-4 flex flex-col justify-between">
-          <span className="text-[9px] font-mono text-amber-700 uppercase font-bold tracking-wider">Shortlisted</span>
-          <p className="text-2xl font-display font-black text-amber-900 mt-2">{shortlistedApps}</p>
-        </div>
-
-        <div className="bg-emerald-50/35 border border-emerald-100 shadow-sm rounded-2xl p-4 flex flex-col justify-between">
-          <span className="text-[9px] font-mono text-emerald-700 uppercase font-bold tracking-wider">Hired</span>
-          <p className="text-2xl font-display font-black text-emerald-900 mt-2">{hiredApps}</p>
-        </div>
-
-        <div className="bg-rose-50/35 border border-rose-100 shadow-sm rounded-2xl p-4 flex flex-col justify-between col-span-2 lg:col-span-1">
-          <span className="text-[9px] font-mono text-rose-700 uppercase font-bold tracking-wider">Rejected</span>
-          <p className="text-2xl font-display font-black text-rose-900 mt-2">{rejectedApps}</p>
-        </div>
-
+      {/* 2. Interactive Stage Switcher Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+        {[
+          { id: 'All', label: 'All Applicants', count: totalApps, color: 'border-[#D6B46A]/30 text-[#111111]' },
+          { id: 'New', label: 'New / Unreviewed', count: newApps, color: 'border-blue-300 text-blue-800' },
+          { id: 'Shortlisted', label: 'Shortlisted', count: shortlistedApps, color: 'border-amber-300 text-amber-800' },
+          { id: 'Interview Scheduled', label: 'Interview Scheduled', count: interviewScheduledApps, color: 'border-purple-300 text-purple-800' },
+          { id: 'Hired', label: 'Hired Specialists', count: hiredApps, color: 'border-emerald-300 text-emerald-800' },
+          { id: 'Rejected', label: 'Archived / Rejected', count: rejectedApps, color: 'border-rose-300 text-rose-800' },
+        ].map(stage => {
+          const isActive = selectedStatus === stage.id;
+          return (
+            <button
+              key={stage.id}
+              onClick={() => setSelectedStatus(stage.id)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
+                isActive 
+                  ? 'bg-[#111111] text-[#D6B46A] border-[#111111] shadow-sm' 
+                  : `bg-white hover:bg-neutral-50 ${stage.color}`
+              }`}
+            >
+              <span>{stage.label}</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                isActive ? 'bg-[#D6B46A] text-[#111111] font-black' : 'bg-neutral-100 text-neutral-700'
+              }`}>
+                {stage.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* 3. Search and Filters Row */}
@@ -229,6 +266,20 @@ export default function CareersTab({
           </div>
 
         </div>
+
+        <div className="text-[11px] font-mono font-bold text-[#8A8178] flex items-center justify-between">
+          <span>Active filter query matches: {filteredApplications.length} candidates listed</span>
+          <button 
+            onClick={() => {
+              setSearchTerm('');
+              setSelectedPosition('All');
+              setSelectedStatus('All');
+            }} 
+            className="text-[#BFA15A] hover:text-[#111111] transition-colors uppercase tracking-wider cursor-pointer"
+          >
+            Clear Filters
+          </button>
+        </div>
       </div>
 
       {/* 4. Split Layout */}
@@ -264,17 +315,56 @@ export default function CareersTab({
                       {app.position}
                     </span>
                   </div>
-                  <span className={`px-2.5 py-0.5 text-[9px] font-mono uppercase font-bold rounded-full border ${getStatusStyle(app.status)}`}>
-                    {app.status || 'New'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2.5 py-0.5 text-[9px] font-mono uppercase font-bold rounded-full border ${getStatusStyle(app.status)}`}>
+                      {app.status || 'New'}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-warm-grey font-medium border-t border-[#D6B46A]/10 pt-3.5">
-                  <span>City: <strong className="text-matte-black">{app.city}</strong></span>
-                  <div className="w-1 h-1 bg-neutral-300 rounded-full" />
-                  <span>WhatsApp: <strong className="text-matte-black">{app.whatsapp}</strong></span>
-                  <div className="w-1 h-1 bg-neutral-300 rounded-full" />
-                  <span>Submitted: <strong className="text-matte-black">{new Date(app.created_at || Date.now()).toLocaleDateString([], { month: 'short', day: 'numeric' })}</strong></span>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-y-2 text-[10px] text-warm-grey font-medium border-t border-[#D6B46A]/10 pt-3.5">
+                  <div className="flex items-center gap-x-3">
+                    <span>City: <strong className="text-matte-black">{app.city}</strong></span>
+                    <div className="w-1 h-1 bg-neutral-300 rounded-full" />
+                    <span>Age: <strong className="text-matte-black">{app.age}</strong></span>
+                    <div className="w-1 h-1 bg-neutral-300 rounded-full" />
+                    <span>{new Date(app.created_at || Date.now()).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                  </div>
+
+                  {/* Direct Contact triggers right on the card */}
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    {(app.whatsapp || app.phone) && (
+                      <a
+                        href={getCandidateWhatsAppLink(app.whatsapp || app.phone, app.full_name, app.position)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg transition-all"
+                        title="Direct WhatsApp"
+                      >
+                        <MessageSquare className="w-3 h-3" />
+                      </a>
+                    )}
+                    {app.email && (
+                      <a
+                        href={getCandidateInterviewEmailLink(app.email, app.full_name, app.position)}
+                        className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition-all"
+                        title="Send Interview Invitation"
+                      >
+                        <Mail className="w-3 h-3" />
+                      </a>
+                    )}
+                    {app.resume_url && (
+                      <a
+                        href={app.resume_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg transition-all"
+                        title="View Resume PDF"
+                      >
+                        <FileText className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -294,14 +384,14 @@ export default function CareersTab({
                 {/* Contact triggers */}
                 <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-mono tracking-wider uppercase font-bold">
                   <a 
-                    href={`mailto:${activeApp.email}`}
-                    className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 text-[#FFFDF8] hover:text-[#D6B46A] rounded-lg transition-colors flex items-center gap-1.5"
+                    href={getCandidateInterviewEmailLink(activeApp.email, activeApp.full_name, activeApp.position)}
+                    className="px-3.5 py-2 bg-[#D6B46A] hover:bg-[#c4a157] text-[#111111] rounded-lg transition-colors flex items-center gap-1.5 font-black shadow-sm"
                   >
                     <Mail className="w-3.5 h-3.5" />
-                    Mail Email
+                    Invite for Interview
                   </a>
                   <a 
-                    href={`https://wa.me/${(activeApp?.whatsapp || '').replace(/[^0-9]/g, '')}`}
+                    href={getCandidateWhatsAppLink(activeApp?.whatsapp || activeApp?.phone, activeApp.full_name, activeApp.position)}
                     target="_blank"
                     rel="noreferrer"
                     className="px-3.5 py-2 bg-emerald-600/35 hover:bg-emerald-600 border border-emerald-500/40 text-[#FFFDF8] rounded-lg transition-colors flex items-center gap-1.5"

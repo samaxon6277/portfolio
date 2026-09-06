@@ -47,7 +47,7 @@ export default function LegalPages({ type }: LegalPagesProps) {
               <section className="space-y-3">
                 <h3 className="font-display font-bold text-matte-black text-sm uppercase">4. Regulatory Rectification</h3>
                 <p>
-                  For any requests regarding removing your submitted inquiry parameter logs or applicant items, contact our Senior engineering team at <strong>build@samaxon.pro</strong>.
+                  For any requests regarding removing your submitted inquiry parameter logs or applicant items, contact our Senior engineering team at <strong>support@samaxon.site</strong>.
                 </p>
               </section>
             </div>

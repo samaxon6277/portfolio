@@ -412,7 +412,7 @@ export default function Contact() {
 
                 {/* EMAIL CTA */}
                 <a 
-                  href={`mailto:${websiteSettings.contactEmail || 'build@samaxon.pro'}`}
+                  href={`mailto:${websiteSettings.contactEmail || SITE_CONFIG.contactEmail || 'contact@samaxon.site'}`}
                   className="p-4 bg-[#BFA15A]/10 border border-[#BFA15A]/20 rounded-2xl flex items-center justify-between hover:bg-[#BFA15A]/15 duration-200 transition-all cursor-pointer block text-left hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3">

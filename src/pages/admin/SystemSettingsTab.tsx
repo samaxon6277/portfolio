@@ -792,13 +792,51 @@ export default function SystemSettingsTab({
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Brand Contact Endpoint email</label>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">General Inquiries & Business Email</label>
                 <input 
                   type="email" 
                   value={localSettings.contactEmail || ''}
+                  placeholder="contact@samaxon.site"
                   onChange={e => setLocalSettings({ ...localSettings, contactEmail: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Primary public contact channel for project quotes</span>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Customer Support Email</label>
+                <input 
+                  type="email" 
+                  value={localSettings.supportEmail || ''}
+                  placeholder="support@samaxon.site"
+                  onChange={e => setLocalSettings({ ...localSettings, supportEmail: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Dedicated SLA support & ongoing client care</span>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Executive Founder Email</label>
+                <input 
+                  type="email" 
+                  value={localSettings.founderEmail || ''}
+                  placeholder="founder@samaxon.site"
+                  onChange={e => setLocalSettings({ ...localSettings, founderEmail: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Used strictly for executive partnerships & founder correspondence</span>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Talent & Careers Email</label>
+                <input 
+                  type="email" 
+                  value={localSettings.careersEmail || ''}
+                  placeholder="careers@samaxon.site"
+                  onChange={e => setLocalSettings({ ...localSettings, careersEmail: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Job applications & consultant recruitment</span>
               </div>
 
               <div>

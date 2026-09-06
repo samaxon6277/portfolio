@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff
+  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink
 } from 'lucide-react';
 
 import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, JobApplication } from '../types';
@@ -13,6 +14,7 @@ import { logger } from '../utils/logger';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 // Tab components imports
+import AdminHeader from './admin/AdminHeader';
 import DashboardTab from './admin/DashboardTab';
 import LeadsTab from './admin/LeadsTab';
 import CareersTab from './admin/CareersTab';
@@ -20,6 +22,7 @@ import ContentSettingsTab from './admin/ContentSettingsTab';
 import SystemSettingsTab from './admin/SystemSettingsTab';
 
 export default function AdminPanel() {
+  const navigate = useNavigate();
   const { showToast, showAlert } = useCustomUi();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -498,6 +501,15 @@ export default function AdminPanel() {
     }
   };
 
+  const handleRefreshDatabase = async () => {
+    try {
+      await syncWithDatabase();
+      showToast('Database synchronization complete. Live telemetry updated.', 'success');
+    } catch (err) {
+      showToast('Failed to refresh data from Supabase.', 'error');
+    }
+  };
+
   // 4. Secure Audited Auth Handlers
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -663,7 +675,7 @@ export default function AdminPanel() {
                   <input
                     type="email"
                     required
-                    placeholder="name@samaxon.com"
+                    placeholder="name@samaxon.site"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-[#FFFDF8] hover:bg-neutral-50 border border-[#D6B46A]/20 focus:border-[#D6B46A] text-xs font-semibold text-[#111111] rounded-xl outline-none transition-all placeholder:text-[#8A8178]/70"
@@ -705,6 +717,15 @@ export default function AdminPanel() {
               <Shield className="w-4 h-4" />
               {isSubmittingAuth ? 'Establishing Sync Link...' : 'Verify Executive Token'}
             </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="w-full py-2.5 text-neutral-500 hover:text-neutral-900 text-[11px] font-mono font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Home className="w-3.5 h-3.5 text-[#D6B46A]" />
+              Return to Public Website
+            </button>
           </form>
 
           {/* Secure disclaimer brand footer */}
@@ -734,160 +755,197 @@ export default function AdminPanel() {
     : 'EX';
 
   return (
-    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#FFFDF8] flex flex-col md:flex-row text-neutral-800 font-sans antialiased" id="admin-workspace-core">
-      
-      {/* 1. Luxurious Floating Left Navigation Sidebar */}
-      <aside className="w-full md:w-64 md:h-full bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/20 flex flex-col justify-between shrink-0 text-left overflow-y-auto custom-scrollbar">
-        <div>
-          {/* Master branding block */}
-          <div className="p-6 border-b border-[#D6B46A]/15 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#FFFDF8] text-[#111111] rounded-xl font-display font-black text-base flex items-center justify-center">
-                S
+    <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#111111] flex flex-col text-neutral-800 font-sans antialiased" id="admin-workspace-core">
+      {/* Top Universal Operating Command Bar */}
+      <AdminHeader
+        currentUser={currentUser}
+        leads={leads}
+        jobApplications={jobApplications}
+        botVisits={botVisits}
+        maintenanceMode={websiteSettings?.maintenanceMode || false}
+        onRefreshDatabase={handleRefreshDatabase}
+        onLogout={handleLogout}
+        onNavigateTab={(tab) => {
+          if (tab === 'bot-logs') {
+            setSystemSubTab('botlogs');
+            setActiveTab('system');
+          } else if (tab === 'activity-logs') {
+            setSystemSubTab('audit');
+            setActiveTab('system');
+          } else {
+            setActiveTab(tab as any);
+          }
+        }}
+      />
+
+      <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
+        {/* 1. Luxurious Floating Left Navigation Sidebar */}
+        <aside className="w-full md:w-64 md:h-full bg-[#111111] text-[#FFFDF8] border-r border-[#D6B46A]/20 flex flex-col justify-between shrink-0 text-left overflow-y-auto custom-scrollbar">
+          <div>
+            {/* Master branding block */}
+            <div className="p-6 border-b border-[#D6B46A]/15 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#FFFDF8] text-[#111111] rounded-xl font-display font-black text-base flex items-center justify-center">
+                  S
+                </div>
+                <div>
+                  <h1 className="font-display font-black text-base text-white tracking-widest uppercase">SamaXon</h1>
+                  <span className="text-[8px] font-mono text-[#D6B46A] tracking-wider uppercase font-extrabold block">Remote Terminal</span>
+                </div>
               </div>
-              <div>
-                <h1 className="font-display font-black text-base text-white tracking-widest uppercase">SamaXon</h1>
-                <span className="text-[8px] font-mono text-[#D6B46A] tracking-wider uppercase font-extrabold block">Remote Terminal</span>
+              
+              {/* Quick bypass back anchor to public screen */}
+              <button 
+                type="button"
+                onClick={() => navigate('/')}
+                className="p-1.5 px-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-[#D6B46A] border border-white/10 rounded transition-all cursor-pointer"
+                title="Return to Public Website"
+              >
+                <Home className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* View Live Website Quick Button */}
+            <div className="px-4 pt-3 pb-1">
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-[#D6B46A]/15 border border-[#D6B46A]/25 text-[#D6B46A] text-[10px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:border-[#D6B46A]/50"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>View Live Website</span>
+              </a>
+            </div>
+
+            {/* Menu loops links */}
+            <nav className="p-4 py-4 space-y-1.5">
+              {menuOptions.map(opt => {
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setActiveTab(opt.id)}
+                    className={`w-full py-3 px-4 rounded-xl flex items-center gap-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 relative cursor-pointer ${
+                      activeTab === opt.id 
+                        ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black' 
+                        : 'text-white/65 hover:text-[#FFFDF8] hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* User Session profile controls and stats */}
+          <div className="p-5 border-t border-[#D6B46A]/15 space-y-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-9 h-9 rounded-full bg-[#D6B46A]/15 border border-[#D6B46A]/40 flex items-center justify-center font-display text-[#D6B46A] font-black text-xs">
+                {initials}
+              </div>
+              <div className="flex flex-col text-xs max-w-[140px] truncate select-none">
+                <span className="font-bold text-white leading-tight truncate">{currentUser?.full_name}</span>
+                <span className="text-[9px] font-mono text-[#D6B46A] uppercase font-bold truncate">{currentUser?.role}</span>
               </div>
             </div>
-            
-            {/* Quick bypass back anchor to public screen */}
-            <a 
-              href="#home"
-              className="p-1 px-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-[#D6B46A] border border-white/10 rounded transition-all"
-              title="Return to Public Website"
+
+            <button
+              onClick={handleLogout}
+              className="w-full py-3 bg-white/5 hover:bg-rose-500/10 border border-white/15 hover:border-rose-500/25 text-white/80 hover:text-rose-400 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
-              <Home className="w-3.5 h-3.5" />
-            </a>
+              <LogOut className="w-3.5 h-3.5" />
+              Disconnect Terminal
+            </button>
           </div>
+        </aside>
 
-          {/* Menu loops links */}
-          <nav className="p-4 py-6 space-y-2">
-            {menuOptions.map(opt => {
-              const Icon = opt.icon;
-              return (
-                <button
-                  key={opt.id}
-                  onClick={() => setActiveTab(opt.id)}
-                  className={`w-full py-3.5 px-4 rounded-xl flex items-center gap-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 relative cursor-pointer ${
-                    activeTab === opt.id 
-                      ? 'bg-[#FFFDF8] text-[#111111] shadow-lg' 
-                      : 'text-white/65 hover:text-[#FFFDF8] hover:bg-white/5'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{opt.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+        {/* 2. Primary Workspace Body */}
+        <main className="flex-1 min-w-0 bg-[#FFFDF8] p-6 lg:p-10 md:h-full md:overflow-y-auto custom-scrollbar">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="h-full"
+            >
+              {activeTab === 'dashboard' && (
+                <DashboardTab
+                  leads={leads}
+                  careers={jobApplications as any}
+                  botVisits={botVisits}
+                  activityLogs={activityLogs}
+                  onNavigateTo={(tabId) => {
+                    if (tabId === 'bot-logs') {
+                      setSystemSubTab('botlogs');
+                      setActiveTab('system');
+                    } else if (tabId === 'activity-logs') {
+                      setSystemSubTab('audit');
+                      setActiveTab('system');
+                    } else {
+                      setActiveTab(tabId);
+                    }
+                  }}
+                />
+              )}
 
-        {/* User Session profile controls and stats */}
-        <div className="p-5 border-t border-[#D6B46A]/15 space-y-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-9 h-9 rounded-full bg-[#D6B46A]/15 border border-[#D6B46A]/40 flex items-center justify-center font-display text-[#D6B46A] font-black text-xs">
-              {initials}
-            </div>
-            <div className="flex flex-col text-xs max-w-[140px] truncate select-none">
-              <span className="font-bold text-white leading-tight truncate">{currentUser?.full_name}</span>
-              <span className="text-[9px] font-mono text-[#D6B46A] uppercase font-bold truncate">{currentUser?.role}</span>
-            </div>
-          </div>
+              {activeTab === 'leads' && (
+                <LeadsTab
+                  leads={leads}
+                  onUpdateLead={handleUpdateLead}
+                  onDeleteLead={handleDeleteLead}
+                />
+              )}
 
-          <button
-            onClick={handleLogout}
-            className="w-full py-3 bg-white/5 hover:bg-rose-500/10 border border-white/15 hover:border-rose-500/25 text-white/80 hover:text-rose-400 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Disconnect Terminal
-          </button>
-        </div>
-      </aside>
+              {activeTab === 'careers' && (
+                <CareersTab
+                  jobApplications={jobApplications}
+                  onUpdateJobApplication={handleUpdateJobApplication}
+                  onDeleteJobApplication={handleDeleteJobApplication}
+                />
+              )}
 
-      {/* 2. Primary Workspace Body */}
-      <main className="flex-1 min-w-0 bg-[#FFFDF8] p-6 lg:p-10 md:h-full md:overflow-y-auto">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="h-full"
-          >
-            {activeTab === 'dashboard' && (
-              <DashboardTab
-                leads={leads}
-                careers={jobApplications as any}
-                botVisits={botVisits}
-                activityLogs={activityLogs}
-                onNavigateTo={(tabId) => {
-                  if (tabId === 'bot-logs') {
-                    setSystemSubTab('botlogs');
-                    setActiveTab('system');
-                  } else if (tabId === 'activity-logs') {
-                    setSystemSubTab('audit');
-                    setActiveTab('system');
-                  } else {
-                    setActiveTab(tabId);
-                  }
-                }}
-              />
-            )}
+              {activeTab === 'content' && (
+                <ContentSettingsTab
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
 
-            {activeTab === 'leads' && (
-              <LeadsTab
-                leads={leads}
-                onUpdateLead={handleUpdateLead}
-                onDeleteLead={handleDeleteLead}
-              />
-            )}
+              {activeTab === 'system' && (
+                <SystemSettingsTab
+                  initialSubTab={systemSubTab}
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
 
-            {activeTab === 'careers' && (
-              <CareersTab
-                jobApplications={jobApplications}
-                onUpdateJobApplication={handleUpdateJobApplication}
-                onDeleteJobApplication={handleDeleteJobApplication}
-              />
-            )}
-
-            {activeTab === 'content' && (
-              <ContentSettingsTab
-                services={services}
-                portfolioProjects={portfolioProjects}
-                testimonials={testimonials}
-                pageSections={pageSections}
-                blogs={blogs}
-                legalPages={legalPages}
-                onUpdateServices={handleUpdateServices}
-                onUpdatePortfolio={handleUpdatePortfolio}
-                onUpdateTestimonials={handleUpdateTestimonials}
-                onUpdatePageSections={handleUpdatePageSections}
-                onUpdateBlogs={handleUpdateBlogs}
-                onUpdateLegalPages={handleUpdateLegalPages}
-              />
-            )}
-
-            {activeTab === 'system' && (
-              <SystemSettingsTab
-                initialSubTab={systemSubTab}
-                onSubTabChange={(st: any) => setSystemSubTab(st)}
-                mediaAssets={mediaAssets}
-                botVisits={botVisits}
-                automationLogs={automationLogs}
-                activityLogs={activityLogs}
-                adminUsers={adminUsers}
-                websiteSettings={websiteSettings}
-                onUpdateMedia={handleUpdateMedia}
-                onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
-                onUpdateAdminUsers={handleUpdateAdminUsers}
-              />
-            )}
-
-          </motion.div>
-        </AnimatePresence>
-      </main>
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
 
     </div>
   );
