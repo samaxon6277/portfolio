@@ -168,7 +168,7 @@ export default function Team() {
                         <a 
                           href={member.socialLinks.linkedin}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="text-neutral-400 hover:text-champagne-gold active:scale-95 transition-all"
                           title="LinkedIn Profile"
                         >

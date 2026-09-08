@@ -28,16 +28,17 @@ export default function Tools() {
   const [activeTab, setActiveTab] = useState<ToolTab>(getTabFromPath());
 
   useEffect(() => {
-    setActiveTab(getTabFromPath());
-  }, [location.pathname, location.search]);
+    const onPopState = () => {
+      setActiveTab(getTabFromPath());
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   const handleTabChange = (tab: ToolTab) => {
     setActiveTab(tab);
-    if (tab === 'overview') {
-      navigate('/tools');
-    } else {
-      navigate(`/tools/${tab}`);
-    }
+    const targetUrl = tab === 'overview' ? '/tools' : `/tools?tab=${tab}`;
+    window.history.pushState(null, '', targetUrl);
   };
 
   return (
@@ -57,9 +58,9 @@ export default function Tools() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Navigation Breadcrumb / Top Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#D6B46A]/20 pb-5">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#8A8178]">
+          <div className="flex items-center gap-2.5 text-sm font-mono text-[#554F49]">
             <Link to="/" className="hover:text-[#111111] transition-colors">Home</Link>
-            <ChevronRight className="w-3.5 h-3.5 text-[#D6B46A]" />
+            <ChevronRight className="w-4 h-4 text-[#D6B46A]" />
             <button 
               onClick={() => handleTabChange('overview')}
               className={`hover:text-[#111111] transition-colors cursor-pointer ${
@@ -70,8 +71,8 @@ export default function Tools() {
             </button>
             {activeTab !== 'overview' && (
               <>
-                <ChevronRight className="w-3.5 h-3.5 text-[#D6B46A]" />
-                <span className="text-[#BFA15A] font-bold uppercase">
+                <ChevronRight className="w-4 h-4 text-[#D6B46A]" />
+                <span className="text-[#A68936] font-bold uppercase">
                   {activeTab === 'compressor' ? 'Photo Compressor' : 'Photo Resizer'}
                 </span>
               </>
@@ -79,23 +80,23 @@ export default function Tools() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 px-3 py-1 bg-[#D6B46A]/10 border border-[#D6B46A]/30 text-[#BFA15A] text-[10px] font-mono uppercase font-bold rounded-full">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#BFA15A]" />
+            <span className="flex items-center gap-2 px-3.5 py-1.5 bg-[#D6B46A]/15 border border-[#D6B46A]/35 text-[#A68936] text-xs font-mono uppercase font-bold rounded-full">
+              <ShieldCheck className="w-4 h-4 text-[#A68936]" />
               100% Client-Side Privacy
             </span>
           </div>
         </div>
 
         {/* Hero Section */}
-        <div className="max-w-3xl space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-0.5 bg-[#111111] text-[#D6B46A] text-[10px] font-mono uppercase tracking-widest font-bold rounded-md">
+        <div className="max-w-3xl space-y-3.5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="px-3 py-1 bg-[#111111] text-[#D6B46A] text-xs font-mono uppercase tracking-wider font-bold rounded-md">
               SMR CREATOR & BUSINESS LABS
             </span>
-            <span className="text-xs font-mono text-[#8A8178]">· Zero Uploads · Free Forever</span>
+            <span className="text-sm font-mono text-[#554F49]">· Zero Uploads · Free Forever</span>
           </div>
 
-          <h1 className="font-display font-medium text-3xl sm:text-4xl lg:text-5xl text-[#111111] tracking-tight">
+          <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-[#111111] tracking-tight">
             {activeTab === 'compressor'
               ? 'Ultra-Fast Photo Compressor'
               : activeTab === 'resizer'
@@ -103,7 +104,7 @@ export default function Tools() {
               : 'Digital Utilities & AI Tools Suite'}
           </h1>
 
-          <p className="text-sm sm:text-base text-[#8A8178] leading-relaxed">
+          <p className="text-base sm:text-lg text-[#3D3731] leading-relaxed font-normal">
             {activeTab === 'compressor'
               ? 'Reduce JPG, PNG, WEBP and AVIF image sizes by up to 95% while preserving pristine pixel clarity. Compare with an interactive split slider or target exact file sizes in KB.'
               : activeTab === 'resizer'
@@ -113,14 +114,14 @@ export default function Tools() {
         </div>
 
         {/* Tab Navigation Segmented Bar */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 bg-white border border-[#D6B46A]/25 rounded-2xl w-fit shadow-xs">
+        <div className="flex flex-wrap items-center gap-2 p-2 bg-white border border-[#D6B46A]/30 rounded-2xl w-fit shadow-xs">
           <button
             type="button"
             onClick={() => handleTabChange('overview')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
               activeTab === 'overview'
                 ? 'bg-[#111111] text-[#D6B46A] shadow-sm'
-                : 'text-[#8A8178] hover:text-[#111111]'
+                : 'text-[#554F49] hover:text-[#111111] hover:bg-neutral-100/60'
             }`}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -130,15 +131,15 @@ export default function Tools() {
           <button
             type="button"
             onClick={() => handleTabChange('compressor')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
               activeTab === 'compressor'
                 ? 'bg-[#111111] text-[#D6B46A] shadow-sm'
-                : 'text-[#8A8178] hover:text-[#111111]'
+                : 'text-[#554F49] hover:text-[#111111] hover:bg-neutral-100/60'
             }`}
           >
             <Minimize2 className="w-4 h-4" />
             <span>Photo Compressor</span>
-            <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 text-[9px] rounded font-extrabold">
+            <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-700 text-[10px] rounded font-bold">
               NEW
             </span>
           </button>
@@ -146,15 +147,15 @@ export default function Tools() {
           <button
             type="button"
             onClick={() => handleTabChange('resizer')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold font-mono uppercase tracking-wider transition-all cursor-pointer ${
               activeTab === 'resizer'
                 ? 'bg-[#111111] text-[#D6B46A] shadow-sm'
-                : 'text-[#8A8178] hover:text-[#111111]'
+                : 'text-[#554F49] hover:text-[#111111] hover:bg-neutral-100/60'
             }`}
           >
             <Crop className="w-4 h-4" />
             <span>Photo Resizer</span>
-            <span className="px-1.5 py-0.5 bg-[#D6B46A]/20 text-[#BFA15A] text-[9px] rounded font-extrabold">
+            <span className="px-2 py-0.5 bg-[#D6B46A]/25 text-[#A68936] text-[10px] rounded font-bold">
               300 DPI
             </span>
           </button>

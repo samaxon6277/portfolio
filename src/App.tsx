@@ -26,6 +26,8 @@ import Pricing from './pages/Pricing';
 import SelectDirection from './pages/SelectDirection';
 import Tools from './pages/Tools';
 import ServiceRequest from './pages/ServiceRequest';
+import Partner from './pages/Partner';
+import Guides from './pages/Guides';
 import { analytics } from './utils/analytics';
 
 function ScrollToTop() {
@@ -192,7 +194,7 @@ function MainAppContent() {
       <main className="flex-grow">
         <AnimatePresence mode="wait">
           <motion.div
-            key={location.pathname}
+            key={location.pathname.startsWith('/tools') ? '/tools' : location.pathname}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
@@ -218,6 +220,15 @@ function MainAppContent() {
               <Route path="/case-studies" element={<CaseStudies />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/select-direction" element={<SelectDirection />} />
+              
+              {/* Partner & Affiliate Program */}
+              <Route path="/partner" element={<Partner />} />
+              <Route path="/partner-program" element={<Partner />} />
+
+              {/* Knowledge & Buyer's Guides */}
+              <Route path="/guides" element={<Guides />} />
+              <Route path="/cost-guide" element={<Guides />} />
+              <Route path="/contract-checklist" element={<Guides />} />
               
               {/* Creator & Business Tools Suite */}
               <Route path="/tools" element={<Tools />} />

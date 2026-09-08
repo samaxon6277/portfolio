@@ -7,6 +7,7 @@ import {
   BarChart3, Layout, ChevronRight, Gauge, Sliders, CheckCircle2
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import CustomSelect from '../components/CustomSelect';
 import { SERVICES_DATA } from '../data';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 import { supabaseService } from '../utils/supabaseService';
@@ -429,47 +430,43 @@ Please confirm 48-Hour sprint slot availability.`;
           </div>
         </div>
 
-        {/* Top Service Switcher Carousel */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase font-bold text-[#8A8178] tracking-wider">
-              Select Studio Service to Configure & Experience:
-            </span>
+        {/* Studio Service Selector Dropdown */}
+        <div className="bg-white border border-[#D6B46A]/25 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-[10px] font-mono uppercase font-bold text-[#8A8178] tracking-wider block">
+                Select Studio Service to Configure & Experience:
+              </span>
+              <p className="text-xs text-[#554F49]">
+                Choose any service from the dropdown below to launch its interactive sandbox simulator:
+              </p>
+            </div>
             <Link 
               to="/services" 
-              className="text-xs font-mono text-[#BFA15A] hover:underline font-bold"
+              className="text-xs font-mono text-[#BFA15A] hover:underline font-bold shrink-0"
             >
               ← All Services Catalog
             </Link>
           </div>
 
-          <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-            {Object.values(SERVICE_CONFIGS).map((svc) => {
-              const isSelected = svc.id === selectedServiceId;
-              return (
-                <button
-                  key={svc.id}
-                  onClick={() => handleSelectService(svc.id)}
-                  className={`shrink-0 px-4 py-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
-                    isSelected
-                      ? 'bg-[#111111] text-white border-[#D6B46A] shadow-md scale-[1.02]'
-                      : 'bg-white text-[#111111] border-[#D6B46A]/20 hover:border-[#D6B46A]/50'
-                  }`}
-                >
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
-                    isSelected ? 'bg-[#D6B46A] text-black' : 'bg-[#D6B46A]/15 text-[#BFA15A]'
+          <div className="max-w-xl">
+            <CustomSelect<string>
+              value={selectedServiceId}
+              onChange={(svcId) => handleSelectService(svcId)}
+              options={Object.values(SERVICE_CONFIGS).map((svc) => ({
+                value: svc.id,
+                label: svc.name,
+                sublabel: `From ₹${svc.basePrice.toLocaleString('en-IN')} · ${svc.deliveryDays}`,
+                icon: (
+                  <span className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center ${
+                    svc.id === selectedServiceId ? 'bg-[#D6B46A] text-black' : 'bg-[#D6B46A]/15 text-[#BFA15A]'
                   }`}>
                     ✦
-                  </div>
-                  <div>
-                    <h5 className="font-display font-bold text-xs leading-tight whitespace-nowrap">{svc.name}</h5>
-                    <span className={`text-[9px] font-mono block ${isSelected ? 'text-[#D6B46A]' : 'text-[#8A8178]'}`}>
-                      From ₹{svc.basePrice.toLocaleString('en-IN')} · {svc.deliveryDays}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
+                  </span>
+                )
+              }))}
+              placeholder="Select Studio Service..."
+            />
           </div>
         </div>
 
@@ -862,11 +859,12 @@ Please confirm 48-Hour sprint slot availability.`;
                         onChange={(e) => setBotInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSendBotMessage()}
                         placeholder="Type a query to test bot auto-reply..."
-                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-[#D6B46A]"
+                        style={{ colorScheme: 'dark', backgroundColor: '#181818', color: '#FFFFFF' }}
+                        className="flex-1 !bg-[#181818] border border-white/20 rounded-xl px-3.5 py-2 text-xs !text-white placeholder:!text-neutral-400 outline-none focus:border-[#D6B46A] focus:!bg-[#222222] transition-colors appearance-none"
                       />
                       <button
                         onClick={() => handleSendBotMessage()}
-                        className="px-3 py-1.5 bg-[#D6B46A] text-black font-bold text-xs rounded-xl hover:bg-white transition-all cursor-pointer"
+                        className="px-4 py-2 bg-[#D6B46A] text-black font-bold text-xs rounded-xl hover:bg-white transition-all cursor-pointer shrink-0"
                       >
                         Send
                       </button>
@@ -1136,7 +1134,7 @@ Please confirm 48-Hour sprint slot availability.`;
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] outline-none focus:border-[#D6B46A]"
+                      className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] placeholder:text-[#8A8178] outline-none focus:border-[#D6B46A]"
                     />
                   </div>
 
@@ -1151,7 +1149,7 @@ Please confirm 48-Hour sprint slot availability.`;
                         value={formData.businessName}
                         onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                         placeholder="e.g. Acme Studio"
-                        className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] outline-none focus:border-[#D6B46A]"
+                        className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] placeholder:text-[#8A8178] outline-none focus:border-[#D6B46A]"
                       />
                     </div>
 
@@ -1165,7 +1163,7 @@ Please confirm 48-Hour sprint slot availability.`;
                         value={formData.whatsappNumber}
                         onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
                         placeholder="+91 98765 43210"
-                        className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] outline-none focus:border-[#D6B46A]"
+                        className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] placeholder:text-[#8A8178] outline-none focus:border-[#D6B46A]"
                       />
                     </div>
                   </div>
@@ -1179,7 +1177,7 @@ Please confirm 48-Hour sprint slot availability.`;
                       value={formData.projectVision}
                       onChange={(e) => setFormData({ ...formData, projectVision: e.target.value })}
                       placeholder="Any specific features, reference links or requirements..."
-                      className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] outline-none focus:border-[#D6B46A]"
+                      className="w-full bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl p-2.5 text-xs text-[#111111] placeholder:text-[#8A8178] outline-none focus:border-[#D6B46A]"
                     />
                   </div>
 

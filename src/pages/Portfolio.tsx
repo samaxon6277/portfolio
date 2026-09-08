@@ -72,10 +72,28 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
     loadProjects();
   }, []);
 
-  const filteredProjects = (activeFilter === 'all'
-    ? projectsList
-    : projectsList.filter((p) => p.category === activeFilter)
-  ).filter(p => !!p.thumbnailUrl);
+  const matchesCategory = (category: string | undefined, filter: string) => {
+    if (filter === 'all') return true;
+    if (!category) return false;
+    const cat = category.toLowerCase().trim();
+    if (filter === 'websites') return cat.includes('web') || cat.includes('site');
+    if (filter === 'apps') return cat.includes('app') || cat.includes('mobile') || cat.includes('pwa');
+    if (filter === 'brand-identity') return cat.includes('brand') || cat.includes('logo') || cat.includes('identity');
+    if (filter === 'graphics') return cat.includes('graphic') || cat.includes('banner') || cat.includes('visual');
+    if (filter === 'automations') return cat.includes('auto') || cat.includes('workflow');
+    if (filter === 'bots') return cat.includes('bot') || cat.includes('telegram');
+    if (filter === 'admin-ready') return cat.includes('admin') || cat.includes('dashboard') || cat.includes('console');
+    return cat === filter;
+  };
+
+  const filteredProjects = projectsList
+    .filter((p) => matchesCategory(p.category, activeFilter))
+    .filter((p) => !!p.thumbnailUrl);
+
+  const getCategoryCount = (filterId: string) => {
+    if (filterId === 'all') return projectsList.filter(p => !!p.thumbnailUrl).length;
+    return projectsList.filter(p => matchesCategory(p.category, filterId) && !!p.thumbnailUrl).length;
+  };
 
   const handleInquire = () => {
     navigate('/contact');
@@ -123,19 +141,31 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
             { label: 'Automations', id: 'automations' },
             { label: 'Telegram Bots', id: 'bots' },
             { label: 'Admin-Ready', id: 'admin-ready' },
-          ].map((filter) => (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`px-4.5 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl border transition-all cursor-pointer ${
-                activeFilter === filter.id
-                  ? 'bg-matte-black text-soft-ivory border-champagne-gold/40'
-                  : 'bg-white/55 text-warm-grey border-champagne-gold/15 hover:border-champagne-gold/40 hover:text-matte-black'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
+          ].map((filter) => {
+            const count = getCategoryCount(filter.id);
+            return (
+              <button
+                key={filter.id}
+                onClick={() => setActiveFilter(filter.id)}
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeFilter === filter.id
+                    ? 'bg-matte-black text-soft-ivory border-champagne-gold/40 shadow-sm'
+                    : 'bg-white/70 text-warm-grey border-champagne-gold/15 hover:border-champagne-gold/40 hover:text-matte-black'
+                }`}
+              >
+                <span>{filter.label}</span>
+                {count > 0 && (
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                    activeFilter === filter.id
+                      ? 'bg-champagne-gold text-black'
+                      : 'bg-matte-black/5 text-[#8A8178]'
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* --- PORTFOLIO CASE STUDY LIST --- */}

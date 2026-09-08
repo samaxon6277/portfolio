@@ -91,7 +91,7 @@ function StatCard({ value, label, colSpan = "" }: { value: string; label: string
       <span className="block text-3xl md:text-4xl font-display font-black text-champagne-gold tracking-tight mb-1">
         <AnimatedCounter value={value} />
       </span>
-      <span className="block text-[9px] uppercase tracking-widest text-[#A89F91] font-bold font-mono group-hover:text-white transition-colors duration-300">
+      <span className="block text-xs sm:text-sm uppercase tracking-widest text-[#DCD7CF] font-bold font-mono group-hover:text-white transition-colors duration-300 text-center">
         {label}
       </span>
     </motion.div>
@@ -452,10 +452,10 @@ export default function Home({ setCurrentPage }: HomeProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-3 px-4 py-2 bg-white/60 backdrop-blur-md rounded-full border border-[#D6B46A]/20 w-max shadow-sm"
+              className="inline-flex items-center gap-3 px-4 py-2 bg-white/75 backdrop-blur-md rounded-full border border-[#D6B46A]/30 w-max shadow-sm"
             >
-              <div className="w-2 h-2 rounded-full bg-[#D6B46A] animate-pulse" />
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#BFA15A]">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#D6B46A] animate-pulse" />
+              <span className="text-xs uppercase font-bold tracking-[0.16em] text-[#85641C]">
                 India’s Premium 48-Hour Digital Studio
               </span>
             </motion.div>
@@ -464,7 +464,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="font-display text-4xl sm:text-5xl lg:text-[66px] lg:leading-[0.95] font-black tracking-tighter text-[#111111]"
+              className="font-display text-4xl sm:text-5xl lg:text-[68px] lg:leading-[1.0] font-black tracking-tighter text-[#111111]"
             >
               The Future of <br className="hidden sm:inline" />
               <span className="text-[#D6B46A]">Digital Branding</span>, <br />
@@ -475,7 +475,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.25 }}
-              className="text-base sm:text-lg text-[#8A8178] leading-relaxed max-w-[580px]"
+              className="text-lg sm:text-xl text-[#3D3731] font-normal leading-relaxed max-w-[620px]"
             >
               SamaXon builds high-performance websites, mobile apps, premium brand identities, automations, and business control systems for founders who do not have time for slow agencies and average execution.
             </motion.p>
@@ -485,9 +485,9 @@ export default function Home({ setCurrentPage }: HomeProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="border-l-2 border-[#D6B46A] pl-4 py-2 my-2 bg-[#D6B46A]/5 rounded-r-xl max-w-xl"
+              className="border-l-2 border-[#D6B46A] pl-4 py-2.5 my-2 bg-[#D6B46A]/10 rounded-r-xl max-w-xl"
             >
-              <p className="text-xs font-semibold text-matte-black/95 leading-relaxed">
+              <p className="text-sm font-semibold text-[#181614] leading-relaxed">
                 “Stop losing high-ticket clients to sluggish agency cycles. SamaXon engineers fast, precision-built digital assets and automated workflows ready for modern enterprise scale.”
               </p>
             </motion.div>
@@ -502,7 +502,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               <button
                 onClick={() => handleAction('contact')}
                 id="hero-primary-cta"
-                className="w-full sm:w-auto px-8 py-4.5 bg-[#111111] text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold text-xs uppercase tracking-[0.14em] rounded-xl border border-champagne-gold/30 shadow-[0_6px_20px_rgba(17,17,17,0.35)] hover:shadow-[0_10px_28px_rgba(17,17,17,0.5)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
+                className="w-full sm:w-auto px-8 py-4.5 bg-[#111111] text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold text-sm uppercase tracking-wider rounded-xl border border-champagne-gold/30 shadow-[0_6px_20px_rgba(17,17,17,0.35)] hover:shadow-[0_10px_28px_rgba(17,17,17,0.5)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
               >
                 Start Your 48-Hour Build
                 <ArrowRight className="w-4 h-4 text-champagne-gold ml-1" />
@@ -510,7 +510,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               <button
                 onClick={() => handleAction('services')}
                 id="hero-secondary-cta"
-                className="w-full sm:w-auto px-8 py-4.5 bg-white/70 border border-champagne-gold/40 text-[#111111] hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black font-bold text-xs uppercase tracking-[0.14em] rounded-xl backdrop-blur-sm shadow-[0_2px_8px_rgba(17,17,17,0.04)] hover:shadow-[0_6px_18px_rgba(17,17,17,0.1)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
+                className="w-full sm:w-auto px-8 py-4.5 bg-white/80 border border-champagne-gold/40 text-[#111111] hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black font-bold text-sm uppercase tracking-wider rounded-xl backdrop-blur-sm shadow-[0_2px_8px_rgba(17,17,17,0.04)] hover:shadow-[0_6px_18px_rgba(17,17,17,0.1)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
               >
                 Explore Capabilities
               </button>
@@ -521,14 +521,14 @@ export default function Home({ setCurrentPage }: HomeProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="flex flex-wrap items-center gap-2 mt-4"
+              className="flex flex-wrap items-center gap-2.5 mt-4"
             >
               {['Senior Developer Wing', 'Design Studio', 'Demo-First Model', 'Admin Dashboard Ready', '48-Hour Delivery'].map((tag, idx) => (
                 <span 
                   key={idx}
-                  className="px-3.5 py-1.5 bg-soft-ivory/50 border border-champagne-gold/15 text-matte-black font-semibold uppercase tracking-wider text-[9px] rounded-full gold-shadow-sm font-mono flex items-center gap-1"
+                  className="px-4 py-2 bg-soft-ivory/80 border border-champagne-gold/25 text-[#1F1C1A] font-bold uppercase tracking-wider text-xs rounded-full gold-shadow-sm font-mono flex items-center gap-1.5"
                 >
-                  <span className="w-1 h-1 rounded-full bg-champagne-gold" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-champagne-gold" />
                   {tag}
                 </span>
               ))}
@@ -549,11 +549,11 @@ export default function Home({ setCurrentPage }: HomeProps) {
                       <Zap className="w-4 h-4 text-champagne-gold fill-champagne-gold/15" />
                     </div>
                     <div>
-                      <div className="font-display font-bold text-xs tracking-wider uppercase text-matte-black">SamaXon Client ID</div>
-                      <div className="text-[8px] font-mono uppercase text-champagne-gold tracking-widest mt-0.5">Live Build #4592</div>
+                      <div className="font-display font-bold text-sm tracking-wide uppercase text-matte-black">SamaXon Client ID</div>
+                      <div className="text-[10px] font-mono uppercase text-champagne-gold tracking-widest mt-0.5 font-bold">Live Build #4592</div>
                     </div>
                   </div>
-                  <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 font-mono text-[8px] uppercase tracking-wider rounded">
+                  <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 font-mono text-[10px] font-bold uppercase tracking-wider rounded">
                     Active 48h
                   </span>
                 </div>
@@ -564,8 +564,8 @@ export default function Home({ setCurrentPage }: HomeProps) {
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4 text-champagne-gold" />
                       <div>
-                        <div className="text-[9px] font-mono uppercase text-warm-grey tracking-wider">Business Growth</div>
-                        <div className="font-display font-medium text-xs text-matte-black mt-0.5">Leads Captured +142%</div>
+                        <div className="text-xs font-mono uppercase text-[#4A443E] font-bold tracking-wider">Business Growth</div>
+                        <div className="font-display font-semibold text-sm text-matte-black mt-0.5">Leads Captured +142%</div>
                       </div>
                     </div>
                     <div className="h-4 w-12 bg-champagne-gold/10 border border-champagne-gold/20 rounded flex items-center justify-center">
@@ -650,7 +650,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
       <section className="py-24 bg-soft-ivory relative" id="capabilities-grid-section">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
               One Studio. Complete Digital Power.
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
@@ -680,7 +680,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                   <h3 className="font-display font-bold text-lg text-matte-black mb-2 flex items-center gap-1.5">
                     {service.title}
                   </h3>
-                  <p className="text-[10px] font-mono uppercase tracking-wider text-[#BFA15A] mb-4">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-[#85641C] mb-4">
                     Pain Solved: {service.painPoint.split('.')[0]}.
                   </p>
                   <p className="text-xs text-warm-grey leading-relaxed mb-6">
@@ -743,7 +743,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                       <Trophy className="w-4.5 h-4.5 text-champagne-gold" />
                     </div>
                     <div>
-                      <h4 className="font-display font-bold text-xs text-matte-black uppercase tracking-wider">{item.title}</h4>
+                      <h3 className="font-display font-bold text-xs text-matte-black uppercase tracking-wider">{item.title}</h3>
                       <p className="text-xs text-warm-grey mt-0.5">{item.desc}</p>
                     </div>
                   </div>
@@ -814,7 +814,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               <div className="flex items-center gap-3 border-b border-champagne-gold/15 pb-4 mb-5">
                 <BarChart3 className="w-5 h-5 text-champagne-gold" />
                 <div>
-                  <h4 className="font-display font-medium text-xs tracking-wider text-soft-ivory uppercase">Digital Remote Control</h4>
+                  <p className="font-display font-medium text-xs tracking-wider text-soft-ivory uppercase">Digital Remote Control</p>
                   <p className="text-[7px] font-mono uppercase text-warm-grey">Future Admin Control Concept</p>
                 </div>
               </div>
@@ -862,7 +862,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                 { title: "Bookings-Configured", desc: "Prepared systems to enable booking and consultation slots dynamically later." }
               ].map((card, idx) => (
                 <div key={idx} className="p-4 bg-charcoal/40 border border-champagne-gold/10 rounded-2xl flex flex-col gap-1.5">
-                  <h4 className="font-display font-bold text-xs text-soft-ivory uppercase tracking-wider">{card.title}</h4>
+                  <h3 className="font-display font-bold text-xs text-soft-ivory uppercase tracking-wider">{card.title}</h3>
                   <p className="text-xs text-warm-grey leading-normal">{card.desc}</p>
                 </div>
               ))}
@@ -883,7 +883,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
       <section className="py-24 bg-soft-ivory" id="process-section">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
               Execution Architecture
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
@@ -909,12 +909,12 @@ export default function Home({ setCurrentPage }: HomeProps) {
                   {step.num}
                 </div>
                 <div>
-                  <span className="text-xs font-mono uppercase text-[#BFA15A] font-bold tracking-widest block mb-4">
+                  <span className="text-xs font-mono uppercase text-[#85641C] font-bold tracking-widest block mb-4">
                     Step {step.num}
                   </span>
-                  <h4 className="font-display font-bold text-lg text-matte-black mb-3">
+                  <h3 className="font-display font-bold text-lg text-matte-black mb-3">
                     {step.title}
-                  </h4>
+                  </h3>
                   <p className="text-xs text-warm-grey leading-relaxed">
                     {step.desc}
                   </p>
@@ -937,7 +937,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
             <div className="text-left flex flex-col items-start gap-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
                 Elite Proof of Work
               </span>
               <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
@@ -1061,7 +1061,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                 </div>
 
                 {testimonial.founderNote && (
-                  <span className="absolute top-4 right-4 bg-champagne-gold/10 border border-champagne-gold/25 text-[#BFA15A] text-[7px] font-mono uppercase tracking-widest px-2.5 py-1 rounded">
+                  <span className="absolute top-4 right-4 bg-champagne-gold/10 border border-champagne-gold/25 text-[#85641C] text-[7px] font-mono uppercase tracking-widest px-2.5 py-1 rounded font-bold">
                     Selected Case
                   </span>
                 )}
@@ -1075,7 +1075,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
       <section className="py-24 bg-[#FFFDF8] border-t border-champagne-gold/15" id="home-faq-section">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
               Direct Clarity · Answer Engine Optimised
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black uppercase">
@@ -1099,7 +1099,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                     className="w-full flex justify-between items-center text-left font-display font-bold text-xs sm:text-sm text-neutral-900 uppercase tracking-wide cursor-pointer focus:outline-none"
                   >
                     <span>{faq.q}</span>
-                    <span className="text-[#BFA15A] w-6 h-6 rounded-full bg-[#D6B46A]/10 border border-[#D6B46A]/25 flex items-center justify-center shrink-0 ml-4">
+                    <span className="text-[#85641C] w-6 h-6 rounded-full bg-[#D6B46A]/15 border border-[#D6B46A]/35 flex items-center justify-center shrink-0 ml-4">
                       {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                     </span>
                   </button>

@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { logger } from './logger';
 import { Lead, JobApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset } from '../types';
+import { PORTFOLIO_DATA } from '../data';
 
 // Role mappings
 export type AdminRole = 'Super Admin' | 'Admin' | 'Content Editor' | 'Sales Manager' | 'Career Manager' | 'Viewer';
@@ -575,11 +576,17 @@ export const supabaseService = {
     }
 
     const projMap = new Map<string, PortfolioProject>();
-    localProjs.forEach(p => {
+    // Baseline curated case studies
+    PORTFOLIO_DATA.forEach(p => {
       if (p && p.id) projMap.set(p.id, p);
     });
+    // Local admin edits
+    localProjs.forEach(p => {
+      if (p && p.id) projMap.set(p.id, { ...(projMap.get(p.id) || {}), ...p });
+    });
+    // Supabase cloud edits
     supabaseProjs.forEach(p => {
-      if (p && p.id) projMap.set(p.id, p);
+      if (p && p.id) projMap.set(p.id, { ...(projMap.get(p.id) || {}), ...p });
     });
 
     return Array.from(projMap.values());

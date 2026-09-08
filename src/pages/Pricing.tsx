@@ -62,31 +62,31 @@ export default function Pricing() {
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-champagne-gold/10 border border-champagne-gold/25 text-[#BFA15A] text-[9px] font-bold font-mono uppercase tracking-widest"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-champagne-gold/15 border border-champagne-gold/30 text-[#A68936] text-xs font-bold font-mono uppercase tracking-widest"
           >
-            <BadgePercent className="w-3.5 h-3.5" />
+            <BadgePercent className="w-4 h-4" />
             Clear Terms
           </motion.div>
           
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight text-neutral-900 uppercase">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-black tracking-tight text-neutral-900 uppercase">
             INVESTMENT SCHEMAS
           </h1>
-          <p className="text-sm text-[#8A8178] leading-relaxed">
+          <p className="text-base sm:text-lg text-[#3D3731] leading-relaxed font-normal">
             Flexible investment tiers engineered to match your scale. Zero monthly licensing fees, absolute source code files ownership, and high visual authority from day one.
           </p>
         </div>
 
         {/* Categories Tab Selector */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex flex-wrap justify-center p-1.5 bg-white/80 backdrop-blur-md border border-[#D6B46A]/20 rounded-2xl shadow-[0_4px_16px_-2px_rgba(17,17,17,0.05)] gap-2">
+          <div className="inline-flex flex-wrap justify-center p-1.5 bg-white/90 backdrop-blur-md border border-[#D6B46A]/25 rounded-2xl shadow-[0_4px_16px_-2px_rgba(17,17,17,0.05)] gap-2">
             
             {/* Website Packages Tab */}
             <button
               onClick={() => setActiveTab('website')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'website'
                   ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
+                  : 'text-[#4A443E] hover:text-matte-black hover:bg-neutral-100/80'
               }`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -96,10 +96,10 @@ export default function Pricing() {
             {/* Apps Tab */}
             <button
               onClick={() => setActiveTab('app')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'app'
                   ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
+                  : 'text-[#4A443E] hover:text-matte-black hover:bg-neutral-100/80'
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -109,10 +109,10 @@ export default function Pricing() {
             {/* Bots Tab */}
             <button
               onClick={() => setActiveTab('bot')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'bot'
                   ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
+                  : 'text-[#4A443E] hover:text-matte-black hover:bg-neutral-100/80'
               }`}
             >
               <Bot className="w-4 h-4" />
@@ -122,10 +122,10 @@ export default function Pricing() {
             {/* Automation Tab */}
             <button
               onClick={() => setActiveTab('automation')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer ${
+              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                 activeTab === 'automation'
                   ? 'bg-matte-black text-soft-ivory shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
-                  : 'text-[#8A8178] hover:text-matte-black hover:bg-neutral-100/60'
+                  : 'text-[#4A443E] hover:text-matte-black hover:bg-neutral-100/80'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -148,16 +148,16 @@ export default function Pricing() {
           {filteredPlans.map((plan) => (
             <div 
               key={plan.id}
-              className={`bg-white/80 rounded-3xl border p-7 flex flex-col justify-between relative shadow-[0_4px_18px_-2px_rgba(17,17,17,0.05),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_16px_36px_-6px_rgba(17,17,17,0.1),0_4px_12px_-2px_rgba(214,180,106,0.18)] hover:-translate-y-1.5 transition-all duration-300 ${
+              className={`bg-white/95 rounded-3xl border p-7 sm:p-8 flex flex-col justify-between relative shadow-[0_4px_18px_-2px_rgba(17,17,17,0.05),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_16px_36px_-6px_rgba(17,17,17,0.1),0_4px_12px_-2px_rgba(214,180,106,0.18)] hover:-translate-y-1.5 transition-all duration-300 ${
                 plan.popular 
                   ? 'border-champagne-gold ring-1 ring-champagne-gold/60 bg-[#FFFDF8]' 
-                  : 'border-[#D6B46A]/20 hover:border-[#D6B46A]/50'
+                  : 'border-[#D6B46A]/25 hover:border-[#D6B46A]/60'
               }`}
             >
               
               {/* Popular stamp */}
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-matte-black text-champagne-gold text-[8.5px] font-mono font-bold uppercase tracking-[0.14em] border border-champagne-gold/45 whitespace-nowrap z-20 shadow-[0_4px_12px_rgba(0,0,0,0.25)]">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-matte-black text-champagne-gold text-[10px] font-mono font-bold uppercase tracking-widest border border-champagne-gold/45 whitespace-nowrap z-20 shadow-[0_4px_12px_rgba(0,0,0,0.25)]">
                   RECOMMENDED PLATFORM
                 </div>
               )}
@@ -165,21 +165,21 @@ export default function Pricing() {
               <div className="space-y-4">
                 {/* Header package name */}
                 <div className="space-y-1 text-center">
-                  <h3 className="font-display font-bold text-sm uppercase tracking-wide text-neutral-900">
+                  <h3 className="font-display font-black text-base uppercase tracking-wider text-neutral-900">
                     {plan.name}
                   </h3>
-                  <span className="text-[10px] text-[#8A8178] block min-h-8">
+                  <span className="text-xs text-[#504A43] block min-h-8 font-medium">
                     {plan.subtitle}
                   </span>
                 </div>
 
                 {/* Price block */}
-                <div className="py-4 border-y border-[#D6B46A]/15 text-center space-y-1">
-                  <div className="text-2xl font-display font-black text-neutral-950">
+                <div className="py-4 border-y border-[#D6B46A]/20 text-center space-y-1.5">
+                  <div className="text-3xl sm:text-4xl font-display font-black text-neutral-950">
                     {plan.price}
                   </div>
-                  <div className="flex items-center justify-center gap-1.5 text-[9px] font-mono text-[#BFA15A] uppercase font-bold tracking-wider">
-                    <Clock className="w-3.5 h-3.5" />
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-mono text-[#A68936] uppercase font-bold tracking-wider">
+                    <Clock className="w-4 h-4" />
                     <span>Deployment: {plan.deliveryTime}</span>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function Pricing() {
                 {/* Features Checklist */}
                 <div className="space-y-3 pt-2">
                   {plan.features.map((feat, fi) => (
-                    <div key={fi} className="flex gap-2.5 items-start text-[11px] text-[#8A8178] leading-tight">
+                    <div key={fi} className="flex gap-2.5 items-start text-xs sm:text-sm text-[#26221E] font-medium leading-normal">
                       <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{feat}</span>
                     </div>
@@ -203,7 +203,7 @@ export default function Pricing() {
                     navigate('/select-direction', { state: { packageNeeded: plan.name, packageId: plan.id } });
                     window.scrollTo(0, 0);
                   }}
-                  className={`w-full py-3.5 rounded-xl font-bold uppercase tracking-[0.12em] text-[9.5px] transition-all duration-200 cursor-pointer text-center block ${
+                  className={`w-full py-4 rounded-xl font-bold uppercase tracking-wider text-xs sm:text-sm transition-all duration-200 cursor-pointer text-center block ${
                     plan.popular
                       ? 'bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-[#1a1a1a] shadow-[0_4px_14px_rgba(0,0,0,0.18)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:translate-y-0'
                       : 'bg-[#FFFDF8] border border-[#D6B46A]/30 text-matte-black hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
@@ -218,22 +218,22 @@ export default function Pricing() {
         </div>
 
         {/* Dynamic bottom FAQ row */}
-        <div className="mt-20 border-t border-matte-black/5 pt-12">
-          <div className="text-center max-w-sm mx-auto mb-12 space-y-1">
-            <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#111111]">PRICING CLARIFICATIONS</h4>
-            <p className="text-[11px] text-[#8A8178]">Standard operations frameworks designed for premium systems builds.</p>
+        <div className="mt-20 border-t border-matte-black/10 pt-12">
+          <div className="text-center max-w-sm mx-auto mb-12 space-y-1.5">
+            <h4 className="font-display font-black text-sm uppercase tracking-wider text-[#111111]">PRICING CLARIFICATIONS</h4>
+            <p className="text-xs sm:text-sm text-[#4E473F]">Standard operations frameworks designed for premium systems builds.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed text-[#8A8178] max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm sm:text-base leading-relaxed text-[#3D3731] max-w-4xl mx-auto">
             <div className="space-y-2">
-              <h5 className="font-display font-bold text-neutral-900 uppercase">Are there monthly licensing fees or subscription overheads?</h5>
+              <h5 className="font-display font-bold text-base text-neutral-900 uppercase">Are there monthly licensing fees or subscription overheads?</h5>
               <p>
                 Absolutely none. Unlike systems crafted on Shopify or Wix, we write custom compiled static files with zero database dependencies for the front-end, saving hundreds of monthly dollars. You own 100% of the files.
               </p>
             </div>
 
             <div className="space-y-2">
-              <h5 className="font-display font-bold text-[#111111] uppercase">Does the 48-hour delivery timeline apply to customized setups?</h5>
+              <h5 className="font-display font-bold text-base text-[#111111] uppercase">Does the 48-hour delivery timeline apply to customized setups?</h5>
               <p>
                 Yes. Our Starter and Professional templates feature pre-compiled responsive modules. By preparing standard layout definitions before-hand, our squad can safely compile your final assets in under 48 hours.
               </p>

@@ -5,6 +5,7 @@ import {
   Check, RefreshCw, Layers, Sparkles, ShieldCheck, Zap, ArrowRight, 
   Maximize2, Eye
 } from 'lucide-react';
+import CustomSelect from '../CustomSelect';
 
 interface PresetItem {
   name: string;
@@ -665,28 +666,28 @@ export default function PhotoResizer() {
             <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#D6B46A]/15">
               <div className="space-y-1">
                 <label className="text-[10px] font-mono uppercase text-[#8A8178] font-bold">Format</label>
-                <select
+                <CustomSelect<string>
                   value={outputFormat}
-                  onChange={(e) => setOutputFormat(e.target.value as any)}
-                  className="w-full bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-xl p-2 text-xs font-mono font-bold text-[#111111] outline-none"
-                >
-                  <option value="image/jpeg">JPEG (.jpg)</option>
-                  <option value="image/png">PNG (.png lossless)</option>
-                  <option value="image/webp">WebP (.webp)</option>
-                </select>
+                  onChange={(val) => setOutputFormat(val as any)}
+                  options={[
+                    { value: 'image/jpeg', label: 'JPEG (.jpg)' },
+                    { value: 'image/png', label: 'PNG (.png lossless)' },
+                    { value: 'image/webp', label: 'WebP (.webp)' }
+                  ]}
+                />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[10px] font-mono uppercase text-[#8A8178] font-bold">Print DPI</label>
-                <select
+                <CustomSelect<number>
                   value={dpi}
-                  onChange={(e) => setDpi(Number(e.target.value))}
-                  className="w-full bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-xl p-2 text-xs font-mono font-bold text-[#111111] outline-none"
-                >
-                  <option value={72}>72 DPI (Web Screen)</option>
-                  <option value={150}>150 DPI (Standard)</option>
-                  <option value={300}>300 DPI (Ultra Print)</option>
-                </select>
+                  onChange={(val) => setDpi(Number(val))}
+                  options={[
+                    { value: 72, label: '72 DPI (Web Screen)' },
+                    { value: 150, label: '150 DPI (Standard)' },
+                    { value: 300, label: '300 DPI (Ultra Print)' }
+                  ]}
+                />
               </div>
             </div>
           </div>

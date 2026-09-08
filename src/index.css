@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -6,11 +5,14 @@
   --color-soft-ivory: #FFFDF8;
   --color-champagne-gold: #D6B46A;
   --color-muted-gold: #BFA15A;
+  --color-gold-deep: #85641C;
   --color-matte-black: #111111;
   --color-charcoal: #262626;
-  --color-warm-grey: #8A8178;
+  --color-warm-grey: #4A443E;
+  --color-warm-grey-muted: #6B635B;
+  --color-warm-grey-light: #8E857B;
   
-  --font-sans: "Inter", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
@@ -43,21 +45,119 @@
 }
 
 @layer base {
+  html {
+    font-size: 15.5px;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    html {
+      font-size: 16.25px;
+    }
+  }
+
+  body {
+    background-color: #F8F4EE;
+    color: #161514;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #D6B46A #FFFDF8;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   h1 {
     font-family: var(--font-display);
     letter-spacing: -0.03em;
-    line-height: 1.15;
+    line-height: 1.16;
+    font-weight: 800;
+    color: #111111;
   }
 
-  h2, h3 {
+  h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    font-weight: 700;
+    color: #111111;
+  }
+
+  h3, h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
-    line-height: 1.25;
+    line-height: 1.32;
+    font-weight: 700;
+    color: #111111;
   }
 
   p {
-    line-height: 1.6;
+    line-height: 1.68;
+    color: #38332E;
   }
+
+  input, textarea, select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  /* Prevent browser autofill from breaking dark input aesthetics */
+  [data-theme="dark"] input:-webkit-autofill,
+  [data-theme="dark"] textarea:-webkit-autofill,
+  .dark input:-webkit-autofill,
+  .dark textarea:-webkit-autofill {
+    -webkit-text-fill-color: #FFFFFF !important;
+    box-shadow: 0 0 0px 1000px #181818 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+/* Global Accessibility & Refined Font Readability Scaling Rules */
+.text-\[7px\], .text-\[8px\] {
+  font-size: 0.68rem !important; /* ~10.5px */
+  line-height: 1.25 !important;
+}
+
+.text-\[8\.5px\], .text-\[9px\] {
+  font-size: 0.72rem !important; /* ~11.2px */
+  line-height: 1.35 !important;
+  letter-spacing: 0.06em !important;
+}
+
+.text-\[9\.5px\], .text-\[10px\] {
+  font-size: 0.78rem !important; /* ~12.2px */
+  line-height: 1.4 !important;
+}
+
+.text-\[11px\] {
+  font-size: 0.82rem !important; /* ~12.8px */
+  line-height: 1.45 !important;
+}
+
+.text-xs {
+  font-size: 0.82rem !important; /* ~12.8px */
+  line-height: 1.48 !important;
+}
+
+.text-sm {
+  font-size: 0.92rem !important; /* ~14.4px */
+  line-height: 1.55 !important;
+}
+
+.text-base {
+  font-size: 1rem !important; /* 16px */
+  line-height: 1.65 !important;
 }
 
 @layer utilities {
@@ -122,17 +222,7 @@
   }
 }
 
-/* Custom Base Styles for Pearl & Champagne UX */
-body {
-  background-color: #F8F4EE;
-  color: #111111;
-  font-family: var(--font-sans);
-  overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: #D6B46A #FFFDF8;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+
 
 /* Custom webkit scrollbars for premium feel */
 ::-webkit-scrollbar {

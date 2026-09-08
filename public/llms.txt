@@ -1,0 +1,22 @@
+# SamaXon Digital Solutions
+
+> India's premier speed-driven digital studio engineering ultra-fast web systems, bespoke UI/UX, brand identities, and automated workflows delivered in 48 hours.
+
+SamaXon Digital Solutions provides enterprise-grade digital architecture and modern web systems designed for ambitious founders, business owners, and growing enterprises.
+
+## Core Capabilities
+- [High-Performance Web Development](https://samaxon.site/services): Pre-compiled, ultra-fast websites and web applications built with 99+ Lighthouse performance scores.
+- [Bespoke UI/UX & Digital Branding](https://samaxon.site/services): Modern, luxury design languages, interactive prototypes, and conversion-focused customer journeys.
+- [Business Automation & Custom Bots](https://samaxon.site/services): Server-side API integrations, Telegram notifications, and automated workflows.
+- [Client Administration Controls](https://samaxon.site/control): Intuitive, bespoke dashboards to manage leads, content, and inquiries without developer intervention.
+
+## Key Resources & Navigation
+- [Home & Portfolio Overview](https://samaxon.site/)
+- [The SamaXon Edge & Demo-First Model](https://samaxon.site/edge)
+- [Client Control Center](https://samaxon.site/control)
+- [All Services & Pricing](https://samaxon.site/services)
+- [Case Studies & Live Proof](https://samaxon.site/projects)
+- [Start a 48-Hour Project](https://samaxon.site/start-project)
+- [Security & Compliance](https://samaxon.site/privacy)
+- [Contact Engineers](https://samaxon.site/contact)
+- [XML Sitemap](https://samaxon.site/sitemap.xml)

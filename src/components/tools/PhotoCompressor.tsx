@@ -5,6 +5,7 @@ import {
   RefreshCw, Layers, Sparkles, ChevronRight, Eye
 } from 'lucide-react';
 import JSZip from 'jszip';
+import CustomSelect from '../CustomSelect';
 
 interface CompressedImageItem {
   id: string;
@@ -590,18 +591,18 @@ export default function PhotoCompressor() {
               <label className="text-[10px] font-mono uppercase font-bold text-[#8A8178] block">
                 Max Dimension Cap (Optional)
               </label>
-              <select
+              <CustomSelect<number>
                 value={maxDimension}
-                onChange={(e) => setMaxDimension(Number(e.target.value))}
-                className="w-full bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-xl p-2.5 text-xs text-[#111111] font-mono outline-none focus:border-[#D6B46A]"
-              >
-                <option value={0}>Original Dimensions (No Rescaling)</option>
-                <option value={2560}>2560 px (Quad HD)</option>
-                <option value={1920}>1920 px (Full HD 1080p)</option>
-                <option value={1280}>1280 px (HD 720p)</option>
-                <option value={800}>800 px (Standard Web Banner)</option>
-                <option value={400}>400 px (Avatar / Profile)</option>
-              </select>
+                onChange={(val) => setMaxDimension(Number(val))}
+                options={[
+                  { value: 0, label: 'Original Dimensions (No Rescaling)' },
+                  { value: 2560, label: '2560 px (Quad HD)' },
+                  { value: 1920, label: '1920 px (Full HD 1080p)' },
+                  { value: 1280, label: '1280 px (HD 720p)' },
+                  { value: 800, label: '800 px (Standard Web Banner)' },
+                  { value: 400, label: '400 px (Avatar / Profile)' }
+                ]}
+              />
             </div>
 
             {/* Uploaded Images Thumbnail Strip */}

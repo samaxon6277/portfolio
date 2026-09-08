@@ -72,15 +72,15 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             </div>
           </Link>
 
-          <p className="text-xs text-[#A6A29E] leading-relaxed max-w-sm">
+          <p className="text-sm text-[#D5CEC4] leading-relaxed max-w-sm">
             High-Performance Digital Architecture, Delivered in 48 Hours. Precision-built digital assets, bespoke user interfaces, and automated workflows engineered for modern enterprise scale.
           </p>
 
-          <div className="flex flex-col gap-2 pt-2 border-l-2 border-[#D6B46A]/40 pl-3.5 py-1 bg-white/[0.02] rounded-r-lg">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B46A] font-semibold">
+          <div className="flex flex-col gap-2 pt-2 border-l-2 border-[#D6B46A]/40 pl-3.5 py-1.5 bg-white/[0.03] rounded-r-lg">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] font-bold">
               The Studio Standard:
             </span>
-            <p className="text-xs text-[#D8D2C9] leading-normal font-sans">
+            <p className="text-sm text-[#E2DDD5] leading-normal font-sans">
               No wireframe delays. Real interactive prototypes delivered within 48 hours.
             </p>
           </div>
@@ -89,7 +89,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <a 
               href={socialLinks.linkedinLink}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
               title="LinkedIn Profile"
               aria-label="LinkedIn"
@@ -99,7 +99,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <a 
               href={socialLinks.instagramLink}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
               title="Instagram Handle"
               aria-label="Instagram"
@@ -109,7 +109,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <a 
               href={socialLinks.telegramLink}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
               title="Telegram Channel"
               aria-label="Telegram"
@@ -119,7 +119,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             <a 
               href={whatsappInquiryLink}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
               title="Official WhatsApp Inquiry"
               aria-label="WhatsApp"
@@ -131,43 +131,43 @@ export default function Footer({ setCurrentPage }: FooterProps) {
 
         {/* Column 2: Digital Capabilities & Services */}
         <div className="flex flex-col gap-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
+          <span className="text-sm font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
             Core Capabilities
           </span>
           <div className="flex flex-col gap-3.5">
             <Link 
               to="/services" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2.5 group cursor-pointer"
             >
-              <Monitor className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <Monitor className="w-4 h-4 text-[#D6B46A]/80 group-hover:text-[#D6B46A] transition-colors duration-200" />
               <span>High-Performance Web Systems</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2.5 group cursor-pointer"
             >
-              <Smartphone className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <Smartphone className="w-4 h-4 text-[#D6B46A]/80 group-hover:text-[#D6B46A] transition-colors duration-200" />
               <span>Full-Stack Mobile Applications</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2.5 group cursor-pointer"
             >
-              <Palette className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <Palette className="w-4 h-4 text-[#D6B46A]/80 group-hover:text-[#D6B46A] transition-colors duration-200" />
               <span>Brand Identity & Design Systems</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2.5 group cursor-pointer"
             >
-              <Cpu className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <Cpu className="w-4 h-4 text-[#D6B46A]/80 group-hover:text-[#D6B46A] transition-colors duration-200" />
               <span>Business Workflow Automations</span>
             </Link>
             <Link 
               to="/services" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2 group cursor-pointer"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 flex items-center gap-2.5 group cursor-pointer"
             >
-              <Bot className="w-3.5 h-3.5 text-[#D6B46A]/75 group-hover:text-[#D6B46A] transition-colors duration-200" />
+              <Bot className="w-4 h-4 text-[#D6B46A]/80 group-hover:text-[#D6B46A] transition-colors duration-200" />
               <span>AI Integration & Telegram Bots</span>
             </Link>
           </div>
@@ -175,56 +175,69 @@ export default function Footer({ setCurrentPage }: FooterProps) {
 
         {/* Column 3: Studio Ecosystem & Navigation */}
         <div className="flex flex-col gap-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
+          <span className="text-sm font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
             Studio Ecosystem
           </span>
           <div className="flex flex-col gap-3">
             <Link 
               to="/about" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
               Why SamaXon Exists
             </Link>
             <Link 
               to="/edge" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
               The Demo-First Model
             </Link>
             <Link 
               to="/projects" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
               Selected Portfolio
             </Link>
             <Link 
               to="/control" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
               Client Control Scaffolding
             </Link>
             <Link 
               to="/pricing" 
-              className="text-left text-xs text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider block font-semibold"
+              className="text-left text-sm text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider block font-bold"
             >
               Bespoke Pricing Plans
             </Link>
             <Link 
+              to="/guides" 
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
+            >
+              Knowledge & Guides
+            </Link>
+            <Link 
+              to="/partner" 
+              className="text-left text-sm text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-bold"
+            >
+              <span>Partner Program</span>
+              <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#D6B46A] text-[10px] font-mono rounded font-bold">20% Earn</span>
+            </Link>
+            <Link 
               to="/tools" 
-              className="text-left text-xs text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-bold"
+              className="text-left text-sm text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-bold"
             >
               <span>AI Tools Suite</span>
-              <span className="px-1.5 py-0.2 bg-[#D6B46A]/20 text-[#D6B46A] text-[8px] font-mono rounded">Free</span>
+              <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#D6B46A] text-[10px] font-mono rounded font-bold">Free</span>
             </Link>
             <Link 
               to="/service-request" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
               Interactive Service Portal
             </Link>
             <Link 
               to="/careers" 
-              className="text-left text-xs text-[#A6A29E] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block"
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
               Careers / Senior Dev Wing
             </Link>
@@ -233,26 +246,26 @@ export default function Footer({ setCurrentPage }: FooterProps) {
 
         {/* Column 4: Initiate Build & Direct Inquiries */}
         <div className="flex flex-col gap-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
+          <span className="text-sm font-mono uppercase tracking-widest text-[#D6B46A] border-b border-[#D6B46A]/20 pb-2 w-fit font-bold">
             Initiate Build
           </span>
-          <div className="bg-[#161616] border border-[#D6B46A]/20 p-5 rounded-2xl flex flex-col gap-4">
-            <p className="text-xs text-[#A6A29E] leading-relaxed">
+          <div className="bg-[#161616] border border-[#D6B46A]/20 p-6 rounded-2xl flex flex-col gap-4">
+            <p className="text-sm text-[#D5CEC4] leading-relaxed">
               Skip cumbersome discovery loops. Submit your requirements and review an interactive demo within 48 hours.
             </p>
             <Link 
               to="/contact"
-              className="w-full py-3 bg-[#D6B46A] text-[#111111] font-bold uppercase tracking-widest text-[11px] rounded-xl hover:bg-[#BFA15A] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-center font-sans shadow-lg shadow-[#D6B46A]/10 active:scale-[0.98]"
+              className="w-full py-3.5 bg-[#D6B46A] text-[#111111] font-bold uppercase tracking-wider text-xs sm:text-sm rounded-xl hover:bg-[#BFA15A] transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer text-center font-sans shadow-lg shadow-[#D6B46A]/10 active:scale-[0.98]"
             >
               Request Quote
-              <CheckCircle2 className="w-3.5 h-3.5 inline-block" />
+              <CheckCircle2 className="w-4 h-4 inline-block" />
             </Link>
             <a 
               href={`mailto:${SITE_CONFIG.contactEmail}`}
-              className="text-[11px] font-mono text-[#D6B46A] hover:underline flex items-center justify-center gap-1 mt-1 text-center"
+              className="text-xs font-mono text-[#D6B46A] hover:underline flex items-center justify-center gap-1 mt-1 text-center font-semibold"
             >
               {SITE_CONFIG.contactEmail}
-              <ArrowUpRight className="w-3 h-3" />
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>
@@ -261,26 +274,26 @@ export default function Footer({ setCurrentPage }: FooterProps) {
 
       {/* Studio Operational Guarantee Banner */}
       <div className="max-w-7xl mx-auto px-6 mb-8">
-        <div className="border border-[#D6B46A]/20 bg-white/[0.03] backdrop-blur-md rounded-2xl p-5 flex flex-wrap items-center justify-between gap-6">
+        <div className="border border-[#D6B46A]/20 bg-white/[0.03] backdrop-blur-md rounded-2xl p-6 flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-8 flex-wrap">
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Engineering Unit</span>
-              <span className="text-xs sm:text-sm font-semibold text-white">SamaXon Senior Developer Wing</span>
+              <span className="text-xs uppercase font-bold tracking-widest text-[#BFA15A]">Engineering Unit</span>
+              <span className="text-sm sm:text-base font-bold text-white">SamaXon Senior Developer Wing</span>
             </div>
-            <div className="w-px h-7 bg-[#D6B46A]/20 hidden sm:block" />
+            <div className="w-px h-8 bg-[#D6B46A]/20 hidden sm:block" />
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Turnaround SLA</span>
-              <span className="text-xs sm:text-sm font-semibold text-white">48-Hour Interactive Delivery</span>
+              <span className="text-xs uppercase font-bold tracking-widest text-[#BFA15A]">Turnaround SLA</span>
+              <span className="text-sm sm:text-base font-bold text-white">48-Hour Interactive Delivery</span>
             </div>
-            <div className="w-px h-7 bg-[#D6B46A]/20 hidden sm:block" />
+            <div className="w-px h-8 bg-[#D6B46A]/20 hidden sm:block" />
             <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A]">Delivery Architecture</span>
-              <span className="text-xs sm:text-sm font-semibold text-[#D6B46A]">Demo-First Execution</span>
+              <span className="text-xs uppercase font-bold tracking-widest text-[#BFA15A]">Delivery Architecture</span>
+              <span className="text-sm sm:text-base font-bold text-[#D6B46A]">Demo-First Execution</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-500/30">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300">Active Production Pipeline</span>
+          <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-500/30">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Active Production Pipeline</span>
           </div>
         </div>
       </div>
