@@ -28,6 +28,7 @@ import Tools from './pages/Tools';
 import ServiceRequest from './pages/ServiceRequest';
 import Partner from './pages/Partner';
 import Guides from './pages/Guides';
+import Updates from './pages/Updates';
 import { analytics } from './utils/analytics';
 
 function ScrollToTop() {
@@ -51,6 +52,8 @@ function HashUrlRedirector() {
       'control': '/control',
       'careers': '/careers',
       'contact': '/contact',
+      'updates': '/updates',
+      'changelog': '/updates',
       'admin': '/admin'
     };
     if (hash && hashToPageMap[hash]) {
@@ -229,6 +232,11 @@ function MainAppContent() {
               <Route path="/guides" element={<Guides />} />
               <Route path="/cost-guide" element={<Guides />} />
               <Route path="/contract-checklist" element={<Guides />} />
+
+              {/* Website Updates, Upgrades & Changelog */}
+              <Route path="/updates" element={<Updates />} />
+              <Route path="/changelog" element={<Updates />} />
+              <Route path="/system-updates" element={<Updates />} />
               
               {/* Creator & Business Tools Suite */}
               <Route path="/tools" element={<Tools />} />

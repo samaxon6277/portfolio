@@ -1,46 +1,31 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Crown, Shield, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare, ArrowUpRight, CheckCircle2 } from 'lucide-react';
-import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
+import { Zap, Crown, Shield, Scale, Monitor, Smartphone, Palette, Cpu, Bot, Send, Linkedin, Instagram, MessageSquare, ArrowUpRight, CheckCircle2, ArrowRight, Clock } from 'lucide-react';
+import { SITE_CONFIG, useLiveWebsiteSettings } from '../config/siteConfig';
+import { getLatestUpdate, formatTimeAgo, SITE_UPDATES_EVENT } from '../utils/siteUpdatesManager';
+import { WebsiteUpdateLog } from '../types';
 
 interface FooterProps {
   setCurrentPage?: (page: string) => void;
 }
 
 export default function Footer({ setCurrentPage }: FooterProps) {
-  const [socialLinks, setSocialLinks] = useState({
-    telegramLink: SITE_CONFIG.social.telegram,
-    linkedinLink: SITE_CONFIG.social.linkedin,
-    instagramLink: SITE_CONFIG.social.instagram,
-    phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
-  });
+  const settings = useLiveWebsiteSettings();
+  const [latestUpdate, setLatestUpdate] = useState<WebsiteUpdateLog | null>(null);
 
   useEffect(() => {
-    const loadSocial = () => {
-      try {
-        const stored = localStorage.getItem('samaxon_website_settings');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setSocialLinks({
-            telegramLink: parsed.telegramLink || SITE_CONFIG.social.telegram,
-            linkedinLink: parsed.linkedinLink || SITE_CONFIG.social.linkedin,
-            instagramLink: parsed.instagramLink || SITE_CONFIG.social.instagram,
-            phoneWhatsapp: parsed.phoneWhatsapp || SITE_CONFIG.phoneWhatsapp,
-          });
-        }
-      } catch (e) {
-        // Safe fallback
-      }
+    const loadUpdates = () => {
+      setLatestUpdate(getLatestUpdate());
     };
 
-    loadSocial();
-    window.addEventListener('samaxon_website_settings_updated', loadSocial);
+    loadUpdates();
+    window.addEventListener(SITE_UPDATES_EVENT, loadUpdates);
     return () => {
-      window.removeEventListener('samaxon_website_settings_updated', loadSocial);
+      window.removeEventListener(SITE_UPDATES_EVENT, loadUpdates);
     };
   }, []);
 
-  const whatsappInquiryLink = getWhatsAppInquiryUrl('Hello SamaXon Team, I would like to request a quote for a custom digital build.');
+  const whatsappInquiryLink = `https://wa.me/${settings.phoneWhatsappRaw}?text=${encodeURIComponent('Hello SamaXon Team, I would like to request a quote for a custom digital build.')}`;
 
   return (
     <footer className="bg-[#0D0D0D] text-[#E5DBCF] border-t border-[#D6B46A]/20 pt-20 pb-12 overflow-hidden relative">
@@ -87,7 +72,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
 
           <div className="flex items-center gap-3 mt-2" id="footer-social-panel">
             <a 
-              href={socialLinks.linkedinLink}
+              href={settings.linkedinLink}
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
@@ -97,7 +82,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               <Linkedin className="w-4 h-4" />
             </a>
             <a 
-              href={socialLinks.instagramLink}
+              href={settings.instagramLink}
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
@@ -107,7 +92,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               <Instagram className="w-4 h-4" />
             </a>
             <a 
-              href={socialLinks.telegramLink}
+              href={settings.telegramLink}
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-full bg-[#161616] border border-[#D6B46A]/20 hover:border-[#D6B46A] hover:text-[#D6B46A] hover:bg-[#222222] transition-all duration-300 flex items-center justify-center text-[#A6A29E] cursor-pointer hover:scale-105 active:scale-95"
@@ -230,6 +215,15 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#D6B46A] text-[10px] font-mono rounded font-bold">Free</span>
             </Link>
             <Link 
+              to="/updates" 
+              className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-medium"
+            >
+              <span>Site Updates & Changelog</span>
+              <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[9px] font-mono rounded font-bold">
+                {latestUpdate ? latestUpdate.version : 'Live'}
+              </span>
+            </Link>
+            <Link 
               to="/service-request" 
               className="text-left text-sm text-[#D1CCC4] hover:text-[#D6B46A] hover:translate-x-1 duration-200 uppercase tracking-wider block font-medium"
             >
@@ -261,10 +255,10 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               <CheckCircle2 className="w-4 h-4 inline-block" />
             </Link>
             <a 
-              href={`mailto:${SITE_CONFIG.contactEmail}`}
+              href={`mailto:${settings.contactEmail}`}
               className="text-xs font-mono text-[#D6B46A] hover:underline flex items-center justify-center gap-1 mt-1 text-center font-semibold"
             >
-              {SITE_CONFIG.contactEmail}
+              {settings.contactEmail}
               <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -291,10 +285,24 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               <span className="text-sm sm:text-base font-bold text-[#D6B46A]">Demo-First Execution</span>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-950/40 border border-emerald-500/30">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Active Production Pipeline</span>
-          </div>
+          <Link
+            to="/updates"
+            className="flex items-center gap-3 px-4 py-2 rounded-full bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/40 hover:border-emerald-400 transition-all cursor-pointer group"
+            title="View full website upgrade timeline and changelog"
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 group-hover:text-white transition-colors flex items-center gap-1">
+                <span>Production Live</span>
+                <span className="text-emerald-500 font-normal">·</span>
+                <span className="text-[#D6B46A]">Updated {latestUpdate ? formatTimeAgo(latestUpdate.timestamp) : 'Recently'}</span>
+              </span>
+              <span className="text-[9px] font-mono text-emerald-400/75">
+                {latestUpdate ? `${latestUpdate.displayDate} at ${latestUpdate.displayTime.split('(')[0].trim()}` : 'Real-Time Sync'}
+              </span>
+            </div>
+            <ArrowRight className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-1 transition-transform ml-1" />
+          </Link>
         </div>
       </div>
 

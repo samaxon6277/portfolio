@@ -861,13 +861,39 @@ export default function SystemSettingsTab({
               </div>
 
               <div>
-                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Phone / WhatsApp coordinate</label>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">WhatsApp Business Number</label>
                 <input 
                   type="text" 
                   value={localSettings.phoneWhatsapp || ''}
+                  placeholder="+91 8076874034"
                   onChange={e => setLocalSettings({ ...localSettings, phoneWhatsapp: e.target.value })}
                   className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
                 />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Used for instant WhatsApp chat & inquiry redirection</span>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">Direct Call Mobile Number (Realme / Studio Call)</label>
+                <input 
+                  type="text" 
+                  value={localSettings.directPhone || ''}
+                  placeholder="+91 8076874034"
+                  onChange={e => setLocalSettings({ ...localSettings, directPhone: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Displayed in Mobile Drawer Consultation & Direct Calling across website</span>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1">City & Delivery Region</label>
+                <input 
+                  type="text" 
+                  value={localSettings.cityRegion || ''}
+                  placeholder="Delhi-NCR, India · Global Delivery"
+                  onChange={e => setLocalSettings({ ...localSettings, cityRegion: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl font-semibold" 
+                />
+                <span className="text-[9px] text-[#8A8178] block mt-0.5">Displayed in Mobile Drawer, Footer, and Header quick cards</span>
               </div>
 
               <div>

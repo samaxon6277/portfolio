@@ -75,6 +75,8 @@ export default function AdminPanel() {
       faviconUrl: '/favicon.ico',
       contactEmail: SITE_CONFIG.contactEmail,
       phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
+      directPhone: SITE_CONFIG.phoneWhatsapp,
+      cityRegion: 'Delhi-NCR, India · Global Delivery',
       telegramLink: SITE_CONFIG.social.telegram,
       linkedinLink: SITE_CONFIG.social.linkedin,
       instagramLink: SITE_CONFIG.social.instagram,

@@ -68,6 +68,8 @@ export interface WebsiteSettings {
   founderEmail?: string;
   careersEmail?: string;
   phoneWhatsapp: string;
+  directPhone?: string;
+  cityRegion?: string;
   telegramLink: string;
   linkedinLink: string;
   instagramLink: string;
@@ -712,6 +714,8 @@ const defaultWebsiteSettings: WebsiteSettings = {
   founderEmail: 'founder@samaxon.site',
   careersEmail: 'careers@samaxon.site',
   phoneWhatsapp: '+91 8076874034',
+  directPhone: '+91 8076874034',
+  cityRegion: 'Delhi-NCR, India · Global Delivery',
   telegramLink: 'https://t.me/samaxon_studio',
   linkedinLink: 'https://linkedin.com/company/samaxon',
   instagramLink: 'https://instagram.com/samaxon_studio',

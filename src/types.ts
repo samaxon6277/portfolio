@@ -223,3 +223,21 @@ export interface JobListing {
   status: 'Open' | 'Closed';
   createdAt: string;
 }
+
+export interface WebsiteUpdateLog {
+  id: string;
+  version: string;
+  title: string;
+  category: 'Feature Release' | 'UI/UX Upgrade' | 'Performance & Speed' | 'Bug Fix' | 'Security Patch' | 'Core Architecture';
+  timestamp: string; // ISO 8601 string
+  displayDate: string; // e.g. "08 Sep 2026"
+  displayDay: string; // e.g. "Tuesday"
+  displayTime: string; // e.g. "10:45 PM"
+  exactHour: number;
+  exactMinute: number;
+  author: string;
+  summary: string;
+  changes: string[];
+  affectedModules: string[];
+  status: 'published' | 'draft' | 'internal';
+}

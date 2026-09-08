@@ -6,6 +6,7 @@ import SEO from '../components/SEO';
 import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
 import { PAGE_TO_ROUTE } from '../utils/navigation';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
+import LiveUpdateSection from '../components/LiveUpdateSection';
 
 function AnimatedCounter({ value }: { value: string }) {
   const [count, setCount] = useState(0);
@@ -1123,6 +1124,9 @@ export default function Home({ setCurrentPage }: HomeProps) {
           </div>
         </div>
       </section>
+
+      {/* --- LIVE SYSTEM & WEBSITE UPDATES SECTION --- */}
+      <LiveUpdateSection />
 
       {/* --- FINAL CONVERSION CTA --- */}
       <section className="py-24 bg-matte-black text-soft-ivory relative overflow-hidden" id="final-cta-section">

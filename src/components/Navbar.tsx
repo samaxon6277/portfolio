@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Zap, Crown, ArrowRight, Phone, Mail, MapPin, Sparkles } from 'lucide-react';
+import { 
+  Menu, X, Zap, Crown, ArrowRight, Phone, Mail, MapPin, Sparkles, 
+  MessageSquare, Layers, Wrench, ShieldCheck, Clock 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SITE_CONFIG } from '../config/siteConfig';
+import { SITE_CONFIG, useLiveWebsiteSettings, getWhatsAppInquiryUrl } from '../config/siteConfig';
 
 interface NavbarProps {
   currentPage?: string;
@@ -12,6 +15,7 @@ interface NavbarProps {
 export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const settings = useLiveWebsiteSettings();
 
   // Disable body scroll when mobile menu is open
   useEffect(() => {
@@ -193,96 +197,146 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop Overlay */}
+            {/* Backdrop Overlay with hardware-accelerated opacity */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-matte-black/60 z-40 lg:hidden backdrop-blur-sm"
+              className="fixed inset-0 bg-[#0B0B0B]/70 z-40 lg:hidden will-change-[opacity]"
               id="mobile-menu-backdrop"
             />
 
-            {/* Sliding Container */}
+            {/* Sliding Container with hardware acceleration */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-4/5 max-w-sm bg-soft-ivory border-l border-champagne-gold/20 z-50 lg:hidden shadow-2xl flex flex-col p-6 sm:p-8 justify-between text-left overflow-y-auto"
+              transition={{ type: 'tween', ease: [0.22, 1, 0.36, 1], duration: 0.28 }}
+              className="fixed right-0 top-0 bottom-0 w-[86%] max-w-sm bg-[#FFFDF9] border-l border-[#D6B46A]/25 z-50 lg:hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] flex flex-col justify-between text-left overflow-y-auto will-change-transform"
               id="mobile-menu-drawer"
             >
-              {/* Drawer Top */}
-              <div>
-                <div className="flex items-center justify-between mb-10 pb-6 border-b border-champagne-gold/15">
-                  <div className="flex items-center gap-2 text-left">
-                    <Zap className="w-5 h-5 text-champagne-gold" />
-                    <span className="font-display font-medium text-matte-black uppercase tracking-widest text-sm">
-                      SamaXon Studio
-                    </span>
+              {/* Drawer Content */}
+              <div className="p-6 sm:p-7 space-y-6">
+                {/* Header with Live Status */}
+                <div className="flex items-center justify-between pb-4 border-b border-[#D6B46A]/20">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-[#D6B46A]" />
+                      <span className="font-display font-black text-sm text-[#111111] uppercase tracking-wider">
+                        {settings.brandName || 'SamaXon Studio'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] font-mono text-emerald-700 font-bold uppercase tracking-wider">
+                        Online · 48H Sprint Open
+                      </span>
+                    </div>
                   </div>
+
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-1.5 text-warm-grey hover:text-matte-black cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-[#111111]/5 hover:bg-[#111111]/10 flex items-center justify-center text-[#554F49] hover:text-[#111111] transition-colors cursor-pointer"
                     aria-label="Close menu"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Nav Links */}
-                <div className="flex flex-col gap-2 text-left">
-                  {mobileNavItems.map((item) => (
-                    <NavLink
-                      key={item.id}
-                      to={item.path}
-                      end={item.path === '/'}
-                      onClick={() => setIsOpen(false)}
-                      className={({ isActive }) =>
-                        `w-full text-left px-4 py-3 rounded-xl uppercase tracking-wider text-xs font-bold transition-all flex items-center justify-between ${
-                          isActive
-                            ? 'bg-gradient-to-r from-champagne-gold/20 to-champagne-gold/10 border border-champagne-gold/40 text-matte-black font-extrabold'
-                            : 'text-[#38332E] hover:bg-champagne-gold/10 hover:text-matte-black'
-                        }`
-                      }
-                    >
-                      <span>{item.label}</span>
-                      {item.badge && (
-                        <span className="px-2 py-0.5 bg-[#D6B46A]/25 text-[#8B6E23] text-[10px] font-mono uppercase font-bold rounded">
-                          {item.badge}
-                        </span>
-                      )}
-                    </NavLink>
-                  ))}
+                {/* Quick Action Shortcuts */}
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href={`tel:${(settings.directPhone || settings.phoneWhatsapp).replace(/[^0-9+]/g, '')}`}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white border border-[#D6B46A]/30 text-xs font-bold text-[#111111] shadow-xs active:scale-95 transition-transform"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#A68936]" />
+                    <span>Direct Call</span>
+                  </a>
+                  <a
+                    href={`https://wa.me/${settings.phoneWhatsappRaw}?text=${encodeURIComponent('Hello SamaXon Team, I would like to discuss a project build.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-800 shadow-xs active:scale-95 transition-transform"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+
+                {/* Navigation Links */}
+                <div className="space-y-1">
+                  <span className="text-[9.5px] font-mono uppercase font-bold text-[#8A8178] tracking-widest block px-2 mb-1.5">
+                    Studio Directory
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    {mobileNavItems.map((item) => (
+                      <NavLink
+                        key={item.id}
+                        to={item.path}
+                        end={item.path === '/'}
+                        onClick={() => setIsOpen(false)}
+                        className={({ isActive }) =>
+                          `w-full text-left px-3.5 py-2.5 rounded-xl uppercase tracking-wider text-xs font-bold transition-all flex items-center justify-between ${
+                            isActive
+                              ? 'bg-[#111111] text-[#D6B46A] shadow-xs'
+                              : 'text-[#3D3731] hover:bg-[#D6B46A]/10 hover:text-[#111111]'
+                          }`
+                        }
+                      >
+                        <span>{item.label}</span>
+                        {item.badge && (
+                          <span className="px-2 py-0.5 bg-[#D6B46A]/25 text-[#7A6020] text-[9.5px] font-mono uppercase font-bold rounded">
+                            {item.badge}
+                          </span>
+                        )}
+                      </NavLink>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Drawer Bottom: Free Consultation & Contacts */}
-              <div className="flex flex-col gap-4 pt-6 border-t border-champagne-gold/20 mt-6">
+              <div className="p-6 sm:p-7 border-t border-[#D6B46A]/20 bg-white/60 space-y-4">
                 {/* Consultation Card */}
-                <div className="p-4 bg-white/80 border border-champagne-gold/30 rounded-2xl space-y-2.5 text-xs text-left">
-                  <div className="flex items-center gap-1.5 text-champagne-gold font-bold font-mono text-[11px] uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Free Consultation
+                <div className="p-4 bg-white border border-[#D6B46A]/35 rounded-2xl space-y-2.5 text-xs text-left shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-[#A68936] font-bold font-mono text-[10.5px] uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Free Consultation & Quote
+                    </div>
+                    <span className="text-[9px] font-mono uppercase font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                      Direct
+                    </span>
                   </div>
-                  <div className="space-y-1.5">
+
+                  <div className="space-y-2 pt-1">
                     <a 
-                      href="tel:+917065451263"
-                      className="flex items-center gap-2 text-matte-black hover:text-[#A68936] font-semibold transition-colors"
+                      href={`tel:${(settings.directPhone || settings.phoneWhatsapp).replace(/[^0-9+]/g, '')}`}
+                      className="flex items-center gap-2.5 text-[#111111] hover:text-[#A68936] font-bold transition-colors group"
                     >
-                      <Phone className="w-3.5 h-3.5 text-champagne-gold shrink-0" />
-                      <span>+91 70654 51263</span>
+                      <div className="w-6 h-6 rounded-lg bg-[#D6B46A]/15 flex items-center justify-center shrink-0 group-hover:bg-[#D6B46A]/25">
+                        <Phone className="w-3.5 h-3.5 text-[#A68936]" />
+                      </div>
+                      <span className="font-mono">{settings.directPhone || settings.phoneWhatsapp}</span>
                     </a>
+
                     <a 
-                      href="mailto:info@samaxon.com"
-                      className="flex items-center gap-2 text-[#595046] hover:text-matte-black transition-colors"
+                      href={`mailto:${settings.contactEmail}`}
+                      className="flex items-center gap-2.5 text-[#4D453E] hover:text-[#111111] transition-colors group"
                     >
-                      <Mail className="w-3.5 h-3.5 text-champagne-gold shrink-0" />
-                      <span>info@samaxon.com</span>
+                      <div className="w-6 h-6 rounded-lg bg-[#D6B46A]/15 flex items-center justify-center shrink-0 group-hover:bg-[#D6B46A]/25">
+                        <Mail className="w-3.5 h-3.5 text-[#A68936]" />
+                      </div>
+                      <span className="font-mono text-[11px] truncate">{settings.contactEmail}</span>
                     </a>
-                    <div className="flex items-center gap-2 text-[#7A7167] text-[11px]">
-                      <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" />
-                      <span>Delhi-NCR, India · Global Delivery</span>
+
+                    <div className="flex items-center gap-2.5 text-[#6D655E] text-[11px]">
+                      <div className="w-6 h-6 rounded-lg bg-[#D6B46A]/15 flex items-center justify-center shrink-0">
+                        <MapPin className="w-3.5 h-3.5 text-[#A68936]" />
+                      </div>
+                      <span className="truncate">{settings.cityRegion || 'Delhi-NCR, India · Global Delivery'}</span>
                     </div>
                   </div>
                 </div>
@@ -290,12 +344,13 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                 <Link
                   to="/contact"
                   onClick={() => setIsOpen(false)}
-                  className="w-full py-3.5 bg-matte-black text-soft-ivory hover:text-champagne-gold uppercase tracking-widest text-xs font-bold rounded-xl border border-champagne-gold/30 text-center transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full py-3.5 bg-[#111111] text-[#D6B46A] hover:bg-[#222222] uppercase tracking-widest text-xs font-bold rounded-xl border border-[#D6B46A]/30 text-center transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95"
                 >
                   Start Build (48 Hours)
-                  <ArrowRight className="w-4 h-4 text-champagne-gold" />
+                  <ArrowRight className="w-4 h-4 text-[#D6B46A]" />
                 </Link>
-                <div className="text-[10px] font-mono text-center text-[#6B635B] uppercase tracking-widest font-bold">
+
+                <div className="text-[10px] font-mono text-center text-[#736B63] uppercase tracking-widest font-bold">
                   India’s Premium Speed Studio
                 </div>
               </div>
