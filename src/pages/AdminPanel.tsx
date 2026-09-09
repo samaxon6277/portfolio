@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink, X
+  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink, X, Sliders
 } from 'lucide-react';
 
 import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, JobApplication } from '../types';
@@ -20,6 +20,7 @@ import LeadsTab from './admin/LeadsTab';
 import CareersTab from './admin/CareersTab';
 import ContentSettingsTab from './admin/ContentSettingsTab';
 import SystemSettingsTab from './admin/SystemSettingsTab';
+import ToolsControlTab from './admin/ToolsControlTab';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -746,6 +747,7 @@ export default function AdminPanel() {
     { id: 'leads', label: 'Client Inquiries', icon: FileSpreadsheet },
     { id: 'careers', label: 'Applications', icon: Briefcase },
     { id: 'content', label: 'Content Board', icon: Settings },
+    { id: 'tools', label: 'Tools Control', icon: Sliders },
   ];
 
   if (currentUser) {
@@ -1083,6 +1085,10 @@ export default function AdminPanel() {
                   onUpdateBlogs={handleUpdateBlogs}
                   onUpdateLegalPages={handleUpdateLegalPages}
                 />
+              )}
+
+              {activeTab === 'tools' && (
+                <ToolsControlTab />
               )}
 
               {activeTab === 'system' && (

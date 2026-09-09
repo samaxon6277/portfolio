@@ -477,20 +477,27 @@ async function startServer() {
   // JSON Body Parser with strict payload size limit (prevents memory exhaustion DoS)
   app.use(express.json({ limit: '100kb' }));
 
-  // Global Rate Limiter: 150 requests per minute per IP
-  const globalLimiter = createRateLimiter({
+  // API Rate Limiter: Guard backend endpoints, never block Vite dev modules or asset streams
+  const apiLimiter = createRateLimiter({
     windowMs: 60 * 1000,
-    max: 150,
-    message: 'Global traffic threshold exceeded. Please slow down.'
+    max: 300,
+    message: 'API traffic threshold exceeded. Please slow down.'
   });
-  app.use(globalLimiter);
+  app.use('/api', apiLimiter);
 
   // --- Strict Security Headers & Transport Layer Defenses ---
   app.use((req, res, next) => {
-    // 1. Force 301 HTTPS Redirect when running in production behind reverse proxies
+    // 1. Force 301 HTTPS Redirect when running in production behind reverse proxies (exclude localhost)
     const proto = req.headers['x-forwarded-proto'];
-    if (process.env.NODE_ENV === 'production' && proto && proto !== 'https') {
-      return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    const host = req.headers.host || '';
+    if (
+      process.env.NODE_ENV === 'production' &&
+      proto &&
+      proto !== 'https' &&
+      !host.includes('localhost') &&
+      !host.includes('127.0.0.1')
+    ) {
+      return res.redirect(301, `https://${host}${req.url}`);
     }
 
     // 2. HTTP Strict Transport Security (HSTS) - 2 Years with preload
@@ -499,8 +506,8 @@ async function startServer() {
     // 3. Prevent MIME Sniffing attacks
     res.setHeader('X-Content-Type-Options', 'nosniff');
 
-    // 4. Clickjacking defense (SAMEORIGIN, plus frame-ancestors in CSP for Google Cloud Run preview)
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    // 4. Note on X-Frame-Options: Deliberately omitted to allow the app to render within
+    // the AI Studio preview iframe. Frame ancestors are governed via Content-Security-Policy below.
 
     // 5. Cross-Site Scripting (XSS) legacy defense
     res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -508,24 +515,23 @@ async function startServer() {
     // 6. Referrer Policy: Send full URL on same origin, domain-only on cross-origin HTTPS
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    // 7. Permissions Policy: Disable unwanted hardware sensor access
-    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-
-    // 8. Content Security Policy (CSP): Enforce strict sources for scripts, styles, and fonts
+    // 7. Content Security Policy (CSP): Allow embedding within AI Studio and Cloud Run preview frames
     const isDev = process.env.NODE_ENV !== 'production';
-    const cspDirectives = [
-      "default-src 'self'",
-      `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''} https://*.supabase.co`,
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com data:",
-      "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.telegram.org",
-      "frame-ancestors 'self' https://*.google.com https://*.run.app",
-      "object-src 'none'",
-      "base-uri 'self'"
-    ].filter(Boolean).join('; ');
+    if (!isDev) {
+      const cspDirectives = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' https://*.supabase.co",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "img-src 'self' data: blob: https:",
+        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.telegram.org https://*.run.app https://*.google.com ws: wss:",
+        "frame-ancestors 'self' https://*.google.com https://*.run.app https://ai.studio https://*.aistudio.google.com https://localhost.corp.google.com:26001",
+        "object-src 'none'",
+        "base-uri 'self'"
+      ].join('; ');
 
-    res.setHeader('Content-Security-Policy', cspDirectives);
+      res.setHeader('Content-Security-Policy', cspDirectives);
+    }
 
     next();
   });

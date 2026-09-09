@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { 
   Menu, X, Zap, Crown, ArrowRight, Phone, Mail, MapPin, Sparkles, 
@@ -16,6 +16,61 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const settings = useLiveWebsiteSettings();
+
+  // Desktop active tab slider measurement
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const linkRefs = useRef<{ [key: string]: HTMLAnchorElement | null }>({});
+  const [pillRect, setPillRect] = useState<{ left: number; top: number; width: number; height: number; ready: boolean }>({
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+    ready: false
+  });
+
+  const desktopNavItems = [
+    { label: 'Services', id: 'services', path: '/services' },
+    { label: 'Work', id: 'portfolio', path: '/projects' },
+    { label: 'Pricing', id: 'pricing', path: '/pricing' },
+    { label: 'Guides', id: 'guides', path: '/guides' },
+    { label: 'Partner', id: 'partner', path: '/partner', badge: '20%' },
+    { label: 'AI Tools', id: 'tools', path: '/tools', badge: 'Free' },
+    { label: 'Company', id: 'company', path: '/company' },
+  ];
+
+  const updatePillPosition = useCallback(() => {
+    const currentPath = location.pathname;
+    const activeItem = desktopNavItems.find(item => 
+      item.path === '/' ? currentPath === '/' : currentPath.startsWith(item.path)
+    );
+
+    if (activeItem && linkRefs.current[activeItem.id] && navContainerRef.current) {
+      const parentRect = navContainerRef.current.getBoundingClientRect();
+      const targetRect = linkRefs.current[activeItem.id]!.getBoundingClientRect();
+      setPillRect({
+        left: targetRect.left - parentRect.left,
+        top: targetRect.top - parentRect.top,
+        width: targetRect.width,
+        height: targetRect.height,
+        ready: true
+      });
+    } else {
+      setPillRect(prev => ({ ...prev, ready: false }));
+    }
+  }, [location.pathname]);
+
+  // Synchronize pill on route change and resize
+  useLayoutEffect(() => {
+    updatePillPosition();
+    const handleResize = () => updatePillPosition();
+    window.addEventListener('resize', handleResize);
+    // Double-check after font/render settlement
+    const timer = setTimeout(updatePillPosition, 50);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
+  }, [updatePillPosition]);
 
   // Disable body scroll when mobile menu is open
   useEffect(() => {
@@ -61,17 +116,6 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [isOpen]);
-
-  // Desktop streamlined navigation
-  const desktopNavItems = [
-    { label: 'Services', id: 'services', path: '/services' },
-    { label: 'Work', id: 'portfolio', path: '/projects' },
-    { label: 'Pricing', id: 'pricing', path: '/pricing' },
-    { label: 'Guides', id: 'guides', path: '/guides' },
-    { label: 'Partner', id: 'partner', path: '/partner', badge: '20%' },
-    { label: 'AI Tools', id: 'tools', path: '/tools', badge: 'Free' },
-    { label: 'Company', id: 'company', path: '/company' },
-  ];
 
   // Mobile complete navigation
   const mobileNavItems = [
@@ -130,43 +174,61 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             </div>
           </Link>
 
-          {/* Desktop Navigation Container with Strict Relative Coordinate Space */}
-          <div className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-matte-black/[0.04] border border-champagne-gold/25 relative">
-            {desktopNavItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.path}
-                end={item.path === '/'}
-                id={`nav-${item.id}`}
-                className={({ isActive }) =>
-                  `relative px-3.5 py-1.5 text-sm font-semibold tracking-normal rounded-full transition-colors duration-200 cursor-pointer select-none ${
-                    isActive 
-                      ? 'text-matte-black' 
+          {/* Desktop Navigation Container with Smooth Sliding Indicator */}
+          <div 
+            ref={navContainerRef}
+            className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-matte-black/[0.04] border border-champagne-gold/25 relative"
+          >
+            {/* Single persistent sliding background pill - never jumps from start */}
+            {pillRect.ready && (
+              <motion.div 
+                className="absolute bg-gradient-to-r from-champagne-gold/20 via-champagne-gold/30 to-champagne-gold/20 rounded-full border border-champagne-gold/45 shadow-[0_2px_8px_rgba(214,180,106,0.22)] pointer-events-none z-0"
+                initial={false}
+                animate={{
+                  left: pillRect.left,
+                  top: pillRect.top,
+                  width: pillRect.width,
+                  height: pillRect.height,
+                  opacity: 1,
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 450,
+                  damping: 35,
+                  mass: 0.5
+                }}
+              />
+            )}
+
+            {desktopNavItems.map((item) => {
+              const isItemActive = item.path === '/' 
+                ? location.pathname === '/' 
+                : location.pathname.startsWith(item.path);
+
+              return (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  end={item.path === '/'}
+                  id={`nav-${item.id}`}
+                  ref={(el) => { linkRefs.current[item.id] = el; }}
+                  className={`relative px-3.5 py-1.5 text-sm font-semibold tracking-normal rounded-full transition-colors duration-200 cursor-pointer select-none z-10 ${
+                    isItemActive 
+                      ? 'text-matte-black font-bold' 
                       : 'text-matte-black/75 hover:text-matte-black hover:bg-champagne-gold/10'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && (
-                      <motion.span 
-                        layoutId="activeNavPill"
-                        className="absolute inset-0 bg-gradient-to-r from-champagne-gold/20 via-champagne-gold/30 to-champagne-gold/20 rounded-full border border-champagne-gold/45 shadow-[0_2px_8px_rgba(214,180,106,0.22)] -z-0"
-                        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                      />
+                  }`}
+                >
+                  <span className="relative flex items-center gap-1.5">
+                    {item.label}
+                    {item.badge && (
+                      <span className="px-1.5 py-0.5 bg-[#D6B46A]/25 text-[#BFA15A] text-[10px] font-mono uppercase font-bold rounded">
+                        {item.badge}
+                      </span>
                     )}
-                    <span className="relative z-10 flex items-center gap-1.5">
-                      {item.label}
-                      {item.badge && (
-                        <span className="px-1.5 py-0.5 bg-[#D6B46A]/25 text-[#BFA15A] text-[10px] font-mono uppercase font-bold rounded">
-                          {item.badge}
-                        </span>
-                      )}
-                    </span>
-                  </>
-                )}
-              </NavLink>
-            ))}
+                  </span>
+                </NavLink>
+              );
+            })}
           </div>
 
           {/* Contact CTA Action */}
@@ -243,26 +305,6 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                   >
                     <X className="w-4 h-4" />
                   </button>
-                </div>
-
-                {/* Quick Action Shortcuts */}
-                <div className="grid grid-cols-2 gap-2">
-                  <a
-                    href={`tel:${(settings.directPhone || settings.phoneWhatsapp).replace(/[^0-9+]/g, '')}`}
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white border border-[#D6B46A]/30 text-xs font-bold text-[#111111] shadow-xs active:scale-95 transition-transform"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-[#A68936]" />
-                    <span>Direct Call</span>
-                  </a>
-                  <a
-                    href={`https://wa.me/${settings.phoneWhatsappRaw}?text=${encodeURIComponent('Hello SamaXon Team, I would like to discuss a project build.')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-800 shadow-xs active:scale-95 transition-transform"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>WhatsApp</span>
-                  </a>
                 </div>
 
                 {/* Navigation Links */}

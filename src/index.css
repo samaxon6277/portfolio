@@ -331,6 +331,26 @@ textarea:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Dark calculator input override to prevent browser/global styling from turning background white */
+.dark-calc-input {
+  background-color: #0e0e0e !important;
+  color: #D6B46A !important;
+  border-color: rgba(214, 180, 106, 0.4) !important;
+  caret-color: #D6B46A !important;
+}
+
+.dark-calc-input:focus {
+  background-color: #141414 !important;
+  color: #FFFFFF !important;
+  border-color: #D6B46A !important;
+  box-shadow: 0 0 0 3px rgba(214, 180, 106, 0.2) !important;
+}
+
+.dark-calc-input::placeholder {
+  color: #6E6862 !important;
+  opacity: 0.8 !important;
+}
+
 /* Calculator tactile keys */
 .calc-fn-key {
   padding: 0.75rem 0.5rem;

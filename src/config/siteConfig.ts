@@ -56,7 +56,7 @@ export const SITE_CONFIG: SiteConfig = {
   careersEmail: 'careers@samaxon.site',
   founderEmail: 'founder@samaxon.site',
   notificationForwarderEmail: 'samaxon6277@gmail.com',
-  phoneWhatsapp: '+91 8076874034',
+  phoneWhatsapp: '+91 80768 74034',
   phoneWhatsappRaw: '918076874034',
   address: {
     street: 'SamaXon Elite Studio Hub, Sector 62',
@@ -273,18 +273,28 @@ export function getLiveWebsiteSettings(): DynamicWebsiteSettings {
     }
   }
 
-  const phoneWhatsapp = adminSettings.phoneWhatsapp || SITE_CONFIG.phoneWhatsapp;
+  let phoneWhatsapp = adminSettings.phoneWhatsapp || SITE_CONFIG.phoneWhatsapp;
+  if (!phoneWhatsapp || phoneWhatsapp.includes('80000') || phoneWhatsapp.includes('00000')) {
+    phoneWhatsapp = '+91 80768 74034';
+  }
   const phoneWhatsappRaw = phoneWhatsapp.replace(/[^0-9]/g, '');
+
+  let directPhone = adminSettings.directPhone || phoneWhatsapp;
+  if (!directPhone || directPhone.includes('80000') || directPhone.includes('00000')) {
+    directPhone = '+91 80768 74034';
+  }
 
   return {
     brandName: adminSettings.brandName || SITE_CONFIG.name,
-    contactEmail: adminSettings.contactEmail || SITE_CONFIG.contactEmail,
+    contactEmail: (adminSettings.contactEmail && !adminSettings.contactEmail.includes('build@') && adminSettings.contactEmail.includes('@')) 
+      ? adminSettings.contactEmail 
+      : 'contact@samaxon.site',
     supportEmail: adminSettings.supportEmail || SITE_CONFIG.supportEmail,
     founderEmail: adminSettings.founderEmail || SITE_CONFIG.founderEmail,
     careersEmail: adminSettings.careersEmail || SITE_CONFIG.careersEmail,
     phoneWhatsapp,
     phoneWhatsappRaw: phoneWhatsappRaw || SITE_CONFIG.phoneWhatsappRaw,
-    directPhone: adminSettings.directPhone || phoneWhatsapp,
+    directPhone,
     cityRegion: adminSettings.cityRegion || 'Delhi-NCR, India · Global Delivery',
     address: adminSettings.address || `${SITE_CONFIG.address.street}, ${SITE_CONFIG.address.city}, ${SITE_CONFIG.address.region}, India`,
     telegramLink: adminSettings.telegramLink || SITE_CONFIG.social.telegram,
