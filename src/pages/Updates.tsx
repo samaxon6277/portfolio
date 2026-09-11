@@ -212,7 +212,7 @@ export default function Updates() {
                 { id: 'Core Architecture', label: 'Architecture' },
                 { id: 'UI/UX Upgrade', label: 'Design' },
                 { id: 'Performance & Speed', label: 'Performance' },
-                { id: 'Security Patch', label: 'Security' }
+                { id: 'Platform Enhancement', label: 'Platform' }
               ].map(c => (
                 <button
                   key={c.id}

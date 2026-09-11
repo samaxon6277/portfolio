@@ -765,6 +765,1154 @@ async function startServer() {
     }
   });
 
+  // --- Strict Rate Limiter for Website Health & Security Analyzer ---
+  const analyzerRateLimiter = createRateLimiter({
+    windowMs: 5 * 60 * 1000,
+    max: 20, // 20 audits per 5 minutes per IP
+    message: 'Audit limit reached. Please wait 5 minutes before auditing more websites.'
+  });
+
+  // Helper to prevent SSRF against loopback or private ranges
+  function isPrivateOrLocalIp(hostname: string): boolean {
+    const norm = hostname.toLowerCase().trim();
+    if (
+      norm === 'localhost' ||
+      norm === '127.0.0.1' ||
+      norm === '0.0.0.0' ||
+      norm === '::1' ||
+      norm === '169.254.169.254' ||
+      norm.endsWith('.local') ||
+      norm.endsWith('.internal')
+    ) {
+      return true;
+    }
+    // Check common private IPv4 ranges: 10.x, 192.168.x, 172.16-31.x
+    const parts = norm.split('.');
+    if (parts.length === 4 && parts.every(p => /^\d+$/.test(p))) {
+      const p0 = parseInt(parts[0], 10);
+      const p1 = parseInt(parts[1], 10);
+      if (p0 === 10) return true;
+      if (p0 === 127) return true;
+      if (p0 === 192 && p1 === 168) return true;
+      if (p0 === 172 && p1 >= 16 && p1 <= 31) return true;
+    }
+    return false;
+  }
+
+  // --- Comprehensive Website Health, Security & SEO Audit Endpoint (/api/analyze-website) ---
+  app.post('/api/analyze-website', analyzerRateLimiter, async (req, res) => {
+    try {
+      const rawUrl = req.body?.url;
+      if (!rawUrl || typeof rawUrl !== 'string') {
+        return res.status(400).json({ success: false, error: 'Target website URL is required.' });
+      }
+
+      let parsedUrl: URL;
+      let targetUrl = rawUrl.trim();
+      if (!/^https?:\/\//i.test(targetUrl)) {
+        targetUrl = 'https://' + targetUrl;
+      }
+
+      try {
+        parsedUrl = new URL(targetUrl);
+      } catch {
+        return res.status(400).json({ success: false, error: 'Invalid website URL format.' });
+      }
+
+      if (isPrivateOrLocalIp(parsedUrl.hostname)) {
+        return res.status(400).json({ success: false, error: 'Cannot audit private or loopback hostnames.' });
+      }
+
+      const startTime = Date.now();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+      let response: Response;
+      let html = '';
+      let fetchError = '';
+
+      try {
+        response = await fetch(parsedUrl.toString(), {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 SamaXonSiteAudit/2.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9'
+          },
+          redirect: 'follow'
+        });
+        clearTimeout(timeoutId);
+        html = await response.text();
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        fetchError = err?.name === 'AbortError' ? 'Audit request timed out after 9 seconds.' : (err?.message || 'Failed to establish connection.');
+      }
+
+      const responseTimeMs = Date.now() - startTime;
+
+      if (fetchError || !response!) {
+        return res.status(200).json({
+          success: true,
+          reachable: false,
+          error: fetchError || 'Website unreachable or blocked incoming scan.',
+          url: targetUrl,
+          hostname: parsedUrl.hostname,
+          analyzedAt: new Date().toISOString()
+        });
+      }
+
+      // Headers analysis
+      const headers = response.headers;
+      const isHttps = response.url.startsWith('https://');
+      const statusCode = response.status;
+      const hstsHeader = headers.get('strict-transport-security');
+      const cspHeader = headers.get('content-security-policy');
+      const xFrameHeader = headers.get('x-frame-options');
+      const xContentTypeHeader = headers.get('x-content-type-options');
+      const referrerPolicyHeader = headers.get('referrer-policy');
+      const permissionsPolicyHeader = headers.get('permissions-policy');
+      const serverHeader = headers.get('server');
+      const compressionHeader = headers.get('content-encoding');
+
+      // Parsing HTML Content
+      const htmlSizeKb = Math.round((Buffer.byteLength(html, 'utf8') / 1024) * 10) / 10;
+      const hasDoctype = /<!doctype\s+html/i.test(html);
+      
+      // Meta viewport
+      const viewportMatch = html.match(/<meta[^>]+name=["']viewport["'][^>]*>/i);
+      const hasViewport = !!viewportMatch;
+      const isZoomLocked = viewportMatch ? (/user-scalable\s*=\s*no/i.test(viewportMatch[0]) || /maximum-scale\s*=\s*1(\.0)?/i.test(viewportMatch[0])) : false;
+
+      // Meta charset
+      const hasCharset = /<meta[^>]+charset=["']?[a-zA-Z0-9\-_]+["']?/i.test(html);
+
+      // Title
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      const title = titleMatch ? titleMatch[1].trim().replace(/\s+/g, ' ') : '';
+
+      // Meta description
+      const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i) ||
+                        html.match(/<meta[^>]+content=["']([^"']*)["'][^>]+name=["']description["']/i);
+      const metaDescription = descMatch ? descMatch[1].trim() : '';
+
+      // Canonical
+      const canonicalMatch = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']*)["']/i);
+      const canonicalUrl = canonicalMatch ? canonicalMatch[1].trim() : '';
+
+      // Robots meta
+      const robotsMatch = html.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']*)["']/i);
+      const robotsContent = robotsMatch ? robotsMatch[1].trim() : '';
+
+      // OpenGraph & Social
+      const ogTitleMatch = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']*)["']/i);
+      const ogDescMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']*)["']/i);
+      const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']*)["']/i);
+      const twitterCardMatch = html.match(/<meta[^>]+name=["']twitter:card["'][^>]+content=["']([^"']*)["']/i);
+
+      // Headings
+      const h1Matches = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/gi) || [];
+      const h1List = h1Matches.map(m => m.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
+      const h2Count = (html.match(/<h2[^>]*>/gi) || []).length;
+      const h3Count = (html.match(/<h3[^>]*>/gi) || []).length;
+
+      // Images & Alt tags
+      const imgMatches = html.match(/<img[^>]+>/gi) || [];
+      const totalImages = imgMatches.length;
+      const missingAltImages: string[] = [];
+      let imagesWithoutAltCount = 0;
+
+      for (const imgTag of imgMatches) {
+        const altMatch = imgTag.match(/\balt=(["'])(.*?)\1/i);
+        if (!altMatch || !altMatch[2].trim()) {
+          imagesWithoutAltCount++;
+          const srcMatch = imgTag.match(/\bsrc=(["'])(.*?)\1/i);
+          if (srcMatch && missingAltImages.length < 5) {
+            missingAltImages.push(srcMatch[2]);
+          }
+        }
+      }
+
+      // Scripts & Styles
+      const scriptTags = (html.match(/<script[^>]*>/gi) || []).length;
+      const stylesheetTags = (html.match(/<link[^>]+rel=["']stylesheet["'][^>]*>/gi) || []).length;
+      
+      // Deprecated tags
+      const deprecatedTagsFound: string[] = [];
+      ['font', 'center', 'marquee', 'blink', 'strike', 'applet'].forEach(tag => {
+        if (new RegExp(`<${tag}[^>]*>`, 'i').test(html)) {
+          deprecatedTagsFound.push(`<${tag}>`);
+        }
+      });
+
+      // Broken / Empty Link tags
+      const emptyLinksCount = (html.match(/href=["'](#[^"']*|javascript:void\(0\);?|)["']/gi) || []).length;
+
+      // --- Deep Scanning: 1. Subpage Discovery & Multi-page Health Crawler ---
+      const internalAnchorMatches = html.matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>/gi);
+      const discoveredPaths = new Set<string>();
+      for (const match of internalAnchorMatches) {
+        const href = (match[1] || '').trim();
+        if (
+          !href ||
+          href.startsWith('#') ||
+          href.startsWith('javascript:') ||
+          href.startsWith('mailto:') ||
+          href.startsWith('tel:') ||
+          /\.(png|jpe?g|gif|svg|webp|ico|pdf|zip|mp4|css|js|json|xml)$/i.test(href)
+        ) {
+          continue;
+        }
+
+        try {
+          const resolved = new URL(href, targetUrl);
+          if (resolved.origin === parsedUrl.origin) {
+            const cleanPath = resolved.pathname;
+            if (cleanPath && cleanPath !== '/' && cleanPath !== parsedUrl.pathname && !discoveredPaths.has(cleanPath)) {
+              discoveredPaths.add(cleanPath);
+              if (discoveredPaths.size >= 4) break;
+            }
+          }
+        } catch {}
+      }
+
+      const subpagesList = Array.from(discoveredPaths).slice(0, 4);
+      const internalPages: Array<{ path: string; url: string; status: number; ok: boolean; responseTimeMs: number }> = [
+        {
+          path: parsedUrl.pathname || '/',
+          url: targetUrl,
+          status: statusCode,
+          ok: statusCode >= 200 && statusCode < 400,
+          responseTimeMs
+        }
+      ];
+
+      if (subpagesList.length > 0) {
+        await Promise.all(
+          subpagesList.map(async (p) => {
+            const pageUrl = new URL(p, targetUrl).toString();
+            const pStart = Date.now();
+            const pCtrl = new AbortController();
+            const pTimer = setTimeout(() => pCtrl.abort(), 3500);
+            try {
+              const pRes = await fetch(pageUrl, {
+                method: 'GET',
+                signal: pCtrl.signal,
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 SamaXonSiteAudit/2.0',
+                  'Accept': 'text/html'
+                },
+                redirect: 'follow'
+              });
+              clearTimeout(pTimer);
+              internalPages.push({
+                path: p,
+                url: pageUrl,
+                status: pRes.status,
+                ok: pRes.status >= 200 && pRes.status < 400,
+                responseTimeMs: Date.now() - pStart
+              });
+            } catch {
+              clearTimeout(pTimer);
+              internalPages.push({
+                path: p,
+                url: pageUrl,
+                status: 0,
+                ok: false,
+                responseTimeMs: Date.now() - pStart
+              });
+            }
+          })
+        );
+      }
+
+      // --- Deep Scanning: 2. CSS Animation, Keyframes & Layout Jank Analysis ---
+      const styleMatches = html.match(/<style\b[^>]*>([\s\S]*?)<\/style>/gi) || [];
+      const combinedStyles = styleMatches.map(s => s.replace(/<\/?style[^>]*>/gi, '')).join('\n');
+
+      const keyframeMatches = (combinedStyles.match(/@keyframes\s+([a-zA-Z0-9_-]+)/gi) || []).length +
+                              (html.match(/animation:\s*[^;]+/gi) || []).length;
+
+      const expensiveProperties = ['width', 'height', 'top', 'left', 'right', 'bottom', 'margin', 'padding'];
+      const nonCompositedFound: string[] = [];
+      for (const prop of expensiveProperties) {
+        const reg = new RegExp(`(transition|animation)[^;]*\\b${prop}\\b`, 'i');
+        if (reg.test(combinedStyles) || reg.test(html)) {
+          nonCompositedFound.push(prop);
+        }
+      }
+
+      const transitionAllCount = (combinedStyles.match(/transition\s*:\s*all\b/gi) || []).length +
+                                 (html.match(/style=["'][^"']*transition\s*:\s*all/gi) || []).length;
+
+      const hasReducedMotion = /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/i.test(combinedStyles) ||
+                               /@media[^{]+prefers-reduced-motion/i.test(html);
+
+      const detectedAnimationLibraries: string[] = [];
+      if (/gsap(\.min)?\.js/i.test(html) || /TweenMax/i.test(html)) detectedAnimationLibraries.push('GSAP');
+      if (/lottie/i.test(html)) detectedAnimationLibraries.push('Lottie/Bodymovin');
+      if (/three(\.min)?\.js/i.test(html) || /three\.module/i.test(html)) detectedAnimationLibraries.push('Three.js');
+      if (/framer-motion/i.test(html)) detectedAnimationLibraries.push('Framer Motion');
+      if (/anime(\.min)?\.js/i.test(html)) detectedAnimationLibraries.push('Anime.js');
+      if (/scrollmagic/i.test(html) || /locomotive/i.test(html)) detectedAnimationLibraries.push('Locomotive/ScrollMagic');
+
+      const animationJankRisk: 'Low' | 'Moderate' | 'High' = 
+        (nonCompositedFound.length >= 2 || (transitionAllCount > 4 && keyframeMatches > 8)) ? 'High' :
+        (nonCompositedFound.length > 0 || transitionAllCount > 1 || keyframeMatches > 4) ? 'Moderate' : 'Low';
+
+      // --- Deep Scanning: 3. Mixed Content, Head Script Blocking, Schema & Attributes ---
+      let mixedContentCount = 0;
+      if (isHttps) {
+        const httpAssets = html.match(/(?:src|href)=["']http:\/\/[^"']+["']/gi) || [];
+        mixedContentCount = httpAssets.filter(a => !a.includes('w3.org') && !a.includes('schema.org')).length;
+      }
+
+      const headBlock = (html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i) || [])[1] || '';
+      const headScripts = headBlock.match(/<script\b[^>]*>([\s\S]*?)<\/script>|<script\b[^>]*\/>|<script\b[^>]*>/gi) || [];
+      const renderBlockingScriptsCount = headScripts.filter(s => {
+        const hasSrc = /\bsrc=/i.test(s);
+        const isDeferred = /\b(defer|async|type=["']module["'])\b/i.test(s);
+        return hasSrc && !isDeferred;
+      }).length;
+
+      const hasJsonLd = /<script\b[^>]*type=["']application\/ld\+json["']/i.test(html);
+      const hasHtmlLang = /<html\b[^>]*\blang=["']?[a-zA-Z\-]+["']?/i.test(html);
+
+      let imagesMissingDimensions = 0;
+      for (const imgTag of imgMatches) {
+        const hasW = /\bwidth=/i.test(imgTag);
+        const hasH = /\bheight=/i.test(imgTag);
+        if (!hasW || !hasH) {
+          imagesMissingDimensions++;
+        }
+      }
+
+      // Keyword Extraction & Text Analysis
+      // Strip styles, scripts, html tags
+      const strippedBody = html
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&[a-z0-9#]+;/gi, ' ')
+        .toLowerCase();
+
+      const words = strippedBody.match(/\b[a-z]{4,20}\b/g) || [];
+      const stopWords = new Set([
+        'about', 'after', 'again', 'against', 'almost', 'also', 'although', 'always', 'among',
+        'another', 'because', 'before', 'being', 'between', 'both', 'could', 'every', 'first',
+        'from', 'further', 'here', 'into', 'just', 'more', 'most', 'other', 'over', 'same',
+        'should', 'some', 'such', 'than', 'that', 'their', 'them', 'then', 'there', 'these',
+        'they', 'this', 'those', 'through', 'under', 'until', 'very', 'were', 'what', 'when',
+        'where', 'which', 'while', 'with', 'would', 'your', 'have', 'been', 'will', 'with',
+        'http', 'https', 'www', 'com', 'html', 'page', 'site', 'click', 'read', 'view'
+      ]);
+
+      const wordCounts: Record<string, number> = {};
+      words.forEach(w => {
+        if (!stopWords.has(w) && isNaN(Number(w))) {
+          wordCounts[w] = (wordCounts[w] || 0) + 1;
+        }
+      });
+
+      const topKeywords = Object.entries(wordCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([keyword, count]) => ({
+          keyword,
+          count,
+          density: words.length ? Math.round((count / words.length) * 1000) / 10 : 0
+        }));
+
+      // Detect Domain / Business Intent for Missing Keyword Recommendations
+      const combinedText = (title + ' ' + metaDescription + ' ' + h1List.join(' ') + ' ' + strippedBody.slice(0, 2000)).toLowerCase();
+      
+      const potentialTargetKeywords = [
+        { term: 'pricing', label: 'Transparent Pricing / Cost' },
+        { term: 'reviews', label: 'Client Reviews / Testimonials' },
+        { term: 'services', label: 'Core Services / Capabilities' },
+        { term: 'contact', label: 'Direct Contact / Inquiry' },
+        { term: 'portfolio', label: 'Case Studies / Live Work' },
+        { term: 'solutions', label: 'Business Solutions' },
+        { term: 'support', label: 'Customer Support / FAQ' },
+        { term: 'guarantee', label: 'Satisfaction Guarantee' },
+        { term: 'security', label: 'Data Security & Compliance' },
+        { term: 'expert', label: 'Industry Expertise' },
+        { term: 'consultation', label: 'Free Consultation' },
+        { term: 'noida', label: 'Local Delhi-NCR / Noida Presence' },
+        { term: 'features', label: 'Product Features' },
+        { term: 'results', label: 'Proven Results / Metrics' }
+      ];
+
+      const missingKeywords = potentialTargetKeywords
+        .filter(k => !combinedText.includes(k.term))
+        .map(k => k.label)
+        .slice(0, 6);
+
+      // Scoring Engine
+      let securityScore = 100;
+      let seoScore = 100;
+      let codeScore = 100;
+      let perfScore = 100;
+
+      const issues: {
+        category: 'security' | 'seo' | 'code' | 'performance';
+        severity: 'critical' | 'warning' | 'passed';
+        title: string;
+        description: string;
+        recommendation: string;
+      }[] = [];
+
+      // --- Security Deductions ---
+      if (!isHttps) {
+        securityScore -= 40;
+        issues.push({
+          category: 'security',
+          severity: 'critical',
+          title: 'Unencrypted HTTP Connection',
+          description: 'Website is served over plaintext HTTP without SSL/TLS encryption.',
+          recommendation: 'Install an SSL certificate (e.g., Let\'s Encrypt / Cloudflare) and force HTTPS 301 redirects.'
+        });
+      } else {
+        issues.push({
+          category: 'security',
+          severity: 'passed',
+          title: 'SSL/TLS Encryption Active',
+          description: 'Connection is securely encrypted using modern HTTPS protocol.',
+          recommendation: 'Maintain annual renewal and modern cipher suites.'
+        });
+      }
+
+      if (!hstsHeader) {
+        securityScore -= 15;
+        issues.push({
+          category: 'security',
+          severity: 'warning',
+          title: 'Missing HSTS (Strict-Transport-Security)',
+          description: 'Browsers are not instructed to strictly reject insecure HTTP connections.',
+          recommendation: 'Add header: Strict-Transport-Security: max-age=63072000; includeSubDomains; preload'
+        });
+      } else {
+        issues.push({
+          category: 'security',
+          severity: 'passed',
+          title: 'HSTS Protection Active',
+          description: 'Strict Transport Security header prevents SSL strip attacks.',
+          recommendation: 'Optimal configuration.'
+        });
+      }
+
+      if (!cspHeader) {
+        securityScore -= 15;
+        issues.push({
+          category: 'security',
+          severity: 'warning',
+          title: 'Missing Content-Security-Policy (CSP)',
+          description: 'Lack of CSP increases vulnerability to Cross-Site Scripting (XSS) and data injection.',
+          recommendation: 'Define a Content-Security-Policy header restricting script and style origins.'
+        });
+      } else {
+        issues.push({
+          category: 'security',
+          severity: 'passed',
+          title: 'Content-Security-Policy Configured',
+          description: 'CSP mitigates unauthorized script execution.',
+          recommendation: 'Audit origins regularly.'
+        });
+      }
+
+      if (!xFrameHeader && (!cspHeader || !cspHeader.includes('frame-ancestors'))) {
+        securityScore -= 10;
+        issues.push({
+          category: 'security',
+          severity: 'warning',
+          title: 'Missing Clickjacking Defense',
+          description: 'Neither X-Frame-Options nor CSP frame-ancestors is defined, risking UI redressing.',
+          recommendation: 'Set X-Frame-Options: SAMEORIGIN or CSP frame-ancestors.'
+        });
+      }
+
+      if (!xContentTypeHeader) {
+        securityScore -= 10;
+        issues.push({
+          category: 'security',
+          severity: 'warning',
+          title: 'Missing X-Content-Type-Options',
+          description: 'MIME-type sniffing is not explicitly disabled on your server.',
+          recommendation: 'Send header: X-Content-Type-Options: nosniff.'
+        });
+      }
+
+      if (serverHeader && /\d+\.\d+/.test(serverHeader)) {
+        securityScore -= 5;
+        issues.push({
+          category: 'security',
+          severity: 'warning',
+          title: 'Server Version Disclosure',
+          description: `Server header exposes specific software version: "${serverHeader}".`,
+          recommendation: 'Mask or disable server signature banner in nginx / apache configuration.'
+        });
+      }
+
+      // --- SEO Deductions ---
+      if (!title) {
+        seoScore -= 25;
+        issues.push({
+          category: 'seo',
+          severity: 'critical',
+          title: 'Missing <title> Tag',
+          description: 'Page lacks a title element, severely damaging search engine visibility and click rates.',
+          recommendation: 'Add a distinct 50–60 character <title> containing primary search intent.'
+        });
+      } else if (title.length < 25 || title.length > 70) {
+        seoScore -= 10;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: `Suboptimal Title Tag Length (${title.length} chars)`,
+          description: `Current title is ${title.length} characters. Optimal search engine display is 50–60 characters.`,
+          recommendation: 'Refine title to 50–60 characters with business name and core focus keyword.'
+        });
+      } else {
+        issues.push({
+          category: 'seo',
+          severity: 'passed',
+          title: `Optimized Title Tag (${title.length} chars)`,
+          description: `"${title}" matches ideal search engine SERP criteria.`,
+          recommendation: 'Ensure keyword density remains natural.'
+        });
+      }
+
+      if (!metaDescription) {
+        seoScore -= 20;
+        issues.push({
+          category: 'seo',
+          severity: 'critical',
+          title: 'Missing Meta Description',
+          description: 'No meta description found. Search engines will generate automated, unoptimized snippets.',
+          recommendation: 'Add <meta name="description" content="..."> between 120–160 characters.'
+        });
+      } else if (metaDescription.length < 70 || metaDescription.length > 175) {
+        seoScore -= 8;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: `Meta Description Length (${metaDescription.length} chars)`,
+          description: `Description length should be 120–160 characters to avoid truncation in Google results.`,
+          recommendation: 'Trim or enrich meta description to 120–160 characters with clear call-to-action.'
+        });
+      } else {
+        issues.push({
+          category: 'seo',
+          severity: 'passed',
+          title: 'Meta Description Optimal',
+          description: 'Meta description contains healthy length for high search CTR.',
+          recommendation: 'Keep messaging aligned with landing page intent.'
+        });
+      }
+
+      if (h1List.length === 0) {
+        seoScore -= 20;
+        issues.push({
+          category: 'seo',
+          severity: 'critical',
+          title: 'Missing H1 Heading',
+          description: 'No <h1> tag was found. H1 signals the primary topical theme of your page to Google.',
+          recommendation: 'Add exactly one prominent <h1> heading containing your main keyword.'
+        });
+      } else if (h1List.length > 1) {
+        seoScore -= 8;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: `Multiple H1 Headings (${h1List.length} found)`,
+          description: 'Using multiple <h1> tags dilutes topical relevance and confuses screen readers.',
+          recommendation: 'Reserve <h1> for the primary title and downgrade secondary headlines to <h2>.'
+        });
+      } else {
+        issues.push({
+          category: 'seo',
+          severity: 'passed',
+          title: 'Unique H1 Heading Present',
+          description: `"${h1List[0].slice(0, 60)}" properly structures the document hierarchy.`,
+          recommendation: 'Maintain hierarchy with supporting H2 and H3 tags.'
+        });
+      }
+
+      if (!canonicalUrl) {
+        seoScore -= 10;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: 'Missing Canonical Tag',
+          description: 'No <link rel="canonical"> tag detected, risking duplicate content penalties.',
+          recommendation: 'Add <link rel="canonical" href="..."> pointing to the authoritative URL.'
+        });
+      }
+
+      if (!ogTitleMatch || !ogImageMatch) {
+        seoScore -= 10;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: 'Incomplete Social Media OpenGraph Tags',
+          description: 'Missing og:title or og:image tags causes links shared on WhatsApp, LinkedIn & Twitter to appear blank.',
+          recommendation: 'Include og:title, og:description, and high-resolution og:image (1200x630px).'
+        });
+      } else {
+        issues.push({
+          category: 'seo',
+          severity: 'passed',
+          title: 'OpenGraph Rich Snippets Configured',
+          description: 'Social platforms will display rich preview cards when your link is shared.',
+          recommendation: 'Test preview cards across WhatsApp and LinkedIn.'
+        });
+      }
+
+      // --- Code & Bug Deductions ---
+      if (imagesWithoutAltCount > 0) {
+        const penalty = Math.min(25, imagesWithoutAltCount * 4);
+        codeScore -= penalty;
+        issues.push({
+          category: 'code',
+          severity: imagesWithoutAltCount > 3 ? 'critical' : 'warning',
+          title: `${imagesWithoutAltCount} Images Missing "alt" Attributes`,
+          description: 'Images without alt tags fail WCAG accessibility standards and miss image search traffic.',
+          recommendation: 'Add descriptive alt text to all informative <img> tags.'
+        });
+      } else if (totalImages > 0) {
+        issues.push({
+          category: 'code',
+          severity: 'passed',
+          title: 'All Images Have Descriptive Alt Tags',
+          description: `All ${totalImages} images feature alt attributes, ensuring accessibility and SEO compliance.`,
+          recommendation: 'Keep adding alt text for every new asset.'
+        });
+      }
+
+      if (!hasViewport) {
+        codeScore -= 25;
+        issues.push({
+          category: 'code',
+          severity: 'critical',
+          title: 'Missing Viewport Meta Tag',
+          description: 'Website will render as a shrunk desktop layout on mobile devices.',
+          recommendation: 'Add <meta name="viewport" content="width=device-width, initial-scale=1.0">.'
+        });
+      } else if (isZoomLocked) {
+        codeScore -= 10;
+        issues.push({
+          category: 'code',
+          severity: 'warning',
+          title: 'Mobile Pinch-to-Zoom Locked',
+          description: 'Viewport restricts zooming (user-scalable=no / maximum-scale=1), failing accessibility criteria.',
+          recommendation: 'Remove user-scalable=no to permit visual magnification for low-vision users.'
+        });
+      } else {
+        issues.push({
+          category: 'code',
+          severity: 'passed',
+          title: 'Mobile Viewport Correctly Configured',
+          description: 'Responsive viewport enables fluid scaling across smartphone and tablet viewports.',
+          recommendation: 'Maintain touch targets of at least 44px.'
+        });
+      }
+
+      if (!hasDoctype) {
+        codeScore -= 15;
+        issues.push({
+          category: 'code',
+          severity: 'critical',
+          title: 'Missing Modern HTML5 Doctype',
+          description: 'Missing <!DOCTYPE html> triggers legacy Quirks Mode rendering in modern browsers.',
+          recommendation: 'Ensure <!DOCTYPE html> is the first line of the document.'
+        });
+      }
+
+      if (deprecatedTagsFound.length > 0) {
+        codeScore -= 15;
+        issues.push({
+          category: 'code',
+          severity: 'warning',
+          title: `Deprecated HTML Tags Found: ${deprecatedTagsFound.join(', ')}`,
+          description: 'Legacy presentation tags violate HTML5 standards and cause inconsistent mobile rendering.',
+          recommendation: 'Replace legacy tags with modern CSS classes.'
+        });
+      }
+
+      if (emptyLinksCount > 4) {
+        codeScore -= 10;
+        issues.push({
+          category: 'code',
+          severity: 'warning',
+          title: `${emptyLinksCount} Empty or Inactive Links (href="#" or blank)`,
+          description: 'Links with href="#" or empty values confuse users and cause crawler dead-ends.',
+          recommendation: 'Replace dummy anchor tags with valid URLs or interactive <button> elements.'
+        });
+      }
+
+      // --- Performance Deductions ---
+      if (responseTimeMs > 1500) {
+        perfScore -= 25;
+        issues.push({
+          category: 'performance',
+          severity: 'critical',
+          title: `Slow Server Response Time (TTFB: ${responseTimeMs}ms)`,
+          description: 'Time to First Byte exceeds 1.5 seconds, triggering visitor abandonment.',
+          recommendation: 'Implement server caching (Redis / CDN edge caching) and optimize database queries.'
+        });
+      } else if (responseTimeMs > 600) {
+        perfScore -= 12;
+        issues.push({
+          category: 'performance',
+          severity: 'warning',
+          title: `Moderate Response Time (TTFB: ${responseTimeMs}ms)`,
+          description: 'Server response is slightly sluggish compared to modern 200–400ms benchmarks.',
+          recommendation: 'Enable edge caching and HTTP/2 or HTTP/3.'
+        });
+      } else {
+        issues.push({
+          category: 'performance',
+          severity: 'passed',
+          title: `Fast Server Response (TTFB: ${responseTimeMs}ms)`,
+          description: 'Server response latency is well within Google Core Web Vitals thresholds.',
+          recommendation: 'Maintain server monitoring.'
+        });
+      }
+
+      if (htmlSizeKb > 250) {
+        perfScore -= 15;
+        issues.push({
+          category: 'performance',
+          severity: 'warning',
+          title: `Heavy HTML Document Size (${htmlSizeKb} KB)`,
+          description: 'Large raw HTML payload increases mobile parsing and rendering latency.',
+          recommendation: 'Remove inline data URLs, minify markup, and defer heavy scripts.'
+        });
+      } else {
+        issues.push({
+          category: 'performance',
+          severity: 'passed',
+          title: `Lean Document Size (${htmlSizeKb} KB)`,
+          description: 'Clean DOM footprint allows instant rendering.',
+          recommendation: 'Keep document size under 100KB.'
+        });
+      }
+
+      if (compressionHeader) {
+        issues.push({
+          category: 'performance',
+          severity: 'passed',
+          title: `Data Compression Enabled (${compressionHeader})`,
+          description: 'Assets are efficiently transferred with modern compression algorithms.',
+          recommendation: 'Ensure Brotli (br) is prioritized over Gzip where supported.'
+        });
+      } else {
+        perfScore -= 15;
+        issues.push({
+          category: 'performance',
+          severity: 'warning',
+          title: 'Missing Gzip / Brotli Compression',
+          description: 'Response is uncompressed, resulting in slower downloads on mobile connections.',
+          recommendation: 'Enable Gzip or Brotli compression on your web server / CDN.'
+        });
+      }
+
+      // --- Deep Scans Deductions ---
+      // 1. Animation Jank & Layout Thrashing
+      if (animationJankRisk === 'High') {
+        codeScore -= 12;
+        issues.push({
+          category: 'code',
+          severity: 'warning',
+          title: `Animation Jank & Layout Thrashing Risk (${nonCompositedFound.join(', ')})`,
+          description: `CSS transitions/animations directly modify expensive geometric layout properties (${nonCompositedFound.join(', ')}). This triggers continuous CPU reflows and frame drops.`,
+          recommendation: 'Use GPU-accelerated "transform: translate3d()/scale()" and "opacity" instead of layout coordinates. Replace "transition: all" with explicit properties.'
+        });
+      } else if (animationJankRisk === 'Moderate') {
+        issues.push({
+          category: 'code',
+          severity: 'passed',
+          title: 'Animation Architecture Acceptable',
+          description: `Detected ${keyframeMatches} keyframe rules with lightweight transition overhead.`,
+          recommendation: 'Monitor FPS on low-tier mobile devices.'
+        });
+      }
+
+      // 2. Prefers-reduced-motion accessibility
+      if (!hasReducedMotion && keyframeMatches > 0) {
+        codeScore -= 5;
+        issues.push({
+          category: 'code',
+          severity: 'warning',
+          title: 'Missing "prefers-reduced-motion" CSS Fallback',
+          description: 'Web animation lacks accessibility guards for visitors with vestibular balance disorders or sensitivity to motion.',
+          recommendation: 'Implement @media (prefers-reduced-motion: reduce) to pause or soften intense keyframe loops.'
+        });
+      }
+
+      // 3. Mixed Content Security
+      if (mixedContentCount > 0) {
+        securityScore -= 20;
+        issues.push({
+          category: 'security',
+          severity: 'critical',
+          title: `${mixedContentCount} Insecure Mixed-Content Asset Links`,
+          description: 'Page is served over HTTPS but loads unencrypted HTTP assets, creating active man-in-the-middle vulnerability vectors.',
+          recommendation: 'Upgrade all static asset links (images, scripts, styles) to HTTPS.'
+        });
+      }
+
+      // 4. Render-blocking scripts in head
+      if (renderBlockingScriptsCount > 0) {
+        perfScore -= 10;
+        issues.push({
+          category: 'performance',
+          severity: 'warning',
+          title: `${renderBlockingScriptsCount} Render-Blocking Scripts in <head>`,
+          description: 'Synchronous external scripts in the document head halt HTML parsing and delay initial paint.',
+          recommendation: 'Add "defer" or "async" attributes to non-essential scripts.'
+        });
+      }
+
+      // 5. Schema.org JSON-LD
+      if (!hasJsonLd) {
+        seoScore -= 8;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: 'Missing Schema.org / JSON-LD Structured Data',
+          description: 'Page lacks structured schema markup, forfeiting Google rich snippets and enhanced SERP real estate.',
+          recommendation: 'Add <script type="application/ld+json"> with Organization, WebSite, or LocalBusiness schema.'
+        });
+      } else {
+        issues.push({
+          category: 'seo',
+          severity: 'passed',
+          title: 'Structured JSON-LD Schema Present',
+          description: 'Search engines can parse structured entities to generate enhanced rich snippets.',
+          recommendation: 'Validate schema syntax on schema.org validator.'
+        });
+      }
+
+      // 6. Missing HTML lang attribute
+      if (!hasHtmlLang) {
+        seoScore -= 5;
+        issues.push({
+          category: 'seo',
+          severity: 'warning',
+          title: 'Missing HTML "lang" Attribute',
+          description: 'The root <html> tag lacks a lang attribute, degrading assistive reader navigation and language indexation.',
+          recommendation: 'Specify <html lang="en"> on the document root.'
+        });
+      }
+
+      // 7. Multi-page Crawler Subpage Results
+      const brokenSubpages = internalPages.filter(p => !p.ok && p.path !== '/');
+      if (brokenSubpages.length > 0) {
+        codeScore -= 15;
+        issues.push({
+          category: 'code',
+          severity: 'critical',
+          title: `${brokenSubpages.length} Broken Internal Subpages (404/Error)`,
+          description: `Internal pages failed during crawl: ${brokenSubpages.map(b => b.path).join(', ')}.`,
+          recommendation: 'Fix broken navigation URLs or set up 301 redirects.'
+        });
+      } else if (internalPages.length > 1) {
+        issues.push({
+          category: 'code',
+          severity: 'passed',
+          title: `Multi-Page Health Verified (${internalPages.length} pages scanned)`,
+          description: `Subpages (${internalPages.map(p => p.path).join(', ')}) responded with valid HTTP status.`,
+          recommendation: 'Maintain continuous subpage monitoring.'
+        });
+      }
+
+      // Clamp scores between 10 and 100
+      securityScore = Math.max(10, Math.min(100, securityScore));
+      seoScore = Math.max(10, Math.min(100, seoScore));
+      codeScore = Math.max(10, Math.min(100, codeScore));
+      perfScore = Math.max(10, Math.min(100, perfScore));
+
+      const overallScore = Math.round(
+        (securityScore * 0.35) + 
+        (seoScore * 0.25) + 
+        (codeScore * 0.20) + 
+        (perfScore * 0.20)
+      );
+
+      return res.status(200).json({
+        success: true,
+        reachable: true,
+        url: targetUrl,
+        finalUrl: response.url,
+        hostname: parsedUrl.hostname,
+        statusCode,
+        responseTimeMs,
+        analyzedAt: new Date().toISOString(),
+        scores: {
+          overall: overallScore,
+          security: securityScore,
+          seo: seoScore,
+          code: codeScore,
+          performance: perfScore
+        },
+        meta: {
+          title,
+          metaDescription,
+          canonicalUrl,
+          robotsContent,
+          ogTitle: ogTitleMatch ? ogTitleMatch[1] : null,
+          ogDescription: ogDescMatch ? ogDescMatch[1] : null,
+          ogImage: ogImageMatch ? ogImageMatch[1] : null,
+          twitterCard: twitterCardMatch ? twitterCardMatch[1] : null,
+          h1List,
+          h2Count,
+          h3Count,
+          totalImages,
+          imagesWithoutAltCount,
+          missingAltImages,
+          scriptTags,
+          stylesheetTags,
+          htmlSizeKb,
+          isHttps,
+          hasDoctype,
+          hasViewport,
+          isZoomLocked,
+          hasCharset
+        },
+        internalPages,
+        animationAnalysis: {
+          keyframeMatches,
+          transitionAllCount,
+          nonCompositedFound,
+          hasReducedMotion,
+          animationJankRisk,
+          detectedAnimationLibraries
+        },
+        deepHealth: {
+          mixedContentCount,
+          renderBlockingScriptsCount,
+          hasJsonLd,
+          hasHtmlLang,
+          imagesMissingDimensions
+        },
+        keywords: {
+          topKeywords,
+          missingKeywords
+        },
+        issues: {
+          critical: issues.filter(i => i.severity === 'critical'),
+          warning: issues.filter(i => i.severity === 'warning'),
+          passed: issues.filter(i => i.severity === 'passed')
+        }
+      });
+
+    } catch (err: any) {
+      console.error('Unhandled /api/analyze-website exception:', err);
+      return res.status(500).json({
+        success: false,
+        error: 'System error executing website security audit.'
+      });
+    }
+  });
+
+  // --- In-Memory Audit Leads Storage (with Supabase fallback) ---
+  const inMemoryAuditLeads: any[] = [];
+
+  // --- Endpoint: Submit Audit Lead / Request 48h Bug Fix (/api/submit-audit-lead) ---
+  const auditLeadRateLimiter = createRateLimiter({
+    windowMs: 10 * 60 * 1000,
+    max: 10,
+    message: 'Too many audit fix submissions from this IP. Please wait a few moments.'
+  });
+
+  app.post('/api/submit-audit-lead', auditLeadRateLimiter, async (req, res) => {
+    try {
+      const {
+        clientName,
+        businessName,
+        email,
+        phone,
+        websiteUrl,
+        overallScore,
+        securityScore,
+        seoScore,
+        codeScore,
+        performanceScore,
+        criticalIssuesCount,
+        warningIssuesCount,
+        topIssues,
+        missingKeywords,
+        animationIssues,
+        internalPages,
+        clientNotes,
+        priority
+      } = req.body || {};
+
+      const cleanName = sanitizeServerInput(clientName, 100);
+      const cleanBusiness = sanitizeServerInput(businessName, 120);
+      const cleanPhone = sanitizeServerInput(phone, 25);
+      const cleanEmail = sanitizeServerInput(email, 120);
+      const cleanUrl = sanitizeServerInput(websiteUrl, 255);
+      const cleanNotes = sanitizeServerInput(clientNotes, 2000);
+      const cleanPriority = sanitizeServerInput(priority, 30) || 'standard';
+
+      if (!cleanName || !cleanEmail || !cleanPhone || !cleanUrl) {
+        return res.status(400).json({
+          success: false,
+          error: 'Required fields missing: Name, Email, Phone, and Website URL are required.'
+        });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        return res.status(400).json({ success: false, error: 'Invalid email address.' });
+      }
+
+      const ticketNumber = `AUDIT-${Math.floor(100000 + Math.random() * 900000)}`;
+      const leadId = `audit-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+
+      const leadRecord = {
+        id: leadId,
+        ticket_number: ticketNumber,
+        client_name: cleanName,
+        business_name: cleanBusiness,
+        email: cleanEmail,
+        phone: cleanPhone,
+        website_url: cleanUrl,
+        overall_score: Number(overallScore) || 0,
+        security_score: Number(securityScore) || 0,
+        seo_score: Number(seoScore) || 0,
+        code_score: Number(codeScore) || 0,
+        performance_score: Number(performanceScore) || 0,
+        critical_issues_count: Number(criticalIssuesCount) || 0,
+        warning_issues_count: Number(warningIssuesCount) || 0,
+        top_issues: Array.isArray(topIssues) ? topIssues.slice(0, 15) : [],
+        missing_keywords: Array.isArray(missingKeywords) ? missingKeywords.slice(0, 10) : [],
+        animation_issues: Array.isArray(animationIssues) ? animationIssues.slice(0, 10) : [],
+        internal_pages: Array.isArray(internalPages) ? internalPages.slice(0, 10) : [],
+        client_notes: cleanNotes,
+        priority: cleanPriority,
+        status: 'new',
+        created_at: new Date().toISOString()
+      };
+
+      inMemoryAuditLeads.unshift(leadRecord);
+
+      // Attempt Supabase insert if credentials exist
+      try {
+        await supabase.from('audit_leads').insert(leadRecord);
+      } catch (dbErr) {
+        console.warn('Supabase audit_leads write skipped/fallback:', dbErr);
+      }
+
+      // Automated Telegram Alert
+      const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+      const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+      if (telegramToken && telegramChatId) {
+        try {
+          const alertText = `🚨 *NEW 48H WEBSITE AUDIT & BUG FIX REQUEST*\n\n` +
+            `🎫 *Ticket:* \`${ticketNumber}\`\n` +
+            `👤 *Client:* ${cleanName} (${cleanBusiness || 'Direct'})\n` +
+            `📱 *Phone/WhatsApp:* ${cleanPhone}\n` +
+            `📧 *Email:* ${cleanEmail}\n` +
+            `🌐 *Target Site:* ${cleanUrl}\n` +
+            `📊 *Health Score:* ${overallScore || 'N/A'}/100\n` +
+            `⚠️ *Critical Bugs:* ${criticalIssuesCount || 0} | *Warnings:* ${warningIssuesCount || 0}\n` +
+            `⚡ *Priority:* ${cleanPriority.toUpperCase()}\n` +
+            `📝 *Notes:* ${cleanNotes ? cleanNotes.slice(0, 300) : 'Full website code & security overhaul requested.'}`;
+
+          await fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: telegramChatId,
+              text: alertText,
+              parse_mode: 'Markdown'
+            })
+          });
+        } catch (tgErr) {
+          console.warn('Telegram audit lead notification failed:', tgErr);
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        ticketNumber,
+        leadId,
+        message: 'Your website bug fix request has been received. Our senior engineer will inspect your code.'
+      });
+    } catch (err: any) {
+      console.error('Unhandled /api/submit-audit-lead exception:', err);
+      return res.status(500).json({ success: false, error: 'Internal system error processing audit request.' });
+    }
+  });
+
+  // --- Admin API: Get all audit leads (/api/admin/audit-leads) ---
+  app.get('/api/admin/audit-leads', async (req, res) => {
+    try {
+      let leads = [...inMemoryAuditLeads];
+      try {
+        const { data, error } = await supabase
+          .from('audit_leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          const map = new Map();
+          leads.forEach(l => map.set(l.id, l));
+          data.forEach(d => map.set(d.id, d));
+          leads = Array.from(map.values());
+        }
+      } catch {}
+      return res.status(200).json({ success: true, leads });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: 'Failed fetching audit leads.' });
+    }
+  });
+
+  // --- Admin API: Update audit lead status (/api/admin/audit-leads/:id) ---
+  app.patch('/api/admin/audit-leads/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, priority, clientNotes } = req.body || {};
+      const found = inMemoryAuditLeads.find(l => l.id === id);
+      if (found) {
+        if (status) found.status = sanitizeServerInput(status, 30);
+        if (priority) found.priority = sanitizeServerInput(priority, 30);
+        if (clientNotes) found.client_notes = sanitizeServerInput(clientNotes, 2000);
+      }
+
+      try {
+        const updates: any = {};
+        if (status) updates.status = sanitizeServerInput(status, 30);
+        if (priority) updates.priority = sanitizeServerInput(priority, 30);
+        if (clientNotes) updates.client_notes = sanitizeServerInput(clientNotes, 2000);
+        await supabase.from('audit_leads').update(updates).eq('id', id);
+      } catch {}
+
+      return res.status(200).json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: 'Failed updating audit lead.' });
+    }
+  });
+
+  // --- Admin API: Delete audit lead (/api/admin/audit-leads/:id) ---
+  app.delete('/api/admin/audit-leads/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const idx = inMemoryAuditLeads.findIndex(l => l.id === id);
+      if (idx >= 0) {
+        inMemoryAuditLeads.splice(idx, 1);
+      }
+      try {
+        await supabase.from('audit_leads').delete().eq('id', id);
+      } catch {}
+
+      return res.status(200).json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: 'Failed deleting audit lead.' });
+    }
+  });
+
   // Serve static public assets directly (favicon.ico, robots.txt, sitemap.xml, images, etc.)
   app.use(express.static(path.join(process.cwd(), 'public')));
 

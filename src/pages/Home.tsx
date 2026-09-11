@@ -75,27 +75,62 @@ function AnimatedCounter({ value }: { value: string }) {
 }
 
 function StatCard({ value, label, colSpan = "" }: { value: string; label: string; colSpan?: string }) {
+  const [clicked, setClicked] = useState(false);
+
+  const handleClick = () => {
+    setClicked(true);
+    setTimeout(() => setClicked(false), 1400);
+  };
+
   return (
-    <motion.div 
+    <motion.button 
+      type="button"
+      onClick={handleClick}
       variants={{
         hidden: { opacity: 0, y: 30 },
         show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 90, damping: 14 } }
       }}
       whileHover={{ 
-        y: -4, 
-        borderColor: 'rgba(214, 180, 106, 0.45)', 
-        backgroundColor: 'rgba(20, 20, 20, 0.6)',
-        boxShadow: "0 15px 35px -10px rgba(214, 180, 106, 0.18)"
+        y: -6, 
+        scale: 1.04, 
+        borderColor: 'rgba(214, 180, 106, 0.65)', 
+        backgroundColor: 'rgba(26, 24, 20, 0.75)',
+        boxShadow: "0 20px 40px -10px rgba(214, 180, 106, 0.28)"
       }}
-      className={`group p-6 md:p-8 rounded-[1.5rem] bg-[#111111]/45 backdrop-blur-md border border-white/5 flex flex-col justify-center items-center transition-all duration-300 select-none cursor-default ${colSpan}`}
+      whileTap={{ 
+        scale: 0.92,
+        y: 2,
+        boxShadow: "0 6px 16px rgba(214, 180, 106, 0.35)"
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+      className={`group relative p-6 md:p-8 rounded-[1.5rem] bg-[#111111]/55 backdrop-blur-md border border-white/10 flex flex-col justify-center items-center transition-colors duration-200 select-none cursor-pointer outline-none overflow-hidden ${colSpan} ${
+        clicked ? 'border-[#D6B46A] ring-2 ring-[#D6B46A]/60 bg-[#1C1A16]' : ''
+      }`}
     >
-      <span className="block text-3xl md:text-4xl font-display font-black text-champagne-gold tracking-tight mb-1">
+      {/* 3D Sheen Highlight */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+      {clicked && (
+        <motion.span 
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-[#D6B46A] text-[#0A0A09] text-[8px] font-mono font-black uppercase tracking-wider shadow-sm z-10"
+        >
+          ✓ Live Verified
+        </motion.span>
+      )}
+
+      <span className="block text-3xl md:text-4xl font-display font-black text-champagne-gold tracking-tight mb-1 group-hover:scale-105 group-hover:text-white transition-all duration-300">
         <AnimatedCounter value={value} />
       </span>
-      <span className="block text-xs sm:text-sm uppercase tracking-widest text-[#DCD7CF] font-bold font-mono group-hover:text-white transition-colors duration-300 text-center">
+      <span className="block text-xs sm:text-sm uppercase tracking-widest text-[#DCD7CF] font-bold font-mono group-hover:text-[#D6B46A] transition-colors duration-300 text-center">
         {label}
       </span>
-    </motion.div>
+      <span className="text-[8px] font-mono text-[#7A7266] uppercase tracking-wider mt-1 opacity-60 group-hover:opacity-100 transition-opacity">
+        Tap to verify
+      </span>
+    </motion.button>
   );
 }
 
@@ -269,19 +304,6 @@ function InteractiveStatsGrid({ stats }: { stats: any }) {
         <StatCard value={stats.industriesServed} label="Industries Served" />
         <StatCard value={stats.yearsExperience} label="Years Experience" colSpan="col-span-2 md:col-span-1" />
       </motion.div>
-
-      {/* iOS Gyroscope Activation Banner */}
-      {permissionState === 'prompt' && (
-        <div className="absolute inset-x-0 bottom-4 flex justify-center z-20 px-4">
-          <button
-            onClick={requestPermission}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#D6B46A] to-[#BFA15A] text-matte-black text-[10px] font-bold uppercase tracking-widest shadow-lg border border-white/10 hover:scale-105 active:scale-95 transition-all duration-300"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>✨ Enable 3D Gyro Motion</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -293,6 +315,13 @@ interface HomeProps {
 export default function Home({ setCurrentPage }: HomeProps) {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [demoDirection, setDemoDirection] = useState<'hotel' | 'corporate' | 'retail'>('hotel');
+  const [activeControlTab, setActiveControlTab] = useState<'content' | 'leads' | 'analytics'>('content');
+  const [activeSprintStage, setActiveSprintStage] = useState<1 | 2 | 3>(2);
+  const [activeProcessStep, setActiveProcessStep] = useState<number>(0);
+  const [telemetryNotice, setTelemetryNotice] = useState<string | null>(null);
+  const [testHeadlineIndex, setTestHeadlineIndex] = useState<number>(0);
+  const [testLeadAdded, setTestLeadAdded] = useState<boolean>(false);
   const [stats, setStats] = useState({
     totalProjects: '42+',
     activeClients: '18+',
@@ -517,112 +546,265 @@ export default function Home({ setCurrentPage }: HomeProps) {
               </button>
             </motion.div>
 
-            {/* Brand Trust tags */}
+            {/* Interactive Brand Trust tags with 3D tactile feedback */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.5 }}
               className="flex flex-wrap items-center gap-2.5 mt-4"
             >
-              {['Senior Developer Wing', 'Design Studio', 'Demo-First Model', 'Admin Dashboard Ready', '48-Hour Delivery'].map((tag, idx) => (
-                <span 
+              {[
+                { name: 'Senior Developer Wing', targetId: 'edge-section' },
+                { name: 'Design Studio', targetId: 'edge-section' },
+                { name: 'Demo-First Model', targetId: 'edge-section' },
+                { name: 'Admin Dashboard Ready', targetId: 'control-section' },
+                { name: '48-Hour Delivery', targetId: 'process-section' }
+              ].map((tag, idx) => (
+                <motion.button 
                   key={idx}
-                  className="px-4 py-2 bg-soft-ivory/80 border border-champagne-gold/25 text-[#1F1C1A] font-bold uppercase tracking-wider text-xs rounded-full gold-shadow-sm font-mono flex items-center gap-1.5"
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById(tag.targetId);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                  whileHover={{ 
+                    scale: 1.07, 
+                    y: -3,
+                    borderColor: 'rgba(214, 180, 106, 0.75)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    boxShadow: "0 10px 24px -5px rgba(214, 180, 106, 0.3)"
+                  }}
+                  whileTap={{ 
+                    scale: 0.92,
+                    y: 1
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 18 }}
+                  className="px-4 py-2 bg-soft-ivory/90 border border-champagne-gold/30 text-[#1F1C1A] font-bold uppercase tracking-wider text-xs rounded-full gold-shadow-sm font-mono flex items-center gap-2 cursor-pointer select-none active:bg-champagne-gold active:text-black transition-colors"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-champagne-gold" />
-                  {tag}
-                </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-champagne-gold animate-pulse" />
+                  <span>{tag.name}</span>
+                </motion.button>
               ))}
             </motion.div>
           </div>
 
-          {/* Hero Decorative Elements (Interactive Soft UI Interface) */}
+          {/* Hero Right Column: 48-Hour Live Sprint Cockpit Showcase */}
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[420px] aspect-square rounded-[40px] bg-gradient-to-br from-champagne-gold/10 to-transparent p-1 border border-champagne-gold/15 gold-shadow animate-floating">
-              
-              {/* Main Interactive Floater Card: Client Control dashboard mock */}
-              <div className="absolute inset-4 rounded-[36px] bg-soft-ivory border border-champagne-gold/20 p-6 flex flex-col justify-between">
-                
-                {/* Floating Card Top */}
-                <div className="flex items-center justify-between border-b border-champagne-gold/10 pb-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-matte-black flex items-center justify-center border border-champagne-gold/30">
-                      <Zap className="w-4 h-4 text-champagne-gold fill-champagne-gold/15" />
-                    </div>
-                    <div>
-                      <div className="font-display font-bold text-sm tracking-wide uppercase text-matte-black">SamaXon Client ID</div>
-                      <div className="text-[10px] font-mono uppercase text-champagne-gold tracking-widest mt-0.5 font-bold">Live Build #4592</div>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 font-mono text-[10px] font-bold uppercase tracking-wider rounded">
-                    Active 48h
-                  </span>
-                </div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              whileHover={{ 
+                boxShadow: "0 25px 60px rgba(0,0,0,0.6), 0 0 50px rgba(214,180,106,0.2)"
+              }}
+              className="relative w-full max-w-[460px] rounded-[32px] bg-[#0E0D0B] p-6 sm:p-7 border border-[#D6B46A]/35 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_40px_rgba(214,180,106,0.12)] text-[#FFFDF8] isolate overflow-hidden transition-shadow duration-300"
+            >
+              {/* Subtle luxury ambient glow inside card */}
+              <div className="absolute top-0 right-0 w-48 h-48 bg-[#D6B46A]/10 rounded-full blur-3xl pointer-events-none -z-10" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#D6B46A]/5 rounded-full blur-2xl pointer-events-none -z-10" />
 
-                {/* Simulated charts/metrics representing Digital Remote Control */}
-                <div className="flex flex-col gap-4 py-4">
-                  <div className="p-3 bg-white/60 rounded-xl border border-champagne-gold/10 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-champagne-gold" />
-                      <div>
-                        <div className="text-xs font-mono uppercase text-[#4A443E] font-bold tracking-wider">Business Growth</div>
-                        <div className="font-display font-semibold text-sm text-matte-black mt-0.5">Leads Captured +142%</div>
-                      </div>
-                    </div>
-                    <div className="h-4 w-12 bg-champagne-gold/10 border border-champagne-gold/20 rounded flex items-center justify-center">
-                      <span className="text-[7px] font-mono text-champagne-gold uppercase tracking-wider font-bold">SEO Page 1</span>
-                    </div>
+              {/* Console Top Header */}
+              <div className="flex items-center justify-between border-b border-[#D6B46A]/20 pb-4 mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D6B46A]/25 to-black/40 border border-[#D6B46A]/40 flex items-center justify-center text-[#D6B46A]">
+                    <Zap className="w-5 h-5 fill-[#D6B46A]/20" />
                   </div>
-
-                  <div className="p-3 bg-white/60 rounded-xl border border-champagne-gold/10 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Database className="w-4 h-4 text-warm-grey" />
-                      <div>
-                        <div className="text-[9px] font-mono uppercase text-warm-grey tracking-wider">Control Layer</div>
-                        <div className="font-display font-medium text-xs text-matte-black mt-0.5">Admin Dashboard Ready</div>
-                      </div>
+                  <div>
+                    <div className="font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-[#FFFDF8] flex items-center gap-2">
+                      <span>48-Hour Sprint Engine</span>
                     </div>
-                    <span className="w-2 h-2 rounded-full bg-champagne-gold animate-ping" />
+                    <div className="text-[10px] font-mono text-[#D6B46A] tracking-widest uppercase font-semibold">
+                      Live Delivery Cockpit #48-EXP
+                    </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] font-mono text-emerald-300 font-bold uppercase tracking-wider">Active</span>
+                </div>
+              </div>
 
-                {/* Action Indicator */}
-                <button 
-                  onClick={() => handleAction('control')}
-                  className="w-full py-3 bg-matte-black text-soft-ivory hover:text-champagne-gold text-[10px] font-bold uppercase tracking-widest rounded-xl border border-champagne-gold/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              {/* 3-Step Sprint Pipeline Sequence - Fully 3D Clickable */}
+              <div className="space-y-3 mb-5">
+                <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#A89F91]">
+                  <span>Execution Pipeline (Tap to Inspect)</span>
+                  <span className="text-[#D6B46A] font-bold">48-Hour Total Window</span>
+                </div>
+
+                {/* Stage 01 */}
+                <motion.button 
+                  type="button"
+                  onClick={() => setActiveSprintStage(1)}
+                  whileHover={{ scale: 1.02, x: 4 }}
+                  whileTap={{ scale: 0.96 }}
+                  className={`w-full p-3.5 rounded-2xl border flex items-center justify-between transition-all duration-200 cursor-pointer text-left ${
+                    activeSprintStage === 1
+                      ? 'bg-gradient-to-r from-[#D6B46A]/20 via-[#D6B46A]/10 to-transparent border-[#D6B46A] shadow-[0_0_20px_rgba(214,180,106,0.2)]'
+                      : 'bg-white/[0.04] border-[#D6B46A]/15 hover:border-[#D6B46A]/40'
+                  }`}
                 >
-                  Client Control Activated
-                  <ArrowRight className="w-3 h-3" />
-                </button>
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-[10px] font-mono font-bold">✓</span>
+                    <div>
+                      <div className="text-xs font-bold text-[#FFFDF8] flex items-center gap-1.5">
+                        <span>Stage 01: Decode & Architecture</span>
+                        {activeSprintStage === 1 && <span className="text-[9px] text-[#D6B46A] font-mono font-bold">(Viewing)</span>}
+                      </div>
+                      <div className="text-[10px] text-[#A89F91] font-mono">Scope locked & core blueprints mapped</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold">0-4 Hours</span>
+                </motion.button>
+
+                {/* Stage 02 */}
+                <motion.button 
+                  type="button"
+                  onClick={() => setActiveSprintStage(2)}
+                  whileHover={{ scale: 1.02, x: 4 }}
+                  whileTap={{ scale: 0.96 }}
+                  className={`w-full p-3.5 rounded-2xl border flex items-center justify-between transition-all duration-200 cursor-pointer text-left ${
+                    activeSprintStage === 2
+                      ? 'bg-gradient-to-r from-[#D6B46A]/25 via-[#D6B46A]/15 to-transparent border-[#D6B46A] shadow-[0_0_25px_rgba(214,180,106,0.25)]'
+                      : 'bg-white/[0.04] border-[#D6B46A]/15 hover:border-[#D6B46A]/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#D6B46A] text-black flex items-center justify-center text-[10px] font-mono font-black animate-pulse">02</span>
+                    <div>
+                      <div className="text-xs font-bold text-[#FFFDF8] flex items-center gap-1.5">
+                        <span>Stage 02: High-Fidelity UI & Motion</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#D6B46A] animate-ping" />
+                      </div>
+                      <div className="text-[10px] text-[#D6B46A] font-mono">Senior Engineering Wing staging preview</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#D6B46A] font-bold">In Progress</span>
+                </motion.button>
+
+                {/* Stage 03 */}
+                <motion.button 
+                  type="button"
+                  onClick={() => setActiveSprintStage(3)}
+                  whileHover={{ scale: 1.02, x: 4 }}
+                  whileTap={{ scale: 0.96 }}
+                  className={`w-full p-3.5 rounded-2xl border flex items-center justify-between transition-all duration-200 cursor-pointer text-left ${
+                    activeSprintStage === 3
+                      ? 'bg-gradient-to-r from-[#D6B46A]/20 via-[#D6B46A]/10 to-transparent border-[#D6B46A] shadow-[0_0_20px_rgba(214,180,106,0.2)]'
+                      : 'bg-white/[0.02] border-white/5 hover:border-[#D6B46A]/40 opacity-85'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-white/10 text-[#A89F91] flex items-center justify-center text-[10px] font-mono font-bold">03</span>
+                    <div>
+                      <div className="text-xs font-bold text-[#DCD7CF] flex items-center gap-1.5">
+                        <span>Stage 03: Production Deployment</span>
+                        {activeSprintStage === 3 && <span className="text-[9px] text-[#D6B46A] font-mono font-bold">(Viewing)</span>}
+                      </div>
+                      <div className="text-[10px] text-[#7A7266] font-mono">Global CDN + Admin Remote Control live</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#A89F91] font-bold">Hour 48</span>
+                </motion.button>
               </div>
 
-              {/* Backside Floating Badge: Automation bubble */}
-              <div className="absolute -top-6 -left-6 z-10 glass-panel max-w-[170px] rounded-2xl p-3.5 gold-shadow-sm flex items-center gap-3 animate-floating-delayed">
-                <div className="w-8 h-8 rounded-full bg-matte-black flex items-center justify-center">
-                  <Target className="w-4 h-4 text-champagne-gold" />
+              {/* Dynamic Stage Drilldown Detail Preview */}
+              <motion.div 
+                key={activeSprintStage}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="p-3 bg-white/[0.04] border border-[#D6B46A]/25 rounded-2xl mb-4 text-left"
+              >
+                <div className="text-[9px] font-mono uppercase text-[#D6B46A] font-bold flex items-center justify-between">
+                  <span>Selected Stage {activeSprintStage} Milestones</span>
+                  <span className="text-emerald-400">Guaranteed SLA</span>
                 </div>
-                <div>
-                  <div className="text-[8px] font-mono uppercase text-warm-grey font-bold tracking-wider">Auto Integration</div>
-                  <div className="text-[10px] font-bold text-matte-black tracking-tight">Telegram Alerts Active</div>
-                </div>
-              </div>
-
-              {/* Bottom Right Floor Floater */}
-              <div className="absolute -bottom-4 -right-4 z-10 bg-soft-ivory border border-champagne-gold/20 max-w-[180px] rounded-2xl p-4 shadow-xl flex flex-col gap-1.5 animate-floating-reverse">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-3.5 h-3.5 text-champagne-gold fill-champagne-gold" />
-                  ))}
-                </div>
-                <p className="text-[9px] text-warm-grey leading-tight italic font-medium">
-                  "Website live in 48 hours is absolute perfection."
+                <p className="text-xs text-[#FFFDF8] mt-1 font-medium leading-relaxed">
+                  {activeSprintStage === 1 && "• Business DNA decode • Visual color & layout architecture locked • Direct wireframe bypass to eliminate 14-day delays."}
+                  {activeSprintStage === 2 && "• Senior front-end engineers write production-ready code • 60 FPS smooth motion • WhatsApp and client lead channels integrated."}
+                  {activeSprintStage === 3 && "• Worldwide Cloudflare CDN deployment • SSL secured • Custom domain pointed • Zero-code Admin Remote Control handover."}
                 </p>
-                <div className="text-[8px] font-mono uppercase text-matte-black font-bold tracking-wider mt-1">
-                  — RAJESH M., MALHOTRA ESTATES
-                </div>
+              </motion.div>
+
+              {/* Real-time Telemetry Stats Pill Bar - Clickable with 3D feedback */}
+              <div className="grid grid-cols-3 gap-2.5 p-3 rounded-2xl bg-black/50 border border-white/10 mb-5 text-center">
+                <motion.button 
+                  type="button"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => {
+                    setTelemetryNotice("⚡ Google PageSpeed 99+ verified on mobile & desktop!");
+                    setTimeout(() => setTelemetryNotice(null), 2500);
+                  }}
+                  className="p-1 cursor-pointer hover:bg-white/5 rounded-lg transition-colors"
+                >
+                  <div className="text-xs font-bold text-[#D6B46A] font-mono">99 / 100</div>
+                  <div className="text-[9px] text-[#A89F91] uppercase tracking-wider mt-0.5">Speed Index</div>
+                </motion.button>
+
+                <motion.button 
+                  type="button"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => {
+                    setTelemetryNotice("📩 Leads pushed to WhatsApp & Telegram within 1.2 seconds!");
+                    setTimeout(() => setTelemetryNotice(null), 2500);
+                  }}
+                  className="p-1 border-x border-white/10 cursor-pointer hover:bg-white/5 rounded-lg transition-colors"
+                >
+                  <div className="text-xs font-bold text-emerald-400 font-mono">Instant</div>
+                  <div className="text-[9px] text-[#A89F91] uppercase tracking-wider mt-0.5">Lead Routing</div>
+                </motion.button>
+
+                <motion.button 
+                  type="button"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => {
+                    setTelemetryNotice("🛠️ Zero code needed to edit slogans, photos, or prices!");
+                    setTimeout(() => setTelemetryNotice(null), 2500);
+                  }}
+                  className="p-1 cursor-pointer hover:bg-white/5 rounded-lg transition-colors"
+                >
+                  <div className="text-xs font-bold text-[#FFFDF8] font-mono">100% Zero</div>
+                  <div className="text-[9px] text-[#A89F91] uppercase tracking-wider mt-0.5">Code Admin</div>
+                </motion.button>
               </div>
 
-            </div>
+              {telemetryNotice && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="mb-4 p-2.5 bg-[#D6B46A]/20 border border-[#D6B46A] rounded-xl text-center text-[10px] font-mono text-[#FFFDF8] font-bold"
+                >
+                  {telemetryNotice}
+                </motion.div>
+              )}
+
+              {/* Direct Cockpit CTA */}
+              <div className="space-y-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => navigate('/service-request')}
+                  className="w-full py-3.5 bg-gradient-to-r from-[#D6B46A] via-[#E5C158] to-[#BFA15A] text-[#111111] hover:brightness-105 font-bold uppercase tracking-widest text-xs rounded-xl shadow-[0_6px_20px_rgba(214,180,106,0.35)] flex items-center justify-center gap-2 cursor-pointer transition-all duration-200"
+                >
+                  <span>Launch 48-Hour Build Request</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => navigate('/projects')}
+                  className="w-full py-2 text-[10px] font-mono uppercase tracking-widest text-[#A89F91] hover:text-[#FFFDF8] transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>Inspect Live Work Examples & Case Studies →</span>
+                </motion.button>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -664,12 +846,27 @@ export default function Home({ setCurrentPage }: HomeProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {SERVICES_DATA.slice(0, 6).map((service) => (
-              <div 
+              <motion.div 
                 key={service.id}
-                className="bg-white/55 border border-champagne-gold/15 p-8 rounded-3xl hover:border-champagne-gold duration-300 transition-all gold-shadow-sm flex flex-col justify-between group h-full"
+                whileHover={{ 
+                  y: -8, 
+                  scale: 1.02,
+                  borderColor: 'rgba(214, 180, 106, 0.65)',
+                  boxShadow: "0 24px 48px -12px rgba(214, 180, 106, 0.22)"
+                }}
+                whileTap={{ 
+                  scale: 0.96,
+                  y: -2
+                }}
+                transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                onClick={() => navigate(`/service-request?service=${service.id}`)}
+                className="bg-white/70 border border-champagne-gold/20 p-8 rounded-3xl duration-200 transition-colors gold-shadow-sm flex flex-col justify-between group h-full cursor-pointer relative overflow-hidden"
               >
+                {/* 3D Glass Sheen on Hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-matte-black text-champagne-gold flex items-center justify-center border border-champagne-gold/20 mb-6 group-hover:scale-105 duration-300">
+                  <div className="w-12 h-12 rounded-2xl bg-matte-black text-champagne-gold flex items-center justify-center border border-champagne-gold/20 mb-6 group-hover:scale-110 group-hover:rotate-1 duration-300 shadow-md">
                     {service.id === 'web-dev' && <Code className="w-6 h-6" />}
                     {service.id === 'app-dev' && <Layers className="w-6 h-6" />}
                     {service.id === 'identity-design' && <Crown className="w-6 h-6" />}
@@ -678,10 +875,10 @@ export default function Home({ setCurrentPage }: HomeProps) {
                     {service.id === 'telegram-bots' && <MessageCircle className="w-6 h-6" />}
                   </div>
 
-                  <h3 className="font-display font-bold text-lg text-matte-black mb-2 flex items-center gap-1.5">
+                  <h3 className="font-display font-bold text-lg text-matte-black mb-2 flex items-center gap-1.5 group-hover:text-[#85641C] transition-colors">
                     {service.title}
                   </h3>
-                  <p className="text-[10px] font-mono uppercase tracking-wider text-[#85641C] mb-4">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-[#85641C] mb-4 font-bold">
                     Pain Solved: {service.painPoint.split('.')[0]}.
                   </p>
                   <p className="text-xs text-warm-grey leading-relaxed mb-6">
@@ -689,25 +886,32 @@ export default function Home({ setCurrentPage }: HomeProps) {
                   </p>
                 </div>
 
-                <button
-                  onClick={() => handleAction('services')}
-                  className="w-full py-3 bg-white border border-champagne-gold/20 text-matte-black hover:bg-matte-black hover:text-soft-ivory group-hover:border-champagne-gold font-bold uppercase tracking-widest text-[9px] rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/service-request?service=${service.id}`);
+                  }}
+                  className="w-full py-3.5 bg-white border border-[#D6B46A]/40 text-[#111111] hover:bg-[#111111] hover:text-[#FFFDF8] group-hover:border-[#D6B46A] group-hover:bg-[#111111] group-hover:text-[#FFFDF8] font-bold uppercase tracking-widest text-[10px] rounded-xl flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-xs"
                 >
-                  Explore Service
-                  <ArrowRight className="w-3.5 h-3.5 text-champagne-gold" />
-                </button>
-              </div>
+                  <span>Launch Live Sandbox & Request</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#D6B46A] group-hover:translate-x-1 transition-transform" />
+                </motion.button>
+              </motion.div>
             ))}
           </div>
 
           <div className="flex justify-center mt-12">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => handleAction('services')}
-              className="px-8 py-3.5 bg-matte-black text-soft-ivory hover:text-champagne-gold text-xs font-bold uppercase tracking-widest rounded-full border border-champagne-gold/30 transition-all flex items-center gap-2 group cursor-pointer"
+              className="px-8 py-3.5 bg-matte-black text-soft-ivory hover:text-champagne-gold text-xs font-bold uppercase tracking-widest rounded-full border border-champagne-gold/30 transition-all flex items-center gap-2 group cursor-pointer shadow-md"
             >
               View Full Capability Stack
               <Layers className="w-4 h-4 text-champagne-gold" />
-            </button>
+            </motion.button>
           </div>
         </div>
       </section>
@@ -735,69 +939,144 @@ export default function Home({ setCurrentPage }: HomeProps) {
 
               <div className="flex flex-col gap-4 w-full">
                 {[
-                  { title: "Demo-First Approach", desc: "No blind invoices. We render key design screens before invoicing." },
-                  { title: "Senior Engineering Wing", desc: "Crafted directly by high-end frontend architects, not junior freelancers." },
-                  { title: "48-Hour Execution Culture", desc: "Optimized pipelines allow custom premium websites to ship in 48 hours." }
+                  { title: "Demo-First Approach", desc: "No blind invoices. We render key design screens before invoicing.", mode: 'hotel' as const },
+                  { title: "Senior Engineering Wing", desc: "Crafted directly by high-end frontend architects, not junior freelancers.", mode: 'corporate' as const },
+                  { title: "48-Hour Execution Culture", desc: "Optimized pipelines allow custom premium websites to ship in 48 hours.", mode: 'retail' as const }
                 ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4 p-4 bg-white/40 border border-champagne-gold/10 rounded-2xl">
+                  <motion.button 
+                    key={idx}
+                    type="button"
+                    onClick={() => setDemoDirection(item.mode)}
+                    whileHover={{ scale: 1.02, x: 6 }}
+                    whileTap={{ scale: 0.96 }}
+                    className={`flex items-start gap-4 p-4 rounded-2xl border transition-all text-left cursor-pointer ${
+                      demoDirection === item.mode
+                        ? 'bg-white border-[#D6B46A] shadow-[0_8px_25px_rgba(214,180,106,0.2)] ring-1 ring-[#D6B46A]'
+                        : 'bg-white/50 border-champagne-gold/15 hover:border-champagne-gold/40'
+                    }`}
+                  >
                     <div className="w-10 h-10 rounded-full bg-matte-black flex items-center justify-center shrink-0 border border-champagne-gold/20">
                       <Trophy className="w-4.5 h-4.5 text-champagne-gold" />
                     </div>
-                    <div>
-                      <h3 className="font-display font-bold text-xs text-matte-black uppercase tracking-wider">{item.title}</h3>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-display font-bold text-xs text-matte-black uppercase tracking-wider">{item.title}</h3>
+                        {demoDirection === item.mode && (
+                          <span className="text-[9px] font-mono text-[#85641C] font-bold bg-[#D6B46A]/20 px-2 py-0.5 rounded-full">
+                            Active Preview
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-warm-grey mt-0.5">{item.desc}</p>
                     </div>
-                  </div>
+                  </motion.button>
                 ))}
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleAction('edge')}
-                className="mt-4 px-8 py-4 bg-matte-black text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-widest text-xs rounded-full border border-champagne-gold/25 flex items-center gap-2 group cursor-pointer hover:bg-charcoal"
+                className="mt-4 px-8 py-4 bg-matte-black text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-widest text-xs rounded-full border border-champagne-gold/25 flex items-center gap-2 group cursor-pointer hover:bg-charcoal shadow-md"
               >
                 Request a Demo Direction
                 <ArrowRight className="w-4 h-4 text-champagne-gold group-hover:translate-x-1 transition-transform" />
-              </button>
+              </motion.button>
             </div>
 
-            {/* Simulated premium interface widget */}
+            {/* Interactive Demo-First Prototype Direction Widget with 3D feel */}
             <div className="lg:col-span-5 relative mt-12 lg:mt-0 flex justify-center">
-              <div className="w-full max-w-[380px] bg-white rounded-3xl p-6 border border-champagne-gold/20 shadow-2xl relative">
-                <div className="flex items-center justify-between border-b pb-4 mb-4">
-                  <span className="font-display font-medium text-xs text-matte-black">PROTOTYPE DIRECTION</span>
+              <motion.div 
+                whileHover={{ boxShadow: "0 25px 50px -12px rgba(214, 180, 106, 0.25)" }}
+                className="w-full max-w-[420px] bg-[#FFFFFF] rounded-3xl p-6 sm:p-7 border border-[#D6B46A]/30 shadow-2xl relative text-left"
+              >
+                <div className="flex items-center justify-between border-b border-[#D6B46A]/20 pb-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#D6B46A]" />
+                    <span className="font-display font-bold text-xs text-[#111111] uppercase tracking-wider">PROTOTYPE DIRECTION</span>
+                  </div>
                   <div className="flex gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#E5DBCF]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-champagne-gold animate-pulse" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#D6B46A] animate-pulse" />
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <p className="text-[10px] font-mono text-warm-grey uppercase tracking-widest">
-                    Pre-Build Rendering
-                  </p>
-                  
-                  {/* Mock wireframe container representing design precision */}
-                  <div className="h-32 bg-pearl-white/80 rounded-2xl border border-champagne-gold/10 flex flex-col justify-center items-center p-4">
-                    <Sparkles className="w-8 h-8 text-champagne-gold animate-pulse" />
-                    <span className="text-[10px] font-mono uppercase text-matte-black tracking-widest font-bold mt-2">
-                      SamaXon Design Studio
-                    </span>
-                    <span className="text-[8px] text-warm-grey uppercase mt-0.5">
-                      Visual Direction Ready
+                {/* Industry Selector Tabs */}
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F5F1E8] rounded-xl mb-4 text-center">
+                  {(['hotel', 'corporate', 'retail'] as const).map((mode) => (
+                    <motion.button
+                      key={mode}
+                      type="button"
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setDemoDirection(mode)}
+                      className={`py-2 text-[10px] font-mono uppercase font-bold rounded-lg transition-all cursor-pointer ${
+                        demoDirection === mode 
+                          ? 'bg-[#111111] text-[#FFFDF8] shadow-md ring-1 ring-[#D6B46A]/50' 
+                          : 'text-[#6A6359] hover:text-[#111111]'
+                      }`}
+                    >
+                      {mode === 'hotel' ? 'Hospitality' : mode === 'corporate' ? 'Corporate' : 'Boutique'}
+                    </motion.button>
+                  ))}
+                </div>
+
+                {/* Live Staged Direction Container */}
+                <div className="space-y-3">
+                  <motion.div 
+                    key={demoDirection}
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                    className="p-4 rounded-2xl bg-[#0E0D0B] text-[#FFFDF8] border border-[#D6B46A]/40 relative overflow-hidden shadow-lg"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-mono uppercase text-[#D6B46A] tracking-wider font-bold">
+                        Direction Mode: {demoDirection.toUpperCase()}
+                      </span>
+                      <span className="text-[9px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded font-bold">
+                        Interactive Spec
+                      </span>
+                    </div>
+
+                    <div className="text-sm font-display font-bold text-[#FFFDF8] mb-1">
+                      {demoDirection === 'hotel' && 'Royal Grandeur Suite & Banquet Engine'}
+                      {demoDirection === 'corporate' && 'High-Velocity SaaS & Enterprise Portal'}
+                      {demoDirection === 'retail' && 'Haute Couture Monogram Commerce'}
+                    </div>
+
+                    <p className="text-xs text-[#A89F91] leading-relaxed">
+                      {demoDirection === 'hotel' && 'Direct room & wedding inquiries with instant WhatsApp alerts and custom high-resolution suites showcase.'}
+                      {demoDirection === 'corporate' && 'Zero-friction booking links, automated client onboarding forms, and high-conversion B2B authority copy.'}
+                      {demoDirection === 'retail' && 'Ultra-fast luxury product catalogs, 300 DPI graphics, and frictionless concierge checkout.'}
+                    </p>
+                  </motion.div>
+
+                  <div className="p-3 bg-[#FDFBF7] rounded-xl border border-[#D6B46A]/20 flex items-center justify-between">
+                    <div>
+                      <span className="text-[8px] font-mono text-[#6A6359] block uppercase tracking-wider font-bold">
+                        Prototype Staging Commitment
+                      </span>
+                      <span className="text-xs font-bold text-[#111111] uppercase mt-0.5 block font-mono">
+                        Working Link in 24 Hours
+                      </span>
+                    </div>
+                    <span className="text-[#D6B46A] font-mono text-[11px] font-black bg-[#D6B46A]/15 px-2.5 py-1 rounded-lg">
+                      100% Free Spec
                     </span>
                   </div>
 
-                  <div className="p-3 bg-white/85 rounded-xl border border-champagne-gold/10">
-                    <span className="text-[8px] font-mono text-warm-grey block uppercase tracking-wider">
-                      Proposed Delivery Timeline
-                    </span>
-                    <span className="text-xs font-semibold text-matte-black uppercase flex items-center justify-between mt-1">
-                      <span>48-Hour Live Deployment</span>
-                      <span className="text-champagne-gold font-mono text-[10px] font-bold">100% Guaranteed</span>
-                    </span>
-                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/select-direction')}
+                    className="w-full py-3 bg-[#111111] hover:bg-[#D6B46A] hover:text-[#111111] text-[#FFFDF8] text-xs font-bold uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <span>Inspect All Direction Demos</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
           </div>
@@ -805,45 +1084,135 @@ export default function Home({ setCurrentPage }: HomeProps) {
       </section>
 
       {/* --- CLIENT CONTROL PREVIEW SECTION --- */}
-      <section className="py-24 bg-matte-black text-soft-ivory relative overflow-hidden" id="client-control-section">
+      <section className="py-24 bg-matte-black text-soft-ivory relative overflow-hidden" id="control-section">
         <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-champagne-gold/5 rounded-full blur-[140px] pointer-events-none" />
         
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Dashboard Concept Mock Illustration */}
           <div className="lg:col-span-5 order-2 lg:order-1 flex justify-center">
-            <div className="w-full max-w-[380px] bg-charcoal/80 border border-champagne-gold/15 p-6 rounded-3xl shadow-3xl text-[#E5DBCF]">
-              <div className="flex items-center gap-3 border-b border-champagne-gold/15 pb-4 mb-5">
-                <BarChart3 className="w-5 h-5 text-champagne-gold" />
-                <div>
-                  <p className="font-display font-medium text-xs tracking-wider text-soft-ivory uppercase">Digital Remote Control</p>
-                  <p className="text-[7px] font-mono uppercase text-warm-grey">Future Admin Control Concept</p>
+            <motion.div 
+              whileHover={{ boxShadow: "0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(214,180,106,0.15)" }}
+              className="w-full max-w-[420px] bg-[#0E0D0B] border border-[#D6B46A]/30 p-6 sm:p-7 rounded-[32px] shadow-3xl text-[#E5DBCF]"
+            >
+              <div className="flex items-center justify-between border-b border-[#D6B46A]/20 pb-4 mb-5">
+                <div className="flex items-center gap-3">
+                  <BarChart3 className="w-5 h-5 text-[#D6B46A]" />
+                  <div>
+                    <p className="font-display font-bold text-xs tracking-wider text-[#FFFDF8] uppercase">Digital Remote Control</p>
+                    <p className="text-[8px] font-mono uppercase text-[#A89F91]">Live Interactive Client Cockpit</p>
+                  </div>
                 </div>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
               </div>
 
-              <div className="space-y-3">
-                <div className="p-3 bg-charcoal rounded-xl border border-champagne-gold/10 flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase text-soft-ivory">Manage Content</span>
-                  <span className="text-[9px] text-champagne-gold font-mono uppercase">Instant Edit</span>
-                </div>
-                <div className="p-3 bg-charcoal rounded-xl border border-champagne-gold/10 flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase text-soft-ivory">Manage Leads</span>
-                  <span className="text-[9px] text-emerald-500 font-mono uppercase">Active (2 New)</span>
-                </div>
-                <div className="p-3 bg-charcoal rounded-xl border border-champagne-gold/10 flex items-center justify-between">
-                  <span className="text-[10px] font-mono uppercase text-soft-ivory">Manage Bookings</span>
-                  <span className="text-[9px] text-[#A69C91] font-mono uppercase">Unlocks on Request</span>
-                </div>
+              {/* Interactive Control Tabs */}
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-white/[0.05] rounded-xl mb-4 text-center">
+                {(['content', 'leads', 'analytics'] as const).map((tab) => (
+                  <motion.button
+                    key={tab}
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => setActiveControlTab(tab)}
+                    className={`py-2 text-[10px] font-mono uppercase font-bold rounded-lg transition-all cursor-pointer ${
+                      activeControlTab === tab 
+                        ? 'bg-[#D6B46A] text-black shadow-md' 
+                        : 'text-[#A89F91] hover:text-[#FFFDF8]'
+                    }`}
+                  >
+                    {tab === 'content' ? 'Content' : tab === 'leads' ? 'Leads (Real-time)' : 'Health'}
+                  </motion.button>
+                ))}
               </div>
 
-              <div className="mt-5 p-3.5 bg-champagne-gold/10 border border-champagne-gold/20 rounded-xl text-center">
-                <p className="text-[9px] font-mono text-[#D6B46A] uppercase tracking-wider">
-                  No DB coding required for basic updates
+              {/* Dynamic Viewport for Active Tab */}
+              <div className="space-y-3 mb-5">
+                {activeControlTab === 'content' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-2xl bg-white/[0.04] border border-[#D6B46A]/20 space-y-3 text-left"
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-mono uppercase">
+                      <span className="text-[#A89F91]">Active Headline</span>
+                      <span className="text-emerald-400 font-bold">Saved Live ✓</span>
+                    </div>
+                    <div className="text-xs font-semibold text-[#FFFDF8] bg-black/40 p-2.5 rounded-lg border border-white/10">
+                      {testHeadlineIndex === 0 && '"Delivering Ultra-Fast Luxury In 48 Hours"'}
+                      {testHeadlineIndex === 1 && '"Precision Engineering For Modern Enterprises"'}
+                      {testHeadlineIndex === 2 && '"High-Performance Digital Architecture Ready Now"'}
+                    </div>
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={() => setTestHeadlineIndex((prev) => (prev + 1) % 3)}
+                      className="w-full py-1.5 bg-[#D6B46A]/20 hover:bg-[#D6B46A]/30 text-[#D6B46A] border border-[#D6B46A]/30 rounded-lg text-[9px] font-mono uppercase font-bold cursor-pointer transition-colors"
+                    >
+                      ✏️ Click to Test Edit Slogan
+                    </motion.button>
+                  </motion.div>
+                )}
+
+                {activeControlTab === 'leads' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-2xl bg-white/[0.04] border border-[#D6B46A]/20 space-y-3 text-left"
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-mono uppercase">
+                      <span className="text-[#A89F91]">Recent Verified Lead</span>
+                      <span className="text-[#D6B46A] font-bold">Just Now</span>
+                    </div>
+                    <div className="text-xs font-semibold text-[#FFFDF8] bg-black/40 p-2.5 rounded-lg border border-white/10 flex items-center justify-between">
+                      <span>{testLeadAdded ? "Rohan V. • Villa Booking Inq." : "Aditya S. • Banquet Booking"}</span>
+                      <span className="text-[9px] text-emerald-400 font-mono">WhatsApp Pushed</span>
+                    </div>
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={() => setTestLeadAdded(!testLeadAdded)}
+                      className="w-full py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-[9px] font-mono uppercase font-bold cursor-pointer transition-colors"
+                    >
+                      📩 Simulate Incoming Lead Alert
+                    </motion.button>
+                  </motion.div>
+                )}
+
+                {activeControlTab === 'analytics' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-2xl bg-white/[0.04] border border-[#D6B46A]/20 space-y-2 text-left"
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-mono uppercase">
+                      <span className="text-[#A89F91]">Core Web Vital Speed</span>
+                      <span className="text-emerald-400 font-bold">Grade A+</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                      <div className="bg-black/40 p-2 rounded border border-white/10">
+                        <div className="text-[#A89F91] text-[9px]">FCP Response</div>
+                        <div className="text-[#D6B46A] font-bold mt-0.5">0.38s</div>
+                      </div>
+                      <div className="bg-black/40 p-2 rounded border border-white/10">
+                        <div className="text-[#A89F91] text-[9px]">Uptime SLA</div>
+                        <div className="text-emerald-400 font-bold mt-0.5">99.98%</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="p-3 bg-[#D6B46A]/10 border border-[#D6B46A]/20 rounded-xl text-center">
+                <p className="text-[10px] font-mono text-[#D6B46A] uppercase tracking-wider font-bold">
+                  Zero Technical Knowledge Required · Custom Video Guide Included
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Copy description */}
+          {/* Copy description & 3D Interactive Feature Buttons */}
           <div className="lg:col-span-7 order-1 lg:order-2 flex flex-col items-start gap-6 text-left">
             <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B46A] font-bold">
               Every Serious Business Needs a Digital Remote Control.
@@ -857,25 +1226,43 @@ export default function Home({ setCurrentPage }: HomeProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
               {[
-                { title: "Manage Content", desc: "Edit service texts, gallery banners, and visual assets without developer assistance." },
-                { title: "Consolidate Leads", desc: "Centralize inquiry submissions into one secure workspace cataloged automatically." },
-                { title: "Track Growth Metrics", desc: "Keep a future-ready analytics backbone configured right from launch day." },
-                { title: "Bookings-Configured", desc: "Prepared systems to enable booking and consultation slots dynamically later." }
+                { title: "Manage Content", desc: "Edit service texts, gallery banners, and visual assets without developer assistance.", tab: 'content' as const },
+                { title: "Consolidate Leads", desc: "Centralize inquiry submissions into one secure workspace cataloged automatically.", tab: 'leads' as const },
+                { title: "Track Growth Metrics", desc: "Keep a future-ready analytics backbone configured right from launch day.", tab: 'analytics' as const },
+                { title: "Bookings-Configured", desc: "Prepared systems to enable booking and consultation slots dynamically later.", tab: 'leads' as const }
               ].map((card, idx) => (
-                <div key={idx} className="p-4 bg-charcoal/40 border border-champagne-gold/10 rounded-2xl flex flex-col gap-1.5">
-                  <h3 className="font-display font-bold text-xs text-soft-ivory uppercase tracking-wider">{card.title}</h3>
+                <motion.button 
+                  key={idx}
+                  type="button"
+                  onClick={() => setActiveControlTab(card.tab)}
+                  whileHover={{ scale: 1.03, x: 4 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`p-4 rounded-2xl flex flex-col gap-1.5 text-left cursor-pointer border transition-all ${
+                    activeControlTab === card.tab 
+                      ? 'bg-[#181612] border-[#D6B46A] ring-1 ring-[#D6B46A]/60 shadow-[0_0_20px_rgba(214,180,106,0.18)]' 
+                      : 'bg-charcoal/40 border-champagne-gold/15 hover:border-champagne-gold/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <h3 className="font-display font-bold text-xs text-soft-ivory uppercase tracking-wider">{card.title}</h3>
+                    {activeControlTab === card.tab && (
+                      <span className="w-2 h-2 rounded-full bg-[#D6B46A] animate-ping" />
+                    )}
+                  </div>
                   <p className="text-xs text-warm-grey leading-normal">{card.desc}</p>
-                </div>
+                </motion.button>
               ))}
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => handleAction('control')}
-              className="px-8 py-4 bg-champagne-gold text-matte-black hover:bg-muted-gold font-bold uppercase tracking-widest text-xs rounded-full flex items-center gap-1.5 cursor-pointer transition-colors mt-2"
+              className="px-8 py-4 bg-champagne-gold text-matte-black hover:bg-muted-gold font-bold uppercase tracking-widest text-xs rounded-full flex items-center gap-1.5 cursor-pointer transition-colors mt-2 shadow-md"
             >
               Build My Digital Control System
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
       </section>
@@ -902,17 +1289,36 @@ export default function Home({ setCurrentPage }: HomeProps) {
               { num: "03", title: "Develop", desc: "Our Senior Developer Wing writes response-ready responsive code, applying fast-loading principles." },
               { num: "04", title: "Deliver", desc: "Your asset is securely deployed, live, and fully ready to capture qualified inquiries." }
             ].map((step, idx) => (
-              <div 
+              <motion.div 
                 key={idx}
-                className="bg-white/60 backdrop-blur-sm border border-champagne-gold/25 hover:border-champagne-gold/60 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between h-72 group transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-[#D6B46A]/5"
+                onClick={() => setActiveProcessStep(idx)}
+                whileHover={{ 
+                  scale: 1.04, 
+                  y: -6,
+                  borderColor: 'rgba(214, 180, 106, 0.7)',
+                  boxShadow: "0 20px 40px -10px rgba(214, 180, 106, 0.2)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-8 rounded-3xl relative overflow-hidden flex flex-col justify-between h-72 cursor-pointer transition-all duration-300 border ${
+                  activeProcessStep === idx
+                    ? 'bg-white border-[#D6B46A] ring-2 ring-[#D6B46A]/50 shadow-xl'
+                    : 'bg-white/70 backdrop-blur-sm border-champagne-gold/25 hover:border-champagne-gold/60 shadow-sm'
+                }`}
               >
-                <div className="absolute top-2 right-4 font-display font-black text-6xl text-[#D6B46A]/30 group-hover:text-[#D6B46A]/50 transition-colors duration-300 select-none">
+                <div className="absolute top-2 right-4 font-display font-black text-6xl text-[#D6B46A]/25 group-hover:text-[#D6B46A]/50 transition-colors duration-300 select-none">
                   {step.num}
                 </div>
                 <div>
-                  <span className="text-xs font-mono uppercase text-[#85641C] font-bold tracking-widest block mb-4">
-                    Step {step.num}
-                  </span>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-mono uppercase text-[#85641C] font-bold tracking-widest block">
+                      Step {step.num}
+                    </span>
+                    {activeProcessStep === idx && (
+                      <span className="text-[9px] font-mono uppercase text-emerald-600 bg-emerald-100 font-bold px-2 py-0.5 rounded-full">
+                        Selected
+                      </span>
+                    )}
+                  </div>
                   <h3 className="font-display font-bold text-lg text-matte-black mb-3">
                     {step.title}
                   </h3>
@@ -920,8 +1326,12 @@ export default function Home({ setCurrentPage }: HomeProps) {
                     {step.desc}
                   </p>
                 </div>
-                <div className="h-1 bg-gradient-to-r from-champagne-gold to-muted-gold rounded w-1/3 group-hover:w-full duration-300" />
-              </div>
+                <div className={`h-1.5 rounded transition-all duration-300 ${
+                  activeProcessStep === idx 
+                    ? 'w-full bg-gradient-to-r from-champagne-gold to-[#85641C]' 
+                    : 'w-1/3 bg-gradient-to-r from-champagne-gold to-muted-gold group-hover:w-full'
+                }`} />
+              </motion.div>
             ))}
           </div>
 
@@ -929,88 +1339,6 @@ export default function Home({ setCurrentPage }: HomeProps) {
             <p className="text-xs font-mono text-warm-grey italic">
               Speed matters. But premium speed matters far more. SamaXon is built for founders who want both.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* --- SELECTED WORK PORTFOLIO PREVIEW --- */}
-      <section className="py-24 bg-pearl-white" id="portfolio-preview-section">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
-            <div className="text-left flex flex-col items-start gap-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
-                Elite Proof of Work
-              </span>
-              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
-                Engineered to Look Expensive.
-              </h2>
-              <p className="text-sm text-warm-grey max-w-xl">
-                Every SamaXon project is built with one focused milestone: make the business look trustworthy, modern, credible, and conversion-ready.
-              </p>
-            </div>
-            <button
-              onClick={() => handleAction('portfolio')}
-              className="px-6 py-3.5 bg-matte-black text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-widest text-[10px] rounded-full border border-champagne-gold/25 flex items-center justify-center gap-1.5 group cursor-pointer"
-            >
-              View Selected Work
-              <ArrowUpRight className="w-4 h-4 text-champagne-gold group-hover:translate-x-0.5 duration-200" />
-            </button>
-          </div>
-
-          {/* Quick Portfolio Grid preview: First 3 items */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PORTFOLIO_DATA.filter(p => !!p.thumbnailUrl).slice(0, 3).map((project) => (
-              <div 
-                key={project.id}
-                className="bg-white/60 border border-champagne-gold/15 p-8 rounded-3xl hover:border-champagne-gold transition-all duration-300 gold-shadow-sm flex flex-col justify-between group"
-              >
-                <div>
-                  {project.thumbnailUrl && (
-                    <div className="w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 border border-champagne-gold/15 bg-matte-black/5">
-                      <img 
-                        src={project.thumbnailUrl} 
-                        alt={project.title} 
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-all duration-500"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex justify-between items-start mb-6 border-b border-champagne-gold/10 pb-4">
-                    <span className="px-3 py-1 bg-matte-black text-soft-ivory text-[9px] font-mono uppercase tracking-widest rounded-full border border-champagne-gold/20">
-                      {project.visualTag}
-                    </span>
-                    <span className="text-[8px] font-mono text-warm-grey tracking-wider uppercase font-bold mt-1">
-                      Live Build
-                    </span>
-                  </div>
-
-                  <h3 className="font-display font-semibold text-lg text-matte-black mb-3">
-                    {project.title}
-                  </h3>
-                  <div className="space-y-4 text-xs text-warm-grey leading-relaxed">
-                    <p>
-                      <strong className="text-matte-black uppercase text-[9px] font-mono tracking-widest block mb-0.5">Problem:</strong>
-                      {project.problem.slice(0, 100)}...
-                    </p>
-                    <p>
-                      <strong className="text-[#D6B46A] uppercase text-[9px] font-mono tracking-widest block mb-0.5">SamaXon Action:</strong>
-                      {project.solution.slice(0, 100)}...
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-4 border-t border-champagne-gold/10">
-                  <button
-                    onClick={() => handleAction('portfolio')}
-                    className="w-full py-3 bg-white hover:bg-matte-black hover:text-soft-ivory border border-champagne-gold/20 font-bold uppercase tracking-widest text-[9px] rounded-xl flex items-center justify-center gap-1.5 duration-200 cursor-pointer"
-                  >
-                    View Project Case Study
-                    <ArrowRight className="w-3 h-3 text-champagne-gold" />
-                  </button>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -1032,9 +1360,16 @@ export default function Home({ setCurrentPage }: HomeProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {TESTIMONIALS_DATA.map((testimonial) => (
-              <div 
+              <motion.div 
                 key={testimonial.id}
-                className="bg-white/55 border border-champagne-gold/15 p-8 rounded-3xl relative flex flex-col justify-between h-full gold-shadow-sm"
+                whileHover={{ 
+                  y: -6, 
+                  scale: 1.02,
+                  borderColor: 'rgba(214, 180, 106, 0.6)',
+                  boxShadow: '0 20px 40px -10px rgba(214, 180, 106, 0.18)'
+                }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white/65 backdrop-blur-xs border border-champagne-gold/20 p-8 rounded-3xl relative flex flex-col justify-between h-full gold-shadow-sm transition-all duration-300 cursor-pointer"
               >
                 <div>
                   <div className="flex gap-1 mb-6">
@@ -1047,7 +1382,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 border-t border-champagne-gold/10 pt-4">
+                <div className="flex items-center gap-3 border-t border-champagne-gold/15 pt-4">
                   <div className="w-9 h-9 rounded-full bg-matte-black flex items-center justify-center text-soft-ivory border border-champagne-gold/20 font-display font-medium text-xs">
                     {testimonial.author.split(' ').map(n=>n[0]).join('')}
                   </div>
@@ -1066,7 +1401,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                     Selected Case
                   </span>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -1149,21 +1484,25 @@ export default function Home({ setCurrentPage }: HomeProps) {
           <div className="h-px w-24 bg-champagne-gold/30 my-2" />
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.94 }}
               onClick={() => handleAction('contact')}
               id="cta-bottom-start"
-              className="w-full sm:w-auto px-9 py-4.5 bg-champagne-gold text-matte-black hover:bg-muted-gold font-bold uppercase tracking-[0.12em] text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_6px_20px_rgba(214,180,106,0.35)] hover:shadow-[0_10px_28px_rgba(214,180,106,0.48)] hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full sm:w-auto px-9 py-4.5 bg-champagne-gold text-matte-black hover:bg-muted-gold font-bold uppercase tracking-[0.12em] text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_6px_20px_rgba(214,180,106,0.35)] hover:shadow-[0_10px_28px_rgba(214,180,106,0.48)]"
             >
               Start Your 48-Hour Build
               <ArrowRight className="w-4 h-4 ml-1" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.94 }}
               onClick={() => handleAction('about')}
               id="cta-bottom-talk"
-              className="w-full sm:w-auto px-9 py-4.5 bg-transparent border border-champagne-gold/35 hover:border-champagne-gold text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-[0.12em] text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full sm:w-auto px-9 py-4.5 bg-transparent border border-champagne-gold/35 hover:border-champagne-gold text-soft-ivory hover:text-champagne-gold font-bold uppercase tracking-[0.12em] text-xs rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all hover:bg-white/5"
             >
               Who is SamaXon?
-            </button>
+            </motion.button>
           </div>
 
           <div className="text-[10px] font-mono tracking-widest text-warm-grey uppercase mt-4">

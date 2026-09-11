@@ -6,11 +6,13 @@ import {
 } from 'lucide-react';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import SleekLuxurySlider from './SleekLuxurySlider';
 
-// Configure pdfjs worker using Vite's ?url asset import
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+// Configure pdfjs worker using local Vite bundled URL (eliminating cross-origin CDN errors)
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+}
 
 // Helper to guarantee text can be safely encoded in WinAnsi for pdf-lib standard fonts
 function sanitizeForPdfWinAnsi(text: string): string {

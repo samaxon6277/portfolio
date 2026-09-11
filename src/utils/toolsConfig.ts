@@ -2,10 +2,10 @@
 // Allows Admin to enable/disable any tool with instant real-time synchronization
 
 export interface ToolItemConfig {
-  id: 'converter' | 'calculator' | 'compressor' | 'resizer' | 'pdf-tool' | 'bg-remover' | 'upscaler' | 'vectorizer';
+  id: 'analyzer' | 'converter' | 'calculator' | 'compressor' | 'resizer' | 'pdf-tool' | 'bg-remover' | 'upscaler' | 'vectorizer';
   name: string;
   shortName: string;
-  category: 'Image' | 'Document' | 'Productivity' | 'AI Neural';
+  category: 'SEO & Audit' | 'Image' | 'Document' | 'Productivity' | 'AI Neural';
   badge: string;
   description: string;
   enabled: boolean;
@@ -14,6 +14,16 @@ export interface ToolItemConfig {
 }
 
 export const DEFAULT_TOOLS_CONFIG: ToolItemConfig[] = [
+  {
+    id: 'analyzer',
+    name: 'Website Security, Bug & SEO Audit Engine',
+    shortName: 'Website Analyzer',
+    category: 'SEO & Audit',
+    badge: 'Deep Inspection',
+    description: 'Enter any website URL to perform a full technical audit: detect security vulnerabilities, broken tags, SSL status, missing SEO keywords, code bugs, and performance scores.',
+    enabled: true,
+    iconName: 'SearchCode'
+  },
   {
     id: 'converter',
     name: 'Universal Batch Image Converter',

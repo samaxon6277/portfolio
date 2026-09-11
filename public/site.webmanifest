@@ -1,26 +1,37 @@
 {
   "name": "SamaXon Digital Solutions",
   "short_name": "SamaXon",
+  "description": "Speed-Driven Digital Studio delivering bespoke websites, apps, and workflow automations in 48 hours.",
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/pwa-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/favicon.png",
+      "src": "/pwa-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
-  "theme_color": "#111111",
-  "background_color": "#111111",
+  "theme_color": "#0E0D0B",
+  "background_color": "#0E0D0B",
   "display": "standalone",
   "start_url": "/",
+  "scope": "/",
   "orientation": "portrait"
 }

@@ -73,7 +73,7 @@ export default function Services({ setCurrentPage }: ServicesProps) {
               onClick={() => navigate('/tools')}
               className="px-5 py-2.5 bg-[#D6B46A] hover:bg-white text-black font-mono font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all cursor-pointer shrink-0 shadow-md"
             >
-              Open AI Tools Hub →
+              Open Tools Hub →
             </button>
           </div>
         </div>

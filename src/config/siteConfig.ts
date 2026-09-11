@@ -235,6 +235,18 @@ export function getCompanyEmails(overrides?: {
 
 export interface DynamicWebsiteSettings {
   brandName: string;
+  logoUrl: string;
+  logoType: 'monogram' | 'image';
+  logoText: string;
+  logoScale?: number;
+  logoOffsetX?: number;
+  logoOffsetY?: number;
+  logoRotation?: number;
+  logoBorderRadius?: number;
+  logoPadding?: number;
+  logoBrightness?: number;
+  logoContrast?: number;
+  faviconUrl: string;
   contactEmail: string;
   supportEmail: string;
   founderEmail: string;
@@ -255,6 +267,12 @@ export interface DynamicWebsiteSettings {
   statTeamMembers: string;
   statIndustriesServed: string;
   statYearsExperience: string;
+  headerBrandTextVisible?: boolean;
+  headerSubText?: string;
+  headerSubTextVisible?: boolean;
+  headerCtaText?: string;
+  headerCtaLink?: string;
+  headerCtaVisible?: boolean;
 }
 
 /**
@@ -286,6 +304,18 @@ export function getLiveWebsiteSettings(): DynamicWebsiteSettings {
 
   return {
     brandName: adminSettings.brandName || SITE_CONFIG.name,
+    logoUrl: adminSettings.logoUrl || 'S',
+    logoType: adminSettings.logoType || (adminSettings.logoUrl && adminSettings.logoUrl.length > 5 ? 'image' : 'monogram'),
+    logoText: adminSettings.logoText || 'S',
+    logoScale: adminSettings.logoScale !== undefined ? adminSettings.logoScale : 1.0,
+    logoOffsetX: adminSettings.logoOffsetX !== undefined ? adminSettings.logoOffsetX : 0,
+    logoOffsetY: adminSettings.logoOffsetY !== undefined ? adminSettings.logoOffsetY : 0,
+    logoRotation: adminSettings.logoRotation !== undefined ? adminSettings.logoRotation : 0,
+    logoBorderRadius: adminSettings.logoBorderRadius !== undefined ? adminSettings.logoBorderRadius : 12,
+    logoPadding: adminSettings.logoPadding !== undefined ? adminSettings.logoPadding : 4,
+    logoBrightness: adminSettings.logoBrightness !== undefined ? adminSettings.logoBrightness : 100,
+    logoContrast: adminSettings.logoContrast !== undefined ? adminSettings.logoContrast : 100,
+    faviconUrl: adminSettings.faviconUrl || '/favicon.ico',
     contactEmail: (adminSettings.contactEmail && !adminSettings.contactEmail.includes('build@') && adminSettings.contactEmail.includes('@')) 
       ? adminSettings.contactEmail 
       : 'contact@samaxon.site',
@@ -308,6 +338,12 @@ export function getLiveWebsiteSettings(): DynamicWebsiteSettings {
     statTeamMembers: adminSettings.statTeamMembers || '12+',
     statIndustriesServed: adminSettings.statIndustriesServed || '15+',
     statYearsExperience: adminSettings.statYearsExperience || '6+',
+    headerBrandTextVisible: adminSettings.headerBrandTextVisible !== undefined ? adminSettings.headerBrandTextVisible : true,
+    headerSubText: adminSettings.headerSubText !== undefined ? adminSettings.headerSubText : '48-HR Digital Studio',
+    headerSubTextVisible: adminSettings.headerSubTextVisible !== undefined ? adminSettings.headerSubTextVisible : true,
+    headerCtaText: adminSettings.headerCtaText || 'Start Build',
+    headerCtaLink: adminSettings.headerCtaLink || '/contact',
+    headerCtaVisible: adminSettings.headerCtaVisible !== undefined ? adminSettings.headerCtaVisible : true,
   };
 }
 

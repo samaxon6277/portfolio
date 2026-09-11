@@ -253,7 +253,7 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
           <div className="md:col-span-3">
             <CustomSelect
               value={selectedService}
-              onChange={setSelectedService}
+              onChange={(val) => setSelectedService(String(val))}
               options={[
                 { value: 'All', label: 'All Core Services' },
                 ...servicesList.slice(1).map(srv => ({ value: srv, label: srv }))
@@ -265,7 +265,7 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
           <div className="md:col-span-2">
             <CustomSelect
               value={selectedStatus}
-              onChange={setSelectedStatus}
+              onChange={(val) => setSelectedStatus(String(val))}
               options={statusesList}
             />
           </div>
@@ -274,7 +274,7 @@ export default function LeadsTab({ leads, onUpdateLead, onDeleteLead }: LeadsTab
           <div className="md:col-span-2">
             <CustomSelect
               value={selectedPriority}
-              onChange={setSelectedPriority}
+              onChange={(val) => setSelectedPriority(String(val))}
               options={[
                 { value: 'All', label: 'All Priorities' },
                 ...prioritiesList.slice(1).map(pr => ({ value: pr, label: `${pr.toUpperCase()} Priority` }))

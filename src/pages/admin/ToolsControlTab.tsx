@@ -38,30 +38,21 @@ export default function ToolsControlTab() {
     const nextState = !tool.enabled;
     const updated = saveToolStatus(tool.id, nextState);
     setTools(updated);
-    showToast({
-      type: nextState ? 'success' : 'info',
-      message: `${tool.name} is now ${nextState ? 'ENABLED and live for all visitors' : 'DISABLED (Maintenance Mode active)'}`
-    });
+    showToast(`${tool.name} is now ${nextState ? 'ENABLED and live for all visitors' : 'DISABLED (Maintenance Mode active)'}`, nextState ? 'success' : 'info');
   };
 
   const handleSaveNotice = (toolId: string) => {
     const updated = saveToolStatus(toolId, tools.find(t => t.id === toolId)?.enabled ?? true, tempNotice);
     setTools(updated);
     setEditingNoticeId(null);
-    showToast({
-      type: 'success',
-      message: 'Maintenance message saved successfully.'
-    });
+    showToast('Maintenance message saved successfully.', 'success');
   };
 
   const handleResetAll = () => {
     if (window.confirm('Reset all tool statuses to factory default (All Tools Active)?')) {
       const reset = resetToolsConfig();
       setTools(reset);
-      showToast({
-        type: 'success',
-        message: 'All tools have been reset to Online status.'
-      });
+      showToast('All tools have been reset to Online status.', 'success');
     }
   };
 

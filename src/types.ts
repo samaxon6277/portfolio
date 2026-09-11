@@ -45,6 +45,43 @@ export interface CareerApplication {
   createdAt: string;
 }
 
+export interface WebsiteAuditLead {
+  id: string;
+  ticketNumber: string;
+  clientName: string;
+  businessName?: string;
+  email: string;
+  phone: string;
+  websiteUrl: string;
+  overallScore: number;
+  securityScore: number;
+  seoScore: number;
+  codeScore: number;
+  performanceScore: number;
+  criticalIssuesCount: number;
+  warningIssuesCount: number;
+  topIssues: {
+    category: string;
+    severity: string;
+    title: string;
+    description: string;
+    recommendation?: string;
+  }[];
+  missingKeywords?: string[];
+  animationIssues?: string[];
+  internalPages?: {
+    path: string;
+    url?: string;
+    status: number;
+    ok: boolean;
+    responseTimeMs?: number;
+  }[];
+  clientNotes?: string;
+  priority: 'standard' | 'high' | 'urgent_48h';
+  status: 'new' | 'contacted' | 'in_progress' | 'resolved' | 'fixed' | 'archived';
+  createdAt: string;
+}
+
 export interface JobApplication {
   id: string;
   full_name: string;
@@ -228,7 +265,7 @@ export interface WebsiteUpdateLog {
   id: string;
   version: string;
   title: string;
-  category: 'Feature Release' | 'UI/UX Upgrade' | 'Performance & Speed' | 'Bug Fix' | 'Security Patch' | 'Core Architecture';
+  category: 'Feature Release' | 'UI/UX Upgrade' | 'Performance & Speed' | 'Bug Fix' | 'Security Patch' | 'Core Architecture' | 'Platform Enhancement';
   timestamp: string; // ISO 8601 string
   displayDate: string; // e.g. "08 Sep 2026"
   displayDay: string; // e.g. "Tuesday"

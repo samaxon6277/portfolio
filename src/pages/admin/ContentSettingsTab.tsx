@@ -35,6 +35,8 @@ function SmartAdminThumbnail({ src, alt }: { src: string; alt: string }) {
 }
 
 interface ContentSettingsTabProps {
+  initialSubTab?: 'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing';
+  onSubTabChange?: (tab: 'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing') => void;
   services: Service[];
   portfolioProjects: PortfolioProject[];
   testimonials: Testimonial[];
@@ -50,11 +52,26 @@ interface ContentSettingsTabProps {
 }
 
 export default function ContentSettingsTab({
+  initialSubTab = 'services',
+  onSubTabChange,
   services, portfolioProjects, testimonials, pageSections, blogs, legalPages,
   onUpdateServices, onUpdatePortfolio, onUpdateTestimonials, onUpdatePageSections, onUpdateBlogs, onUpdateLegalPages
 }: ContentSettingsTabProps) {
   const { showToast, showConfirm } = useCustomUi();
-  const [subTab, setSubTab] = useState<'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing'>('services');
+  const [subTab, setSubTab] = useState<'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing'>(initialSubTab);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
+
+  const changeSubTab = (tab: 'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing') => {
+    setSubTab(tab);
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    }
+  };
 
   // Unified editing entity modals tracker
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -290,7 +307,7 @@ export default function ContentSettingsTab({
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setSubTab(tab.id as any)}
+                onClick={() => changeSubTab(tab.id as any)}
                 className={`px-3 py-1.5 rounded-lg transition-all shrink-0 cursor-pointer ${
                   subTab === tab.id 
                     ? 'bg-[#111111] text-white shadow-sm' 

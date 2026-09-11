@@ -62,6 +62,8 @@ export interface PageSectionContent {
 export interface WebsiteSettings {
   brandName: string;
   logoUrl: string;
+  logoType?: 'monogram' | 'image';
+  logoText?: string;
   faviconUrl: string;
   contactEmail: string;
   supportEmail?: string;
@@ -84,134 +86,29 @@ export interface WebsiteSettings {
   statTeamMembers: string;
   statIndustriesServed: string;
   statYearsExperience: string;
+  // Interactive Brand Logo & Header Customizer
+  logoScale?: number; // 0.5 to 2.5
+  logoOffsetX?: number; // -100 to 100 px
+  logoOffsetY?: number; // -50 to 50 px
+  logoHeight?: number; // 24 to 90 px
+  logoBorderRadius?: number; // 0 to 30 px
+  logoPadding?: number; // 0 to 16 px
+  logoBrightness?: number; // 50 to 150 %
+  logoContrast?: number; // 50 to 150 %
+  logoRotation?: number; // -45 to 45 deg
+  headerBrandTextVisible?: boolean; // toggle brand name visibility next to logo
+  headerSubText?: string; // sub-tagline below brand name
+  headerSubTextVisible?: boolean; // toggle sub-tagline visibility
+  headerCtaText?: string; // custom text for header CTA button
+  headerCtaLink?: string; // custom link for header CTA button
+  headerCtaVisible?: boolean; // toggle header CTA button visibility
 }
 
-// Initial mock data definitions
-const defaultLeads: Lead[] = [
-  {
-    id: 'lead-1',
-    name: 'Aditya Birla Sharma',
-    businessName: 'Birla Premium AgriTech',
-    phone: '+91 98210 12345',
-    email: 'aditya@birlaagritech.com',
-    city: 'Mumbai',
-    serviceNeeded: 'Web Development',
-    currentProblem: 'Existing React web platform loads in 8.5 seconds, failing Google Core Web Vitals and losing active user retention.',
-    desiredTimeline: 'Under 48 Hours',
-    budgetRange: '₹1,00,000 - ₹2,50,000 (Elite Premium)',
-    message: 'We need the homepage and the main products funnel rebuilt completely inside 48 hours for our upcoming venture capital pitch.',
-    status: 'new',
-    createdAt: new Date(Date.now() - 3600000 * 1.5).toISOString() // 1.5 hours ago
-  },
-  {
-    id: 'lead-2',
-    name: 'Meera Deshmukh',
-    businessName: 'Nouveau Luxury Furnishings',
-    phone: '+91 88799 44556',
-    email: 'meera@nouveaudecor.in',
-    city: 'Bangalore',
-    serviceNeeded: 'Logo and Identity Design',
-    currentProblem: 'Corporate identity looks outdated and resembles lower-tier e-commerce players rather than targeted elite buyers.',
-    desiredTimeline: 'Under 48 Hours',
-    budgetRange: '₹50,000 - ₹1,00,000 (Standard Premium)',
-    message: 'Seeking a total minimalist visual rebrand featuring champagne gold color highlights and ultra-luxury typography.',
-    status: 'contacted',
-    createdAt: new Date(Date.now() - 3600000 * 12).toISOString() // 12 hours ago
-  },
-  {
-    id: 'lead-3',
-    name: 'Vikram Kapoor',
-    businessName: 'Apex Health Systems',
-    phone: '+91 91100 88990',
-    email: 'v.kapoor@apexhealth.co.in',
-    city: 'Delhi NCR',
-    serviceNeeded: 'Advanced Automations',
-    currentProblem: 'Patient lead generation triggers manual Excel updates which takes up to 48 hours to complete. Losing client appointments.',
-    desiredTimeline: 'Under 48 Hours',
-    budgetRange: '₹1,00,000 - ₹2,50,000 (Elite Premium)',
-    message: 'We require custom automation bridges linking Google Forms, CRM, and target doctors WhatsApp notifications immediately.',
-    status: 'negotiating',
-    createdAt: new Date(Date.now() - 3600000 * 36).toISOString() // 1.5 days ago
-  },
-  {
-    id: 'lead-4',
-    name: 'Rohan Singhania',
-    businessName: 'Singhania & Sons Jewelers',
-    phone: '+91 99334 55667',
-    email: 'rohan@singhaniaheritage.com',
-    city: 'Jaipur',
-    serviceNeeded: 'Custom Telegram Bots',
-    currentProblem: 'Client customized orders are queued slowly. Needs instant live order status queries on Telegram/WhatsApp.',
-    desiredTimeline: 'Under 48 Hours',
-    budgetRange: '₹1,00,000 - ₹2,50,000 (Elite Premium)',
-    message: 'Need a production-ready Telegram Bot to fetch secure order records in under 0.2s.',
-    status: 'won',
-    createdAt: new Date(Date.now() - 3600000 * 72).toISOString()
-  },
-  {
-    id: 'lead-5',
-    name: 'Karan Mehra',
-    businessName: 'BetaFlow Crypto Analytics',
-    phone: '+91 90044 11223',
-    email: 'karan@betaflow.io',
-    city: 'Pune',
-    serviceNeeded: 'Performance and SEO Optimization',
-    currentProblem: 'Mobile lighthouse scores are under 40%. Slow SEO crawling has reduced inbound organic index signups.',
-    desiredTimeline: 'Under 48 Hours',
-    budgetRange: '₹50,000 - ₹1,00,000 (Standard Premium)',
-    message: 'Need standard auditing and optimization inside our code layout next weekend.',
-    status: 'lost',
-    createdAt: new Date(Date.now() - 3600000 * 120).toISOString()
-  }
-];
+// Real database initializes with 0 demo leads and 0 demo applicants.
+// Only authentic client submissions are displayed.
+const defaultLeads: Lead[] = [];
 
-const defaultCareers: CareerApplication[] = [
-  {
-    id: 'app-1',
-    name: 'Rohit Kulkarni',
-    phone: '+91 97665 43210',
-    email: 'rohit.kulkarni@gmail.com',
-    city: 'Pune',
-    roleInterestedIn: 'Digital Growth Consultant',
-    experience: '4 Years in Enterprise consultative tech sales at Oracle and Zoho India. Managed portfolios worth ₹50L+.',
-    whySamaXon: 'I thrive under fast turnaround cycles. Traditional corporate processes take weeks to approve quotes. SamaXons 48-hour model is exactly the disruptive environment I prefer.',
-    portfolioUrl: 'https://rohitkulkarni.com/dashboard',
-    linkedinUrl: 'https://linkedin.com/in/rohit-kulkarni-consult',
-    resumeUrl: 'https://drive.google.com/file/d/rohit-resume-pdf',
-    status: 'submitted',
-    createdAt: new Date(Date.now() - 3600000 * 4).toISOString() // 4 hours ago
-  },
-  {
-    id: 'app-2',
-    name: 'Ananya Sen',
-    phone: '+91 98300 11223',
-    email: 'ananya.sen@designstudio.in',
-    city: 'Kolkata',
-    roleInterestedIn: 'Senior Brand Identity Designer',
-    experience: '6 Years creating luxury visual guidelines for high-end fashion lines and premium hospitality platforms across APAC.',
-    whySamaXon: 'SamaXon prioritizes aesthetic authority (Champagne Gold / Matte Black visual styles). I design pixel-perfect typography guidelines that perfectly map to your clientele.',
-    portfolioUrl: 'https://behance.net/ananyasen-premium',
-    linkedinUrl: 'https://linkedin.com/in/ananya-sen-identity',
-    resumeUrl: 'https://drive.google.com/file/d/ananya-resume-cv',
-    status: 'reviewing',
-    createdAt: new Date(Date.now() - 3600000 * 20).toISOString()
-  },
-  {
-    id: 'app-3',
-    name: 'Devansh Malhotra',
-    phone: '+91 81234 56789',
-    email: 'dev@malhotra-labs.dev',
-    city: 'Bangalore',
-    roleInterestedIn: 'Custom Systems & Automation Architect',
-    experience: '5 Years core backend Node, Go and Python integration. Expert in Webhooks, Redis queues and low-latency API proxy tunnels.',
-    whySamaXon: 'I hate slow developer loops. I specialize in immediate real-time workflow integrations matching SamaXon’s 48-hour delivery timeline.',
-    portfolioUrl: 'https://github.com/dev-malhotra-speed',
-    linkedinUrl: 'https://linkedin.com/in/devansh-m-architect',
-    resumeUrl: 'https://drive.google.com/file/d/dev-resume-sys',
-    status: 'accepted',
-    createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
-  }
-];
+const defaultCareers: CareerApplication[] = [];
 
 const defaultServices: Service[] = [
   {
@@ -708,6 +605,8 @@ const defaultAdminUsers: AdminUser[] = [
 const defaultWebsiteSettings: WebsiteSettings = {
   brandName: 'SamaXon Digital Solutions',
   logoUrl: 'S',
+  logoType: 'monogram',
+  logoText: 'S',
   faviconUrl: '/favicon.ico',
   contactEmail: 'contact@samaxon.site',
   supportEmail: 'support@samaxon.site',
@@ -775,12 +674,35 @@ const defaultPageSections: PageSectionContent[] = [
 ];
 
 export function initializeDatabase() {
-  if (!localStorage.getItem('samaxon_leads')) {
-    localStorage.setItem('samaxon_leads', JSON.stringify(defaultLeads));
-  }
-  if (!localStorage.getItem('samaxon_career_applications')) {
-    localStorage.setItem('samaxon_career_applications', JSON.stringify(defaultCareers));
-  }
+  // Purge any legacy mock leads from previous session
+  try {
+    const rawLeads = localStorage.getItem('samaxon_leads');
+    if (rawLeads) {
+      const parsed = JSON.parse(rawLeads);
+      if (Array.isArray(parsed)) {
+        // Strip out the demo IDs ('lead-1', 'lead-2', 'lead-3', 'lead-4', 'lead-5')
+        const filtered = parsed.filter((l: any) => !['lead-1', 'lead-2', 'lead-3', 'lead-4', 'lead-5'].includes(l.id));
+        localStorage.setItem('samaxon_leads', JSON.stringify(filtered));
+      }
+    } else {
+      localStorage.setItem('samaxon_leads', JSON.stringify([]));
+    }
+  } catch {}
+
+  // Purge any legacy mock applicants
+  try {
+    const rawApps = localStorage.getItem('samaxon_career_applications');
+    if (rawApps) {
+      const parsed = JSON.parse(rawApps);
+      if (Array.isArray(parsed)) {
+        const filtered = parsed.filter((a: any) => !['app-1', 'app-2', 'app-3'].includes(a.id));
+        localStorage.setItem('samaxon_career_applications', JSON.stringify(filtered));
+      }
+    } else {
+      localStorage.setItem('samaxon_career_applications', JSON.stringify([]));
+    }
+  } catch {}
+
   if (!localStorage.getItem('samaxon_services')) {
     localStorage.setItem('samaxon_services', JSON.stringify(defaultServices));
   }

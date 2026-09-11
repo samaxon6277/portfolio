@@ -50,10 +50,14 @@ export default function DashboardTab({
   }).length;
   const wonLeads = leads.filter(l => (l.status as string || '').toLowerCase() === 'won').length;
 
-  // Real pipeline valuation estimated from client budget selections
+  // Real pipeline valuation estimated strictly from authentic client budget selections
   const pipelineValuation = useMemo(() => {
     let totalEst = 0;
     leads.forEach(l => {
+      if (l.estimated_min_price && l.estimated_min_price > 0) {
+        totalEst += l.estimated_min_price;
+        return;
+      }
       const budget = (l.budgetRange || '').toLowerCase();
       if (budget.includes('2,50,000') || budget.includes('3,00,000') || budget.includes('enterprise')) {
         totalEst += 250000;
@@ -61,9 +65,10 @@ export default function DashboardTab({
         totalEst += 100000;
       } else if (budget.includes('50,000') || budget.includes('70,000')) {
         totalEst += 50000;
-      } else {
-        totalEst += 25000; // Base tier
+      } else if (budget.includes('25,000')) {
+        totalEst += 25000;
       }
+      // Zero mock padding if not specified
     });
     return totalEst;
   }, [leads]);
@@ -215,8 +220,12 @@ export default function DashboardTab({
     },
     {
       title: 'Estimated Pipeline',
-      value: `₹${(pipelineValuation / 1000).toFixed(0)}k`,
-      meta: `${qualifiedLeads} qualified opportunities`,
+      value: pipelineValuation > 0 
+        ? `₹${(pipelineValuation / 1000).toLocaleString('en-IN')}k`
+        : '₹0',
+      meta: totalLeads > 0 
+        ? `${qualifiedLeads} qualified of ${totalLeads} real inquiries`
+        : 'No active inquiries',
       icon: TrendingUp,
       color: '#BFA15A',
       linkTo: 'leads',

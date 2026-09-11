@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { 
   Minimize2, Crop, Sparkles, Wand2, FileText, Image as ImageIcon, 
   ArrowRight, ShieldCheck, Zap, Lock, HeartHandshake, CheckCircle2, 
-  RefreshCw, Calculator, AlertTriangle
+  RefreshCw, Calculator, AlertTriangle, SearchCode
 } from 'lucide-react';
 import { getToolsConfig, ToolItemConfig } from '../../utils/toolsConfig';
 
 interface ToolsOverviewProps {
-  onSelectTool: (toolId: 'compressor' | 'resizer' | 'converter' | 'calculator' | 'bg-remover' | 'upscaler' | 'vectorizer' | 'pdf-tool') => void;
+  onSelectTool: (toolId: 'analyzer' | 'compressor' | 'resizer' | 'converter' | 'calculator' | 'bg-remover' | 'upscaler' | 'vectorizer' | 'pdf-tool') => void;
 }
 
 const ICON_MAP: Record<string, React.ElementType> = {
+  SearchCode,
   RefreshCw,
   Calculator,
   Minimize2,
@@ -33,6 +34,7 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
   }, []);
 
   const toolFeaturePills: Record<string, string[]> = {
+    analyzer: ['SSL & Security Vulnerabilities', 'Code Bugs & Missing Alt Tags', 'Missing SEO Keywords Engine'],
     converter: ['WEBP · PNG · JPG · ICO', 'Batch ZIP Export', 'Alpha Transparency'],
     calculator: ['Basic & Scientific Pro', 'Loan EMI & GST Solver', 'SIP Wealth & Unit Matrix'],
     compressor: ['Target KB Precision', 'Client-Side Canvas', 'Real-Time File Comparison'],
@@ -44,6 +46,7 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
   };
 
   const toolFooterBadges: Record<string, string> = {
+    analyzer: 'Deep Diagnostic Scan · 100% Free',
     converter: '100% Client-Side · Unlimited',
     calculator: 'Tactile Audio · Keyboard Ready',
     compressor: 'Lossless WebP · 1-Click Export',

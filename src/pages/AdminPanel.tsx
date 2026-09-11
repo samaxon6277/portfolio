@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink, X, Sliders
+  Users, Bot, LayoutDashboard, FileSpreadsheet, Briefcase, Settings, LogOut, Lock, Mail, Shield, CheckCircle, Home, RefreshCw, Eye, EyeOff, ExternalLink, X, Sliders, Crown,
+  FolderEdit, Sparkles, Award, FileText, Globe, ShieldCheck, Image as ImageIcon, BarChart2, ShieldAlert, History, SearchCode, Bug
 } from 'lucide-react';
 
 import { Lead, CareerApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, JobApplication } from '../types';
@@ -21,6 +22,8 @@ import CareersTab from './admin/CareersTab';
 import ContentSettingsTab from './admin/ContentSettingsTab';
 import SystemSettingsTab from './admin/SystemSettingsTab';
 import ToolsControlTab from './admin/ToolsControlTab';
+import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
+import AuditLeadsTab from '../components/admin/AuditLeadsTab';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -46,6 +49,7 @@ export default function AdminPanel() {
 
   // Core administrative state datasets
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [unreadAuditLeadsCount, setUnreadAuditLeadsCount] = useState<number>(0);
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioProject[]>([]);
@@ -73,6 +77,8 @@ export default function AdminPanel() {
     return {
       brandName: SITE_CONFIG.name,
       logoUrl: 'S',
+      logoType: 'monogram',
+      logoText: 'S',
       faviconUrl: '/favicon.ico',
       contactEmail: SITE_CONFIG.contactEmail,
       phoneWhatsapp: SITE_CONFIG.phoneWhatsapp,
@@ -122,15 +128,23 @@ export default function AdminPanel() {
         supabaseService.fetchWebhookLogs()
       ]);
 
-      setPortfolioProjects(dynamicProjects);
-      setServices(dynamicServices);
-      setLeads(dynamicLeads);
-      setJobApplications(dynamicJobApps);
-      setTestimonials(dynamicTestimonials);
-      setBlogs(dynamicBlogs);
+      setPortfolioProjects(dynamicProjects || []);
+      setServices(dynamicServices || []);
+      setLeads(dynamicLeads || []);
+      setJobApplications(dynamicJobApps || []);
+      setTestimonials(dynamicTestimonials || []);
+      setBlogs(dynamicBlogs || []);
+
+      try {
+        const auditLeads = await supabaseService.getWebsiteAuditLeads();
+        const unreadCount = (auditLeads || []).filter(a => (a.status || 'new').toLowerCase() === 'new').length;
+        setUnreadAuditLeadsCount(unreadCount);
+      } catch (e) {
+        // Safe fallback
+      }
 
       // Map live team members
-      const mappedAdmins = rawMembers.map(m => ({
+      const mappedAdmins = (rawMembers || []).map(m => ({
         id: m.id,
         name: m.full_name,
         email: m.email,
@@ -142,7 +156,7 @@ export default function AdminPanel() {
       setAdminUsers(mappedAdmins);
 
       // Map crawlers
-      const mappedBots = rawCrawlers.map(l => {
+      const mappedBots = (rawCrawlers || []).map(l => {
         const botName = l.bot_name || 'Generic Bot';
         const userAgent = l.user_agent || 'Unknown';
         const normUA = userAgent.toLowerCase();
@@ -185,7 +199,7 @@ export default function AdminPanel() {
       setBotVisits(mappedBots);
 
       // Map siteEvents to activity logs
-      const mappedActivityLogs = rawEvents.map(e => ({
+      const mappedActivityLogs = (rawEvents || []).map(e => ({
         id: e.id,
         adminUserName: e.metadata?.name || e.metadata?.email || 'Visitor Address',
         adminUserRole: e.metadata?.role || 'Guest',
@@ -741,21 +755,63 @@ export default function AdminPanel() {
     );
   }
 
-  // Visual Nav Menu Options mapping (System Settings Hub is restricted to Super Admin only)
-  const menuOptions = [
-    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-    { id: 'leads', label: 'Client Inquiries', icon: FileSpreadsheet },
-    { id: 'careers', label: 'Applications', icon: Briefcase },
-    { id: 'content', label: 'Content Board', icon: Settings },
-    { id: 'tools', label: 'Tools Control', icon: Sliders },
-  ];
-
-  if (currentUser) {
-    menuOptions.push({ id: 'system', label: 'Systems Hub', icon: Shield });
-  }
-
+  // Visual Nav Menu Options organized into distinct dedicated sections
   const unreadLeadsCount = leads.filter(l => (l.status || 'new').toLowerCase() === 'new').length;
   const unreadApplicantsCount = jobApplications.filter(j => (j.status || 'new').toLowerCase() === 'new').length;
+
+  interface MenuItem {
+    id: string;
+    label: string;
+    icon: any;
+    badge?: number;
+    highlight?: boolean;
+  }
+
+  interface MenuGroup {
+    category: string;
+    items: MenuItem[];
+  }
+
+  const menuGroups: MenuGroup[] = [
+    {
+      category: 'COMMERCIAL & TALENT',
+      items: [
+        { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+        { id: 'leads', label: 'Client Inquiries', icon: FileSpreadsheet, badge: unreadLeadsCount },
+        { id: 'audit-leads', label: 'Audit Bug Leads', icon: Bug, badge: unreadAuditLeadsCount, highlight: true },
+        { id: 'careers', label: 'Job Applications', icon: Briefcase, badge: unreadApplicantsCount },
+      ]
+    },
+    {
+      category: 'WEBSITE CUSTOMIZATION',
+      items: [
+        { id: 'services', label: 'Services Manager', icon: FolderEdit },
+        { id: 'portfolio', label: 'Portfolio Projects', icon: Sparkles },
+        { id: 'testimonials', label: 'Client Reviews', icon: Award },
+        { id: 'blogs', label: 'Blog & Articles', icon: FileText },
+        { id: 'pages', label: 'Page Copy & Sections', icon: Globe },
+        { id: 'legal', label: 'Legal & Policies', icon: ShieldCheck },
+      ]
+    },
+    {
+      category: 'BRAND & ASSETS',
+      items: [
+        { id: 'brand', label: 'Logo & Brand Identity', icon: Crown, highlight: true },
+        { id: 'media', label: 'Media Library', icon: ImageIcon },
+      ]
+    },
+    {
+      category: 'SYSTEMS & ANALYTICS',
+      items: [
+        { id: 'siteaudit', label: 'URL Health & Bug Audit', icon: SearchCode },
+        { id: 'tools', label: 'Free Tools Control', icon: Sliders },
+        { id: 'analytics', label: 'Full Traffic Analytics', icon: BarChart2 },
+        { id: 'botlogs', label: 'Webhooks & Bot Logs', icon: ShieldAlert },
+        { id: 'team', label: 'Team Roles & Access', icon: Users },
+        { id: 'audit', label: 'Activity Audit Log', icon: History },
+      ]
+    }
+  ];
 
   // Get name initials
   const initials = currentUser?.full_name
@@ -859,43 +915,54 @@ export default function AdminPanel() {
                   </button>
                 </div>
 
-                {/* Navigation Links */}
-                <nav className="p-3.5 space-y-1.5">
-                  <span className="text-[9px] font-mono uppercase text-[#8A8178] px-3 font-bold tracking-widest block mb-2">
-                    Command Modules
-                  </span>
-                  {menuOptions.map(opt => {
-                    const Icon = opt.icon;
-                    const count = opt.id === 'leads' ? unreadLeadsCount : opt.id === 'careers' ? unreadApplicantsCount : 0;
-                    return (
-                      <button
-                        key={opt.id}
-                        onClick={() => {
-                          setActiveTab(opt.id);
-                          setMobileDrawerOpen(false);
-                        }}
-                        className={`w-full py-3 px-3.5 rounded-xl flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[44px] ${
-                          activeTab === opt.id
-                            ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black'
-                            : 'text-white/70 hover:text-white hover:bg-white/5'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-4 h-4 shrink-0" />
-                          <span>{opt.label}</span>
-                        </div>
-                        {count > 0 && (
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black ${
-                            activeTab === opt.id
-                              ? 'bg-[#111111] text-[#D6B46A]'
-                              : 'bg-[#D6B46A] text-[#111111]'
-                          }`}>
-                            {count}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                {/* Navigation Links Grouped into Dedicated Distinct Sections */}
+                <nav className="p-3.5 space-y-4">
+                  {menuGroups.map(grp => (
+                    <div key={grp.category} className="space-y-1">
+                      <span className="text-[9px] font-mono uppercase text-[#D6B46A]/80 px-2 font-black tracking-widest block mb-1">
+                        {grp.category}
+                      </span>
+                      {grp.items.map(opt => {
+                        const Icon = opt.icon;
+                        const count = opt.badge || 0;
+                        const isSelected = activeTab === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            onClick={() => {
+                              setActiveTab(opt.id);
+                              if (opt.id === 'brand') setSystemSubTab('brand');
+                              if (opt.id === 'media') setSystemSubTab('media');
+                              if (opt.id === 'analytics') setSystemSubTab('analytics');
+                              if (opt.id === 'botlogs') setSystemSubTab('botlogs');
+                              if (opt.id === 'team') setSystemSubTab('team');
+                              if (opt.id === 'audit') setSystemSubTab('audit');
+                              setMobileDrawerOpen(false);
+                            }}
+                            className={`w-full py-2.5 px-3 rounded-xl flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer min-h-[40px] ${
+                              isSelected
+                                ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black'
+                                : 'text-white/70 hover:text-white hover:bg-white/5'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Icon className={`w-4 h-4 shrink-0 ${opt.highlight && !isSelected ? 'text-[#D6B46A]' : ''}`} />
+                              <span className="text-[11px]">{opt.label}</span>
+                            </div>
+                            {count > 0 && (
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black ${
+                                isSelected
+                                  ? 'bg-[#111111] text-[#D6B46A]'
+                                  : 'bg-[#D6B46A] text-[#111111]'
+                              }`}>
+                                {count}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </nav>
               </div>
 
@@ -967,37 +1034,53 @@ export default function AdminPanel() {
               </a>
             </div>
 
-            {/* Menu loops links */}
-            <nav className="p-4 py-4 space-y-1.5">
-              {menuOptions.map(opt => {
-                const Icon = opt.icon;
-                const count = opt.id === 'leads' ? unreadLeadsCount : opt.id === 'careers' ? unreadApplicantsCount : 0;
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => setActiveTab(opt.id)}
-                    className={`w-full py-3 px-4 rounded-xl flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all duration-300 relative cursor-pointer ${
-                      activeTab === opt.id 
-                        ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black' 
-                        : 'text-white/65 hover:text-[#FFFDF8] hover:bg-white/5'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4" />
-                      <span>{opt.label}</span>
-                    </div>
-                    {count > 0 && (
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black ${
-                        activeTab === opt.id
-                          ? 'bg-[#111111] text-[#D6B46A]'
-                          : 'bg-[#D6B46A] text-[#111111]'
-                      }`}>
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            {/* Menu groups with category headers */}
+            <nav className="p-3 py-3 space-y-4">
+              {menuGroups.map(grp => (
+                <div key={grp.category} className="space-y-1">
+                  <span className="text-[9px] font-mono uppercase text-[#D6B46A]/80 px-3 font-black tracking-widest block mb-1">
+                    {grp.category}
+                  </span>
+                  {grp.items.map(opt => {
+                    const Icon = opt.icon;
+                    const count = opt.badge || 0;
+                    const isSelected = activeTab === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setActiveTab(opt.id);
+                          if (opt.id === 'brand') setSystemSubTab('brand');
+                          if (opt.id === 'media') setSystemSubTab('media');
+                          if (opt.id === 'analytics') setSystemSubTab('analytics');
+                          if (opt.id === 'botlogs') setSystemSubTab('botlogs');
+                          if (opt.id === 'team') setSystemSubTab('team');
+                          if (opt.id === 'audit') setSystemSubTab('audit');
+                        }}
+                        className={`w-full py-2.5 px-3.5 rounded-xl flex items-center justify-between text-xs font-bold uppercase tracking-wider transition-all duration-200 relative cursor-pointer ${
+                          isSelected 
+                            ? 'bg-[#FFFDF8] text-[#111111] shadow-lg font-black' 
+                            : 'text-white/65 hover:text-[#FFFDF8] hover:bg-white/5'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon className={`w-4 h-4 shrink-0 ${opt.highlight && !isSelected ? 'text-[#D6B46A]' : ''}`} />
+                          <span className="text-[11px] truncate">{opt.label}</span>
+                        </div>
+                        {count > 0 && (
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black shrink-0 ${
+                            isSelected
+                              ? 'bg-[#111111] text-[#D6B46A]'
+                              : 'bg-[#D6B46A] text-[#111111]'
+                          }`}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
             </nav>
           </div>
 
@@ -1062,6 +1145,12 @@ export default function AdminPanel() {
                 />
               )}
 
+              {activeTab === 'audit-leads' && (
+                <AuditLeadsTab
+                  onLeadCountChange={(count) => setUnreadAuditLeadsCount(count)}
+                />
+              )}
+
               {activeTab === 'careers' && (
                 <CareersTab
                   jobApplications={jobApplications}
@@ -1070,8 +1159,226 @@ export default function AdminPanel() {
                 />
               )}
 
+              {/* Website Customization: Services Manager */}
+              {activeTab === 'services' && (
+                <ContentSettingsTab
+                  initialSubTab="services"
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
+
+              {/* Website Customization: Portfolio Projects */}
+              {activeTab === 'portfolio' && (
+                <ContentSettingsTab
+                  initialSubTab="portfolio"
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
+
+              {/* Website Customization: Client Reviews */}
+              {activeTab === 'testimonials' && (
+                <ContentSettingsTab
+                  initialSubTab="testimonials"
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
+
+              {/* Website Customization: Blog & Articles */}
+              {activeTab === 'blogs' && (
+                <ContentSettingsTab
+                  initialSubTab="blog"
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
+
+              {/* Website Customization: Page Copy & Sections */}
+              {activeTab === 'pages' && (
+                <ContentSettingsTab
+                  initialSubTab="pages"
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
+
+              {/* Website Customization: Legal & Policies */}
+              {activeTab === 'legal' && (
+                <ContentSettingsTab
+                  initialSubTab="legal"
+                  services={services}
+                  portfolioProjects={portfolioProjects}
+                  testimonials={testimonials}
+                  pageSections={pageSections}
+                  blogs={blogs}
+                  legalPages={legalPages}
+                  onUpdateServices={handleUpdateServices}
+                  onUpdatePortfolio={handleUpdatePortfolio}
+                  onUpdateTestimonials={handleUpdateTestimonials}
+                  onUpdatePageSections={handleUpdatePageSections}
+                  onUpdateBlogs={handleUpdateBlogs}
+                  onUpdateLegalPages={handleUpdateLegalPages}
+                />
+              )}
+
+              {/* Brand: Logo & Brand Identity */}
+              {activeTab === 'brand' && (
+                <SystemSettingsTab
+                  initialSubTab="brand"
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
+
+              {/* Media Library */}
+              {activeTab === 'media' && (
+                <SystemSettingsTab
+                  initialSubTab="media"
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
+
+              {/* Full Traffic Analytics */}
+              {activeTab === 'analytics' && (
+                <SystemSettingsTab
+                  initialSubTab="analytics"
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
+
+              {/* Webhooks & Bot Logs */}
+              {activeTab === 'botlogs' && (
+                <SystemSettingsTab
+                  initialSubTab="botlogs"
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
+
+              {/* Team Roles & Permissions */}
+              {activeTab === 'team' && (
+                <SystemSettingsTab
+                  initialSubTab="team"
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
+
+              {/* Activity Audit Log */}
+              {activeTab === 'audit' && (
+                <SystemSettingsTab
+                  initialSubTab="audit"
+                  onSubTabChange={(st: any) => setSystemSubTab(st)}
+                  mediaAssets={mediaAssets}
+                  botVisits={botVisits}
+                  automationLogs={automationLogs}
+                  activityLogs={activityLogs}
+                  adminUsers={adminUsers}
+                  websiteSettings={websiteSettings}
+                  onUpdateMedia={handleUpdateMedia}
+                  onUpdateWebsiteSettings={handleUpdateWebsiteSettings}
+                  onUpdateAdminUsers={handleUpdateAdminUsers}
+                />
+              )}
+
+              {/* Backward compatibility */}
               {activeTab === 'content' && (
                 <ContentSettingsTab
+                  initialSubTab="services"
                   services={services}
                   portfolioProjects={portfolioProjects}
                   testimonials={testimonials}
@@ -1089,6 +1396,12 @@ export default function AdminPanel() {
 
               {activeTab === 'tools' && (
                 <ToolsControlTab />
+              )}
+
+              {activeTab === 'siteaudit' && (
+                <div className="p-4 sm:p-6 lg:p-8">
+                  <WebsiteAnalyzer />
+                </div>
               )}
 
               {activeTab === 'system' && (

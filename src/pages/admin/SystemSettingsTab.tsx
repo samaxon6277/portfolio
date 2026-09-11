@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Settings, Image, BarChart2, ShieldAlert, Users, Radio, History, ClipboardList, Lock, Check, Copy, Upload, Trash2, ShieldCheck, RefreshCw, Eye, EyeOff, BookOpen, AlertCircle
+  Settings, Image, BarChart2, ShieldAlert, Users, Radio, History, ClipboardList, Lock, Check, Copy, Upload, Trash2, ShieldCheck, RefreshCw, Eye, EyeOff, BookOpen, AlertCircle,
+  Crown, Sparkles, Palette, RotateCcw, Monitor, Smartphone, Globe
 } from 'lucide-react';
 import { MediaAsset } from '../../types';
 import { BotVisit, AutomationLog, ActivityLog, AdminUser, WebsiteSettings } from '../../utils/mockAdminData';
 import { analytics } from '../../utils/analytics';
 import CustomSelect from '../../components/CustomSelect';
 import { useCustomUi } from '../../context/CustomUiContext';
+import InteractiveLogoEditor from '../../components/admin/InteractiveLogoEditor';
 
 interface SystemSettingsTabProps {
   initialSubTab?: 'media' | 'analytics' | 'botlogs' | 'team' | 'brand' | 'audit' | 'profile';
@@ -264,7 +266,7 @@ export default function SystemSettingsTab({
               { id: 'analytics', label: 'Full Analytics', icon: BarChart2 },
               { id: 'botlogs', label: 'Webhooks & Bot logs', icon: ShieldAlert },
               { id: 'team', label: 'Team Roles', icon: Users },
-              { id: 'brand', label: 'SEO Settings', icon: Radio },
+              { id: 'brand', label: 'Brand & Logo Identity', icon: Crown },
               { id: 'audit', label: 'Activity Audit', icon: History }
             ].map(tab => {
               const Icon = tab.icon;
@@ -793,11 +795,252 @@ export default function SystemSettingsTab({
           onSubmit={e => { 
             e.preventDefault(); 
             onUpdateWebsiteSettings(localSettings);
-            showToast('Master branding & SEO settings successfully saved to system registry!', 'success'); 
+            showToast('Master branding, logo & SEO settings successfully saved to system registry!', 'success'); 
           }} 
           className="space-y-6 text-left" 
           id="subtab-brand-view"
         >
+          {/* Master Logo & Brand Crest Studio */}
+          <div className="bg-white border border-[#D6B46A]/25 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6" id="logo-customizer-card">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D6B46A]/15">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#D6B46A]/15 border border-[#D6B46A]/40 flex items-center justify-center text-[#D6B46A] shadow-inner">
+                  <Crown className="w-5 h-5 fill-[#D6B46A]/20" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-[#BFA15A] block">
+                    Identity Customization Hub
+                  </span>
+                  <h3 className="font-display font-black text-lg text-[#111111] uppercase tracking-wide">
+                    Website Logo & PWA App Icon
+                  </h3>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocalSettings(prev => ({
+                      ...prev,
+                      logoUrl: 'S',
+                      logoType: 'monogram',
+                      logoText: 'S',
+                      faviconUrl: '/favicon.svg'
+                    }));
+                    showToast('Logo restored to default imperial monogram', 'info');
+                  }}
+                  className="px-3.5 py-2 rounded-xl border border-neutral-200 hover:border-[#D6B46A]/50 bg-neutral-50 hover:bg-white text-neutral-700 hover:text-neutral-900 text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                  title="Revert back to default SamaXon luxury monogram"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-[#BFA15A]" />
+                  Reset to Default
+                </button>
+              </div>
+            </div>
+
+            {/* Mode selection toggle */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => setLocalSettings(prev => ({ ...prev, logoType: 'monogram' }))}
+                className={`py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                  (localSettings.logoType || 'monogram') === 'monogram'
+                    ? 'bg-[#111111] text-[#D6B46A] shadow-md'
+                    : 'text-[#8A8178] hover:text-[#111111]'
+                }`}
+              >
+                <Crown className="w-4 h-4" />
+                <span>Monogram Typography Crest (S)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setLocalSettings(prev => ({ ...prev, logoType: 'image' }))}
+                className={`py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                  localSettings.logoType === 'image'
+                    ? 'bg-[#111111] text-[#D6B46A] shadow-md'
+                    : 'text-[#8A8178] hover:text-[#111111]'
+                }`}
+              >
+                <Image className="w-4 h-4" />
+                <span>Custom Image / Vector Logo</span>
+              </button>
+            </div>
+
+            {/* Controls depending on mode */}
+            {localSettings.logoType === 'image' ? (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* File Upload drag/click */}
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1.5">
+                      Upload Logo File (PNG, SVG, JPG, WebP)
+                    </label>
+                    <label className="border-2 border-dashed border-[#D6B46A]/35 hover:border-[#D6B46A] bg-[#FFFDF8] rounded-2xl p-5 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-[#D6B46A]/5 text-center group min-h-[140px]">
+                      <Upload className="w-7 h-7 text-[#D6B46A] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs font-bold text-[#111111]">Click to Browse or Drag File Here</span>
+                      <span className="text-[10px] text-[#8A8178] font-mono mt-1">Recommended: Transparent PNG or SVG (Max 5MB)</span>
+                      <input
+                        type="file"
+                        accept="image/png, image/svg+xml, image/jpeg, image/webp"
+                        className="hidden"
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const result = event.target?.result as string;
+                              if (result) {
+                                setLocalSettings(prev => ({
+                                  ...prev,
+                                  logoUrl: result,
+                                  logoType: 'image'
+                                }));
+                                showToast('Logo image uploaded successfully!', 'success');
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Or enter Direct Image Web URL */}
+                  <div className="flex flex-col justify-between">
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1.5">
+                        Or Enter Direct Logo Image URL / Path
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="https://.../logo.png or /logo.png or /favicon.svg"
+                        value={localSettings.logoUrl && localSettings.logoUrl.startsWith('data:') ? 'Custom File Uploaded (Ready)' : (localSettings.logoUrl || '')}
+                        onChange={e => setLocalSettings(prev => ({
+                          ...prev,
+                          logoUrl: e.target.value,
+                          logoType: 'image'
+                        }))}
+                        className="w-full px-3.5 py-2.5 border border-[#D6B46A]/25 bg-[#FFFDF8] rounded-xl text-xs font-mono font-medium focus:outline-none focus:border-[#D6B46A]"
+                      />
+                      <span className="text-[10px] text-[#8A8178] block mt-1.5">
+                        Can be an external URL (`https://...`), an internal asset (`/favicon.svg`, `/logo.png`), or uploaded image.
+                      </span>
+                    </div>
+
+                    <div className="mt-3 p-3.5 bg-amber-500/10 border border-amber-500/25 rounded-2xl text-[11px] text-amber-950 leading-relaxed">
+                      💡 <strong>Studio Standard:</strong> For the cleanest aesthetic, use a transparent vector PNG or SVG with gold or white contrast.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-[#8A8178] block mb-1.5">
+                    Monogram Letter / Short Initials (1-3 Characters)
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    value={localSettings.logoText || (localSettings.logoUrl && localSettings.logoUrl.length <= 4 ? localSettings.logoUrl : 'S')}
+                    onChange={e => {
+                      const val = e.target.value.toUpperCase();
+                      setLocalSettings(prev => ({
+                        ...prev,
+                        logoText: val,
+                        logoUrl: val,
+                        logoType: 'monogram'
+                      }));
+                    }}
+                    placeholder="S"
+                    className="w-full px-3.5 py-2.5 border border-[#D6B46A]/25 bg-[#FFFDF8] rounded-xl text-sm font-display font-black tracking-wider text-[#111111]"
+                  />
+                  <span className="text-[10px] text-[#8A8178] block mt-1">
+                    Displayed in the royal champagne gold beveled emblem on matte black.
+                  </span>
+                </div>
+
+                <div className="p-4 bg-neutral-900 text-neutral-100 rounded-2xl border border-[#D6B46A]/30 flex items-center justify-between shadow-md">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono text-[#D6B46A] uppercase font-bold tracking-widest block">Current Monogram Style</span>
+                    <p className="text-xs text-neutral-300">Imperial Gold Typography on Matte Black Canvas with subtle gold rim.</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-black border border-[#D6B46A]/60 flex items-center justify-center font-display font-bold text-xl text-[#D6B46A] shadow-lg shrink-0">
+                    {localSettings.logoText || (localSettings.logoUrl && localSettings.logoUrl.length <= 4 ? localSettings.logoUrl : 'S')}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PWA App Icon & Favicon Section */}
+            <div className="pt-4 border-t border-[#D6B46A]/15 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-[#8A8178] block">
+                    PWA Installed App Icon & Favicon Source
+                  </label>
+                  <span className="text-[10px] text-[#8A8178] block">
+                    The icon that appears on Android/iOS home screens when the user installs the app.
+                  </span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 font-mono text-[9px] font-bold uppercase">
+                  PWA Ready
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                <div className="sm:col-span-8">
+                  <input
+                    type="text"
+                    value={localSettings.faviconUrl || '/favicon.svg'}
+                    onChange={e => setLocalSettings(prev => ({ ...prev, faviconUrl: e.target.value }))}
+                    placeholder="/favicon.svg"
+                    className="w-full px-3 py-2 border border-[#D6B46A]/20 bg-[#FFFDF8] rounded-xl text-xs font-mono"
+                  />
+                </div>
+                <div className="sm:col-span-4 flex items-center gap-2">
+                  <label className="w-full py-2 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-xl text-xs font-bold uppercase tracking-wider text-center cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-sm">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Icon</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const result = event.target?.result as string;
+                            if (result) {
+                              setLocalSettings(prev => ({ ...prev, faviconUrl: result }));
+                              showToast('Favicon/App Icon updated!', 'success');
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Logo Drag & Scale Studio */}
+            <div className="pt-4 border-t border-[#D6B46A]/15">
+              <InteractiveLogoEditor
+                settings={localSettings}
+                onChange={(updated) => setLocalSettings(updated)}
+                onSave={(updated) => {
+                  setLocalSettings(updated);
+                  onUpdateWebsiteSettings(updated);
+                  showToast('Logo positioning settings saved and applied!', 'success');
+                }}
+              />
+            </div>
+          </div>
           <div className="bg-white border border-[#D6B46A]/15 rounded-3xl p-6 shadow-sm space-y-4">
             <span className="text-[10px] uppercase font-bold tracking-widest text-[#BFA15A] block border-b border-[#D6B46A]/10 pb-1.5">Master Branding Settings</span>
             

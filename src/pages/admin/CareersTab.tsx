@@ -249,7 +249,7 @@ export default function CareersTab({
           <div className="md:col-span-3">
             <CustomSelect
               value={selectedPosition}
-              onChange={setSelectedPosition}
+              onChange={(val) => setSelectedPosition(String(val))}
               options={[
                 { value: 'All', label: 'All Positions' },
                 ...positionsList.slice(1).map(role => ({ value: role, label: role }))
@@ -260,7 +260,7 @@ export default function CareersTab({
           <div className="md:col-span-3">
             <CustomSelect
               value={selectedStatus}
-              onChange={setSelectedStatus}
+              onChange={(val) => setSelectedStatus(String(val))}
               options={statusesList}
             />
           </div>

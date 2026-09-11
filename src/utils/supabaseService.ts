@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { logger } from './logger';
-import { Lead, JobApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset } from '../types';
+import { Lead, JobApplication, Service, PortfolioProject, Testimonial, BlogPost, MediaAsset, WebsiteAuditLead } from '../types';
 import { PORTFOLIO_DATA } from '../data';
 
 // Role mappings
@@ -279,6 +279,155 @@ export const supabaseService = {
       }
     } catch (errLocal) {
       console.warn('Backup local storage delete lead failed:', errLocal);
+    }
+
+    return success;
+  },
+
+  // 1.1 WEBSITE AUDIT LEADS & BUG REMEDIATION REQUESTS
+  async getWebsiteAuditLeads(): Promise<WebsiteAuditLead[]> {
+    let supabaseAuditLeads: WebsiteAuditLead[] = [];
+    if (checkHasKeys()) {
+      try {
+        const { data, error } = await supabase
+          .from('audit_leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          logger.warn('Supabase fetch audit_leads non-fatal:', error.message);
+        } else if (data) {
+          supabaseAuditLeads = data.map((d: any) => ({
+            id: d.id,
+            ticketNumber: d.ticket_number || `AUDIT-${d.id.slice(0, 6)}`,
+            clientName: d.client_name,
+            businessName: d.business_name,
+            email: d.email,
+            phone: d.phone,
+            websiteUrl: d.website_url,
+            overallScore: d.overall_score || 0,
+            securityScore: d.security_score || 0,
+            seoScore: d.seo_score || 0,
+            codeScore: d.code_score || 0,
+            performanceScore: d.performance_score || 0,
+            criticalIssuesCount: d.critical_issues_count || 0,
+            warningIssuesCount: d.warning_issues_count || 0,
+            topIssues: d.top_issues || [],
+            missingKeywords: d.missing_keywords || [],
+            animationIssues: d.animation_issues || [],
+            internalPages: d.internal_pages || [],
+            clientNotes: d.client_notes || '',
+            priority: d.priority || 'standard',
+            status: d.status || 'new',
+            createdAt: d.created_at
+          }));
+        }
+      } catch (err) {
+        logger.warn('Failed querying supabase audit_leads, falling back:', err);
+      }
+    }
+
+    let localAuditLeads: WebsiteAuditLead[] = [];
+    try {
+      const stored = localStorage.getItem('samaxon_audit_leads');
+      if (stored) {
+        localAuditLeads = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Failed reading local audit leads:', e);
+    }
+
+    const auditMap = new Map<string, WebsiteAuditLead>();
+    localAuditLeads.forEach(item => auditMap.set(item.id, item));
+    supabaseAuditLeads.forEach(item => auditMap.set(item.id, item));
+
+    return Array.from(auditMap.values()).sort((a, b) => {
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+  },
+
+  async upsertWebsiteAuditLead(lead: WebsiteAuditLead): Promise<boolean> {
+    let success = true;
+    if (checkHasKeys()) {
+      try {
+        const payload = {
+          id: lead.id,
+          ticket_number: lead.ticketNumber,
+          client_name: lead.clientName,
+          business_name: lead.businessName || '',
+          email: lead.email,
+          phone: lead.phone,
+          website_url: lead.websiteUrl,
+          overall_score: lead.overallScore,
+          security_score: lead.securityScore,
+          seo_score: lead.seoScore,
+          code_score: lead.codeScore,
+          performance_score: lead.performanceScore,
+          critical_issues_count: lead.criticalIssuesCount,
+          warning_issues_count: lead.warningIssuesCount,
+          top_issues: lead.topIssues || [],
+          missing_keywords: lead.missingKeywords || [],
+          animation_issues: lead.animationIssues || [],
+          internal_pages: lead.internalPages || [],
+          client_notes: lead.clientNotes || '',
+          priority: lead.priority || 'standard',
+          status: lead.status || 'new',
+          created_at: lead.createdAt || new Date().toISOString()
+        };
+
+        const { error } = await supabase
+          .from('audit_leads')
+          .upsert(payload);
+        if (error) throw error;
+      } catch (err) {
+        console.error('Supabase write audit_leads failed:', err);
+        success = false;
+      }
+    }
+
+    try {
+      const stored = localStorage.getItem('samaxon_audit_leads');
+      const list: WebsiteAuditLead[] = stored ? JSON.parse(stored) : [];
+      const idx = list.findIndex(item => item.id === lead.id);
+      if (idx >= 0) {
+        list[idx] = { ...list[idx], ...lead };
+      } else {
+        list.unshift(lead);
+      }
+      localStorage.setItem('samaxon_audit_leads', JSON.stringify(list));
+      window.dispatchEvent(new Event('samaxon_audit_leads_updated'));
+    } catch (errLocal) {
+      console.warn('Backup local storage audit lead sync failed:', errLocal);
+    }
+
+    return success;
+  },
+
+  async deleteWebsiteAuditLead(id: string): Promise<boolean> {
+    let success = true;
+    if (checkHasKeys()) {
+      try {
+        const { error } = await supabase
+          .from('audit_leads')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+      } catch (err) {
+        console.error('Supabase delete audit_leads failed:', err);
+        success = false;
+      }
+    }
+
+    try {
+      const stored = localStorage.getItem('samaxon_audit_leads');
+      if (stored) {
+        let list: WebsiteAuditLead[] = JSON.parse(stored);
+        list = list.filter(item => item.id !== id);
+        localStorage.setItem('samaxon_audit_leads', JSON.stringify(list));
+        window.dispatchEvent(new Event('samaxon_audit_leads_updated'));
+      }
+    } catch (errLocal) {
+      console.warn('Backup local storage delete audit lead failed:', errLocal);
     }
 
     return success;

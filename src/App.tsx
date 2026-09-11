@@ -29,7 +29,9 @@ import ServiceRequest from './pages/ServiceRequest';
 import Partner from './pages/Partner';
 import Guides from './pages/Guides';
 import Updates from './pages/Updates';
+import AuditFixRequest from './pages/AuditFixRequest';
 import { analytics } from './utils/analytics';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -109,7 +111,9 @@ function MainAppContent() {
   if (isAdmin) {
     return (
       <div className="flex flex-col min-h-screen bg-[#FFFDF8]" id="app-viewport">
-        <AdminPanel />
+        <ErrorBoundary fallbackTitle="Administrative Portal System Notice">
+          <AdminPanel />
+        </ErrorBoundary>
       </div>
     );
   }
@@ -240,8 +244,13 @@ function MainAppContent() {
               
               {/* Creator & Business Tools Suite */}
               <Route path="/tools" element={<Tools />} />
+              <Route path="/tools/analyzer" element={<Tools />} />
               <Route path="/tools/compressor" element={<Tools />} />
               <Route path="/tools/resizer" element={<Tools />} />
+              <Route path="/audit-fix" element={<AuditFixRequest />} />
+              <Route path="/tools/audit-fix" element={<AuditFixRequest />} />
+              <Route path="/audit-fix-request" element={<AuditFixRequest />} />
+              <Route path="/tools/audit-fix-request" element={<AuditFixRequest />} />
 
               {/* Dedicated Service Experience & Request Portal */}
               <Route path="/service-request" element={<ServiceRequest />} />

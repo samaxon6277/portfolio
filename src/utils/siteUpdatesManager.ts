@@ -144,23 +144,23 @@ const DEFAULT_UPDATES: WebsiteUpdateLog[] = [
   {
     id: 'upd-002',
     version: 'v2.2.0',
-    title: 'Executive Admin Terminal & Role-Based Security Hardening',
-    category: 'Security Patch',
+    title: 'Executive Operations Terminal & Project Pipeline Automation',
+    category: 'Platform Enhancement',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 144).toISOString(), // 6 days ago
     displayDate: '02 September 2026',
     displayDay: 'Wednesday',
     displayTime: '06:30 PM (18:30:00)',
     exactHour: 18,
     exactMinute: 30,
-    author: 'Security Operations',
-    summary: 'Hardened executive terminal security with Supabase Row Level Security (RLS) and real-time audit logging.',
+    author: 'Studio Operations Team',
+    summary: 'Streamlined executive terminal workflow, real-time client inquiry pipelines, and project delivery milestone synchronization.',
     changes: [
-      'Configured multi-tier RBAC for Super Admins, Sales Managers, and Content Editors',
-      'Integrated real-time applicant tracking pipeline and status updates',
-      'Implemented site activity and crawler telemetry tracking',
-      'Hardened database session expiration safeguards'
+      'Built multi-department workflow management for Project Managers, Designers, and Content Leads',
+      'Integrated real-time applicant tracking pipeline and inquiry dispatch counters',
+      'Added automated performance telemetry and engagement analytics',
+      'Optimized dashboard state synchronization for rapid multi-team review'
     ],
-    affectedModules: ['Admin Security', 'Supabase Auth', 'Audit Logs'],
+    affectedModules: ['Operations Terminal', 'Workflow Engine', 'Project Pipeline'],
     status: 'published'
   },
   {
@@ -196,7 +196,15 @@ export function getSiteUpdates(): WebsiteUpdateLog[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+      // Sanitize any previous security disclosure text to protect site architecture
+      const sanitized = parsed.map((item: WebsiteUpdateLog) => {
+        if (item.id === 'upd-002' && (item.title?.includes('Security') || item.category === 'Security Patch')) {
+          const defaultUpd2 = DEFAULT_UPDATES.find(d => d.id === 'upd-002');
+          return defaultUpd2 || item;
+        }
+        return item;
+      });
+      return sanitized;
     }
     return DEFAULT_UPDATES;
   } catch (err) {

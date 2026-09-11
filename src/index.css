@@ -170,11 +170,11 @@
   }
 
   .glass-header {
-    background: rgba(248, 244, 238, 0.82);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(214, 180, 106, 0.24);
-    box-shadow: 0 8px 30px -4px rgba(17, 17, 17, 0.07), 0 2px 8px -1px rgba(17, 17, 17, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+    background: rgba(248, 244, 238, 0.95);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(214, 180, 106, 0.28);
+    box-shadow: 0 8px 30px -4px rgba(17, 17, 17, 0.08), 0 2px 8px -1px rgba(17, 17, 17, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
   }
 
   .glass-panel-dark {

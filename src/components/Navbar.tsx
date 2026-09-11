@@ -34,7 +34,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     { label: 'Pricing', id: 'pricing', path: '/pricing' },
     { label: 'Guides', id: 'guides', path: '/guides' },
     { label: 'Partner', id: 'partner', path: '/partner', badge: '20%' },
-    { label: 'AI Tools', id: 'tools', path: '/tools', badge: 'Free' },
+    { label: 'Tools', id: 'tools', path: '/tools', badge: 'Free' },
     { label: 'Company', id: 'company', path: '/company' },
   ];
 
@@ -125,7 +125,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     { label: 'Pricing Plans', id: 'pricing', path: '/pricing' },
     { label: "Buyer's Guides", id: 'guides', path: '/guides', badge: 'New' },
     { label: 'Partner Program', id: 'partner', path: '/partner', badge: '20% Earn' },
-    { label: 'Free AI Tools', id: 'tools', path: '/tools', badge: 'Free' },
+    { label: 'Tools Suite', id: 'tools', path: '/tools', badge: 'Free' },
     { label: 'About SamaXon', id: 'about', path: '/about' },
     { label: 'SamaXon Edge (48-Hr)', id: 'edge', path: '/edge' },
     { label: 'Client Control', id: 'control', path: '/control' },
@@ -160,18 +160,47 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             id="brand-logo"
             onClick={() => setIsOpen(false)}
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-matte-black flex items-center justify-center rounded-xl border border-champagne-gold/35 group-hover:border-champagne-gold group-hover:shadow-[0_0_16px_rgba(214,180,106,0.35)] transition-all duration-300 shadow-md">
-              <span className="text-champagne-gold font-bold text-base sm:text-lg font-display">S</span>
+            <div 
+              className="w-9 h-9 sm:w-10 sm:h-10 bg-matte-black flex items-center justify-center rounded-xl border border-champagne-gold/35 group-hover:border-champagne-gold group-hover:shadow-[0_0_16px_rgba(214,180,106,0.35)] transition-all duration-300 shadow-md overflow-hidden shrink-0 relative"
+              style={{
+                borderRadius: settings.logoBorderRadius !== undefined ? `${settings.logoBorderRadius}px` : undefined,
+                padding: settings.logoPadding !== undefined ? `${settings.logoPadding}px` : undefined,
+                filter: `brightness(${settings.logoBrightness ?? 100}%) contrast(${settings.logoContrast ?? 100}%)`,
+              }}
+            >
+              <div 
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  transform: `scale(${Math.max(0.6, Math.min(2.0, settings.logoScale ?? 1))}) translate(${Math.max(-15, Math.min(15, settings.logoOffsetX ?? 0))}px, ${Math.max(-15, Math.min(15, settings.logoOffsetY ?? 0))}px) rotate(${settings.logoRotation ?? 0}deg)`,
+                  transformOrigin: 'center center'
+                }}
+              >
+                {settings.logoType === 'image' && settings.logoUrl && settings.logoUrl.length > 5 ? (
+                  <img 
+                    src={settings.logoUrl} 
+                    alt={settings.brandName || "Logo"} 
+                    className="w-full h-full object-contain p-0.5" 
+                  />
+                ) : (
+                  <span className="text-champagne-gold font-bold text-base sm:text-lg font-display select-none">
+                    {settings.logoText || (settings.logoUrl && settings.logoUrl.length <= 4 ? settings.logoUrl : 'S')}
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="flex flex-col text-left">
-              <span className="font-display font-bold tracking-[0.16em] text-base sm:text-lg text-matte-black flex items-center gap-1.5 leading-none uppercase">
-                SamaXon
-                <Crown className="w-4 h-4 text-champagne-gold fill-champagne-gold/20" />
-              </span>
-              <span className="text-[11px] font-mono tracking-[0.14em] text-[#BFA15A] uppercase leading-none mt-1.5 font-bold">
-                48-HR Digital Studio
-              </span>
-            </div>
+            {settings.headerBrandTextVisible !== false && (
+              <div className="flex flex-col text-left">
+                <span className="font-display font-bold tracking-[0.16em] text-base sm:text-lg text-matte-black flex items-center gap-1.5 leading-none uppercase">
+                  {settings.brandName ? settings.brandName.split(' ')[0] : 'SamaXon'}
+                  <Crown className="w-4 h-4 text-champagne-gold fill-champagne-gold/20" />
+                </span>
+                {settings.headerSubTextVisible !== false && (
+                  <span className="text-[11px] font-mono tracking-[0.14em] text-[#BFA15A] uppercase leading-none mt-1.5 font-bold">
+                    {settings.headerSubText || '48-HR Digital Studio'}
+                  </span>
+                )}
+              </div>
+            )}
           </Link>
 
           {/* Desktop Navigation Container with Smooth Sliding Indicator */}
@@ -232,16 +261,18 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
           </div>
 
           {/* Contact CTA Action */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Link
-              to="/contact"
-              id="desktop-cta-start"
-              className="px-5 py-2.5 bg-champagne-gold hover:bg-muted-gold text-matte-black text-sm font-bold tracking-wider rounded-full shadow-[0_4px_14px_rgba(214,180,106,0.32)] hover:shadow-[0_8px_24px_rgba(214,180,106,0.42)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5 cursor-pointer text-center inline-block"
-            >
-              Start Build
-              <ArrowRight className="w-4 h-4 inline-block ml-0.5" />
-            </Link>
-          </div>
+          {settings.headerCtaVisible !== false && (
+            <div className="hidden lg:flex items-center gap-3">
+              <Link
+                to={settings.headerCtaLink || "/contact"}
+                id="desktop-cta-start"
+                className="px-5 py-2.5 bg-champagne-gold hover:bg-muted-gold text-matte-black text-sm font-bold tracking-wider rounded-full shadow-[0_4px_14px_rgba(214,180,106,0.32)] hover:shadow-[0_8px_24px_rgba(214,180,106,0.42)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 flex items-center gap-1.5 cursor-pointer text-center inline-block"
+              >
+                {settings.headerCtaText || "Start Build"}
+                <ArrowRight className="w-4 h-4 inline-block ml-0.5" />
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Menu Trigger Button */}
           <button
@@ -284,8 +315,31 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                 {/* Header with Live Status */}
                 <div className="flex items-center justify-between pb-4 border-b border-[#D6B46A]/20">
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-[#D6B46A]" />
+                    <div className="flex items-center gap-2.5">
+                      <div 
+                        className="w-7 h-7 rounded-lg bg-[#111111] border border-[#D6B46A]/40 flex items-center justify-center overflow-hidden shrink-0 relative"
+                        style={{
+                          borderRadius: settings.logoBorderRadius !== undefined ? `${Math.min(14, settings.logoBorderRadius)}px` : undefined,
+                          padding: settings.logoPadding !== undefined ? `${Math.min(4, settings.logoPadding)}px` : undefined,
+                          filter: `brightness(${settings.logoBrightness ?? 100}%) contrast(${settings.logoContrast ?? 100}%)`,
+                        }}
+                      >
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{
+                            transform: `scale(${Math.max(0.6, Math.min(1.8, settings.logoScale ?? 1))}) translate(${Math.max(-8, Math.min(8, settings.logoOffsetX ?? 0))}px, ${Math.max(-8, Math.min(8, settings.logoOffsetY ?? 0))}px) rotate(${settings.logoRotation ?? 0}deg)`,
+                            transformOrigin: 'center center'
+                          }}
+                        >
+                          {settings.logoType === 'image' && settings.logoUrl && settings.logoUrl.length > 5 ? (
+                            <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-contain p-0.5" />
+                          ) : (
+                            <span className="text-[#D6B46A] font-bold text-xs font-display select-none">
+                              {settings.logoText || (settings.logoUrl && settings.logoUrl.length <= 4 ? settings.logoUrl : 'S')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                       <span className="font-display font-black text-sm text-[#111111] uppercase tracking-wider">
                         {settings.brandName || 'SamaXon Studio'}
                       </span>

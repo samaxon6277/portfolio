@@ -43,12 +43,22 @@ export default function Footer({ setCurrentPage }: FooterProps) {
             className="flex items-center gap-2.5 cursor-pointer group w-fit block"
             aria-label="SamaXon Home"
           >
-            <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center border border-[#D6B46A]/30 group-hover:border-[#D6B46A] transition-colors duration-300">
-              <Zap className="w-5 h-5 text-[#D6B46A] fill-[#D6B46A]/10" />
+            <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] flex items-center justify-center border border-[#D6B46A]/30 group-hover:border-[#D6B46A] transition-colors duration-300 overflow-hidden">
+              {settings.logoType === 'image' && settings.logoUrl && settings.logoUrl.length > 5 ? (
+                <img 
+                  src={settings.logoUrl} 
+                  alt={settings.brandName || "Logo"} 
+                  className="w-full h-full object-contain p-1" 
+                />
+              ) : (
+                <span className="text-[#D6B46A] font-bold text-base font-display">
+                  {settings.logoText || (settings.logoUrl && settings.logoUrl.length <= 4 ? settings.logoUrl : 'S')}
+                </span>
+              )}
             </div>
             <div className="flex flex-col text-left">
               <span className="font-display font-medium uppercase tracking-widest text-lg text-white flex items-center gap-1.5 leading-none">
-                SamaXon
+                {settings.brandName ? settings.brandName.split(' ')[0] : 'SamaXon'}
                 <Crown className="w-3.5 h-3.5 text-[#D6B46A]" />
               </span>
               <span className="text-[9px] font-mono tracking-widest text-[#D6B46A] uppercase mt-0.5">
@@ -211,7 +221,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               to="/tools" 
               className="text-left text-sm text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-bold"
             >
-              <span>AI Tools Suite</span>
+              <span>Tools Suite</span>
               <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#D6B46A] text-[10px] font-mono rounded font-bold">Free</span>
             </Link>
             <Link 

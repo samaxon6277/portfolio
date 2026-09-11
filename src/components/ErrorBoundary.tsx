@@ -1,67 +1,97 @@
-import React from 'react';
-import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
-import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+import React, { ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
-export default function ErrorBoundary() {
-  const error = useRouteError();
-  console.error(error);
+interface Props {
+  children: ReactNode;
+  fallbackTitle?: string;
+}
 
-  let title = "Oops! Something went wrong";
-  let message = "An unexpected error occurred. Please try again later.";
-  let details = "";
+interface State {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+}
 
-  if (isRouteErrorResponse(error)) {
-    if (error.status === 404) {
-      title = "Page Not Found";
-      message = "We couldn't find the page you were looking for.";
-    } else if (error.status === 401) {
-      title = "Unauthorized";
-      message = "You don't have permission to access this page.";
-    } else if (error.status === 503) {
-      title = "Service Unavailable";
-      message = "Our servers are currently down. Please check back later.";
-    } else {
-      title = `Error ${error.status}`;
-      message = error.statusText;
-    }
-  } else if (error instanceof Error) {
-    message = error.message;
-    details = error.stack || "";
+export default class ErrorBoundary extends React.Component<Props, State> {
+  public override state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null
+  };
+
+  constructor(props: Props) {
+    super(props);
   }
 
-  return (
-    <div className="min-h-screen bg-[#090A0E] text-white flex items-center justify-center p-6">
-      <div className="max-w-xl w-full bg-[#101010] border border-white/10 p-8 rounded-2xl flex flex-col items-center text-center">
-        <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6">
-          <AlertTriangle className="w-8 h-8" />
-        </div>
-        
-        <h1 className="text-3xl font-bold font-display mb-4">{title}</h1>
-        <p className="text-[#A8AFBD] mb-8 max-w-sm">{message}</p>
-        
-        {details && (
-           <div className="w-full text-left bg-black/50 p-4 rounded-xl border border-white/5 mb-8 max-h-40 overflow-y-auto hidden">
-             <pre className="text-[10px] text-red-400 font-mono whitespace-pre-wrap">{details}</pre>
-           </div>
-        )}
+  static getDerivedStateFromError(error: Error): State {
+    return {
+      hasError: true,
+      error,
+      errorInfo: null
+    };
+  }
 
-        <div className="flex gap-4">
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl font-medium transition-colors flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Try Again
-          </button>
-          <Link 
-            to="/" 
-            className="px-6 py-3 bg-[#2984FF] hover:bg-[#2984FF]/90 rounded-xl font-medium transition-colors flex items-center gap-2"
-          >
-            <Home className="w-4 h-4" />
-            Go Home
-          </Link>
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an unhandled error:', error, errorInfo);
+    this.setState({ errorInfo });
+  }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null, errorInfo: null });
+    window.location.reload();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#FFFDF8] flex items-center justify-center p-6 text-center text-[#111111]" id="app-error-boundary-boundary">
+          <div className="max-w-md w-full bg-white border border-[#D6B46A]/30 rounded-3xl p-8 shadow-2xl space-y-6 text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold block">
+                  Studio System Notice
+                </span>
+                <h2 className="font-display text-lg font-black text-[#111111] uppercase tracking-tight">
+                  {this.props.fallbackTitle || 'Runtime Handled Gracefully'}
+                </h2>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#8A8178] leading-relaxed">
+              An unexpected view condition occurred. The interface caught this state safely without affecting your data.
+            </p>
+
+            {this.state.error && (
+              <div className="p-3 bg-neutral-900 text-neutral-200 rounded-xl font-mono text-[11px] overflow-x-auto max-h-36">
+                {this.state.error.message || String(this.state.error)}
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={this.handleReset}
+                className="flex-1 py-3 bg-[#111111] text-[#D6B46A] hover:text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Reload Interface
+              </button>
+              <a
+                href="/"
+                className="py-3 px-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
+      );
+    }
+
+    return this.props.children;
+  }
 }

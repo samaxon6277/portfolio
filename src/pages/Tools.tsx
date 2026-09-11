@@ -15,11 +15,13 @@ import PdfReducerSigner from '../components/tools/PdfReducerSigner';
 import AiBackgroundRemover from '../components/tools/AiBackgroundRemover';
 import AiImageUpscaler from '../components/tools/AiImageUpscaler';
 import VectorSvgConverter from '../components/tools/VectorSvgConverter';
+import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
 import ToolsOverview from '../components/tools/ToolsOverview';
 import { getToolsConfig, ToolItemConfig } from '../utils/toolsConfig';
 
 export type ToolTab = 
   | 'overview' 
+  | 'analyzer'
   | 'compressor' 
   | 'resizer' 
   | 'converter' 
@@ -57,6 +59,7 @@ export default function Tools() {
 
   // Determine active tab based on pathname or query
   const getTabFromPath = (): ToolTab => {
+    if (location.pathname.includes('/tools/analyzer')) return 'analyzer';
     if (location.pathname.includes('/tools/compressor')) return 'compressor';
     if (location.pathname.includes('/tools/resizer')) return 'resizer';
     if (location.pathname.includes('/tools/converter')) return 'converter';
@@ -69,7 +72,7 @@ export default function Tools() {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') as ToolTab;
     const validTabs: ToolTab[] = [
-      'compressor', 'resizer', 'converter', 'calculator',
+      'analyzer', 'compressor', 'resizer', 'converter', 'calculator',
       'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool'
     ];
     if (validTabs.includes(tabParam)) {
@@ -100,29 +103,31 @@ export default function Tools() {
 
   const getToolTitle = () => {
     if (currentToolConfig) return currentToolConfig.name;
-    return 'Digital Utilities & AI Tools Suite';
+    return 'Digital Utilities & Tools Suite';
   };
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] pt-28 sm:pt-32 pb-24 text-left" id="samaxon-tools-hub">
       <SEO
         title={
-          activeTab === 'compressor'
-            ? 'Free Photo Compressor (Reduce Size in KB & Quality) | SamaXon AI Tools'
+          activeTab === 'analyzer'
+            ? 'Free Website Security, Bug & SEO Health Analyzer | SamaXon Tools'
+            : activeTab === 'compressor'
+            ? 'Free Photo Compressor (Reduce Size in KB & Quality) | SamaXon Tools'
             : activeTab === 'resizer'
-            ? 'Free Photo Resizer (Passport, Visa & 300 DPI) | SamaXon AI Tools'
+            ? 'Free Photo Resizer (Passport, Visa & 300 DPI) | SamaXon Tools'
             : activeTab === 'converter'
-            ? 'Universal Batch Image Converter (PNG, JPG, WEBP, AVIF, ICO) | SamaXon AI Tools'
+            ? 'Universal Batch Image Converter (PNG, JPG, WEBP, AVIF, ICO) | SamaXon Tools'
             : activeTab === 'calculator'
-            ? 'Universal Advanced Multi-Paradigm Calculator (Scientific, EMI, GST, Units) | SamaXon AI Tools'
+            ? 'Universal Advanced Multi-Paradigm Calculator (Scientific, EMI, GST, Units) | SamaXon Tools'
             : activeTab === 'bg-remover'
-            ? 'Free AI Background Remover Studio (Zero Server Uploads) | SamaXon AI Tools'
+            ? 'Free Background Remover Studio (Zero Server Uploads) | SamaXon Tools'
             : activeTab === 'upscaler'
-            ? 'Free AI Image 4K Upscaler & Super-Resolution | SamaXon AI Tools'
+            ? 'Free Image 4K Upscaler & Super-Resolution | SamaXon Tools'
             : activeTab === 'vectorizer'
-            ? 'Free Raster to Scalable Vector SVG Converter | SamaXon AI Tools'
+            ? 'Free Raster to Scalable Vector SVG Converter | SamaXon Tools'
             : activeTab === 'pdf-tool'
-            ? 'Free PDF Reducer & Verified Digital Signer (Unlimited MB) | SamaXon AI Tools'
+            ? 'Free PDF Reducer & Verified Digital Signer (Unlimited MB) | SamaXon Tools'
             : 'Free Creator & Business Digital Tools Hub | SamaXon Studio'
         }
         description="Fast, 100% private, client-side digital tools. Compress images, upscale to 4K, remove backgrounds, convert to SVG, reduce heavy PDFs and affix digital signatures with zero server uploads."
@@ -141,7 +146,7 @@ export default function Tools() {
                 activeTab === 'overview' ? 'text-[#111111] font-bold' : ''
               }`}
             >
-              AI Tools Suite
+              Tools Suite
             </button>
             {activeTab !== 'overview' && (
               <>
@@ -172,7 +177,7 @@ export default function Tools() {
             </div>
 
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-[#111111] tracking-tight">
-              Digital Utilities & AI Tools Suite
+              Digital Utilities & Tools Suite
             </h1>
 
             <p className="text-base sm:text-lg text-[#3D3731] leading-relaxed font-normal">
@@ -282,6 +287,10 @@ export default function Tools() {
             </div>
           ) : (
             <>
+              {activeTab === 'analyzer' && (
+                <WebsiteAnalyzer />
+              )}
+
               {activeTab === 'pdf-tool' && (
                 <PdfReducerSigner />
               )}
