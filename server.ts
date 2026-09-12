@@ -800,9 +800,24 @@ async function startServer() {
   }
 
   // --- Comprehensive Website Health, Security & SEO Audit Endpoint (/api/analyze-website) ---
-  app.post('/api/analyze-website', analyzerRateLimiter, async (req, res) => {
+  app.options('/api/analyze-website', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.status(204).end();
+  });
+
+  app.all('/api/analyze-website', analyzerRateLimiter, async (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end();
+    }
+
     try {
-      const rawUrl = req.body?.url;
+      const rawUrl = (req.body?.url || req.query?.url);
       if (!rawUrl || typeof rawUrl !== 'string') {
         return res.status(400).json({ success: false, error: 'Target website URL is required.' });
       }

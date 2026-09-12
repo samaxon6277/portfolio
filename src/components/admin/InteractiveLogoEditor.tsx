@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { WebsiteSettings } from '../../utils/mockAdminData';
+import SleekLuxurySlider from '../tools/SleekLuxurySlider';
 
 interface InteractiveLogoEditorProps {
   settings: WebsiteSettings;
@@ -92,14 +93,26 @@ export default function InteractiveLogoEditor({
     }
   };
 
-  // Wheel zoom handling on canvas
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY < 0 ? 0.05 : -0.05;
-    const nextScale = Math.max(0.5, Math.min(2.5, Number((scale + delta).toFixed(2))));
-    setScale(nextScale);
-    emitChanges({ logoScale: nextScale });
-  };
+  // Ref-based Wheel zoom handling on canvas with explicit { passive: false }
+  useEffect(() => {
+    const stageEl = stageRef.current;
+    if (!stageEl) return;
+
+    const onWheelEvent = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.05 : -0.05;
+      setScale(prev => {
+        const nextScale = Math.max(0.5, Math.min(2.5, Number((prev + delta).toFixed(2))));
+        emitChanges({ logoScale: nextScale });
+        return nextScale;
+      });
+    };
+
+    stageEl.addEventListener('wheel', onWheelEvent, { passive: false });
+    return () => {
+      stageEl.removeEventListener('wheel', onWheelEvent);
+    };
+  }, []);
 
   const handleReset = () => {
     setScale(1.0);
@@ -163,12 +176,11 @@ export default function InteractiveLogoEditor({
           filter: `brightness(${brightness}%) contrast(${contrast}%)`,
           borderRadius: `${borderRadius}px`,
           padding: `${padding}px`,
-          backgroundColor: '#111111',
-          border: '1.5px solid rgba(214, 180, 106, 0.5)',
+          backgroundColor: settings.logoBgEnabled !== false ? (settings.logoBgColor || '#111111') : 'transparent',
+          border: settings.logoBorderEnabled !== false ? '1.5px solid rgba(214, 180, 106, 0.5)' : 'none',
           touchAction: 'none'
         }}
         onMouseDown={e => {
-          e.preventDefault();
           handlePointerDown(e.clientX, e.clientY);
         }}
         onTouchStart={e => {
@@ -298,7 +310,6 @@ export default function InteractiveLogoEditor({
                 }
               }}
               onTouchEnd={handlePointerUp}
-              onWheel={handleWheel}
               className="relative w-full h-80 bg-neutral-950 rounded-3xl border-2 border-dashed border-[#D6B46A]/30 overflow-hidden flex items-center justify-center select-none shadow-inner"
               style={{
                 backgroundImage: showGrid 

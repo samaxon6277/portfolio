@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { runClientWebsiteAudit } from '../../utils/clientWebsiteAnalyzer';
 
 interface IssueItem {
   category: 'security' | 'seo' | 'code' | 'performance';
@@ -133,28 +134,41 @@ export default function WebsiteAnalyzer() {
     }, 800);
 
     try {
-      const response = await fetch('/api/analyze-website', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: target })
-      });
-
-      const data = await response.json();
-      clearInterval(stepInterval);
-
-      if (!response.ok || !data.success) {
-        setErrorMessage(data.error || 'Failed to complete audit. Please check the URL and try again.');
-        setLoading(false);
-        return;
+      let data: any = null;
+      try {
+        const response = await fetch('/api/analyze-website', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: target })
+        });
+        if (response.ok) {
+          data = await response.json();
+        }
+      } catch (networkErr) {
+        console.warn('Direct /api/analyze-website call bypassed, using client deep diagnostic engine:', networkErr);
       }
 
+      // If backend returned error, 405 Method Not Allowed, or failed, seamlessly run client audit engine
+      if (!data || !data.success) {
+        data = await runClientWebsiteAudit(target);
+      }
+
+      clearInterval(stepInterval);
       setReport(data);
       try {
         sessionStorage.setItem('samaxon_last_audit', JSON.stringify(data));
       } catch {}
     } catch (err: any) {
       clearInterval(stepInterval);
-      setErrorMessage('Network error during scan. Please verify server connectivity or try again.');
+      try {
+        const fallbackData = await runClientWebsiteAudit(target);
+        setReport(fallbackData);
+        try {
+          sessionStorage.setItem('samaxon_last_audit', JSON.stringify(fallbackData));
+        } catch {}
+      } catch {
+        setErrorMessage('Failed to execute website inspection. Please verify the URL.');
+      }
     } finally {
       setLoading(false);
     }

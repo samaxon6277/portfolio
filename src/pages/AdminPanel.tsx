@@ -24,6 +24,7 @@ import SystemSettingsTab from './admin/SystemSettingsTab';
 import ToolsControlTab from './admin/ToolsControlTab';
 import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
 import AuditLeadsTab from '../components/admin/AuditLeadsTab';
+import { NavbarStudio } from '../components/admin/NavbarStudio';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -785,6 +786,7 @@ export default function AdminPanel() {
     {
       category: 'WEBSITE CUSTOMIZATION',
       items: [
+        { id: 'navbar-studio', label: 'Navbar & Header Studio', icon: Sliders, highlight: true },
         { id: 'services', label: 'Services Manager', icon: FolderEdit },
         { id: 'portfolio', label: 'Portfolio Projects', icon: Sparkles },
         { id: 'testimonials', label: 'Client Reviews', icon: Award },
@@ -796,7 +798,8 @@ export default function AdminPanel() {
     {
       category: 'BRAND & ASSETS',
       items: [
-        { id: 'brand', label: 'Logo & Brand Identity', icon: Crown, highlight: true },
+        { id: 'navbar-studio', label: 'Header & Logo Studio', icon: Crown, highlight: true },
+        { id: 'brand', label: 'General Brand Settings', icon: Sliders },
         { id: 'media', label: 'Media Library', icon: ImageIcon },
       ]
     },
@@ -1157,6 +1160,19 @@ export default function AdminPanel() {
                   onUpdateJobApplication={handleUpdateJobApplication}
                   onDeleteJobApplication={handleDeleteJobApplication}
                 />
+              )}
+
+              {/* Website Customization: Dedicated Header & Navbar Studio */}
+              {activeTab === 'navbar-studio' && (
+                <div className="p-4 sm:p-6 lg:p-8">
+                  <NavbarStudio
+                    settings={websiteSettings}
+                    onSave={(updated) => {
+                      handleUpdateWebsiteSettings(updated);
+                      showToast('Header & Navbar configurations successfully saved and synchronized live.');
+                    }}
+                  />
+                </div>
               )}
 
               {/* Website Customization: Services Manager */}

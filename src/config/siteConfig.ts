@@ -233,6 +233,24 @@ export function getCompanyEmails(overrides?: {
   };
 }
 
+export interface NavItemConfig {
+  id: string;
+  label: string;
+  path: string;
+  badge?: string;
+  visible?: boolean;
+}
+
+export const DEFAULT_HEADER_NAV_ITEMS: NavItemConfig[] = [
+  { id: 'services', label: 'Services', path: '/services', visible: true },
+  { id: 'portfolio', label: 'Work', path: '/projects', visible: true },
+  { id: 'pricing', label: 'Pricing', path: '/pricing', visible: true },
+  { id: 'guides', label: 'Guides', path: '/guides', visible: true },
+  { id: 'partner', label: 'Partner', path: '/partner', badge: '20%', visible: true },
+  { id: 'tools', label: 'Tools', path: '/tools', badge: 'Free', visible: true },
+  { id: 'company', label: 'Company', path: '/company', visible: true },
+];
+
 export interface DynamicWebsiteSettings {
   brandName: string;
   logoUrl: string;
@@ -246,6 +264,9 @@ export interface DynamicWebsiteSettings {
   logoPadding?: number;
   logoBrightness?: number;
   logoContrast?: number;
+  logoBgEnabled?: boolean;
+  logoBgColor?: string;
+  logoBorderEnabled?: boolean;
   faviconUrl: string;
   contactEmail: string;
   supportEmail: string;
@@ -273,6 +294,10 @@ export interface DynamicWebsiteSettings {
   headerCtaText?: string;
   headerCtaLink?: string;
   headerCtaVisible?: boolean;
+  headerNavItems?: NavItemConfig[];
+  headerShowCrown?: boolean;
+  headerBlur?: boolean;
+  headerBgOpacity?: number;
 }
 
 /**
@@ -315,6 +340,9 @@ export function getLiveWebsiteSettings(): DynamicWebsiteSettings {
     logoPadding: adminSettings.logoPadding !== undefined ? adminSettings.logoPadding : 4,
     logoBrightness: adminSettings.logoBrightness !== undefined ? adminSettings.logoBrightness : 100,
     logoContrast: adminSettings.logoContrast !== undefined ? adminSettings.logoContrast : 100,
+    logoBgEnabled: adminSettings.logoBgEnabled !== undefined ? adminSettings.logoBgEnabled : (adminSettings.logoType === 'image' ? false : true),
+    logoBgColor: adminSettings.logoBgColor || '#111111',
+    logoBorderEnabled: adminSettings.logoBorderEnabled !== undefined ? adminSettings.logoBorderEnabled : true,
     faviconUrl: adminSettings.faviconUrl || '/favicon.ico',
     contactEmail: (adminSettings.contactEmail && !adminSettings.contactEmail.includes('build@') && adminSettings.contactEmail.includes('@')) 
       ? adminSettings.contactEmail 
@@ -344,6 +372,12 @@ export function getLiveWebsiteSettings(): DynamicWebsiteSettings {
     headerCtaText: adminSettings.headerCtaText || 'Start Build',
     headerCtaLink: adminSettings.headerCtaLink || '/contact',
     headerCtaVisible: adminSettings.headerCtaVisible !== undefined ? adminSettings.headerCtaVisible : true,
+    headerNavItems: Array.isArray(adminSettings.headerNavItems) && adminSettings.headerNavItems.length > 0 
+      ? adminSettings.headerNavItems 
+      : DEFAULT_HEADER_NAV_ITEMS,
+    headerShowCrown: adminSettings.headerShowCrown !== undefined ? adminSettings.headerShowCrown : true,
+    headerBlur: adminSettings.headerBlur !== undefined ? adminSettings.headerBlur : true,
+    headerBgOpacity: adminSettings.headerBgOpacity !== undefined ? adminSettings.headerBgOpacity : 90,
   };
 }
 

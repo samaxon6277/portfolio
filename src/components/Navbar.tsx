@@ -28,15 +28,18 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     ready: false
   });
 
-  const desktopNavItems = [
-    { label: 'Services', id: 'services', path: '/services' },
-    { label: 'Work', id: 'portfolio', path: '/projects' },
-    { label: 'Pricing', id: 'pricing', path: '/pricing' },
-    { label: 'Guides', id: 'guides', path: '/guides' },
-    { label: 'Partner', id: 'partner', path: '/partner', badge: '20%' },
-    { label: 'Tools', id: 'tools', path: '/tools', badge: 'Free' },
-    { label: 'Company', id: 'company', path: '/company' },
-  ];
+  const desktopNavItems = (settings.headerNavItems && settings.headerNavItems.length > 0
+    ? settings.headerNavItems
+    : [
+        { label: 'Services', id: 'services', path: '/services', visible: true },
+        { label: 'Work', id: 'portfolio', path: '/projects', visible: true },
+        { label: 'Pricing', id: 'pricing', path: '/pricing', visible: true },
+        { label: 'Guides', id: 'guides', path: '/guides', visible: true },
+        { label: 'Partner', id: 'partner', path: '/partner', badge: '20%', visible: true },
+        { label: 'Tools', id: 'tools', path: '/tools', badge: 'Free', visible: true },
+        { label: 'Company', id: 'company', path: '/company', visible: true },
+      ]
+  ).filter(item => item.visible !== false);
 
   const updatePillPosition = useCallback(() => {
     const currentPath = location.pathname;
@@ -161,17 +164,20 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             onClick={() => setIsOpen(false)}
           >
             <div 
-              className="w-9 h-9 sm:w-10 sm:h-10 bg-matte-black flex items-center justify-center rounded-xl border border-champagne-gold/35 group-hover:border-champagne-gold group-hover:shadow-[0_0_16px_rgba(214,180,106,0.35)] transition-all duration-300 shadow-md overflow-hidden shrink-0 relative"
+              className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-all duration-300 overflow-hidden shrink-0 relative ${
+                settings.logoBgEnabled !== false ? 'shadow-md' : ''
+              } ${settings.logoBorderEnabled !== false ? 'border border-champagne-gold/35 group-hover:border-champagne-gold group-hover:shadow-[0_0_16px_rgba(214,180,106,0.35)]' : ''}`}
               style={{
-                borderRadius: settings.logoBorderRadius !== undefined ? `${settings.logoBorderRadius}px` : undefined,
-                padding: settings.logoPadding !== undefined ? `${settings.logoPadding}px` : undefined,
+                backgroundColor: settings.logoBgEnabled !== false ? (settings.logoBgColor || '#111111') : 'transparent',
+                borderRadius: settings.logoBorderRadius !== undefined ? `${settings.logoBorderRadius}px` : '12px',
+                padding: settings.logoPadding !== undefined ? `${settings.logoPadding}px` : '4px',
                 filter: `brightness(${settings.logoBrightness ?? 100}%) contrast(${settings.logoContrast ?? 100}%)`,
               }}
             >
               <div 
                 className="w-full h-full flex items-center justify-center"
                 style={{
-                  transform: `scale(${Math.max(0.6, Math.min(2.0, settings.logoScale ?? 1))}) translate(${Math.max(-15, Math.min(15, settings.logoOffsetX ?? 0))}px, ${Math.max(-15, Math.min(15, settings.logoOffsetY ?? 0))}px) rotate(${settings.logoRotation ?? 0}deg)`,
+                  transform: `scale(${settings.logoScale ?? 1}) translate(${settings.logoOffsetX ?? 0}px, ${settings.logoOffsetY ?? 0}px) rotate(${settings.logoRotation ?? 0}deg)`,
                   transformOrigin: 'center center'
                 }}
               >
@@ -192,7 +198,9 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
               <div className="flex flex-col text-left">
                 <span className="font-display font-bold tracking-[0.16em] text-base sm:text-lg text-matte-black flex items-center gap-1.5 leading-none uppercase">
                   {settings.brandName ? settings.brandName.split(' ')[0] : 'SamaXon'}
-                  <Crown className="w-4 h-4 text-champagne-gold fill-champagne-gold/20" />
+                  {settings.headerShowCrown !== false && (
+                    <Crown className="w-4 h-4 text-champagne-gold fill-champagne-gold/20" />
+                  )}
                 </span>
                 {settings.headerSubTextVisible !== false && (
                   <span className="text-[11px] font-mono tracking-[0.14em] text-[#BFA15A] uppercase leading-none mt-1.5 font-bold">

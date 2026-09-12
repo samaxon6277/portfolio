@@ -96,12 +96,25 @@ export interface WebsiteSettings {
   logoBrightness?: number; // 50 to 150 %
   logoContrast?: number; // 50 to 150 %
   logoRotation?: number; // -45 to 45 deg
+  logoBgEnabled?: boolean; // toggle background box on/off
+  logoBgColor?: string; // background color e.g. transparent, #111111, #ffffff
+  logoBorderEnabled?: boolean; // toggle gold rim border on/off
   headerBrandTextVisible?: boolean; // toggle brand name visibility next to logo
   headerSubText?: string; // sub-tagline below brand name
   headerSubTextVisible?: boolean; // toggle sub-tagline visibility
   headerCtaText?: string; // custom text for header CTA button
   headerCtaLink?: string; // custom link for header CTA button
   headerCtaVisible?: boolean; // toggle header CTA button visibility
+  headerNavItems?: Array<{
+    id: string;
+    label: string;
+    path: string;
+    badge?: string;
+    visible?: boolean;
+  }>;
+  headerShowCrown?: boolean;
+  headerBlur?: boolean;
+  headerBgOpacity?: number;
 }
 
 // Real database initializes with 0 demo leads and 0 demo applicants.

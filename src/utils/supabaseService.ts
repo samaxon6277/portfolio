@@ -287,14 +287,23 @@ export const supabaseService = {
   // 1.1 WEBSITE AUDIT LEADS & BUG REMEDIATION REQUESTS
   async getWebsiteAuditLeads(): Promise<WebsiteAuditLead[]> {
     let supabaseAuditLeads: WebsiteAuditLead[] = [];
-    if (checkHasKeys()) {
+    
+    // Check if table was already detected as unprovisioned in Supabase to avoid 404 network spam
+    const isTableDisabled = typeof window !== 'undefined' && sessionStorage.getItem('samaxon_audit_leads_table_disabled') === 'true';
+
+    if (checkHasKeys() && !isTableDisabled) {
       try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
           .from('audit_leads')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) {
+        if (status === 404 || (error && (error.code === '42P01' || error.message?.toLowerCase().includes('not found') || error.message?.toLowerCase().includes('does not exist')))) {
+          // Mark as unavailable to prevent further 404 console errors
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('samaxon_audit_leads_table_disabled', 'true');
+          }
+        } else if (error) {
           logger.warn('Supabase fetch audit_leads non-fatal:', error.message);
         } else if (data) {
           supabaseAuditLeads = data.map((d: any) => ({
@@ -323,7 +332,9 @@ export const supabaseService = {
           }));
         }
       } catch (err) {
-        logger.warn('Failed querying supabase audit_leads, falling back:', err);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('samaxon_audit_leads_table_disabled', 'true');
+        }
       }
     }
 
@@ -348,7 +359,9 @@ export const supabaseService = {
 
   async upsertWebsiteAuditLead(lead: WebsiteAuditLead): Promise<boolean> {
     let success = true;
-    if (checkHasKeys()) {
+    const isTableDisabled = typeof window !== 'undefined' && sessionStorage.getItem('samaxon_audit_leads_table_disabled') === 'true';
+
+    if (checkHasKeys() && !isTableDisabled) {
       try {
         const payload = {
           id: lead.id,
@@ -375,12 +388,18 @@ export const supabaseService = {
           created_at: lead.createdAt || new Date().toISOString()
         };
 
-        const { error } = await supabase
+        const { error, status } = await supabase
           .from('audit_leads')
           .upsert(payload);
-        if (error) throw error;
+        if (status === 404 || (error && (error.code === '42P01' || error.message?.toLowerCase().includes('not found') || error.message?.toLowerCase().includes('does not exist')))) {
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('samaxon_audit_leads_table_disabled', 'true');
+          }
+        } else if (error) {
+          throw error;
+        }
       } catch (err) {
-        console.error('Supabase write audit_leads failed:', err);
+        console.warn('Supabase write audit_leads skipped/local fallback active');
         success = false;
       }
     }
@@ -405,15 +424,23 @@ export const supabaseService = {
 
   async deleteWebsiteAuditLead(id: string): Promise<boolean> {
     let success = true;
-    if (checkHasKeys()) {
+    const isTableDisabled = typeof window !== 'undefined' && sessionStorage.getItem('samaxon_audit_leads_table_disabled') === 'true';
+
+    if (checkHasKeys() && !isTableDisabled) {
       try {
-        const { error } = await supabase
+        const { error, status } = await supabase
           .from('audit_leads')
           .delete()
           .eq('id', id);
-        if (error) throw error;
+        if (status === 404 || (error && (error.code === '42P01' || error.message?.toLowerCase().includes('not found')))) {
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem('samaxon_audit_leads_table_disabled', 'true');
+          }
+        } else if (error) {
+          throw error;
+        }
       } catch (err) {
-        console.error('Supabase delete audit_leads failed:', err);
+        console.warn('Supabase delete audit_leads skipped/local delete used');
         success = false;
       }
     }
