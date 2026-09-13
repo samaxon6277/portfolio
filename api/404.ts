@@ -1,0 +1,236 @@
+// Vercel Serverless Function: /api/404
+// Emits genuine HTTP 404 status code and renders the branded SamaXon 404 HTML template
+
+const NOT_FOUND_HTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404: Page Not Found | SamaXon Digital Solutions</title>
+    <meta name="description" content="The requested resource or page could not be located on SamaXon Digital Solutions.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0E0D0B">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
+
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #FFFDF8;
+        color: #111111;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        position: relative;
+        overflow-x: hidden;
+      }
+      .ambient-glow {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(214, 180, 106, 0.12) 0%, rgba(214, 180, 106, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      .card {
+        max-width: 640px;
+        width: 100%;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        border-radius: 9999px;
+        background-color: rgba(214, 180, 106, 0.12);
+        border: 1px solid rgba(214, 180, 106, 0.28);
+        color: #A68936;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+      .badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #A68936;
+        box-shadow: 0 0 8px rgba(166, 137, 54, 0.6);
+      }
+      .error-code {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: clamp(5rem, 15vw, 8.5rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        color: #111111;
+        margin-bottom: 8px;
+      }
+      .error-code span {
+        background: linear-gradient(135deg, #D6B46A 0%, #B89648 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .error-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: clamp(1.4rem, 4vw, 1.875rem);
+        font-weight: 800;
+        color: #111111;
+        letter-spacing: -0.02em;
+        margin-bottom: 16px;
+      }
+      .error-desc {
+        font-size: 15px;
+        line-height: 1.65;
+        color: #554F49;
+        max-width: 520px;
+        margin: 0 auto 32px;
+      }
+      .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background-color: #111111;
+        color: #FFFDF8;
+        border: 1px solid #111111;
+      }
+      .btn-primary:hover {
+        background-color: #262626;
+        border-color: #262626;
+        transform: translateY(-1px);
+      }
+      .btn-primary svg {
+        color: #D6B46A;
+      }
+      .btn-secondary {
+        background-color: #FFFFFF;
+        color: #111111;
+        border: 1px solid rgba(214, 180, 106, 0.4);
+      }
+      .btn-secondary:hover {
+        border-color: #D6B46A;
+        background-color: rgba(214, 180, 106, 0.08);
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: #554F49;
+        border: 1px solid #E5E0D8;
+      }
+      .btn-ghost:hover {
+        color: #111111;
+        border-color: #C2BBB0;
+      }
+      .back-btn {
+        background: none;
+        border: none;
+        color: #8A8178;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s;
+      }
+      .back-btn:hover {
+        color: #111111;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ambient-glow" aria-hidden="true"></div>
+    <div class="card" id="not-found-container">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>HTTP Status • 404 Route Not Found</span>
+      </div>
+
+      <div class="error-code">4<span>0</span>4</div>
+      <h1 class="error-title">Resource Not Located</h1>
+      <p class="error-desc">
+        The destination URL you requested does not exist, has been restructured, or is temporarily unavailable. Please verify the web address or return to our core directories.
+      </p>
+
+      <div class="action-row">
+        <a href="/" class="btn btn-primary" id="not-found-home-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Return to Homepage</span>
+        </a>
+
+        <a href="/services" class="btn btn-secondary" id="not-found-services-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A68936" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          <span>Explore Services</span>
+        </a>
+
+        <a href="/contact" class="btn btn-ghost" id="not-found-contact-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          <span>Direct Contact</span>
+        </a>
+      </div>
+
+      <div>
+        <button onclick="window.history.back()" class="back-btn" id="not-found-back-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          <span>Return to Previous Screen</span>
+        </button>
+      </div>
+    </div>
+  </body>
+</html>`;
+
+export default function handler(req: any, res: any) {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  return res.status(404).send(NOT_FOUND_HTML);
+}

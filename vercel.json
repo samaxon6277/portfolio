@@ -17,7 +17,7 @@
     },
     {
       "source": "/((?!api/).*)",
-      "destination": "/404.html"
+      "destination": "/api/404"
     }
   ],
   "headers": [
