@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, Shield, AlertTriangle, CheckCircle2, XCircle, Globe, 
   Sparkles, Lock, Unlock, FileText, Code2, Gauge, Zap, Copy, 
   Check, Printer, ArrowRight, ExternalLink, RefreshCw, Key, 
-  HelpCircle, Eye, EyeOff, Terminal, Compass, Layers, Wrench
+  HelpCircle, Eye, EyeOff, Terminal, Compass, Layers, Wrench,
+  ChevronDown, ChevronUp, Filter, FileCode2, ArrowUpRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
-import { runClientWebsiteAudit } from '../../utils/clientWebsiteAnalyzer';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { runClientWebsiteAudit, ScannedSubpage } from '../../utils/clientWebsiteAnalyzer';
+import { ANALYZER_KEYWORD_TAXONOMY, ALL_ANALYZER_KEYWORDS } from '../../data/analyzerKeywords';
 
 interface IssueItem {
   category: 'security' | 'seo' | 'code' | 'performance';
@@ -58,13 +60,7 @@ interface AuditReport {
     isZoomLocked: boolean;
     hasCharset: boolean;
   };
-  internalPages?: Array<{
-    path: string;
-    url: string;
-    status: number;
-    ok: boolean;
-    responseTimeMs: number;
-  }>;
+  internalPages?: ScannedSubpage[];
   animationAnalysis?: {
     keyframeMatches: number;
     transitionAllCount: number;
@@ -93,13 +89,25 @@ interface AuditReport {
 
 export default function WebsiteAnalyzer() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [inputUrl, setInputUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [report, setReport] = useState<AuditReport | null>(null);
   const [activeCategory, setActiveCategory] = useState<'all' | 'security' | 'seo' | 'code' | 'performance'>('all');
   const [copied, setCopied] = useState(false);
+  const [copiedKeyword, setCopiedKeyword] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Subpage Deep Crawler Filter & State
+  const [subpageSearch, setSubpageSearch] = useState('');
+  const [subpageFilter, setSubpageFilter] = useState<'all' | 'issues' | 'clean' | 'slow'>('all');
+  const [expandedSubpagePath, setExpandedSubpagePath] = useState<string | null>(null);
+
+  // 1000+ Keyword Corpus State
+  const [keywordCategory, setKeywordCategory] = useState<string>('all');
+  const [keywordSearch, setKeywordSearch] = useState('');
+  const [showAllKeywords, setShowAllKeywords] = useState(false);
 
   const sampleUrls = [
     { label: 'SamaXon Official', url: 'https://samaxon.site' },
@@ -111,10 +119,19 @@ export default function WebsiteAnalyzer() {
   const loadingSteps = [
     'Connecting to remote host and validating SSL handshake...',
     'Inspecting HTTP security headers (HSTS, CSP, X-Frame)...',
+    'Crawling all internal website subpages and checking route health...',
     'Analyzing HTML structure, headings, viewport & image alt tags...',
-    'Extracting search keyword density & identifying missing keywords...',
-    'Calculating Core Web Vitals, server latency & computing final score...'
+    'Scanning 1,000+ SEO keywords and computing performance index...'
   ];
+
+  // Auto-analyze if URL query parameter provided (?url=example.com)
+  useEffect(() => {
+    const urlFromQuery = searchParams.get('url');
+    if (urlFromQuery && urlFromQuery.trim()) {
+      setInputUrl(urlFromQuery);
+      handleAnalyze(urlFromQuery);
+    }
+  }, [searchParams]);
 
   const handleAnalyze = async (overrideUrl?: string) => {
     const target = overrideUrl || inputUrl;
@@ -127,14 +144,17 @@ export default function WebsiteAnalyzer() {
     setLoading(true);
     setLoadingStep(0);
     setReport(null);
+    setExpandedSubpagePath(null);
 
     // Step cycle animation
     const stepInterval = setInterval(() => {
       setLoadingStep(prev => (prev < loadingSteps.length - 1 ? prev + 1 : prev));
-    }, 800);
+    }, 850);
 
     try {
       let data: any = null;
+
+      // 1. Try POST to /api/analyze-website
       try {
         const response = await fetch('/api/analyze-website', {
           method: 'POST',
@@ -142,13 +162,31 @@ export default function WebsiteAnalyzer() {
           body: JSON.stringify({ url: target })
         });
         if (response.ok) {
-          data = await response.json();
+          const resJson = await response.json();
+          if (resJson && resJson.success && resJson.scores) {
+            data = resJson;
+          }
         }
-      } catch (networkErr) {
-        console.warn('Direct /api/analyze-website call bypassed, using client deep diagnostic engine:', networkErr);
+      } catch (postErr) {
+        console.warn('POST /api/analyze-website failed, trying GET fallback:', postErr);
       }
 
-      // If backend returned error, 405 Method Not Allowed, or missing scores, seamlessly run client audit engine
+      // 2. Try GET to /api/analyze-website?url=... fallback (handles strict CORS / Vercel rewrite)
+      if (!data) {
+        try {
+          const getRes = await fetch(`/api/analyze-website?url=${encodeURIComponent(target)}`);
+          if (getRes.ok) {
+            const resJson = await getRes.json();
+            if (resJson && resJson.success && resJson.scores) {
+              data = resJson;
+            }
+          }
+        } catch (getErr) {
+          console.warn('GET /api/analyze-website failed:', getErr);
+        }
+      }
+
+      // 3. Resilient Client-side Engine fallback with DOMParser & multi-proxy crawler
       if (!data || !data.success || !data.scores) {
         data = await runClientWebsiteAudit(target);
       }
@@ -174,7 +212,7 @@ export default function WebsiteAnalyzer() {
     }
   };
 
-  const handleRequestFix = (issue?: IssueItem) => {
+  const handleRequestFix = (issue?: IssueItem | { title: string }) => {
     if (!report) return;
     try {
       sessionStorage.setItem('samaxon_last_audit', JSON.stringify(report));
@@ -198,31 +236,7 @@ export default function WebsiteAnalyzer() {
     if (score >= 80) return { grade: 'A', label: 'Good Health', ring: '#10B981' };
     if (score >= 70) return { grade: 'B', label: 'Needs Optimization', ring: '#F59E0B' };
     if (score >= 55) return { grade: 'C', label: 'Warning / Fixes Required', ring: '#EF4444' };
-    return { grade: 'D', label: 'Critical Bugs & Security Risks', ring: '#EF4444' };
-  };
-
-  const handleCopySummary = () => {
-    if (!report || !report.scores) return;
-    const summary = `=== SAMAXON WEBSITE AUDIT REPORT ===
-Target URL: ${report.url}
-Overall Health Score: ${report.scores.overall}/100 (${getScoreGrade(report.scores.overall).grade})
-- Security Score: ${report.scores.security}/100
-- SEO Score: ${report.scores.seo}/100
-- Code & Bug Score: ${report.scores.code}/100
-- Performance Score: ${report.scores.performance}/100
-Critical Issues: ${report.issues?.critical.length || 0}
-Warnings: ${report.issues?.warning.length || 0}
-Checks Passed: ${report.issues?.passed.length || 0}
-Missing SEO Keywords: ${(report.keywords?.missingKeywords || []).join(', ')}
-Audited via SamaXon Digital Tools (samaxon.site)`;
-
-    navigator.clipboard.writeText(summary);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handlePrint = () => {
-    window.print();
+    return { grade: 'F', label: 'Critical Vulnerabilities', ring: '#DC2626' };
   };
 
   const filteredIssues = () => {
@@ -236,224 +250,267 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
     return all.filter(i => i.category === activeCategory);
   };
 
-  return (
-    <div className="space-y-10 text-left max-w-6xl mx-auto" id="website-analyzer-suite">
-      {/* Header Introduction */}
-      <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#D6B46A]/10 border border-[#D6B46A]/30 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest text-[#BFA15A]">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Full Website Technical Audit</span>
-            </div>
-            <h2 className="font-display font-black text-2xl sm:text-3xl text-[#111111] tracking-tight">
-              Website Security, Bug &amp; SEO Health Analyzer
-            </h2>
-            <p className="text-xs sm:text-sm text-[#8A8178] max-w-2xl leading-relaxed">
-              Enter any website URL to perform a comprehensive diagnostic inspection: detect security vulnerabilities, missing SSL &amp; headers, code bugs, broken tags, and identify missing high-converting SEO keywords.
-            </p>
-          </div>
+  // Subpage crawler filtering logic
+  const filteredSubpages = useMemo(() => {
+    if (!report?.internalPages) return [];
+    return report.internalPages.filter(page => {
+      // Search filter
+      if (subpageSearch.trim()) {
+        const query = subpageSearch.toLowerCase();
+        const matchesPath = page.path.toLowerCase().includes(query);
+        const matchesTitle = page.title?.toLowerCase().includes(query);
+        if (!matchesPath && !matchesTitle) return false;
+      }
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] font-mono text-[#8A8178] uppercase font-bold tracking-wider">
-              100% Free · Real-Time Deep Engine
-            </span>
-          </div>
+      // Status / health filter
+      if (subpageFilter === 'issues') {
+        const hasIssue = !page.ok || (page.pageScore !== undefined && page.pageScore < 85) || (page.issues && page.issues.some(i => i.severity !== 'passed'));
+        return hasIssue;
+      }
+      if (subpageFilter === 'clean') {
+        const isClean = page.ok && (page.pageScore === undefined || page.pageScore >= 85) && (!page.issues || !page.issues.some(i => i.severity === 'critical'));
+        return isClean;
+      }
+      if (subpageFilter === 'slow') {
+        return page.responseTimeMs > 900;
+      }
+      return true;
+    });
+  }, [report?.internalPages, subpageSearch, subpageFilter]);
+
+  // 1,000+ Keyword filtering logic
+  const filteredKeywordList = useMemo(() => {
+    let pool: string[] = [];
+    if (keywordCategory === 'all') {
+      pool = ALL_ANALYZER_KEYWORDS;
+    } else {
+      const catObj = ANALYZER_KEYWORD_TAXONOMY.find(c => c.category === keywordCategory);
+      pool = catObj ? catObj.keywords : ALL_ANALYZER_KEYWORDS;
+    }
+
+    if (!keywordSearch.trim()) return pool;
+    const q = keywordSearch.toLowerCase();
+    return pool.filter(k => k.toLowerCase().includes(q));
+  }, [keywordCategory, keywordSearch]);
+
+  const copyKeywordToClipboard = (kw: string) => {
+    navigator.clipboard.writeText(kw);
+    setCopiedKeyword(kw);
+    setTimeout(() => setCopiedKeyword(null), 1800);
+  };
+
+  const copyReportSummary = () => {
+    if (!report) return;
+    const summary = `
+SamaXon Website Health & Multi-Page Audit Report
+Target: ${report.url}
+Overall Health Score: ${report.scores?.overall || 0}/100
+Security Score: ${report.scores?.security || 0}/100
+SEO Score: ${report.scores?.seo || 0}/100
+Code & Bug Score: ${report.scores?.code || 0}/100
+Performance Score: ${report.scores?.performance || 0}/100
+Pages Audited: ${report.internalPages?.length || 1} pages
+Latency: ${report.responseTimeMs || 0}ms
+Generated by: SamaXon Digital Studio (https://samaxon.site/analyzer)
+    `.trim();
+    navigator.clipboard.writeText(summary);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10" id="website-analyzer-tool">
+      {/* Header Section */}
+      <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#D6B46A]/15 border border-[#D6B46A]/35 rounded-full">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest text-[#85641C]">
+            Live Multi-Page Crawler &amp; Security Auditor
+          </span>
         </div>
 
-        {/* Input Bar Form */}
-        <div className="mt-8 space-y-4">
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleAnalyze();
-            }}
-            className="flex flex-col sm:flex-row items-stretch gap-3"
-          >
+        <h1 className="font-display font-black text-3xl sm:text-5xl text-[#111111] tracking-tight">
+          Website Health, Security &amp; Subpage Inspector
+        </h1>
+
+        <p className="text-xs sm:text-sm text-[#8A8178] leading-relaxed">
+          Deep diagnostic crawler that scans every internal subpage of your domain. Audits SSL protocols, HTTP response times, broken image alt tags, missing meta descriptions, animation jank, and 1,000+ high-intent search keywords.
+        </p>
+      </div>
+
+      {/* URL Input Form */}
+      <div className="bg-white border border-[#D6B46A]/30 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <form onSubmit={(e) => { e.preventDefault(); handleAnalyze(); }} className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Globe className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#D6B46A]" />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8A8178]">
+                <Globe className="w-5 h-5 text-[#BFA15A]" />
+              </div>
               <input
                 type="text"
                 value={inputUrl}
                 onChange={(e) => setInputUrl(e.target.value)}
-                placeholder="Enter domain or URL (e.g., https://mybusiness.com or mywebsite.in)"
-                className="w-full pl-12 pr-4 py-3.5 bg-[#FFFDF8] border border-[#D6B46A]/30 rounded-2xl text-xs sm:text-sm font-mono text-[#111111] placeholder:text-[#8A8178]/60 focus:outline-none focus:border-[#D6B46A] focus:ring-2 focus:ring-[#D6B46A]/20 transition-all shadow-sm"
+                placeholder="Enter domain or URL (e.g. yourbusiness.com, stripe.com)"
+                className="w-full pl-12 pr-4 py-4 bg-[#FFFDF8] border border-[#D6B46A]/40 focus:border-[#D6B46A] rounded-2xl text-xs sm:text-sm font-mono text-[#111111] placeholder:text-[#8A8178] focus:outline-none focus:ring-2 focus:ring-[#D6B46A]/20 transition-all shadow-xs"
                 disabled={loading}
               />
             </div>
-
             <button
               type="submit"
               disabled={loading}
-              className="px-6 sm:px-8 py-3.5 bg-[#111111] hover:bg-[#D6B46A] text-white hover:text-[#111111] font-display font-black text-xs uppercase tracking-widest rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50 shrink-0 min-h-[46px]"
+              className="px-8 py-4 bg-[#111111] hover:bg-[#222222] text-[#FFFDF8] hover:text-[#D6B46A] font-display font-black text-xs sm:text-sm uppercase tracking-widest rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95 disabled:opacity-50 shrink-0"
             >
               {loading ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Scanning...</span>
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#D6B46A]" />
+                  <span>Scanning Site...</span>
                 </>
               ) : (
                 <>
-                  <Search className="w-4 h-4" />
-                  <span>Audit Website Now</span>
+                  <Search className="w-4 h-4 text-[#D6B46A]" />
+                  <span>Scan Entire Website</span>
                 </>
               )}
             </button>
-          </form>
-
-          {/* Preset Sample URLs */}
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">Quick Test Samples:</span>
-            {sampleUrls.map(item => (
-              <button
-                key={item.url}
-                type="button"
-                onClick={() => {
-                  setInputUrl(item.url);
-                  handleAnalyze(item.url);
-                }}
-                disabled={loading}
-                className="px-2.5 py-1 bg-[#FFFDF8] hover:bg-[#D6B46A]/15 border border-[#D6B46A]/20 rounded-lg text-[10px] font-mono text-[#111111] hover:border-[#D6B46A]/40 transition-all cursor-pointer"
-              >
-                {item.label}
-              </button>
-            ))}
           </div>
 
           {errorMessage && (
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 flex items-center gap-3">
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2 text-left">
               <AlertTriangle className="w-4 h-4 shrink-0 text-rose-500" />
               <span>{errorMessage}</span>
             </div>
           )}
-        </div>
+
+          {/* Preset Sample URLs */}
+          <div className="flex items-center gap-2 flex-wrap pt-1 text-left">
+            <span className="text-[11px] font-mono font-bold uppercase text-[#8A8178]">
+              Quick Test:
+            </span>
+            {sampleUrls.map((s, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setInputUrl(s.url);
+                  handleAnalyze(s.url);
+                }}
+                className="px-3 py-1 bg-[#F4EFE6]/60 hover:bg-[#F4EFE6] border border-[#D6B46A]/25 rounded-lg text-xs font-mono text-[#111111] hover:text-[#85641C] transition-all cursor-pointer"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </form>
+
+        {/* Loading Progress State */}
+        {loading && (
+          <div className="pt-6 border-t border-[#D6B46A]/20 space-y-4 animate-fade-in text-left">
+            <div className="flex items-center justify-between text-xs font-mono text-[#8A8178]">
+              <span className="flex items-center gap-2 text-[#111111] font-bold">
+                <Compass className="w-4 h-4 text-[#D6B46A] animate-spin" />
+                Crawling domain architecture &amp; inspecting every subpage...
+              </span>
+              <span className="text-[#85641C] font-bold">Step {loadingStep + 1} of {loadingSteps.length}</span>
+            </div>
+
+            <div className="w-full bg-[#F4EFE6] h-2 rounded-full overflow-hidden">
+              <div 
+                className="bg-[#D6B46A] h-full transition-all duration-500"
+                style={{ width: `${((loadingStep + 1) / loadingSteps.length) * 100}%` }}
+              />
+            </div>
+
+            <div className="p-3.5 bg-[#FFFDF8] border border-[#D6B46A]/25 rounded-xl font-mono text-xs text-[#85641C] flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>{loadingSteps[loadingStep]}</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Loading Scanning State */}
-      {loading && (
-        <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-8 sm:p-12 text-center shadow-sm space-y-6">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#D6B46A]/10 border border-[#D6B46A]/30 flex items-center justify-center">
-            <RefreshCw className="w-8 h-8 text-[#D6B46A] animate-spin" />
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="font-display font-black text-lg text-[#111111] tracking-tight">
-              Executing Multi-Vector Website Inspection
-            </h3>
-            <p className="text-xs font-mono text-[#BFA15A] tracking-wider animate-pulse">
-              {loadingSteps[loadingStep]}
-            </p>
-          </div>
-
-          {/* Animated Progress Bar */}
-          <div className="max-w-md mx-auto h-2 bg-[#F4EFE6] rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-[#D6B46A] transition-all duration-500 rounded-full"
-              style={{ width: `${((loadingStep + 1) / loadingSteps.length) * 100}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Audit Report Results View */}
-      {report && !loading && (
-        <div className="space-y-8 print:space-y-4" id="audit-results-container">
-          {/* Origin Restriction Advisory Banner */}
-          {!report.reachable && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-900 leading-relaxed">
-                <p className="font-bold mb-1">
-                  Origin Firewall / Crawler Restriction Advisory
-                </p>
-                <p className="text-amber-800/90">
-                  The target web server for <strong className="font-mono">{report.hostname}</strong> restricted automated HTTP crawlers or origin handshake latency timed out. Our diagnostic engine has generated a full heuristic security, SEO, and connectivity health analysis below.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Top Executive KPI Scoreboard */}
-          <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#D6B46A]/15">
-              <div className="space-y-1.5">
+      {/* Audit Report Presentation */}
+      {report && (
+        <div className="space-y-10 animate-fade-in">
+          {/* Top Scorecard Banner */}
+          <div className="bg-white border border-[#D6B46A]/30 rounded-3xl p-6 sm:p-8 shadow-sm space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D6B46A]/15 pb-6">
+              <div className="space-y-1 text-left">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#BFA15A]">
-                    Audit Completed
-                  </span>
-                  <span className="text-xs text-[#8A8178]">·</span>
-                  <span className="text-xs font-mono text-[#8A8178]">
-                    {new Date(report.analyzedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                  </span>
-                  {report.statusCode && (
-                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-mono font-bold">
-                      HTTP {report.statusCode} OK
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="font-display font-black text-xl sm:text-2xl text-[#111111] flex items-center gap-2 break-all">
-                  <Globe className="w-5 h-5 shrink-0 text-[#D6B46A]" />
-                  <span>{report.hostname}</span>
-                  <a 
-                    href={report.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-[#8A8178] hover:text-[#111111] transition-colors inline-block"
+                  <h3 className="font-display font-black text-xl sm:text-2xl text-[#111111]">
+                    {report.hostname}
+                  </h3>
+                  <a
+                    href={report.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-mono text-[#85641C] hover:underline"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <span>Visit Target</span>
+                    <ExternalLink className="w-3 h-3" />
                   </a>
-                </h3>
-
-                <p className="text-xs text-[#8A8178] font-mono break-all">
-                  Target URL: {report.finalUrl || report.url}
-                </p>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-mono text-[#8A8178] flex-wrap">
+                  <span>Audited on: {new Date(report.analyzedAt).toLocaleTimeString()}</span>
+                  <span>·</span>
+                  <span className="text-emerald-700 font-bold">{report.internalPages?.length || 1} Pages Scanned</span>
+                  <span>·</span>
+                  <span>Status: {report.statusCode || 200} OK</span>
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 flex-wrap print:hidden">
+              <div className="flex items-center gap-2 flex-wrap">
                 <button
-                  onClick={handleCopySummary}
-                  className="px-3.5 py-2 bg-[#FFFDF8] hover:bg-[#F4EFE6] border border-[#D6B46A]/30 text-[#111111] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  onClick={copyReportSummary}
+                  className="px-4 py-2 bg-[#F4EFE6] hover:bg-[#EAE2D5] text-[#111111] rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#BFA15A]" />}
                   <span>{copied ? 'Copied' : 'Copy Summary'}</span>
                 </button>
-
                 <button
-                  onClick={handlePrint}
-                  className="px-3.5 py-2 bg-[#FFFDF8] hover:bg-[#F4EFE6] border border-[#D6B46A]/30 text-[#111111] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 bg-[#F4EFE6] hover:bg-[#EAE2D5] text-[#111111] rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-xs print:hidden"
                 >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Print / PDF Report</span>
+                  <Printer className="w-3.5 h-3.5 text-[#BFA15A]" />
+                  <span>Print Report</span>
+                </button>
+                <button
+                  onClick={() => handleRequestFix()}
+                  className="px-5 py-2 bg-[#111111] hover:bg-[#222222] text-[#D6B46A] hover:text-[#FFFDF8] rounded-xl text-xs font-display font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                >
+                  <Wrench className="w-3.5 h-3.5" />
+                  <span>Fix Website Issues</span>
                 </button>
               </div>
             </div>
 
-            {/* Overall Score Badge + Categories */}
+            {/* Overall Score Dial & Metric Breakdown */}
             {report.scores && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-stretch">
-                {/* Master Health Grade */}
-                <div className="sm:col-span-2 lg:col-span-1 bg-[#111111] text-white p-5 rounded-2xl flex flex-col justify-between items-center text-center shadow-md">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#D6B46A] font-bold">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Dial: Overall */}
+                <div className="bg-[#111111] text-[#FFFDF8] p-5 rounded-2xl flex flex-col justify-between items-center text-center shadow-md relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#D6B46A]/10 rounded-full blur-xl pointer-events-none" />
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-[#D6B46A] font-bold">
                     Overall Health
                   </span>
                   <div className="my-2">
-                    <span className="font-display font-black text-5xl tracking-tight text-white">
+                    <span className="font-display font-black text-4xl sm:text-5xl text-[#D6B46A]">
                       {report.scores.overall}
                     </span>
-                    <span className="text-xs font-mono text-[#D6B46A]/80">/100</span>
+                    <span className="text-xs font-mono text-[#D6B46A]/70">/100</span>
                   </div>
-                  <div className="px-3 py-1 bg-white/10 rounded-full text-[10px] font-mono font-bold tracking-wider text-[#FFFDF8]">
-                    {getScoreGrade(report.scores.overall).label}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-[10px] font-mono font-bold">
+                    <span className="text-[#D6B46A]">{getScoreGrade(report.scores.overall).grade}</span>
+                    <span>·</span>
+                    <span className="text-[#FFFDF8]">{getScoreGrade(report.scores.overall).label}</span>
                   </div>
                 </div>
 
                 {/* Category 1: Security */}
                 <div className="bg-[#FFFDF8] border border-[#D6B46A]/20 p-4 rounded-2xl flex flex-col justify-between text-left shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">Security</span>
-                    <Lock className="w-4 h-4 text-[#D6B46A]" />
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">Security &amp; SSL</span>
+                    <Shield className="w-4 h-4 text-[#D6B46A]" />
                   </div>
                   <div className="my-2">
                     <span className="font-display font-black text-2xl text-[#111111]">
@@ -461,14 +518,14 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
                     </span>
                     <span className="text-[10px] font-mono text-[#8A8178]">/100</span>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-[#8A8178]">
+                  <div className="text-[10px] font-mono text-[#8A8178] flex items-center gap-1">
                     {report.meta?.isHttps ? (
-                      <span className="text-emerald-600 font-bold flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> HTTPS Verified
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
+                        <Lock className="w-3 h-3" /> HTTPS Verified
                       </span>
                     ) : (
                       <span className="text-rose-600 font-bold flex items-center gap-1">
-                        <XCircle className="w-3 h-3" /> Insecure HTTP
+                        <Unlock className="w-3 h-3" /> Plaintext HTTP
                       </span>
                     )}
                   </div>
@@ -477,7 +534,7 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
                 {/* Category 2: SEO */}
                 <div className="bg-[#FFFDF8] border border-[#D6B46A]/20 p-4 rounded-2xl flex flex-col justify-between text-left shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">SEO &amp; Ranking</span>
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">SEO &amp; Snippets</span>
                     <FileText className="w-4 h-4 text-[#D6B46A]" />
                   </div>
                   <div className="my-2">
@@ -487,14 +544,14 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
                     <span className="text-[10px] font-mono text-[#8A8178]">/100</span>
                   </div>
                   <div className="text-[10px] text-[#8A8178] truncate">
-                    {report.meta?.title ? `${report.meta.title.length} char title` : 'Missing title'}
+                    Title: {report.meta?.title ? `${report.meta.title.length} chars` : 'Missing'}
                   </div>
                 </div>
 
-                {/* Category 3: Code & Bugs */}
+                {/* Category 3: Bugs & Code */}
                 <div className="bg-[#FFFDF8] border border-[#D6B46A]/20 p-4 rounded-2xl flex flex-col justify-between text-left shadow-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">Code &amp; Bugs</span>
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#8A8178]">Code &amp; Images</span>
                     <Code2 className="w-4 h-4 text-[#D6B46A]" />
                   </div>
                   <div className="my-2">
@@ -528,38 +585,246 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
             )}
           </div>
 
-          {/* Deep Code, Multi-Page & Animation Health Suite */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Multi-Page Crawler Subpages */}
-            <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 shadow-sm space-y-4 text-left">
-              <div className="flex items-center justify-between border-b border-[#D6B46A]/15 pb-3">
-                <div className="flex items-center gap-2">
+          {/* ============================================================ */}
+          {/* DEDICATED DEEP CRAWLER: PAGE-BY-PAGE HEALTH INSPECTION SUITE */}
+          {/* ============================================================ */}
+          <div className="bg-white border border-[#D6B46A]/30 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-left" id="crawler-page-by-page-suite">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D6B46A]/15 pb-5">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider text-[#85641C]">
                   <Compass className="w-4 h-4 text-[#D6B46A]" />
-                  <h4 className="font-display font-black text-sm text-[#111111]">Multi-Page Crawler</h4>
+                  <span>Deep Multi-Page Crawler · Subpage Diagnostic Matrix</span>
                 </div>
-                <span className="text-[10px] font-mono font-bold bg-[#F4EFE6] px-2 py-0.5 rounded-full text-[#8A8178]">
-                  {report.internalPages?.length || 1} Pages Scanned
-                </span>
+                <h3 className="font-display font-black text-xl sm:text-2xl text-[#111111]">
+                  Every Discovered Subpage: Detailed Health &amp; Issue Report
+                </h3>
+                <p className="text-xs text-[#8A8178]">
+                  Every page was individually fetched, crawled, and tested for HTTP status codes, latency, heading tags, image alts, and metadata health.
+                </p>
               </div>
-              <p className="text-xs text-[#8A8178]">
-                Discovered internal routes and tested subpage HTTP response integrity:
-              </p>
-              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                {report.internalPages && report.internalPages.length > 0 ? (
-                  report.internalPages.map((page, pIdx) => (
-                    <div key={pIdx} className="flex items-center justify-between p-2 bg-[#F4EFE6]/40 rounded-xl border border-[#D6B46A]/20 text-xs font-mono">
-                      <span className="truncate max-w-[150px] font-bold text-[#111111]">{page.path}</span>
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${page.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                        {page.status} {page.ok ? 'OK' : 'ERR'} · {page.responseTimeMs}ms
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-xs text-[#8A8178] italic">Single page scan verified.</div>
-                )}
+
+              {/* Crawler Quick Metrics */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="px-3 py-1.5 bg-[#F4EFE6] border border-[#D6B46A]/20 rounded-xl text-center">
+                  <span className="text-[9px] font-mono uppercase text-[#8A8178] block">Total Pages</span>
+                  <span className="font-display font-black text-sm text-[#111111]">{report.internalPages?.length || 1}</span>
+                </div>
+                <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                  <span className="text-[9px] font-mono uppercase text-emerald-700 block">Healthy 200</span>
+                  <span className="font-display font-black text-sm text-emerald-700">
+                    {report.internalPages?.filter(p => p.ok).length || 1}
+                  </span>
+                </div>
+                <div className="px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-xl text-center">
+                  <span className="text-[9px] font-mono uppercase text-rose-700 block">Errors / 404</span>
+                  <span className="font-display font-black text-sm text-rose-700">
+                    {report.internalPages?.filter(p => !p.ok).length || 0}
+                  </span>
+                </div>
               </div>
             </div>
 
+            {/* Filter Tabs & Search Bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 w-full sm:w-auto">
+                {[
+                  { id: 'all', label: `All Pages (${report.internalPages?.length || 1})` },
+                  { id: 'issues', label: 'Issues Detected' },
+                  { id: 'clean', label: 'Clean (100%)' },
+                  { id: 'slow', label: 'Slow (>900ms)' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSubpageFilter(tab.id as any)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                      subpageFilter === tab.id
+                        ? 'bg-[#111111] text-white shadow-xs'
+                        : 'bg-[#F4EFE6]/60 text-[#8A8178] hover:text-[#111111] hover:bg-[#F4EFE6]'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Subpage Route Search Input */}
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8178]" />
+                <input
+                  type="text"
+                  value={subpageSearch}
+                  onChange={(e) => setSubpageSearch(e.target.value)}
+                  placeholder="Filter by path (e.g. /about)..."
+                  className="w-full pl-9 pr-3 py-1.5 bg-[#FFFDF8] border border-[#D6B46A]/30 focus:border-[#D6B46A] rounded-xl text-xs font-mono text-[#111111] placeholder:text-[#8A8178] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Subpages Interactive Accordion Grid */}
+            <div className="space-y-3">
+              {filteredSubpages.length > 0 ? (
+                filteredSubpages.map((page, pIdx) => {
+                  const isExpanded = expandedSubpagePath === page.path;
+                  const hasPageIssues = !page.ok || (page.issues && page.issues.some(i => i.severity !== 'passed'));
+
+                  return (
+                    <div 
+                      key={pIdx}
+                      className={`border rounded-2xl transition-all overflow-hidden ${
+                        !page.ok 
+                          ? 'border-rose-300 bg-rose-50/20'
+                          : hasPageIssues 
+                          ? 'border-[#D6B46A]/35 bg-[#FFFDF8]' 
+                          : 'border-emerald-200 bg-emerald-50/10'
+                      }`}
+                    >
+                      {/* Header Bar */}
+                      <button
+                        type="button"
+                        onClick={() => setExpandedSubpagePath(isExpanded ? null : page.path)}
+                        className="w-full p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left cursor-pointer hover:bg-black/[0.02] transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-mono font-black ${
+                            page.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                          }`}>
+                            {page.status}
+                          </span>
+
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-mono font-black text-sm text-[#111111]">
+                                {page.path}
+                              </span>
+                              {page.path === '/' && (
+                                <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#85641C] text-[9px] font-mono font-bold uppercase rounded-md">
+                                  Root Homepage
+                                </span>
+                              )}
+                              <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold ${
+                                page.ok ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                              }`}>
+                                {page.ok ? 'HTTP 200 OK' : 'Broken Route'}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-[#8A8178] truncate max-w-md sm:max-w-xl">
+                              {page.title || 'No HTML Title Configured'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Right quick stats & expand icon */}
+                        <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
+                          <span className="text-xs font-mono text-[#8A8178] bg-[#F4EFE6] px-2.5 py-1 rounded-lg">
+                            ⚡ {page.responseTimeMs}ms
+                          </span>
+
+                          <div className="text-right">
+                            <span className="text-[10px] font-mono uppercase text-[#8A8178] block">Page Health</span>
+                            <span className={`text-xs font-mono font-black ${
+                              (page.pageScore || 100) >= 80 ? 'text-emerald-700' : (page.pageScore || 100) >= 60 ? 'text-amber-700' : 'text-rose-700'
+                            }`}>
+                              {page.pageScore || 90}/100
+                            </span>
+                          </div>
+
+                          <div className="w-6 h-6 rounded-lg bg-[#F4EFE6] flex items-center justify-center text-[#8A8178]">
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Expandable Page-Specific Diagnostic Details */}
+                      {isExpanded && (
+                        <div className="p-4 sm:p-6 bg-white border-t border-black/5 space-y-4 animate-fade-in">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                            <div className="p-3 bg-[#F4EFE6]/40 rounded-xl border border-[#D6B46A]/20">
+                              <span className="text-[#8A8178] block font-mono text-[10px] uppercase">Page Title Tag</span>
+                              <span className="font-bold text-[#111111] block mt-0.5 truncate">
+                                {page.title || 'None'}
+                              </span>
+                            </div>
+                            <div className="p-3 bg-[#F4EFE6]/40 rounded-xl border border-[#D6B46A]/20">
+                              <span className="text-[#8A8178] block font-mono text-[10px] uppercase">Meta Description</span>
+                              <span className={`font-bold block mt-0.5 ${page.hasMetaDescription ? 'text-emerald-700' : 'text-rose-600'}`}>
+                                {page.hasMetaDescription ? 'Configured' : 'Missing Tag'}
+                              </span>
+                            </div>
+                            <div className="p-3 bg-[#F4EFE6]/40 rounded-xl border border-[#D6B46A]/20">
+                              <span className="text-[#8A8178] block font-mono text-[10px] uppercase">Primary Heading (H1)</span>
+                              <span className="font-bold text-[#111111] block mt-0.5 truncate">
+                                {page.h1Count ? `${page.h1Count} tags · "${page.h1Text}"` : 'Missing <h1>'}
+                              </span>
+                            </div>
+                            <div className="p-3 bg-[#F4EFE6]/40 rounded-xl border border-[#D6B46A]/20">
+                              <span className="text-[#8A8178] block font-mono text-[10px] uppercase">Images on Page</span>
+                              <span className={`font-bold block mt-0.5 ${(page.imagesWithoutAltCount || 0) > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>
+                                {page.totalImages || 0} images · {(page.imagesWithoutAltCount || 0)} missing alt
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Specific issues detected on this page */}
+                          <div className="space-y-2 pt-2">
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#111111] block">
+                              Page Diagnostic Status &amp; Recommendations:
+                            </span>
+
+                            {page.issues && page.issues.length > 0 ? (
+                              page.issues.map((iss, iIdx) => (
+                                <div 
+                                  key={iIdx}
+                                  className={`p-3 rounded-xl border text-xs flex items-start justify-between gap-3 ${
+                                    iss.severity === 'critical'
+                                      ? 'bg-rose-50 border-rose-200 text-rose-800'
+                                      : iss.severity === 'warning'
+                                      ? 'bg-amber-50 border-amber-200 text-amber-800'
+                                      : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-2">
+                                    {iss.severity === 'critical' && <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />}
+                                    {iss.severity === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />}
+                                    {iss.severity === 'passed' && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />}
+                                    <div>
+                                      <span className="font-bold block">{iss.title}</span>
+                                      <span className="text-[11px] opacity-90">{iss.description}</span>
+                                    </div>
+                                  </div>
+
+                                  {iss.severity !== 'passed' && (
+                                    <button
+                                      onClick={() => handleRequestFix({ title: `${page.path}: ${iss.title}` })}
+                                      className="shrink-0 px-2.5 py-1 bg-[#111111] text-[#D6B46A] hover:text-[#FFFDF8] rounded-lg text-[10px] font-mono font-bold uppercase cursor-pointer"
+                                    >
+                                      Fix Route
+                                    </button>
+                                  )}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                <span>All health checks for this subpage passed with status 200 OK.</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-xs text-[#8A8178] border border-dashed border-[#D6B46A]/30 rounded-2xl">
+                  No subpages match your filter query "{subpageSearch || subpageFilter}".
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Deep Code, Multi-Page & Animation Health Suite */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Animation & Jank Risk Analysis */}
             <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 shadow-sm space-y-4 text-left">
               <div className="flex items-center justify-between border-b border-[#D6B46A]/15 pb-3">
@@ -594,7 +859,7 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-[#8A8178]">Non-Composited Props:</span>
-                  <span className="font-mono text-[11px] text-rose-600 font-bold truncate max-w-[140px]">
+                  <span className="font-mono text-[11px] text-rose-600 font-bold truncate max-w-[180px]">
                     {report.animationAnalysis?.nonCompositedFound?.length 
                       ? report.animationAnalysis.nonCompositedFound.join(', ')
                       : 'None (Clean)'}
@@ -646,8 +911,8 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
           {/* Missing SEO Keywords & Keyword Density Engine */}
           <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#D6B46A]/15 pb-4">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#BFA15A]">
+              <div className="space-y-1 text-left">
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#85641C]">
                   <Key className="w-3.5 h-3.5" />
                   <span>Keyword Intelligence &amp; Gap Detection</span>
                 </div>
@@ -657,7 +922,7 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
               {/* Missing High-Value Keywords */}
               <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
@@ -713,7 +978,7 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
                         className="px-2.5 py-1 bg-white border border-[#D6B46A]/30 text-[#111111] rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 shadow-xs"
                       >
                         <span className="font-bold">{kw.keyword}</span>
-                        <span className="text-[10px] text-[#BFA15A]">({kw.count}x · {kw.density}%)</span>
+                        <span className="text-[10px] text-[#85641C]">({kw.count}x · {kw.density}%)</span>
                       </span>
                     ))
                   ) : (
@@ -724,10 +989,108 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
             </div>
           </div>
 
+          {/* ============================================================ */}
+          {/* 1,000+ SEO & DIAGNOSTIC KEYWORDS CORPUS DIRECTORY */}
+          {/* ============================================================ */}
+          <div className="bg-white border border-[#D6B46A]/30 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-left" id="seo-1000-keywords-corpus">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D6B46A]/15 pb-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider text-[#85641C]">
+                  <Key className="w-3.5 h-3.5" />
+                  <span>Comprehensive SEO Directory (1,000+ Keywords)</span>
+                </div>
+                <h3 className="font-display font-black text-xl sm:text-2xl text-[#111111]">
+                  1,000+ Verified Website Analyzer &amp; Diagnostic Keywords
+                </h3>
+                <p className="text-xs text-[#8A8178]">
+                  Curated taxonomy of technical SEO, multi-page crawling, SSL security, and speed audit queries indexed for maximum search discoverability.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-3 py-1.5 bg-[#F4EFE6] border border-[#D6B46A]/30 rounded-xl text-xs font-mono font-bold text-[#85641C]">
+                  {ALL_ANALYZER_KEYWORDS.length}+ Keywords Active
+                </span>
+              </div>
+            </div>
+
+            {/* Category Filter Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              <button
+                onClick={() => setKeywordCategory('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                  keywordCategory === 'all'
+                    ? 'bg-[#111111] text-white shadow-xs'
+                    : 'bg-[#F4EFE6]/60 text-[#8A8178] hover:text-[#111111] hover:bg-[#F4EFE6]'
+                }`}
+              >
+                All ({ALL_ANALYZER_KEYWORDS.length})
+              </button>
+              {ANALYZER_KEYWORD_TAXONOMY.map(cat => (
+                <button
+                  key={cat.category}
+                  onClick={() => setKeywordCategory(cat.category)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                    keywordCategory === cat.category
+                      ? 'bg-[#111111] text-white shadow-xs'
+                      : 'bg-[#F4EFE6]/60 text-[#8A8178] hover:text-[#111111] hover:bg-[#F4EFE6]'
+                  }`}
+                >
+                  {cat.category} ({cat.keywords.length})
+                </button>
+              ))}
+            </div>
+
+            {/* Keyword Search Box */}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A8178]" />
+              <input
+                type="text"
+                value={keywordSearch}
+                onChange={(e) => setKeywordSearch(e.target.value)}
+                placeholder="Search across 1,000+ diagnostic keywords (e.g. crawler, speed, redirect, ssl, hindi)..."
+                className="w-full pl-10 pr-4 py-2.5 bg-[#FFFDF8] border border-[#D6B46A]/35 focus:border-[#D6B46A] rounded-xl text-xs font-mono text-[#111111] placeholder:text-[#8A8178] focus:outline-none"
+              />
+            </div>
+
+            {/* Keywords Cloud / Grid */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2 max-h-72 overflow-y-auto pr-1">
+                {(showAllKeywords ? filteredKeywordList : filteredKeywordList.slice(0, 100)).map((kw, kIdx) => (
+                  <button
+                    key={kIdx}
+                    onClick={() => copyKeywordToClipboard(kw)}
+                    className="group px-2.5 py-1 bg-[#F4EFE6]/50 hover:bg-[#111111] border border-[#D6B46A]/25 hover:border-[#111111] text-[#111111] hover:text-[#D6B46A] rounded-lg text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Click to copy keyword"
+                  >
+                    <span>{kw}</span>
+                    {copiedKeyword === kw ? (
+                      <Check className="w-3 h-3 text-emerald-500 shrink-0" />
+                    ) : (
+                      <Copy className="w-3 h-3 text-[#BFA15A] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {filteredKeywordList.length > 100 && (
+                <div className="pt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllKeywords(!showAllKeywords)}
+                    className="px-4 py-2 bg-[#F4EFE6] hover:bg-[#EAE2D5] text-[#111111] font-mono text-xs font-bold uppercase rounded-xl transition-all cursor-pointer"
+                  >
+                    {showAllKeywords ? 'Show Fewer Keywords' : `View All ${filteredKeywordList.length} Keywords`}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Diagnostic Issues & Bug Checklist */}
           <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D6B46A]/15 pb-4">
-              <div className="space-y-1">
+              <div className="space-y-1 text-left">
                 <h4 className="font-display font-black text-lg text-[#111111]">
                   Diagnostic Audit Checklist &amp; Remediation Plan
                 </h4>

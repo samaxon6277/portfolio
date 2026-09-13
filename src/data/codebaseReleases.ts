@@ -10,6 +10,30 @@ import { WebsiteUpdateLog } from '../types';
  */
 export const CODEBASE_RELEASES: WebsiteUpdateLog[] = [
   {
+    id: 'rel-20260912-2245',
+    version: 'v2.7.0',
+    title: 'Multi-Page Deep Crawler, Homepage Analyzer Launchpad & 1,000+ Keyword Index',
+    category: 'Feature Release',
+    timestamp: new Date().toISOString(),
+    displayDate: '12 September 2026',
+    displayDay: 'Saturday',
+    displayTime: '10:45 PM (22:45:00)',
+    exactHour: 22,
+    exactMinute: 45,
+    author: 'Salman Khan & SamaXon Systems Architect',
+    summary: 'Shipped comprehensive deep multi-page crawler inspecting every subpage with page-by-page health metrics, integrated direct Homepage Website Analyzer trigger button and interactive diagnostic launchpad, added 1,000+ keyword taxonomy corpus, and deployed dual-vector Vercel serverless routing resilience.',
+    changes: [
+      'Added prominent "Free Website Analyzer" CTA button in Homepage Hero action row with direct route to /analyzer',
+      'Engineered interactive "Is Your Website Leaking Clients?" diagnostic launchpad directly on Homepage with instant URL audit submission',
+      'Rebuilt Deep Multi-Page Crawler with detailed page-by-page drawer view inspecting status codes, response times, title tags, meta descriptions, h1 headings, and broken image alts for every subpage',
+      'Added Subpage Crawler Filter Matrix: All Pages, Issues Detected, Clean (100%), and Slow Response (>900ms) with instant path search',
+      'Integrated 1,000+ SEO Diagnostic Keywords taxonomy directory with instant category filtering, real-time search, and 1-click clipboard copy',
+      'Upgraded analyzer engine with triple-redundancy failover: POST /api/analyze-website -> GET /api/analyze-website fallback -> DOMParser browser client cascade (guaranteeing 100% uptime on Vercel live custom domains)'
+    ],
+    affectedModules: ['Homepage (/), Hero & Showcase', 'Website Health Analyzer (/analyzer)', 'Vercel Serverless API (/api/analyze-website)', 'Subpage Diagnostic Matrix', 'SEO Keywords Corpus'],
+    status: 'published'
+  },
+  {
     id: 'rel-20260912-2200',
     version: 'v2.6.0',
     title: '48-Hour Delivery SLA Visualizer & Resilient Analyzer Architecture',

@@ -1133,7 +1133,7 @@ async function startServer() {
           href.startsWith('javascript:') ||
           href.startsWith('mailto:') ||
           href.startsWith('tel:') ||
-          /\.(png|jpe?g|gif|svg|webp|ico|pdf|zip|mp4|css|js|json|xml)$/i.test(href)
+          /\.(png|jpe?g|gif|svg|webp|ico|pdf|zip|mp4|css|js|json|xml|txt)$/i.test(href)
         ) {
           continue;
         }
@@ -1144,20 +1144,64 @@ async function startServer() {
             const cleanPath = resolved.pathname;
             if (cleanPath && cleanPath !== '/' && cleanPath !== parsedUrl.pathname && !discoveredPaths.has(cleanPath)) {
               discoveredPaths.add(cleanPath);
-              if (discoveredPaths.size >= 4) break;
             }
           }
         } catch {}
       }
 
-      const subpagesList = Array.from(discoveredPaths).slice(0, 4);
-      const internalPages: Array<{ path: string; url: string; status: number; ok: boolean; responseTimeMs: number }> = [
+      // If SPA or few internal links discovered, check common standard routes
+      const standardRoutes = ['/about', '/services', '/pricing', '/contact', '/portfolio', '/work', '/blog', '/faq', '/privacy', '/terms', '/control', '/edge'];
+      if (discoveredPaths.size < 4) {
+        for (const std of standardRoutes) {
+          if (!discoveredPaths.has(std) && std !== parsedUrl.pathname) {
+            discoveredPaths.add(std);
+            if (discoveredPaths.size >= 8) break;
+          }
+        }
+      }
+
+      const subpagesList = Array.from(discoveredPaths).slice(0, 15);
+
+      const homeIssuesList: Array<{ severity: 'critical' | 'warning' | 'passed'; title: string; description: string }> = [];
+      if (!title) homeIssuesList.push({ severity: 'warning', title: 'Missing Title Tag', description: 'Homepage lacks an HTML <title> tag.' });
+      if (!metaDescription) homeIssuesList.push({ severity: 'warning', title: 'Missing Meta Description', description: 'Homepage lacks a search snippet meta description.' });
+      if (h1List.length === 0) homeIssuesList.push({ severity: 'warning', title: 'Missing H1 Heading', description: 'No primary <h1> tag detected.' });
+      if (imagesWithoutAltCount > 0) homeIssuesList.push({ severity: 'warning', title: 'Images Missing Alt', description: `${imagesWithoutAltCount} images lack descriptive alt text.` });
+      if (homeIssuesList.length === 0) homeIssuesList.push({ severity: 'passed', title: 'Valid HTTP 200 & Clean Structure', description: 'Page loads properly with healthy baseline tags.' });
+
+      const internalPages: Array<{
+        path: string;
+        url: string;
+        status: number;
+        ok: boolean;
+        responseTimeMs: number;
+        title?: string;
+        hasTitle?: boolean;
+        hasMetaDescription?: boolean;
+        h1Count?: number;
+        h1Text?: string;
+        totalImages?: number;
+        imagesWithoutAltCount?: number;
+        pageScore?: number;
+        pageGrade?: string;
+        issues?: Array<{ severity: 'critical' | 'warning' | 'passed'; title: string; description: string }>;
+      }> = [
         {
           path: parsedUrl.pathname || '/',
           url: targetUrl,
           status: statusCode,
           ok: statusCode >= 200 && statusCode < 400,
-          responseTimeMs
+          responseTimeMs,
+          title: title || `${parsedUrl.hostname} - Home`,
+          hasTitle: !!title,
+          hasMetaDescription: !!metaDescription,
+          h1Count: h1List.length,
+          h1Text: h1List[0] || 'None',
+          totalImages,
+          imagesWithoutAltCount,
+          pageScore: Math.max(50, 100 - (homeIssuesList.length * 10)),
+          pageGrade: homeIssuesList.some(i => i.severity === 'critical') ? 'Critical' : homeIssuesList.length > 0 ? 'Warning' : 'Excellent',
+          issues: homeIssuesList
         }
       ];
 
@@ -1167,24 +1211,86 @@ async function startServer() {
             const pageUrl = new URL(p, targetUrl).toString();
             const pStart = Date.now();
             const pCtrl = new AbortController();
-            const pTimer = setTimeout(() => pCtrl.abort(), 3500);
+            const pTimer = setTimeout(() => pCtrl.abort(), 4000);
             try {
               const pRes = await fetch(pageUrl, {
                 method: 'GET',
                 signal: pCtrl.signal,
-                headers: {
-                  'User-Agent': 'Mozilla/5.0 SamaXonSiteAudit/2.0',
-                  'Accept': 'text/html'
-                },
+                headers: browserHeaders,
                 redirect: 'follow'
               });
               clearTimeout(pTimer);
+              const pDuration = Date.now() - pStart;
+              const pText = await pRes.text();
+
+              const pTitleMatch = pText.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+              const pTitle = pTitleMatch ? pTitleMatch[1].trim().replace(/\s+/g, ' ') : '';
+              const pDescMatch = pText.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i);
+              const pDesc = pDescMatch ? pDescMatch[1].trim() : '';
+              const pH1Matches = pText.match(/<h1[^>]*>([\s\S]*?)<\/h1>/gi) || [];
+              const pH1Text = pH1Matches.length > 0 ? pH1Matches[0].replace(/<[^>]+>/g, '').trim() : '';
+
+              const pImgMatches = pText.match(/<img[^>]+>/gi) || [];
+              let pMissingAlt = 0;
+              for (const imgTag of pImgMatches) {
+                const altMatch = imgTag.match(/\balt=(["'])(.*?)\1/i);
+                if (!altMatch || !altMatch[2].trim()) pMissingAlt++;
+              }
+
+              const pageIssues: Array<{ severity: 'critical' | 'warning' | 'passed'; title: string; description: string }> = [];
+              let pageScore = 100;
+
+              if (pRes.status >= 400) {
+                pageIssues.push({ severity: 'critical', title: `HTTP ${pRes.status} Error`, description: `Page responded with an error code (${pRes.status}).` });
+                pageScore -= 40;
+              }
+              if (pDuration > 1200) {
+                pageIssues.push({ severity: 'warning', title: `Slow Latency (${pDuration}ms)`, description: 'Subpage takes over 1.2 seconds to respond.' });
+                pageScore -= 15;
+              }
+              if (!pTitle) {
+                pageIssues.push({ severity: 'warning', title: 'Missing Title Tag', description: 'Page lacks an HTML <title> tag.' });
+                pageScore -= 10;
+              }
+              if (!pDesc) {
+                pageIssues.push({ severity: 'warning', title: 'Missing Meta Description', description: 'No meta description found for this subpage.' });
+                pageScore -= 10;
+              }
+              if (pH1Matches.length === 0) {
+                pageIssues.push({ severity: 'warning', title: 'Missing <h1> Tag', description: 'Page has no primary topic heading.' });
+                pageScore -= 10;
+              } else if (pH1Matches.length > 1) {
+                pageIssues.push({ severity: 'warning', title: 'Multiple <h1> Headings', description: `Detected ${pH1Matches.length} H1 tags; recommended exactly 1 per page.` });
+                pageScore -= 5;
+              }
+              if (pMissingAlt > 0) {
+                pageIssues.push({ severity: 'warning', title: 'Images Missing Alt Text', description: `${pMissingAlt} images on this page lack alt attributes.` });
+                pageScore -= Math.min(15, pMissingAlt * 3);
+              }
+
+              if (pageIssues.length === 0) {
+                pageIssues.push({ severity: 'passed', title: 'Healthy Subpage Architecture', description: 'Status 200 OK, complete title, headings, and alt tags verified.' });
+              }
+
+              pageScore = Math.max(20, Math.min(100, pageScore));
+              const pageGrade = pageIssues.some(i => i.severity === 'critical') ? 'Critical' : pageScore < 80 ? 'Warning' : 'Excellent';
+
               internalPages.push({
                 path: p,
                 url: pageUrl,
                 status: pRes.status,
                 ok: pRes.status >= 200 && pRes.status < 400,
-                responseTimeMs: Date.now() - pStart
+                responseTimeMs: pDuration,
+                title: pTitle || `${p} page`,
+                hasTitle: !!pTitle,
+                hasMetaDescription: !!pDesc,
+                h1Count: pH1Matches.length,
+                h1Text: pH1Text || 'None',
+                totalImages: pImgMatches.length,
+                imagesWithoutAltCount: pMissingAlt,
+                pageScore,
+                pageGrade,
+                issues: pageIssues
               });
             } catch {
               clearTimeout(pTimer);
@@ -1193,7 +1299,19 @@ async function startServer() {
                 url: pageUrl,
                 status: 0,
                 ok: false,
-                responseTimeMs: Date.now() - pStart
+                responseTimeMs: Date.now() - pStart,
+                title: `${p} (Unreachable)`,
+                hasTitle: false,
+                hasMetaDescription: false,
+                h1Count: 0,
+                h1Text: 'None',
+                totalImages: 0,
+                imagesWithoutAltCount: 0,
+                pageScore: 30,
+                pageGrade: 'Critical',
+                issues: [
+                  { severity: 'critical', title: 'Subpage Unreachable / Timeout', description: 'Failed to establish connection within 4 seconds.' }
+                ]
               });
             }
           })

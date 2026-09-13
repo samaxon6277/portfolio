@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Target, Star, Layers, Code, Sparkles, MessageCircle, ArrowUpRight, PlayCircle, Trophy, BarChart3, Database, ShieldCheck, Mail, Users, FileSpreadsheet, Crown, Plus, Minus } from 'lucide-react';
+import { ArrowRight, Zap, Target, Star, Layers, Code, Sparkles, MessageCircle, ArrowUpRight, PlayCircle, Trophy, BarChart3, Database, ShieldCheck, Mail, Users, FileSpreadsheet, Crown, Plus, Minus, Search } from 'lucide-react';
 import { motion } from 'motion/react';
 import SEO from '../components/SEO';
 import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
@@ -329,6 +329,17 @@ export default function Home({ setCurrentPage }: HomeProps) {
     industriesServed: '12+',
     yearsExperience: '5+'
   });
+  const [homeAnalyzerInput, setHomeAnalyzerInput] = useState('');
+
+  const handleHomeAnalyze = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!homeAnalyzerInput.trim()) {
+      navigate('/analyzer');
+      return;
+    }
+    const cleanUrl = homeAnalyzerInput.trim();
+    navigate(`/analyzer?url=${encodeURIComponent(cleanUrl)}`);
+  };
 
   useEffect(() => {
     try {
@@ -527,12 +538,12 @@ export default function Home({ setCurrentPage }: HomeProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.35 }}
-              className="flex flex-wrap items-center gap-4 w-full sm:w-auto"
+              className="flex flex-wrap items-center gap-3 w-full sm:w-auto"
             >
               <button
                 onClick={() => handleAction('contact')}
                 id="hero-primary-cta"
-                className="w-full sm:w-auto px-8 py-4.5 bg-[#111111] text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold text-sm uppercase tracking-wider rounded-xl border border-champagne-gold/30 shadow-[0_6px_20px_rgba(17,17,17,0.35)] hover:shadow-[0_10px_28px_rgba(17,17,17,0.5)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
+                className="w-full sm:w-auto px-7 py-4 bg-[#111111] text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl border border-champagne-gold/30 shadow-[0_6px_20px_rgba(17,17,17,0.35)] hover:shadow-[0_10px_28px_rgba(17,17,17,0.5)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
               >
                 Start Your 48-Hour Build
                 <ArrowRight className="w-4 h-4 text-champagne-gold ml-1" />
@@ -540,9 +551,18 @@ export default function Home({ setCurrentPage }: HomeProps) {
               <button
                 onClick={() => handleAction('services')}
                 id="hero-secondary-cta"
-                className="w-full sm:w-auto px-8 py-4.5 bg-white/80 border border-champagne-gold/40 text-[#111111] hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black font-bold text-sm uppercase tracking-wider rounded-xl backdrop-blur-sm shadow-[0_2px_8px_rgba(17,17,17,0.04)] hover:shadow-[0_6px_18px_rgba(17,17,17,0.1)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
+                className="w-full sm:w-auto px-7 py-4 bg-white/80 border border-champagne-gold/40 text-[#111111] hover:bg-matte-black hover:text-soft-ivory hover:border-matte-black font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl backdrop-blur-sm shadow-[0_2px_8px_rgba(17,17,17,0.04)] hover:shadow-[0_6px_18px_rgba(17,17,17,0.1)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all"
               >
                 Explore Capabilities
+              </button>
+              <button
+                onClick={() => navigate('/analyzer')}
+                id="hero-analyzer-cta"
+                className="w-full sm:w-auto px-6 py-4 bg-gradient-to-r from-[#D6B46A]/20 via-white/80 to-[#D6B46A]/20 border border-[#D6B46A] text-[#111111] hover:bg-[#111111] hover:text-[#FFFDF8] font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl backdrop-blur-md shadow-[0_4px_16px_rgba(214,180,106,0.25)] hover:shadow-[0_8px_24px_rgba(214,180,106,0.4)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all group"
+              >
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <Search className="w-4 h-4 text-[#85641C] group-hover:text-[#D6B46A] transition-colors" />
+                <span>Free Website Analyzer</span>
               </button>
             </motion.div>
 
@@ -1456,6 +1476,124 @@ export default function Home({ setCurrentPage }: HomeProps) {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* --- HOMEPAGE WEBSITE ANALYZER & MULTI-PAGE SCANNER SHOWCASE --- */}
+      <section className="py-20 bg-gradient-to-b from-[#FFFDF8] via-[#FBF7EE] to-[#FFFDF8] border-t border-champagne-gold/20 relative overflow-hidden" id="home-website-analyzer-section">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <div className="bg-[#111111] text-[#FFFDF8] rounded-3xl sm:rounded-[36px] p-8 sm:p-12 lg:p-14 border border-[#D6B46A]/30 shadow-2xl relative overflow-hidden">
+            {/* Ambient gold glow */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-[#D6B46A]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#D6B46A]/5 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-7 space-y-5 text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#D6B46A]/15 border border-[#D6B46A]/35 rounded-full">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-widest text-[#D6B46A]">
+                    Free Multi-Page Crawler &amp; Security Auditor
+                  </span>
+                </div>
+
+                <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-[40px] text-white tracking-tight leading-tight">
+                  Is Your Website Leaking Clients, SEO Rank &amp; Speed?
+                </h2>
+
+                <p className="text-xs sm:text-sm text-[#D8D2C6] leading-relaxed max-w-xl">
+                  Run a real-time deep audit across every page of your site. Inspect SSL security headers, subpage response times, broken image alt tags, missing meta descriptions, layout jank, and 1,000+ high-intent search keywords.
+                </p>
+
+                {/* Feature Chips */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {[
+                    'Full Subpage Crawler',
+                    'SSL & HSTS Security',
+                    'Core Web Vitals & TTFB',
+                    'Page-by-Page Error Detection',
+                    '100% Free · No Login'
+                  ].map((feat, fIdx) => (
+                    <span 
+                      key={fIdx}
+                      className="px-3 py-1 bg-white/5 border border-[#D6B46A]/20 rounded-lg text-[11px] font-mono text-[#D6B46A]"
+                    >
+                      ✓ {feat}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Interactive Instant Scan Form */}
+                <form onSubmit={handleHomeAnalyze} className="pt-3 max-w-xl">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8A8178]">
+                        <Search className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        value={homeAnalyzerInput}
+                        onChange={(e) => setHomeAnalyzerInput(e.target.value)}
+                        placeholder="e.g. yourbusiness.com"
+                        className="w-full pl-11 pr-4 py-3.5 bg-black/60 border border-[#D6B46A]/40 focus:border-[#D6B46A] rounded-xl text-xs sm:text-sm font-mono text-white placeholder:text-[#8A8178] focus:outline-none focus:ring-1 focus:ring-[#D6B46A] transition-all"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="px-6 py-3.5 bg-[#D6B46A] hover:bg-[#E5C77F] text-[#111111] font-display font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-95 shrink-0"
+                    >
+                      <span>Analyze Website</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#8A8178] mt-2 block">
+                    Zero installations required · Audits HTTP status, SSL, DOM, Core Web Vitals, and internal subpages.
+                  </span>
+                </form>
+              </div>
+
+              {/* Right Diagnostic Visual Preview */}
+              <div className="lg:col-span-5 relative">
+                <div className="bg-[#181715] border border-[#D6B46A]/25 rounded-2xl p-5 space-y-4 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <span className="text-xs font-mono font-bold text-[#D6B46A] flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      Live Diagnostic Engine
+                    </span>
+                    <span className="text-[9px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                      Ready to scan
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5 font-mono text-xs">
+                    <div className="flex justify-between p-2.5 bg-black/40 rounded-xl border border-white/5">
+                      <span className="text-[#8A8178]">Multi-Page Discovery</span>
+                      <span className="text-emerald-400 font-bold">Every Internal Page</span>
+                    </div>
+                    <div className="flex justify-between p-2.5 bg-black/40 rounded-xl border border-white/5">
+                      <span className="text-[#8A8178]">Security Protocols</span>
+                      <span className="text-emerald-400 font-bold">SSL / HSTS / CSP / X-Frame</span>
+                    </div>
+                    <div className="flex justify-between p-2.5 bg-black/40 rounded-xl border border-white/5">
+                      <span className="text-[#8A8178]">Speed &amp; Latency</span>
+                      <span className="text-amber-400 font-bold">TTFB &amp; Core Web Vitals</span>
+                    </div>
+                    <div className="flex justify-between p-2.5 bg-black/40 rounded-xl border border-white/5">
+                      <span className="text-[#8A8178]">SEO Keyword Index</span>
+                      <span className="text-[#D6B46A] font-bold">1,000+ Search Terms</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigate('/analyzer')}
+                    className="w-full py-3 bg-white/10 hover:bg-white/15 text-white font-mono text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer font-bold border border-white/10"
+                  >
+                    <span>Open Full Analyzer Suite</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

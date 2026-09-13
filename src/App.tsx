@@ -245,6 +245,8 @@ function MainAppContent() {
               {/* Creator & Business Tools Suite */}
               <Route path="/tools" element={<Tools />} />
               <Route path="/tools/analyzer" element={<Tools />} />
+              <Route path="/analyzer" element={<Tools />} />
+              <Route path="/website-analyzer" element={<Tools />} />
               <Route path="/tools/compressor" element={<Tools />} />
               <Route path="/tools/resizer" element={<Tools />} />
               <Route path="/audit-fix" element={<AuditFixRequest />} />

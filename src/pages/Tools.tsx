@@ -59,7 +59,7 @@ export default function Tools() {
 
   // Determine active tab based on pathname or query
   const getTabFromPath = (): ToolTab => {
-    if (location.pathname.includes('/tools/analyzer')) return 'analyzer';
+    if (location.pathname.includes('/tools/analyzer') || location.pathname === '/analyzer' || location.pathname === '/website-analyzer') return 'analyzer';
     if (location.pathname.includes('/tools/compressor')) return 'compressor';
     if (location.pathname.includes('/tools/resizer')) return 'resizer';
     if (location.pathname.includes('/tools/converter')) return 'converter';
