@@ -249,6 +249,12 @@ function MainAppContent() {
               <Route path="/website-analyzer" element={<Tools />} />
               <Route path="/tools/compressor" element={<Tools />} />
               <Route path="/tools/resizer" element={<Tools />} />
+              <Route path="/tools/converter" element={<Tools />} />
+              <Route path="/tools/calculator" element={<Tools />} />
+              <Route path="/tools/bg-remover" element={<Tools />} />
+              <Route path="/tools/upscaler" element={<Tools />} />
+              <Route path="/tools/vectorizer" element={<Tools />} />
+              <Route path="/tools/pdf-tool" element={<Tools />} />
               <Route path="/audit-fix" element={<AuditFixRequest />} />
               <Route path="/tools/audit-fix" element={<AuditFixRequest />} />
               <Route path="/audit-fix-request" element={<AuditFixRequest />} />

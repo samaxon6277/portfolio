@@ -79,7 +79,7 @@ export default function SEO({
       existingOldScript.remove();
     }
 
-    const schemasToInject: any[] = [];
+    const schemasToInject: any[] = [...generateStudioSchemas(canonicalPath)];
     if (schemas && schemas.length > 0) {
       schemasToInject.push(...schemas);
     } else {

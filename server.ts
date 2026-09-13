@@ -7,6 +7,14 @@ import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { createServer as createViteServer } from 'vite';
 import { CODEBASE_RELEASES } from './src/data/codebaseReleases';
+import { 
+  ALL_TOOLS_SEO, 
+  getToolSeoMetadata, 
+  generateToolJsonLdSchema, 
+  generateToolFaqSchema, 
+  generateToolHowToSchema,
+  getTotalKeywordsAcrossAllTools 
+} from './src/data/toolsSeoKeywords';
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://mgvnebqnzxpxjefxndpi.supabase.co';
@@ -406,6 +414,80 @@ const PRERENDER_MAP: Record<string, PrerenderMetadata> = {
     `
   }
 };
+
+// Dynamically populate PRERENDER_MAP for all Tools and their alternative aliases
+Object.values(ALL_TOOLS_SEO).forEach(tool => {
+  const toolHtml = `
+    <header style="background: #111111; color: #FFFFFF; padding: 20px; font-family: sans-serif;">
+      <nav style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <a href="/" style="color: #D6B46A; font-weight: bold; text-decoration: none; font-size: 1.5rem;">SamaXon Digital Solutions</a>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+          <a href="/tools" style="color: #D6B46A; font-weight: bold; text-decoration: none;">Tools Suite</a>
+          <a href="/analyzer" style="color: #FFFFFF; text-decoration: none;">Website Analyzer</a>
+          <a href="/contact" style="color: #FFFFFF; text-decoration: none;">Contact</a>
+        </div>
+      </nav>
+    </header>
+
+    <main style="max-width: 1100px; margin: 40px auto; padding: 0 20px; font-family: sans-serif; line-height: 1.6; color: #333333;">
+      <article>
+        <span style="display: inline-block; background: #F4EFE6; color: #85641C; padding: 4px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; margin-bottom: 12px;">
+          ${tool.applicationCategory} · 100% Free · Client-Side Private
+        </span>
+        <h1 style="font-size: 2.4rem; color: #111111; margin-top: 0; line-height: 1.2;">
+          ${tool.pageTitle}
+        </h1>
+        <p style="font-size: 1.15rem; color: #555555; max-width: 900px; margin-bottom: 30px;">
+          ${tool.metaDescription}
+        </p>
+
+        <section style="background: #FFFDF8; border: 1px solid #D6B46A40; border-radius: 12px; padding: 25px; margin-bottom: 35px;">
+          <h2 style="font-size: 1.4rem; color: #111111; margin-top: 0;">Core Features &amp; Capabilities</h2>
+          <ul style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; padding-left: 20px;">
+            ${tool.featureList.map(f => `<li><strong>${f}</strong></li>`).join('')}
+          </ul>
+        </section>
+
+        <section style="margin-bottom: 35px;">
+          <h2 style="font-size: 1.4rem; color: #111111;">How to Use ${tool.name}</h2>
+          <ol style="padding-left: 24px; line-height: 1.8;">
+            ${tool.howToSteps.map(s => `<li><strong>${s.name}:</strong> ${s.text}</li>`).join('')}
+          </ol>
+        </section>
+
+        <section style="margin-bottom: 35px;">
+          <h2 style="font-size: 1.4rem; color: #111111;">Frequently Asked Questions (FAQs)</h2>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            ${tool.faq.map(faq => `
+              <div style="border: 1px solid #EEEEEE; padding: 18px 22px; border-radius: 8px; background: #FFFFFF;">
+                <h3 style="font-size: 1.1rem; color: #111111; margin: 0 0 8px 0;">${faq.question}</h3>
+                <p style="margin: 0; color: #666666;">${faq.answer}</p>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+
+        <section style="border-top: 1px solid #EEEEEE; padding-top: 25px; margin-top: 30px;">
+          <h3 style="font-size: 1rem; color: #888888; text-transform: uppercase;">Indexed Search Queries (${tool.totalKeywordsCount}+ Keywords Active)</h3>
+          <p style="font-size: 0.82rem; color: #888888; line-height: 1.6;">
+            ${tool.topMetaKeywords}
+          </p>
+        </section>
+      </article>
+    </main>
+  `;
+
+  const metaObj: PrerenderMetadata = {
+    title: tool.pageTitle,
+    description: tool.metaDescription,
+    bodyHtml: toolHtml
+  };
+
+  PRERENDER_MAP[tool.urlPath] = metaObj;
+  tool.alternativePaths.forEach(alt => {
+    PRERENDER_MAP[alt] = metaObj;
+  });
+});
 
 // --- In-Memory Zero-Latency Rate Limiter (O(1) sliding window, <0.1ms overhead) ---
 interface RateLimitEntry {
@@ -808,6 +890,61 @@ async function startServer() {
       success: true,
       latestUpdate: CODEBASE_RELEASES[0] || null,
       releases: CODEBASE_RELEASES,
+      serverTime: new Date().toISOString()
+    });
+  });
+
+  // --- Search Engine Tools Catalog & SEO Corpus API (/api/tools-seo) ---
+  app.get('/api/tools-seo', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, User-Agent');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+
+    const { tool, format } = req.query || {};
+
+    if (tool && typeof tool === 'string') {
+      const toolMeta = getToolSeoMetadata(tool);
+      if (format === 'schema') {
+        return res.json({
+          webApplication: generateToolJsonLdSchema(toolMeta),
+          faq: generateToolFaqSchema(toolMeta),
+          howTo: generateToolHowToSchema(toolMeta)
+        });
+      }
+      return res.json({
+        success: true,
+        tool: toolMeta,
+        schemas: {
+          webApplication: generateToolJsonLdSchema(toolMeta),
+          faq: generateToolFaqSchema(toolMeta),
+          howTo: generateToolHowToSchema(toolMeta)
+        }
+      });
+    }
+
+    const allToolsArray = Object.values(ALL_TOOLS_SEO).map(t => ({
+      id: t.id,
+      name: t.name,
+      shortName: t.shortName,
+      url: `https://samaxon.site${t.urlPath}`,
+      alternativeUrls: t.alternativePaths.map(p => `https://samaxon.site${p}`),
+      category: t.applicationCategory,
+      pageTitle: t.pageTitle,
+      metaDescription: t.metaDescription,
+      topKeywords: t.topMetaKeywords,
+      keywordCategoriesCount: t.keywordCategories.length,
+      totalKeywordsCount: t.totalKeywordsCount,
+      featuresCount: t.featureList.length
+    }));
+
+    return res.json({
+      success: true,
+      site: 'SamaXon Digital Solutions',
+      domain: 'https://samaxon.site',
+      toolsCount: allToolsArray.length,
+      totalKeywordsIndexed: getTotalKeywordsAcrossAllTools(),
+      tools: allToolsArray,
       serverTime: new Date().toISOString()
     });
   });

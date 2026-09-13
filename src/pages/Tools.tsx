@@ -18,6 +18,12 @@ import VectorSvgConverter from '../components/tools/VectorSvgConverter';
 import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
 import ToolsOverview from '../components/tools/ToolsOverview';
 import { getToolsConfig, ToolItemConfig } from '../utils/toolsConfig';
+import { 
+  getToolSeoMetadata, 
+  generateToolJsonLdSchema, 
+  generateToolFaqSchema, 
+  generateToolHowToSchema 
+} from '../data/toolsSeoKeywords';
 
 export type ToolTab = 
   | 'overview' 
@@ -100,6 +106,12 @@ export default function Tools() {
   };
 
   const currentToolConfig = toolsConfig.find(t => t.id === activeTab);
+  const currentToolSeo = getToolSeoMetadata(activeTab);
+  const toolSchemas = [
+    generateToolJsonLdSchema(currentToolSeo),
+    generateToolFaqSchema(currentToolSeo),
+    generateToolHowToSchema(currentToolSeo)
+  ];
 
   const getToolTitle = () => {
     if (currentToolConfig) return currentToolConfig.name;
@@ -109,29 +121,11 @@ export default function Tools() {
   return (
     <div className="min-h-screen bg-[#FFFDF8] pt-28 sm:pt-32 pb-24 text-left" id="samaxon-tools-hub">
       <SEO
-        title={
-          activeTab === 'analyzer'
-            ? 'Free Website Security, Bug & SEO Health Analyzer | SamaXon Tools'
-            : activeTab === 'compressor'
-            ? 'Free Photo Compressor (Reduce Size in KB & Quality) | SamaXon Tools'
-            : activeTab === 'resizer'
-            ? 'Free Photo Resizer (Passport, Visa & 300 DPI) | SamaXon Tools'
-            : activeTab === 'converter'
-            ? 'Universal Batch Image Converter (PNG, JPG, WEBP, AVIF, ICO) | SamaXon Tools'
-            : activeTab === 'calculator'
-            ? 'Universal Advanced Multi-Paradigm Calculator (Scientific, EMI, GST, Units) | SamaXon Tools'
-            : activeTab === 'bg-remover'
-            ? 'Free Background Remover Studio (Zero Server Uploads) | SamaXon Tools'
-            : activeTab === 'upscaler'
-            ? 'Free Image 4K Upscaler & Super-Resolution | SamaXon Tools'
-            : activeTab === 'vectorizer'
-            ? 'Free Raster to Scalable Vector SVG Converter | SamaXon Tools'
-            : activeTab === 'pdf-tool'
-            ? 'Free PDF Reducer & Verified Digital Signer (Unlimited MB) | SamaXon Tools'
-            : 'Free Creator & Business Digital Tools Hub | SamaXon Studio'
-        }
-        description="Fast, 100% private, client-side digital tools. Compress images, upscale to 4K, remove backgrounds, convert to SVG, reduce heavy PDFs and affix digital signatures with zero server uploads."
-        canonicalPath="/tools"
+        title={currentToolSeo.pageTitle}
+        description={currentToolSeo.metaDescription}
+        canonicalPath={currentToolSeo.urlPath}
+        keywords={currentToolSeo.topMetaKeywords}
+        schemas={toolSchemas}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
