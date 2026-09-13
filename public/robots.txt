@@ -1,5 +1,7 @@
 User-agent: *
 Disallow: /admin
+Disallow: /control
+Disallow: /service-portal
 Allow: /
 
 Sitemap: https://samaxon.site/sitemap.xml

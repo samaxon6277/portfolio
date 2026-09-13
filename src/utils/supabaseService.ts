@@ -45,6 +45,17 @@ const checkHasKeys = () => {
   return !!(url && key);
 };
 
+const safeUUID = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 export const supabaseService = {
   // Query a team member by Auth user metadata securely
   async getTeamMemberByAuth(userId: string, email: string): Promise<{ data: DbTeamMember | null; error: any }> {
@@ -1062,7 +1073,7 @@ export const supabaseService = {
           await supabase
             .from('crawler_logs')
             .insert({
-              id: `crawl-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              id: safeUUID(),
               bot_name: botName,
               user_agent: ua,
               page_url: window.location.href,
@@ -1224,7 +1235,7 @@ export const supabaseService = {
         await supabase
           .from('webhook_logs')
           .insert({
-            id: `web-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+            id: safeUUID(),
             webhook_type: type,
             payload: payload,
             status: status,

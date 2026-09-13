@@ -6,6 +6,7 @@ import {
   Lightbulb, AlertTriangle, ShieldCheck, ChevronRight, MessageSquare 
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import NotFound from './NotFound';
 
 interface CaseStudyDetails {
   id: string;
@@ -244,19 +245,7 @@ export default function CaseStudyDetail() {
   const study = id ? DETAILED_CASE_STUDIES[id] : null;
 
   if (!study) {
-    return (
-      <div className="pt-32 pb-24 text-center space-y-4 min-h-screen bg-soft-ivory flex flex-col justify-center items-center">
-        <h2 className="text-2xl font-display font-black text-neutral-900 uppercase">Case Study Not Found</h2>
-        <p className="text-xs text-neutral-600">The requested implementation story is not registered in our database.</p>
-        <Link 
-          to="/case-studies" 
-          className="inline-flex items-center gap-1.5 text-[#BFA15A] hover:text-[#111111] font-mono font-bold text-xs uppercase"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Case Studies
-        </Link>
-      </div>
-    );
+    return <NotFound />;
   }
 
   return (

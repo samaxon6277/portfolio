@@ -477,7 +477,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
         title="Speed-Driven Premium Digital Studio India"
         description="SamaXon builds elite business websites, mobile apps, brand identities, custom automations, and Telegram bots in under 48 hours with a Demo-First model."
         canonicalPath="/"
-        schemas={[defaultOrgSchema, faqSchema]}
+        schemas={[faqSchema]}
       />
 
       {/* --- HERO SECTION --- */}

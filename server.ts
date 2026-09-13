@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { createServer as createViteServer } from 'vite';
 import { CODEBASE_RELEASES } from './src/data/codebaseReleases';
@@ -631,7 +632,7 @@ async function startServer() {
         const host = req.get('host') || 'samaxon.site';
         const pageUrl = `${req.protocol}://${host}${req.originalUrl}`.slice(0, 255);
         const ipHash = getMaskedIp(req);
-        const crawlerLogId = `craw-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+        const crawlerLogId = crypto.randomUUID();
         
         // Execute asynchronously without blocking the request
         (async () => {
@@ -648,10 +649,25 @@ async function startServer() {
                 created_at: new Date().toISOString()
               });
             if (error) {
-              console.warn('Server middleware crawler logging failed:', error.message);
+              // Fallback to site_events if crawler_logs has RLS constraints
+              await supabase
+                .from('site_events')
+                .insert({
+                  id: `eve-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                  event_type: 'bot_crawl',
+                  page_url: pageUrl,
+                  referrer: req.headers['referer'] || 'Direct',
+                  user_agent: ua,
+                  device_type: 'Bot',
+                  browser: botName.slice(0, 64),
+                  country: 'India',
+                  city: 'Server',
+                  metadata: { bot_name: botName, source: 'Express Server Middleware', ip_hash: ipHash },
+                  created_at: new Date().toISOString()
+                });
             }
-          } catch (err) {
-            console.warn('Unhandled server crawler logging exception:', err);
+          } catch {
+            // Silently absorb edge exceptions to ensure server requests remain unblocked
           }
         })();
       }
@@ -829,7 +845,7 @@ async function startServer() {
 
     try {
       const payload = req.body;
-      const logId = `wh-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+      const logId = crypto.randomUUID();
       
       // Parameterized log write
       await supabase
@@ -2346,6 +2362,11 @@ async function startServer() {
   // Serve static public assets directly (favicon.ico, robots.txt, sitemap.xml, images, etc.)
   app.use(express.static(path.join(process.cwd(), 'public')));
 
+  // Permanent 301 redirect for legacy /start-project route to /contact
+  app.get(['/start-project', '/start-project/'], (req, res) => {
+    return res.redirect(301, '/contact');
+  });
+
   // Dev vs Prod Asset Delivery Integration
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -2364,6 +2385,67 @@ async function startServer() {
       console.warn('Failed to pre-cache index.html:', e);
     }
 
+    const KNOWN_VALID_ROUTES = new Set([
+      '/',
+      '/about',
+      '/services',
+      '/projects',
+      '/edge',
+      '/control',
+      '/careers',
+      '/contact',
+      '/privacy',
+      '/terms',
+      '/refund',
+      '/founder',
+      '/team',
+      '/company',
+      '/case-studies',
+      '/pricing',
+      '/select-direction',
+      '/partner',
+      '/partner-program',
+      '/guides',
+      '/cost-guide',
+      '/contract-checklist',
+      '/updates',
+      '/changelog',
+      '/system-updates',
+      '/tools',
+      '/analyzer',
+      '/website-analyzer',
+      '/audit-fix',
+      '/audit-fix-request',
+      '/service-request',
+      '/service-portal',
+      '/admin',
+      '/banquet-hall-website-design',
+      '/resort-website-design',
+      '/hotel-website-design',
+      '/gym-website-design',
+      '/restaurant-website-design',
+      '/business-website-design',
+      '/school-website-design',
+      '/clinic-website-design',
+      '/interior-designer-website-design',
+      '/website-design-for-hotels-delhi',
+      '/interior-design-website-development',
+      '/gaming-website-development-india',
+      '/business-automation-lead-generation-services',
+      '/website-development-delhi',
+      '/case-study/case-1',
+      '/case-study/case-2',
+      '/case-study/case-3'
+    ]);
+
+    const isKnownRoute = (r: string) => {
+      const clean = r.replace(/\/$/, '') || '/';
+      if (KNOWN_VALID_ROUTES.has(clean)) return true;
+      if (clean.startsWith('/tools/')) return true;
+      if (PRERENDER_MAP[clean]) return true;
+      return false;
+    };
+
     app.get('*', (req, res) => {
       const route = req.path;
       
@@ -2380,9 +2462,6 @@ async function startServer() {
         return res.status(404).send('Asset not found');
       }
 
-      // Check if we have pre-rendered metadata for this route
-      const metadata = PRERENDER_MAP[route] || PRERENDER_MAP['/'];
-      
       let html = '';
       try {
         html = fs.readFileSync(path.join(distPath, 'index.html'), 'utf-8');
@@ -2393,10 +2472,13 @@ async function startServer() {
         }
       }
 
-      const ua = req.headers['user-agent'] || '';
-      const botName = getBotName(ua);
+      // Ensure root div is clean (no crawler-only or duplicate hidden body content)
+      html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, '<div id="root"></div>');
 
-      if (metadata) {
+      const routeValid = isKnownRoute(route);
+      const metadata = PRERENDER_MAP[route];
+
+      if (routeValid && metadata) {
         // Replace Title Tag
         html = html.replace(/<title>.*?<\/title>/i, `<title>${metadata.title}</title>`);
         
@@ -2409,16 +2491,18 @@ async function startServer() {
         html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"/i, `<meta name="twitter:title" content="${metadata.title}"`);
         html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"/i, `<meta name="twitter:description" content="${metadata.description}"`);
         
-        // Sanitize Canonical URL path against injection vectors (strip quotes, angle brackets, spaces)
+        // Sanitize Canonical URL path against injection vectors
         const sanitizedRoute = encodeURI(route.replace(/[<>"'\\\s]/g, '').slice(0, 150));
         const safeCanonical = `https://samaxon.site${sanitizedRoute.startsWith('/') ? sanitizedRoute : '/' + sanitizedRoute}`;
         html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"/i, `<link rel="canonical" href="${safeCanonical}"`);
-
-        // Only inject raw HTML for SEO bots/crawlers; human users receive the clean React SPA container
-        if (botName && metadata.bodyHtml) {
-          html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, `<div id="root">${metadata.bodyHtml}</div>`);
+      } else if (!routeValid) {
+        // Unknown route: respond with HTTP 404, 404 title, and noindex
+        res.status(404);
+        html = html.replace(/<title>.*?<\/title>/i, '<title>404: Page Not Found | SamaXon Digital Solutions</title>');
+        if (html.includes('name="robots"')) {
+          html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"/i, '<meta name="robots" content="noindex, nofollow"');
         } else {
-          html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, `<div id="root"></div>`);
+          html = html.replace('</head>', '  <meta name="robots" content="noindex, nofollow">\n</head>');
         }
       }
 

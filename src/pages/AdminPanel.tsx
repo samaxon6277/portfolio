@@ -26,6 +26,7 @@ import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
 import AuditLeadsTab from '../components/admin/AuditLeadsTab';
 import { NavbarStudio } from '../components/admin/NavbarStudio';
 import InteractiveLogoEditor from '../components/admin/InteractiveLogoEditor';
+import SEO from '../components/SEO';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -637,6 +638,12 @@ export default function AdminPanel() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#FFFDF8] flex flex-col items-center justify-center p-6 gap-3">
+        <SEO 
+          title="Administration Portal" 
+          description="Internal administrative control portal." 
+          canonicalPath="/admin" 
+          noindex={true} 
+        />
         <RefreshCw className="w-8 h-8 text-[#D6B46A] animate-spin" />
         <span className="text-xs font-mono tracking-widest text-[#8A8178] uppercase mt-2 animate-pulse">Checking Secure Shell...</span>
       </div>
@@ -647,6 +654,12 @@ export default function AdminPanel() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#F8F4EE] flex items-center justify-center p-4 relative overflow-hidden" id="admin-login-screen">
+        <SEO 
+          title="Administration Portal - Secure Login" 
+          description="Internal administrative control portal." 
+          canonicalPath="/admin" 
+          noindex={true} 
+        />
         
         {/* Abstract Gold Background highlights */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-[#D6B46A]/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
@@ -824,6 +837,12 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-[#111111] flex flex-col text-neutral-800 font-sans antialiased" id="admin-workspace-core">
+      <SEO 
+        title="Administration Portal" 
+        description="Internal administrative control portal." 
+        canonicalPath="/admin" 
+        noindex={true} 
+      />
       {/* Top Universal Operating Command Bar */}
       <AdminHeader
         currentUser={currentUser}

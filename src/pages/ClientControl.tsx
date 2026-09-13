@@ -21,7 +21,8 @@ export default function ClientControl({ setCurrentPage }: ClientControlProps) {
       <SEO 
         title="Enterprise Client OS Sandbox - Live Simulation Engine"
         description="Experience the speed, autonomy, and security of SamaXon's custom Client OS admin ecosystem. Real-time brand staging, booking capacity controls, lead capture webhooks, and edge telemetry."
-        canonicalPath="/client-control"
+        canonicalPath="/control"
+        noindex={true}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

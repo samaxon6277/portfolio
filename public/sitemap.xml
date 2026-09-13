@@ -37,13 +37,6 @@
   </url>
 
   <url>
-    <loc>https://samaxon.site/control</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
-  </url>
-
-  <url>
     <loc>https://samaxon.site/careers</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -52,13 +45,6 @@
 
   <url>
     <loc>https://samaxon.site/contact</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-
-  <url>
-    <loc>https://samaxon.site/start-project</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>

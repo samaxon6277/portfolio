@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Wrench, RefreshCw } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import ConversionOptimiser from './components/ConversionOptimiser';
 import CookieConsent from './components/CookieConsent';
 import Home from './pages/Home';
+import NotFound from './pages/NotFound';
 import About from './pages/About';
 import Services from './pages/Services';
 import Portfolio from './pages/Portfolio';
@@ -216,7 +217,7 @@ function MainAppContent() {
               <Route path="/control" element={<ClientControl />} />
               <Route path="/careers" element={<Careers />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/start-project" element={<Contact />} />
+              <Route path="/start-project" element={<Navigate to="/contact" replace />} />
               <Route path="/privacy" element={<LegalPages type="privacy" />} />
               <Route path="/terms" element={<LegalPages type="terms" />} />
               <Route path="/refund" element={<LegalPages type="refund" />} />
@@ -284,8 +285,8 @@ function MainAppContent() {
               <Route path="/business-automation-lead-generation-services" element={<SEOPage niche="business_auto" />} />
               <Route path="/website-development-delhi" element={<SEOPage niche="delhi_local" />} />
               
-              {/* Fallback to Home */}
-              <Route path="*" element={<Home />} />
+              {/* Branded 404 Route for Unmatched URLs */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </motion.div>
         </AnimatePresence>
