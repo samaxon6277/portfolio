@@ -1,4 +1,5 @@
 import { WebsiteUpdateLog } from '../types';
+import { CODEBASE_RELEASES } from '../data/codebaseReleases';
 
 const STORAGE_KEY = 'samaxon_website_updates';
 export const SITE_UPDATES_EVENT = 'samaxon_site_updates_updated';
@@ -190,25 +191,43 @@ const DEFAULT_UPDATES: WebsiteUpdateLog[] = [
 export function getSiteUpdates(): WebsiteUpdateLog[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_UPDATES));
-      return DEFAULT_UPDATES;
-    }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      // Sanitize any previous security disclosure text to protect site architecture
-      const sanitized = parsed.map((item: WebsiteUpdateLog) => {
-        if (item.id === 'upd-002' && (item.title?.includes('Security') || item.category === 'Security Patch')) {
-          const defaultUpd2 = DEFAULT_UPDATES.find(d => d.id === 'upd-002');
-          return defaultUpd2 || item;
+    let localList: WebsiteUpdateLog[] = [];
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          localList = parsed;
         }
-        return item;
-      });
-      return sanitized;
+      } catch {}
     }
-    return DEFAULT_UPDATES;
+
+    // Merge codebase releases (authoritative live deployments) with local storage
+    const map = new Map<string, WebsiteUpdateLog>();
+
+    // 1. Authoritative code releases from codebase
+    CODEBASE_RELEASES.forEach(rel => {
+      map.set(rel.id, rel);
+    });
+
+    // 2. Local custom updates or adjustments
+    localList.forEach(item => {
+      if (!map.has(item.id)) {
+        map.set(item.id, item);
+      }
+    });
+
+    // 3. Fallback defaults if empty
+    if (map.size === 0) {
+      DEFAULT_UPDATES.forEach(item => map.set(item.id, item));
+    }
+
+    const merged = Array.from(map.values()).sort((a, b) => {
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+
+    return merged;
   } catch (err) {
-    return DEFAULT_UPDATES;
+    return CODEBASE_RELEASES.length > 0 ? CODEBASE_RELEASES : DEFAULT_UPDATES;
   }
 }
 

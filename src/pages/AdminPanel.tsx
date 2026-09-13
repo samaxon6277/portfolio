@@ -25,6 +25,7 @@ import ToolsControlTab from './admin/ToolsControlTab';
 import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
 import AuditLeadsTab from '../components/admin/AuditLeadsTab';
 import { NavbarStudio } from '../components/admin/NavbarStudio';
+import InteractiveLogoEditor from '../components/admin/InteractiveLogoEditor';
 
 export default function AdminPanel() {
   const navigate = useNavigate();
@@ -796,10 +797,10 @@ export default function AdminPanel() {
       ]
     },
     {
-      category: 'BRAND & ASSETS',
+      category: 'BRAND & LOGO STUDIO',
       items: [
-        { id: 'navbar-studio', label: 'Header & Logo Studio', icon: Crown, highlight: true },
-        { id: 'brand', label: 'General Brand Settings', icon: Sliders },
+        { id: 'logo-studio', label: 'Interactive Logo Editor', icon: Crown, highlight: true },
+        { id: 'brand', label: 'General Brand Settings', icon: Globe },
         { id: 'media', label: 'Media Library', icon: ImageIcon },
       ]
     },
@@ -1160,6 +1161,22 @@ export default function AdminPanel() {
                   onUpdateJobApplication={handleUpdateJobApplication}
                   onDeleteJobApplication={handleDeleteJobApplication}
                 />
+              )}
+
+              {/* Brand & Assets: Dedicated Interactive Logo Editor Studio */}
+              {activeTab === 'logo-studio' && (
+                <div className="p-4 sm:p-6 lg:p-8">
+                  <InteractiveLogoEditor
+                    settings={websiteSettings}
+                    onChange={(updated) => {
+                      setWebsiteSettings(updated);
+                    }}
+                    onSave={(updated) => {
+                      handleUpdateWebsiteSettings(updated);
+                      showToast('Logo positioning and styling saved and applied across entire site.');
+                    }}
+                  />
+                </div>
               )}
 
               {/* Website Customization: Dedicated Header & Navbar Studio */}

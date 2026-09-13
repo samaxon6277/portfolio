@@ -148,8 +148,8 @@ export default function WebsiteAnalyzer() {
         console.warn('Direct /api/analyze-website call bypassed, using client deep diagnostic engine:', networkErr);
       }
 
-      // If backend returned error, 405 Method Not Allowed, or failed, seamlessly run client audit engine
-      if (!data || !data.success) {
+      // If backend returned error, 405 Method Not Allowed, or missing scores, seamlessly run client audit engine
+      if (!data || !data.success || !data.scores) {
         data = await runClientWebsiteAudit(target);
       }
 
@@ -358,6 +358,21 @@ Audited via SamaXon Digital Tools (samaxon.site)`;
       {/* Audit Report Results View */}
       {report && !loading && (
         <div className="space-y-8 print:space-y-4" id="audit-results-container">
+          {/* Origin Restriction Advisory Banner */}
+          {!report.reachable && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <p className="font-bold mb-1">
+                  Origin Firewall / Crawler Restriction Advisory
+                </p>
+                <p className="text-amber-800/90">
+                  The target web server for <strong className="font-mono">{report.hostname}</strong> restricted automated HTTP crawlers or origin handshake latency timed out. Our diagnostic engine has generated a full heuristic security, SEO, and connectivity health analysis below.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Top Executive KPI Scoreboard */}
           <div className="bg-white border border-[#D6B46A]/20 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#D6B46A]/15">

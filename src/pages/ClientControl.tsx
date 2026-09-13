@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkles, Shield, Cpu, Zap, Activity } from 'lucide-react';
 import SEO from '../components/SEO';
 import { ClientControlSandbox } from '../components/sandbox/ClientControlSandbox';
+import { DeliveryProgressTracker } from '../components/control/DeliveryProgressTracker';
 
 interface ClientControlProps {
   setCurrentPage?: (page: string) => void;
@@ -43,6 +44,11 @@ export default function ClientControl({ setCurrentPage }: ClientControlProps) {
             A world-class digital storefront represents your stature. But you should never wait on developer billable hours for everyday marketing, inventory, and capacity adjustments. Experience our decoupled admin simulation in real time below.
           </p>
         </div>
+
+        {/* --- 48-HOUR DELIVERY PROGRESS ENGINE --- */}
+        <section className="mb-16" id="delivery-progress-engine">
+          <DeliveryProgressTracker />
+        </section>
 
         {/* --- LIVE ENTERPRISE CLIENT OS SANDBOX ENGINE --- */}
         <section className="mb-24" id="live-client-os-sandbox">

@@ -61,6 +61,9 @@ export default function InteractiveLogoEditor({
       logoPadding: overrides.logoPadding !== undefined ? overrides.logoPadding : padding,
       logoBrightness: overrides.logoBrightness !== undefined ? overrides.logoBrightness : brightness,
       logoContrast: overrides.logoContrast !== undefined ? overrides.logoContrast : contrast,
+      logoBgEnabled: overrides.logoBgEnabled !== undefined ? overrides.logoBgEnabled : settings.logoBgEnabled,
+      logoBgColor: overrides.logoBgColor !== undefined ? overrides.logoBgColor : settings.logoBgColor,
+      logoBorderEnabled: overrides.logoBorderEnabled !== undefined ? overrides.logoBorderEnabled : settings.logoBorderEnabled,
     };
     onChange(updated);
   };
@@ -77,9 +80,9 @@ export default function InteractiveLogoEditor({
     const deltaX = Math.round(clientX - dragStart.x);
     const deltaY = Math.round(clientY - dragStart.y);
     
-    // Constrain within bounds
-    const nextX = Math.max(-140, Math.min(140, initialOffsets.x + deltaX));
-    const nextY = Math.max(-80, Math.min(80, initialOffsets.y + deltaY));
+    // Smooth offset updates without rigid constraints
+    const nextX = Math.max(-200, Math.min(200, initialOffsets.x + deltaX));
+    const nextY = Math.max(-150, Math.min(150, initialOffsets.y + deltaY));
     
     setOffsetX(nextX);
     setOffsetY(nextY);
@@ -449,6 +452,67 @@ export default function InteractiveLogoEditor({
             <span className="text-[10px] font-mono font-bold bg-[#F4EFE6] px-2 py-0.5 rounded-full text-[#8A8178]">
               Fine-Tune
             </span>
+          </div>
+
+          {/* Logo Background Box & Rim Border Settings */}
+          <div className="p-4 bg-[#FFFDF8] border border-[#D6B46A]/20 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-mono font-bold text-[#BFA15A] tracking-wider">
+                Container Box &amp; Rim
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextVal = settings.logoBgEnabled === false ? true : false;
+                    emitChanges({ logoBgEnabled: nextVal });
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold cursor-pointer transition-all border ${
+                    settings.logoBgEnabled !== false
+                      ? 'bg-[#111111] text-[#D6B46A] border-[#D6B46A]/40'
+                      : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  }`}
+                >
+                  {settings.logoBgEnabled !== false ? 'Box: ON' : 'Transparent: ON'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextVal = settings.logoBorderEnabled === false ? true : false;
+                    emitChanges({ logoBorderEnabled: nextVal });
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold cursor-pointer transition-all border ${
+                    settings.logoBorderEnabled !== false
+                      ? 'bg-neutral-100 text-neutral-800 border-neutral-300'
+                      : 'bg-neutral-50 text-neutral-400 border-neutral-200'
+                  }`}
+                >
+                  Border: {settings.logoBorderEnabled !== false ? 'ON' : 'OFF'}
+                </button>
+              </div>
+            </div>
+
+            {settings.logoBgEnabled !== false && (
+              <div className="flex items-center gap-2 pt-1">
+                <label className="text-[10px] font-mono text-[#8A8178] font-bold">Box Color:</label>
+                <input
+                  type="color"
+                  value={settings.logoBgColor && settings.logoBgColor !== 'transparent' ? settings.logoBgColor : '#111111'}
+                  onChange={e => emitChanges({ logoBgEnabled: true, logoBgColor: e.target.value })}
+                  className="w-5 h-5 rounded border border-neutral-300 cursor-pointer p-0 bg-transparent"
+                />
+                <span className="text-[10px] font-mono text-neutral-700 uppercase font-bold">
+                  {settings.logoBgColor || '#111111'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => emitChanges({ logoBgEnabled: false, logoBgColor: 'transparent' })}
+                  className="ml-auto text-[10px] font-mono text-neutral-500 hover:text-neutral-900 underline cursor-pointer"
+                >
+                  Set Transparent
+                </button>
+              </div>
+            )}
           </div>
 
           {/* 1. Scale / Zoom In / Zoom Out Slider */}
