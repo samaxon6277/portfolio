@@ -323,9 +323,16 @@ export default function Contact() {
   return (
     <div className="bg-soft-ivory min-h-screen pt-32 pb-24" id="contact-page">
       <SEO 
-        title="Start Your 48-Hour Build - Direct Contact"
-        description="Aap apna business goal share kijiye. Submit our premium inquiry form to schedule your demo direction or reach us instantly via WhatsApp/Telegram."
+        title="Contact Our Web Design & Development Team | SamaXon"
+        description="Get in touch with SamaXon's web design and development team to discuss your website project, request a custom proposal, or consult on web application development."
         canonicalPath="/contact"
+        keywords={[
+          'contact web design agency',
+          'hire web development company',
+          'website development inquiry',
+          'custom website proposal',
+          'web design consultation'
+        ]}
       />
 
       <div className="max-w-7xl mx-auto px-6">
@@ -336,13 +343,13 @@ export default function Contact() {
             Direct Project Initiation
           </div>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-matte-black leading-tight">
-            Ready to Build <br />
+            Contact Our Web Design & <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-champagne-gold via-muted-gold to-matte-black">
-              Something Premium?
+              Development Team.
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-[#3D3731] leading-relaxed mt-2 max-w-2xl font-normal">
-            Tell us what your enterprise needs. SamaXon will move from high-level idea structures to pristine digital execution with speed, strict validation, and visual authority.
+            Discuss your upcoming project with our senior engineers and digital designers. Whether you need a high-performance business website, custom web application, or automation workflow, submit your inquiry below for a structured consultation.
           </p>
         </div>
 

@@ -374,15 +374,16 @@ export default function Home({ setCurrentPage }: HomeProps) {
       "SamaXon Studio",
       "SamaXon digital"
     ],
-    "description": "SamaXon is India's premier website developer agency and digital studio, widely recognized as the best website developer and custom software company. We build speed-optimized corporate portals, luxury business sites, hotel/resort systems, and custom admin dashboards with express 48-hour delivery.",
+    "description": "SamaXon is a premier global web design and development agency and custom software studio. We engineer custom website design, web application development, and business automation solutions with speed-optimized delivery.",
     "knowsAbout": [
-      "website development",
-      "web developer agency Noida",
-      "best website developer Delhi NCR",
-      "premium UI/UX design",
-      "custom booking solutions",
-      "corporate portal development",
-      "SamaXon digital solutions"
+      "web design and development agency",
+      "custom website design",
+      "web development company",
+      "business website development",
+      "professional website development",
+      "high-performance websites",
+      "web application development",
+      "business automation solutions"
     ],
     "image": `${SITE_CONFIG.baseUrl}/og-image.jpg`,
     "@id": `${SITE_CONFIG.baseUrl}/#organization`,
@@ -448,11 +449,35 @@ export default function Home({ setCurrentPage }: HomeProps) {
           "@type": "Answer",
           "text": "Absolutely. We configure secure API routes, webhook events, and server-side authentication proxies. Whether you need Google Sheets syncing, Razorpay/Stripe checkout, custom WhatsApp responders, or booking managers, we build real, secure, server-side integrations."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "What web design and development services does SamaXon provide?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "As a full-service web design and development agency, SamaXon builds custom business websites, high-performance web applications, e-commerce platforms, brand identities, and custom workflow automations for enterprises globally."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does SamaXon engineer high-performance websites?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We combine modern frontend architectures, clean semantic HTML, global edge CDN delivery, and zero-bloat modular designs. This ensures sub-second load times, excellent Core Web Vitals, and optimal search engine discoverability."
+        }
       }
     ]
   };
 
   const faqItems = [
+    {
+      q: "What web design and development services does SamaXon provide?",
+      a: "As a full-service web design and development agency, SamaXon builds custom business websites, high-performance web applications, e-commerce platforms, brand identities, and custom workflow automations for enterprises globally."
+    },
+    {
+      q: "How does SamaXon engineer high-performance websites?",
+      a: "We combine modern frontend architectures, clean semantic HTML, global edge CDN delivery, and zero-bloat modular designs. This ensures sub-second load times, excellent Core Web Vitals, and optimal search engine discoverability."
+    },
     {
       q: "How does 48-hour delivery work?",
       a: "SamaXon's 48-hour delivery works by utilizing pre-compiled speed frameworks, modular custom blueprints, and our unique Demo-First model. Instead of endless wireframing, we build a fully working, premium visual prototype within 24 hours. Once you review and confirm, we complete fine-tuning and deploy it to enterprise-grade servers within the next 24 hours."
@@ -474,9 +499,19 @@ export default function Home({ setCurrentPage }: HomeProps) {
   return (
     <div id="home-page-container">
       <SEO 
-        title="Speed-Driven Premium Digital Studio India"
-        description="SamaXon builds elite business websites, mobile apps, brand identities, custom automations, and Telegram bots in under 48 hours with a Demo-First model."
+        title="Web Design and Development Agency | SamaXon Digital Solutions"
+        description="SamaXon is a global web design and development agency crafting custom website designs, high-performance web applications, and business automation solutions for growing enterprises."
         canonicalPath="/"
+        keywords={[
+          'web design and development agency',
+          'custom website design',
+          'web development company',
+          'business website development',
+          'professional website development',
+          'high-performance websites',
+          'web application development',
+          'business automation solutions'
+        ]}
         schemas={[faqSchema]}
       />
 
@@ -497,7 +532,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
             >
               <div className="w-2.5 h-2.5 rounded-full bg-[#D6B46A] animate-pulse" />
               <span className="text-xs uppercase font-bold tracking-[0.16em] text-[#85641C]">
-                India’s Premium 48-Hour Digital Studio
+                Web Design &amp; Development Agency
               </span>
             </motion.div>
 
@@ -507,9 +542,9 @@ export default function Home({ setCurrentPage }: HomeProps) {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="font-display text-4xl sm:text-5xl lg:text-[68px] lg:leading-[1.0] font-black tracking-tighter text-[#111111]"
             >
-              The Future of <br className="hidden sm:inline" />
-              <span className="text-[#D6B46A]">Digital Branding</span>, <br />
-              Delivered in 48 Hours.
+              Global Web Design <br className="hidden sm:inline" />
+              <span className="text-[#D6B46A]">&amp; Development Agency</span>, <br />
+              Built for Modern Business.
             </motion.h1>
 
             <motion.p 
@@ -518,7 +553,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               transition={{ duration: 0.6, delay: 0.25 }}
               className="text-lg sm:text-xl text-[#3D3731] font-normal leading-relaxed max-w-[620px]"
             >
-              SamaXon builds high-performance websites, mobile apps, premium brand identities, automations, and business control systems for founders who do not have time for slow agencies and average execution.
+              SamaXon is a full-service web development company engineering custom website design, web application development, and business automation solutions. We build high-performance websites and digital architectures for enterprises worldwide.
             </motion.p>
 
             {/* Elite B2B Studio Trust Note */}
@@ -529,7 +564,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               className="border-l-2 border-[#D6B46A] pl-4 py-2.5 my-2 bg-[#D6B46A]/10 rounded-r-xl max-w-xl"
             >
               <p className="text-sm font-semibold text-[#181614] leading-relaxed">
-                “Stop losing high-ticket clients to sluggish agency cycles. SamaXon engineers fast, precision-built digital assets and automated workflows ready for modern enterprise scale.”
+                “Professional website development paired with speed-driven architecture. We eliminate sluggish agency cycles with precision engineering and scalable business automation.”
               </p>
             </motion.div>
 
@@ -854,13 +889,13 @@ export default function Home({ setCurrentPage }: HomeProps) {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center flex flex-col items-center gap-4 mb-16">
             <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
-              One Studio. Complete Digital Power.
+              Full-Service Web Development Company &amp; Digital Studio
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
-              Capabilities Suite
+              Web Design, Development &amp; Automation Suite
             </h2>
             <p className="text-sm text-warm-grey max-w-2xl leading-relaxed">
-              From your first high-end logo to your full business control dashboard, SamaXon handles the complete digital chain with uncompromising posture.
+              From bespoke business website development and high-performance web applications to brand identity and automated backend workflows, SamaXon delivers end-to-end digital solutions engineered to scale.
             </p>
           </div>
 

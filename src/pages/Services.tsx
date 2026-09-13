@@ -31,9 +31,19 @@ export default function Services({ setCurrentPage }: ServicesProps) {
   return (
     <div className="bg-soft-ivory min-h-screen pt-32 pb-24" id="services-page">
       <SEO 
-        title="Complete Digital Execution & Capabilities"
-        description="Explore our elite services: Web development, WebView mobile apps, custom monogram branding, task automations, and custom Telegram alert bots."
+        title="Web Design, Web Development & Automation Services | SamaXon"
+        description="Explore custom website design, web development company capabilities, web application development, and business automation solutions engineered for performance."
         canonicalPath="/services"
+        keywords={[
+          'web design and development agency',
+          'custom website design',
+          'web development company',
+          'business website development',
+          'professional website development',
+          'high-performance websites',
+          'web application development',
+          'business automation solutions'
+        ]}
       />
 
       <div className="max-w-7xl mx-auto px-6">
@@ -41,16 +51,16 @@ export default function Services({ setCurrentPage }: ServicesProps) {
         {/* --- HEADER --- */}
         <div className="text-left flex flex-col items-start gap-4 mb-12 max-w-4xl border-b border-champagne-gold/15 pb-10">
           <div className="px-4 py-2 bg-champagne-gold/15 border border-champagne-gold/30 text-[#A68936] text-xs font-mono uppercase font-bold tracking-widest rounded-full">
-            Elite Studio Capabilities
+            Engineering &amp; Design Capabilities
           </div>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-matte-black leading-tight">
-            Complete Digital Execution <br />
+            Web Design, Development <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-champagne-gold to-muted-gold">
-              Under One Premium Roof.
+              &amp; Business Automation Solutions.
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-[#3D3731] leading-relaxed mt-2 max-w-2xl font-normal">
-            SamaXon executes your digital infrastructure under unified senior direction. No mismatched freelancers. No slow agency chains. Web development, app deployment, custom branding, bots, and automations delivered elegantly.
+            SamaXon delivers high-performance websites, custom web applications, brand identity, and scalable business automations under one unified senior engineering umbrella.
           </p>
 
           {/* Quick AI Tools Highlight Banner */}

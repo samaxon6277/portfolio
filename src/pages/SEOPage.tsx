@@ -51,13 +51,20 @@ interface NicheConfig {
 
 export const NICHE_DATA: Record<string, NicheConfig> = {
   banquet: {
-    title: 'Premium Banquet Hall Website Design & Booking System',
-    description: 'SamaXon creates elegant, high-converting banquet hall websites with interactive slot calendars, plate cost calculators, virtual 3D tour panels, and direct-closing CRM systems with zero monthly commissions.',
+    title: 'Banquet Hall Website Design & Booking System | SamaXon',
+    description: 'Custom banquet hall website design company crafting luxury wedding venue websites, interactive slot booking calendars, plate cost calculators, and direct event inquiry systems.',
     canonicalPath: '/banquet-hall-website-design',
     headline: 'Secure Wedding Bookings with Custom Banquet Portals',
     painPoint: 'Tired of paying massive listing platform subscriptions or losing premium wedding leads to commission brokers and outdated photo galleries?',
     sol: 'Our premium wedding and banquet hall portals feature luxury photography grids, real-time date availability checkers, interactive banqueting menu estimators, and down-payment systems curated for highest conversion rates.',
-    keywords: ['marriage hall booking web systems', 'banquet hall website designer', 'party lawn portal designs', 'corporate banquet event panels'],
+    keywords: [
+      'banquet hall website design',
+      'wedding venue website design',
+      'event venue website development',
+      'banquet hall booking system',
+      'marriage hall web development',
+      'venue booking portal development'
+    ],
     empiricalCaseStudy: {
       client: 'Khaas Banquet Estates',
       result: '41% Direct Bookings Growth',
@@ -84,7 +91,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Commercial Paradigm of Direct Venue Bookings',
         paragraphs: [
           'The banquet hall and wedding venue marketplace has become aggressively dependent on heavy third-party listing platforms. While these aggregators claim to connect you with potential hosts, they often hijack your customer relationships, pit you against cut-throat competitors, and charge massive percentage-based brokerages on your prime wedding dates. This structural reliance dilutes your venue\'s prestige and directly harms your net operating yields.',
-          'To regain financial autonomy, premium venue estates must establish a superior visual gateway. A custom banquet portal designed by SamaXon coordinates your prestige branding with interactive digital services. By positioning your wedding lawns, luxury lighting arrangements, and gourmet plate spreads inside a lightweight, lightning-fast static framework, you capture your prospective hosts\' attention. We build booking funnels that compel planners to contact you directly.'
+          'To regain financial autonomy, premium venue estates must establish a superior visual gateway. A custom banquet hall website design by SamaXon coordinates your prestige branding with interactive digital services. By positioning your wedding lawns, luxury lighting arrangements, and gourmet plate spreads inside a lightweight, lightning-fast static framework, you capture your prospective hosts\' attention. We build event venue website development funnels that compel planners to contact you directly.'
         ]
       },
       {
@@ -104,13 +111,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   resort: {
-    title: 'Luxury Resorts & Nature Retreat Website Design Agency',
-    description: 'SamaXon designs immersive resort websites with interactive room reservation systems, experience packaging grids, activity highlights, and direct billing integration with 100% cloud ownership.',
+    title: 'Resort Website Design & Booking System | SamaXon',
+    description: 'Custom resort website design and web development company building immersive vacation retreat portals, luxury hotel websites, and direct reservation engines.',
     canonicalPath: '/resort-website-design',
     headline: 'Immersive Retreat Portals For Elite Luxury Resorts',
     painPoint: 'Losing 15% to 25% room-rate commission shares to OTAs and third-party booking travel portals every month?',
     sol: 'We develop beautiful, visual-heavy resort portals utilizing cinematic video backgrounds, touch-native room calendars, customizable package booking calculators, and zero-commission booking pipelines.',
-    keywords: ['spa resort website development', 'eco resort custom web design', 'resort room reservation system', 'wellness retreat booking site'],
+    keywords: [
+      'resort website design',
+      'luxury resort web development',
+      'hospitality website design',
+      'resort booking engine',
+      'vacation retreat website design',
+      'hotel and resort web design'
+    ],
     empiricalCaseStudy: {
       client: 'Nirvana Forest Retreat',
       result: '₹22 Lakhs Commission Saved',
@@ -137,7 +151,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'OTA Liberation: Reclaiming Resort Profitability',
         paragraphs: [
           'Luxury resort operations are increasingly suffocated by Online Travel Agencies (OTAs). Paying up to 25% in commissions on every night\'s stay represents an unsustainable operational drag. It eats directly into your boutique retreat’s marketing budget and dilutes your ability to offer premium client experiences. Furthermore, OTAs treat your luxury villas as generic grid entries, surrounding your listing with cheaper alternatives.',
-          'A bespoke resort portal from SamaXon re-establishes your brand\'s primary prestige. Utilizing elegant, cinema-grade transitions, we capture the serene, exclusive atmosphere of your eco-retreat or wellness spa right on the visitor\'s screen. We showcase your organic farms, private pools, and high-end spas in ultra-high resolution without slowing down page load times. This visual storytelling validates your premium room pricing and primes guests to book directly.'
+          'A bespoke resort website design from SamaXon re-establishes your brand\'s primary prestige. Utilizing elegant, cinema-grade transitions, we capture the serene, exclusive atmosphere of your eco-retreat or wellness spa right on the visitor\'s screen. We showcase your organic farms, private pools, and high-end spas in ultra-high resolution without slowing down page load times. This visual storytelling validates your premium room pricing and primes guests to book directly.'
         ]
       },
       {
@@ -157,13 +171,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   hotel: {
-    title: 'Boutique & Heritage Hotel Website Design Agency',
-    description: 'Premium boutique and heritage hotel web development. Features rooms list matrices, instant speed booking check-outs, local maps SEO integrations, and automatic GST compliant invoice generations.',
+    title: 'Hotel Website Design & Direct Booking Engines | SamaXon',
+    description: 'Bespoke hotel website design company and hospitality web developer. Fast-loading boutique hotel websites with room matrices, direct booking engines, and local SEO.',
     canonicalPath: '/hotel-website-design',
     headline: 'Multiply Heritage and Boutique Hotel Direct Room bookings',
     painPoint: 'Struggling with slow website loads, low direct bookings, or booking portals failing on mobile devices?',
     sol: 'Our heritage hotel packages compile highly visual, fast-loading room galleries, transparent guest tax estimators, custom travel guide grids, and payment systems loading under 1.2s.',
-    keywords: ['heritage boutique hotel site designs', 'boutique room reserving softwares', 'speedy reservation checkouts', 'hotel marketing web development'],
+    keywords: [
+      'hotel website design',
+      'boutique hotel website development',
+      'hospitality web design company',
+      'hotel booking system development',
+      'heritage hotel website designer',
+      'custom hotel reservation website'
+    ],
     empiricalCaseStudy: {
       client: 'Kailash Heritage Haveli',
       result: '53% Direct Booking Increase',
@@ -190,7 +211,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Luxury Hospitality Direct Reservation Mandate',
         paragraphs: [
           'High-end boutique hotels are fighting an asymmetric battle against massive travel distribution conglomerates. By conditioning your guests to use corporate aggregators, you dilute your brand’s prestige and surrender significant room-rate profits. Heritage and boutique hotels rely on storytelling—the history of the architecture, the customized room amenities, the exclusive food menu spreads, and exceptional hospitality.',
-          'SamaXon builds hotel landing systems that showcase this luxury narrative. We don\'t settle for cookie-cutter booking widgets. We craft custom-designed room lists, visual amenities showcases, and direct room calculators styled with elegant classic margins and luxurious typography layout pairs. Your digital gateway feels like a natural extension of your property’s physical luxury.'
+          'SamaXon builds hotel landing systems that showcase this luxury narrative. We don\'t settle for cookie-cutter booking widgets. We craft custom hotel website design room lists, visual amenities showcases, and direct room calculators styled with elegant classic margins and luxurious typography layout pairs. Your digital gateway feels like a natural extension of your property’s physical luxury.'
         ]
       },
       {
@@ -210,13 +231,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   gym: {
-    title: 'Exclusive Fitness Clubs, Gym & Pilates Web Design Provider',
-    description: 'Bespoke fitness clubs and gym branding web solutions. Includes membership selector cards, real-time scheduler integrations, trainers bios, and automated monthly subscription payment paths.',
+    title: 'Gym Website Design & Fitness Club Web Development | SamaXon',
+    description: 'Custom gym website design and fitness club web development company. Modern fitness centers, CrossFit boxes, and Pilates studios with membership cards and class schedulers.',
     canonicalPath: '/gym-website-design',
     headline: 'Slick Member Portals for High-Budget Gyms & Yoga Hubs',
     painPoint: 'Members calling repeatedly to schedule sessions or buy crossfit memberships through confusing external application stores?',
     sol: 'We build direct web membership flows, online registration gateways, trainer appointment schedulers, and slick scan-to-enter QR code generators optimized for all major browsers.',
-    keywords: ['fitness club portal developer', 'crossfit gym custom web', 'pilates studio schedule tracker', 'recurring subscription pay gym'],
+    keywords: [
+      'gym website design',
+      'fitness website design',
+      'fitness club web development',
+      'gym membership website builder',
+      'personal trainer website design',
+      'crossfit gym web developer'
+    ],
     empiricalCaseStudy: {
       client: 'Power Forge Athletics',
       result: '230+ Active Subscriptions Secured',
@@ -243,7 +271,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Direct Digital Membership Acquisition Blueprint',
         paragraphs: [
           'High-performance gym facilities, crossfit boxes, and luxury pilates studios cannot depend on fragmented communication. Direct calls and paper signup files represent a massive friction point, costing you member signups. Modern fitness consumers expect a fluid, self-directed subscription model. They want to check club rules, inspect workout equipment galleries, choose membership tiers, and settle recurring payments directly through their smartphone screens.',
-          'SamaXon engineers bold, high-contrast, motivating digital gateways tailored for the luxury fitness sector. We utilize clean, dark, striking graphic elements and strong typography. We place interactive membership selectors prominent on the layout, highlighting premium features (like personal coaching, group wellness access, and corporate discounts). This visual clarity compels gym enthusiasts to lock in their memberships instantly.'
+          'SamaXon engineers bold, high-contrast, motivating digital gateways tailored for the luxury fitness sector. With custom gym website design and fitness club web development, we utilize clean, dark, striking graphic elements and strong typography. We place interactive membership selectors prominent on the layout, highlighting premium features (like personal coaching, group wellness access, and corporate discounts). This visual clarity compels gym enthusiasts to lock in their memberships instantly.'
         ]
       },
       {
@@ -263,13 +291,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   restaurant: {
-    title: 'Fine-Dining Restaurants, Lounge & Bistro Web Design Studio',
-    description: 'Stunning interactively visual menu interfaces, reservation seat calendars with deposit support, corporate catering estimate engines, and WhatsApp direct delivery integrations.',
+    title: 'Restaurant Website Design & Online Menu Systems | SamaXon',
+    description: 'Custom restaurant website design company and culinary web developer. Interactive menus, online reservation calendars, corporate catering calculators, and direct order workflows.',
     canonicalPath: '/restaurant-website-design',
     headline: 'Indulgent Culinary Web Experiences for Fine Dining Bistros',
     painPoint: 'Surrendering 30% food transaction fees to heavy delivery platforms, and relying on obsolete, static download PDF menus?',
     sol: 'Our gourmet restaurant blueprints build premium, responsive menu items, table seating reservation grids, catering estimate forms, and direct WhatsApp delivery models.',
-    keywords: ['interactive restaurant bill menus', 'table reservation web engine', 'commissions free food order site', 'bistro custom web develop'],
+    keywords: [
+      'restaurant website design',
+      'restaurant web development company',
+      'fine dining website design',
+      'online restaurant menu design',
+      'restaurant reservation website',
+      'bistro website developer'
+    ],
     empiricalCaseStudy: {
       client: 'Prana Gourmet Kitchen',
       result: '180+ Table bookings / Mo',
@@ -296,7 +331,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Digital Feast: Why Modern Bistros Must Evolve',
         paragraphs: [
           'Fine-dining restaurants, family bistros, and upscale lounges are leaking valuable transaction profits to aggressive delivery apps. Surrendering up to 30% on every meal, coupled with relying on outdated PDF menus that force customers to pinch-and-zoom on mobile devices, damages your customer experience. Your digital presence should be as refined as your culinary creations.',
-          'SamaXon crafts bespoke, sensory-rich restaurant websites. We replace static PDFs with interactive menu sheets that load in a heartbeat. We organize dishes with clean categories, dietary markers (vegan, gluten-free), and vivid, fast-loading photography. This visual design stimulates diners\' appetites, leading to higher average guest bills and increased reservation rates.'
+          'SamaXon crafts bespoke, sensory-rich restaurant websites. Through custom restaurant website design and development, we replace static PDFs with interactive menu sheets that load in a heartbeat. We organize dishes with clean categories, dietary markers (vegan, gluten-free), and vivid, fast-loading photography. This visual design stimulates diners\' appetites, leading to higher average guest bills and increased reservation rates.'
         ]
       },
       {
@@ -316,13 +351,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   business: {
-    title: 'Bespoke Premium Corporate & Brand Web Design Agency',
-    description: 'We construct lightweight, speed-optimized custom corporate and business websites with built-in leads capturing panels, consultation scheduler cards, and dynamic SEO pages.',
+    title: 'Corporate Website Design & Business Web Development | SamaXon',
+    description: 'Bespoke corporate website design company and business web development agency. High-performance enterprise portals, consultation schedulers, and inbound B2B lead capture systems.',
     canonicalPath: '/business-website-design',
     headline: 'Accelerate Authority with Distinctive Corporate Portals',
     painPoint: 'Using generic, slow-loading WordPress or Wix widgets that dilute your authority and look identical to lower-tier competitors?',
     sol: 'SamaXon designs bespoke, hand-crafted corporate solutions that match your exact visual framework. We deliver ultra-low page weights, premium typography, custom lead-capture pipelines, and fast API integration structures.',
-    keywords: ['premium corporate web agencies', 'bespoke brand website developer', 'speed consulting web builder', 'b2b corporate lead funnels'],
+    keywords: [
+      'corporate website design',
+      'business website development',
+      'b2b website design company',
+      'enterprise web development',
+      'professional website development agency',
+      'custom corporate web design'
+    ],
     empiricalCaseStudy: {
       client: 'Equitas Corporate Advisors',
       result: '110+ Inbound Corporate Leads',
@@ -349,13 +391,13 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Corporate Authority Imperative in B2B Markets',
         paragraphs: [
           'In high-ticket business advisory, enterprise software, and professional client consultations, trust is the primary currency. Relying on generic, slow WordPress templates or visual builders can dilute your brand\'s credibility and makes you look identical to lower-tier competitors. High-value clients make split-second decisions based on visual quality and functional responsiveness.',
-          'SamaXon crafts bespoke corporate portals that project enterprise-grade authority. We emphasize minimal layout boundaries, clean typography pairings, and generous negative space. Every design choice is intentionally engineered to display your professional track record, elite clients base, and service credentials with prestige.'
+          'SamaXon crafts bespoke corporate website design solutions that project enterprise-grade authority. We emphasize minimal layout boundaries, clean typography pairings, and generous negative space. Every design choice is intentionally engineered to display your professional track record, elite clients base, and service credentials with prestige.'
         ]
       },
       {
         sectionHeading: 'Frictionless Leads Funnels & Smart CRM Syncing',
         paragraphs: [
-          'Capturing B2B inquiries requires a highly intuitive strategy. Complex, multi-page contact sheets and slow booking forms reduce conversions. We build streamlined lead collection forms directly into the interface. Potential clients can request a brief consultation or schedule an introductory call in seconds.',
+          'Capturing B2B inquiries requires a highly intuitive strategy. Complex, multi-page contact sheets and slow booking forms reduce conversions. In our business website development process, we build streamlined lead collection forms directly into the interface. Potential clients can request a brief consultation or schedule an introductory call in seconds.',
           'All guest inquiries stream directly into our robust, responsive Admin Panel. This pipeline allows your sales team to review lead source tracking, mark deal stages, export CSV tables, and initiate client outreach instantly, maximizing your sales cycle efficiency.'
         ]
       },
@@ -369,13 +411,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   school: {
-    title: 'Premium School, Academy & K12 Portal Design Agency',
-    description: 'SamaXon designs beautiful, high-converting school and educational institution websites with interactive academic calendars, fee calculators, admission inquiry systems, and custom content management zero monthly commissions.',
+    title: 'School Website Design & Educational Portal Development | SamaXon',
+    description: 'Custom school website design and educational institution portal development company. Modern K-12 school websites, academic calendars, fee calculators, and online admission inquiry portals.',
     canonicalPath: '/school-website-design',
     headline: 'Secure Student Enrollments with Custom Academy Portals',
     painPoint: 'Tired of losing parent attention to slow-loading school portals, or struggles with endless manual paperwork?',
     sol: 'Our bespoke educational portals feature dynamic academic highlights, fast online admission forms, teacher-parent communication modules, and real-time inquiry management matrices.',
-    keywords: ['school portal development', 'academy web designs', 'college admissions sites', 'student management setups'],
+    keywords: [
+      'school website design',
+      'educational institution web development',
+      'school portal development',
+      'academy website designer',
+      'college admissions website design',
+      'education web design agency'
+    ],
     empiricalCaseStudy: {
       client: 'Vanguard International School',
       result: '140+ New Admissions Booked',
@@ -402,7 +451,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Modern Digital Admission Funnel for Elite Schools',
         paragraphs: [
           'Modern K-12 academies, universities, and coaching centers compete in a highly fast-paced market. Parents checking educational campuses expect a clear, professional, and trustworthy representation of your academic values. Outdated, slow, or difficult-to-navigate school portals damage parent trust and directly hurt registration numbers.',
-          'SamaXon crafts visually grand, easy-to-use educational portals. We design layouts that celebrate student achievements, outstanding faculty profiles, and modern physical amenities with clean typography and balanced padding. Your digital gate is engineered to convert visiting parents into confident enrollment leads.'
+          'SamaXon crafts visually grand, easy-to-use school website design solutions. We design educational institution web development layouts that celebrate student achievements, outstanding faculty profiles, and modern physical amenities with clean typography and balanced padding. Your digital gate is engineered to convert visiting parents into confident enrollment leads.'
         ]
       },
       {
@@ -421,13 +470,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   clinic: {
-    title: 'Specialized Medical Clinics, Doctors & Wellness Web Design',
-    description: 'Bespoke medical clinic, diagnostic center, and doctor practice branding web solutions. Includes patient slot booking calendars, therapist profiles, and automated WhatsApp healthcare inquiry routers.',
+    title: 'Clinic Website Design & Healthcare Web Development | SamaXon',
+    description: 'Custom clinic website design company and healthcare web developer. Doctor practice websites, diagnostic centers, and wellness clinics with patient appointment booking and doctor profiles.',
     canonicalPath: '/clinic-website-design',
     headline: 'Multiply Patient Bookings with Secure Healthcare Portals',
     painPoint: 'Losing valued patients to expensive hospital booking aggregators, or managing patient schedules with phone calls and spreadsheets?',
     sol: 'We develop beautiful, HIPAA-ready doctor and clinic websites with premium doctors cards, direct appointments calendars, healthcare packages cost estimators, and direct patient acquisition panels.',
-    keywords: ['doctor clinic websites', 'medical facility custom design', 'wellness center slots system', 'physiotherapist schedule web'],
+    keywords: [
+      'clinic website design',
+      'healthcare website development',
+      'doctor website design company',
+      'medical practice web development',
+      'dental clinic website design',
+      'patient appointment booking website'
+    ],
     empiricalCaseStudy: {
       client: 'Aura Skin & Dental Care',
       result: '3x Patient Bookings Growth',
@@ -453,7 +509,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Direct Patient Acquisition Mandate for Modern Clinics',
         paragraphs: [
           'Specialized medical clinics, dental studios, and diagnostic complexes are increasingly losing autonomy to expensive third-party appointment syndicates. These aggregates charge high margins on new patient slots, and put you side-by-side with cheaper operations. To secure your clinical authority, you must establish a fast-loading, highly professional digital home.',
-          'SamaXon crafts clean, comforting, trustworthy healthcare portals. We construct designs that immediately showcase your advanced medical apparatus, expert clinical certifications, and sterile rooms. This professional presentation builds deep patient trust.'
+          'SamaXon crafts clean, comforting, trustworthy clinic website design solutions. We construct designs that immediately showcase your advanced medical apparatus, expert clinical certifications, and sterile rooms. Our healthcare website development approach builds deep patient trust from the very first visit.'
         ]
       },
       {
@@ -472,13 +528,20 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   interior: {
-    title: 'Interior Designers, Architecture Studios & Decors Web Design',
-    description: 'Immersive interior designer and architecture brand websites. Features luxury cinematic portfolio matrices, projects catalog folder downloads, and consultation scheduler integrations.',
+    title: 'Interior Designer Website Design & Architecture Portfolios | SamaXon',
+    description: 'Custom interior designer website design and architecture portfolio web developer. High-end residential, commercial, and modular interior studios with immersive galleries and project estimators.',
     canonicalPath: '/interior-designer-website-design',
     headline: 'Secure Premium Clients with Immersive Architectural Portals',
     painPoint: 'Failing to display high-resolution visual mastery, or losing high-ticket design contracts to lower-tier competitors?',
     sol: 'Our design studio packages feature ultra-low weight 8K graphics capabilities, project categories filters, budget calculators, and booking systems built to convert high-ticket leads.',
-    keywords: ['interior design portfolio sites', 'architect web development', 'premium decoration portfolios', 'high-ticket design funnels'],
+    keywords: [
+      'interior designer website design',
+      'interior design portfolio website',
+      'architecture web development',
+      'architect website designer',
+      'luxury interior design website',
+      'interior decorator website developer'
+    ],
     empiricalCaseStudy: {
       client: 'Opulent Habitat Studios',
       result: '18 Signature Deals Secured',
@@ -505,7 +568,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Luxury Design Narrative: Elevating Architecture Branding',
         paragraphs: [
           'High-end interior designers and architecture labs rely on visual authority. Clients seeking custom villa renovations, modern office spacing, or boutique hospitality styling require immaculate visual proof of your designs. Relying on average website templates or simple social media posts dilutes your designer pedigree.',
-          'SamaXon engineers gorgeous, minimal, high-art digital portfolios tailored for professional creators. We focus on cinematic full-bleed sliders, elegant typography tracking, and spacious negative space. We present your portfolio like a digital gallery, validating your signature design premiums.'
+          'SamaXon engineers gorgeous, minimal, high-art interior designer website design solutions tailored for professional creators. We focus on cinematic full-bleed sliders, elegant typography tracking, and spacious negative space. We present your architecture web development projects like a digital gallery, validating your signature design premiums.'
         ]
       },
       {
@@ -525,13 +588,19 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   hotel_delhi: {
-    title: 'Best Website Designer for Hotels Delhi | Hospitality Web Design Delhi NCR',
-    description: 'Bespoke hotel website developer in Delhi and Noida. We design luxury, fast-loading boutique hotel portals with real-time room availability, GST-compliant invoice generators, and maps SEO optimization.',
+    title: 'Website Designer for Hotels Delhi | Hospitality Web Design Delhi NCR',
+    description: 'Bespoke hotel website developer in Delhi and Noida. Luxury boutique hotel portals with real-time room availability, GST-compliant invoice generators, and hospitality SEO.',
     canonicalPath: '/website-design-for-hotels-delhi',
     headline: 'Multiply Direct Hotel Bookings with Luxury Hospitality Web Design in Delhi NCR',
     painPoint: 'Tired of paying massive 20% commission rates to Online Travel Agencies (OTAs) or struggling with slow boutique hotel templates?',
     sol: 'Our luxury hotel web design packages in Delhi feature fast-loading boutique room lists, transparent taxation calculators, local travel coordinates maps, and commission-free checkout gateways.',
-    keywords: ['website designer for hotels Delhi', 'hospitality web design Delhi NCR', 'boutique hotel website developer Delhi', 'luxury resort booking systems Delhi NCR'],
+    keywords: [
+      'website designer for hotels Delhi',
+      'hospitality web design Delhi NCR',
+      'boutique hotel website developer Delhi',
+      'hotel website design Delhi',
+      'luxury resort booking systems Delhi NCR'
+    ],
     empiricalCaseStudy: {
       client: 'Kailash Heritage Haveli Delhi',
       result: '53% Direct Booking Increase',
@@ -556,7 +625,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'Bypassing OTA Intermediaries and Building Direct Guest Relationships',
         paragraphs: [
           'For luxury hotels and boutique heritage stays in Delhi NCR, direct-to-guest booking has become the single most vital factor for operational viability. Aggressive travel distribution platforms charge up to 25% commissions on every room night booked, while isolating you from guest contacts and listing your property alongside cheaper nearby alternatives.',
-          'SamaXon builds magnificent, fast-loading, mobile-friendly hospitality portals that convey physical grandeur on digital screens. By utilizing gorgeous serif headings and clean editorial layouts, we express the premium heritage of your boutique hotel, compelling high-budget travelers to book directly through your custom gateway.'
+          'SamaXon builds magnificent, fast-loading, mobile-friendly hospitality portals that convey physical grandeur on digital screens. As an experienced website designer for hotels in Delhi and hospitality web design specialist in Delhi NCR, we utilize gorgeous serif headings and clean editorial layouts to express the premium heritage of your boutique hotel, compelling high-budget travelers to book directly through your custom gateway.'
         ]
       },
       {
@@ -569,13 +638,19 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   interior_dev: {
-    title: 'Interior Designer Website Development | Premium Architecture Portfolios',
-    description: 'Elite portfolio website developer for interior designers and architecture studios. Features luxury cinematic project sliders, high-res catalog downloads, and budget estimation tools.',
+    title: 'Interior Designer Website Development | Architecture Portfolios',
+    description: 'Elite portfolio website developer for interior designers and architecture studios. Luxury cinematic project sliders, high-res catalog downloads, and budget estimation tools.',
     canonicalPath: '/interior-design-website-development',
     headline: 'Elevate Your Brand Prestige with Immersive Interior Design Portfolios',
     painPoint: 'Is your current portfolio website slow, basic, or failing to present the visual depth and high quality of your custom transformations?',
     sol: 'We design stunning, minimal, retina-ready interior designer and architect portfolio platforms equipped with style-filtered galleries, PDF catalogs downloads, and smart consultation schedulers.',
-    keywords: ['interior designer website development', 'interior designer portfolio website', 'architecture firm web designers', 'luxury home decor portals'],
+    keywords: [
+      'interior designer website development',
+      'interior designer portfolio website',
+      'architecture firm web designers',
+      'luxury home decor portals',
+      'interior design web studio'
+    ],
     empiricalCaseStudy: {
       client: 'Opulent Habitat Studios',
       result: '150% Leads Scale Growth',
@@ -602,7 +677,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Luxury Design Narrative: Expressing High Visual Prestige',
         paragraphs: [
           'Bespoke interior design, spatial decoration, and architectural planning are high-ticket services where trust is built entirely on visual proof. Average WordPress themes and basic template builders look generic, failing to reflect your studio’s custom craftsmanship and luxury aesthetic.',
-          'SamaXon constructs grand, minimal, high-art digital gateways specifically tailored for professional architects and designers. We leverage generous negative space, sophisticated typography pairing, and fluid entrance animations to frame your spatial legacy beautifully.'
+          'SamaXon constructs grand, minimal, high-art digital gateways specifically tailored for interior designer website development. We leverage generous negative space, sophisticated typography pairing, and fluid entrance animations to frame your spatial legacy beautifully.'
         ]
       },
       {
@@ -614,13 +689,19 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   gaming_india: {
-    title: 'Gaming Website Development India | Elite Esports Website Designer',
-    description: 'Top gaming and esports website development company in India. We design high-performance gaming team portals, tournament reservation charts, and secure gaming community platforms.',
+    title: 'Gaming Website Development India | Esports Website Designer | SamaXon',
+    description: 'Gaming and esports website development company in India. High-performance gaming team portals, tournament reservation charts, and secure gaming community platforms.',
     canonicalPath: '/gaming-website-development-india',
     headline: 'Scale Your Esports Brand with Custom Gaming Website Development in India',
     painPoint: 'Using bloated forum systems, slow Discord-only integrations, or basic team profile templates?',
     sol: 'SamaXon engineers custom-coded, ultra-low-latency esports websites, custom team dashboard grids, tournament registration forms, and brand sponsorship highlight nodes.',
-    keywords: ['gaming website development India', 'esports website designer', 'gaming clan portal design', 'tournament booking engine India'],
+    keywords: [
+      'gaming website development India',
+      'esports website designer',
+      'gaming clan portal design',
+      'tournament booking engine India',
+      'gaming team website builder'
+    ],
     empiricalCaseStudy: {
       client: 'Indus Gladiators Esports',
       result: '230k+ Tournament Signups',
@@ -645,7 +726,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Esports Revolution: Establishing Direct Digital Brand Authority',
         paragraphs: [
           'Esports and professional gaming clans are scaling rapidly across India, but most organizations struggle with fragmented digital platforms. Relying solely on third-party social pages or slow templates limits your brand authority and blocks lucrative corporate sponsorships.',
-          'SamaXon designs high-performance, dark-themed gaming and esports portals equipped with score trackers, tournament forms, and roster displays. We create custom platforms that captivate fans and convince sponsors of your institutional authority.'
+          'SamaXon provides dedicated gaming website development in India, delivering high-performance, dark-themed gaming and esports portals equipped with score trackers, tournament forms, and roster displays. We create custom platforms that captivate fans and convince sponsors of your institutional authority.'
         ]
       }
     ]
@@ -657,7 +738,13 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     headline: 'Automate Your B2B Sales Funnel and Scale Lead Generation',
     painPoint: 'Chasing leads manually, losing customer queries, or using disconnected, slow-loading lead tools?',
     sol: 'SamaXon integrates B2B lead generation forms, custom API pipelines, and automated Google Sheets synchronizations. Convert passive web traffic into verified high-value enterprise contracts.',
-    keywords: ['business automation lead generation services', 'B2B web automation developer', 'CRM integration services Delhi NCR', 'automatic sales funnel builder'],
+    keywords: [
+      'business automation lead generation services',
+      'B2B web automation developer',
+      'business automation solutions',
+      'CRM integration services',
+      'automatic sales funnel builder'
+    ],
     empiricalCaseStudy: {
       client: 'Equitas Corporate Advisors',
       result: '3.5x More Verified Leads',
@@ -688,13 +775,19 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
     ]
   },
   delhi_local: {
-    title: 'Top Website Development Agency Delhi NCR | Best Web Design Delhi',
-    description: 'SamaXon is the best website development company in Delhi and Noida. We design high-performance, lightweight, custom-coded React & Node.js business websites and client portals.',
+    title: 'Website Development Agency Delhi NCR | Web Design Company | SamaXon',
+    description: 'High-performance website development agency in Delhi NCR and Noida. Custom-coded React & Node.js business websites, modern web applications, and SEO systems.',
     canonicalPath: '/website-development-delhi',
     headline: 'Dominate Google Rankings with High-Performance Web Development in Delhi',
     painPoint: 'Struggling with slow loading speeds, poor local map rankings, or basic website layouts?',
     sol: 'Our custom-coded React and Vite frameworks are built for ultimate speed, visual prestige, and maximum search engine discoverability across Delhi NCR.',
-    keywords: ['website development Delhi', 'web design agency Delhi', 'best web design company Noida', 'custom software developer Delhi NCR'],
+    keywords: [
+      'website development Delhi',
+      'web design agency Delhi',
+      'best web design company Noida',
+      'custom software developer Delhi NCR',
+      'professional web development Delhi'
+    ],
     empiricalCaseStudy: {
       client: 'SamaXon Noida Client Base',
       result: '100% Mobile Speed Gains',
@@ -719,7 +812,7 @@ export const NICHE_DATA: Record<string, NicheConfig> = {
         sectionHeading: 'The Visual & Operational Authority Mandate for Delhi NCR Brands',
         paragraphs: [
           'In highly competitive markets like Delhi, Noida, and Gurgaon, B2B and B2C brands cannot afford an average online home. Prospective clients evaluate your business authority based on page speeds and design quality. Having a slow website that breaks on mobile screens immediately hurts your brand and surrenders traffic to competitors.',
-          'SamaXon crafts bespoke, lightning-fast digital solutions. We combine clean editorial typography with deep dark or comforting light styles, creating a sense of professional prestige that converts casual visitors into confident buyers.'
+          'SamaXon crafts bespoke, lightning-fast digital solutions. As a dedicated website development agency in Delhi NCR, we combine clean editorial typography with deep dark or comforting light styles, creating a sense of professional prestige that converts casual visitors into confident buyers.'
         ]
       }
     ]

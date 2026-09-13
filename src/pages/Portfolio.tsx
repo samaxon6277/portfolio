@@ -103,9 +103,16 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
   return (
     <div className="bg-soft-ivory min-h-screen pt-32 pb-24" id="portfolio-page">
       <SEO 
-        title="Proof of Premium Execution & Case Studies"
-        description="Browse our selected work: Premium corporate websites, custom monograms, WebView booking apps, and instant Telegram alert bot integrations."
+        title="Web Design & Development Portfolio | SamaXon"
+        description="Explore our web design and development portfolio: high-performance business websites, web applications, custom platforms, and automation systems engineered for growth."
         canonicalPath="/portfolio"
+        keywords={[
+          'web design and development agency portfolio',
+          'web development company case studies',
+          'custom website design portfolio',
+          'web application development projects',
+          'business website development examples'
+        ]}
       />
 
       <div className="max-w-7xl mx-auto px-6">
@@ -113,16 +120,16 @@ export default function Portfolio({ setCurrentPage }: PortfolioProps) {
         {/* --- HEADER --- */}
         <div className="text-left flex flex-col items-start gap-4 mb-12 max-w-4xl border-b border-champagne-gold/15 pb-10">
           <div className="px-3.5 py-1.5 bg-champagne-gold/10 border border-champagne-gold/25 text-[#BFA15A] text-[9px] font-mono uppercase font-bold tracking-widest rounded-full">
-            Elite Case Studies & Visual Proof
+            Case Studies & Proven Projects
           </div>
           <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-matte-black leading-tight">
-            Proof of Premium Execution. <br />
+            Web Design & Development Portfolio: <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-champagne-gold to-muted-gold">
-              Engineered to Perform.
+              Engineered for Real Performance.
             </span>
           </h1>
           <p className="text-base text-warm-grey leading-relaxed mt-2 max-w-2xl">
-            Explore our real transformation chronicles. Every case study outlines the complex business pain point, SamaXon’s customized technical architecture, and the actual performance dividends paid.
+            Explore our featured web design and development projects. Every case study outlines the business challenge, SamaXon’s custom-engineered technical architecture, and the measurable performance outcomes delivered for companies worldwide.
           </p>
         </div>
 

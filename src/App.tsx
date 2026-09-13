@@ -213,6 +213,7 @@ function MainAppContent() {
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
               <Route path="/projects" element={<Portfolio />} />
+              <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/edge" element={<SamaXonEdge />} />
               <Route path="/control" element={<ClientControl />} />
               <Route path="/careers" element={<Careers />} />

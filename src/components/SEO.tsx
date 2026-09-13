@@ -5,7 +5,7 @@ interface SEOProps {
   title: string;
   description: string;
   canonicalPath: string;
-  keywords?: string;
+  keywords?: string | string[];
   schemaType?: string;
   schemaData?: Record<string, any>;
   schemas?: any[];
@@ -40,13 +40,17 @@ export default function SEO({
 
     // 3. Meta Keywords
     const defaultKeywords = "Premium Digital Studio, High-Performance Web Development, 48-Hour Web Delivery, Enterprise Software Noida Delhi NCR, B2B Web Automation, Tier 1 Digital Studio, SamaXon Digital";
+    const formattedKeywords = Array.isArray(keywords) 
+      ? keywords.join(', ') 
+      : (keywords || defaultKeywords);
+
     let metaKeywords = document.querySelector('meta[name="keywords"]');
     if (!metaKeywords) {
       metaKeywords = document.createElement('meta');
       metaKeywords.setAttribute('name', 'keywords');
       document.head.appendChild(metaKeywords);
     }
-    metaKeywords.setAttribute('content', keywords || defaultKeywords);
+    metaKeywords.setAttribute('content', formattedKeywords);
 
     // 4. Robots Directives (Handles indexable vs restricted/404 routes)
     let metaRobots = document.querySelector('meta[name="robots"]');

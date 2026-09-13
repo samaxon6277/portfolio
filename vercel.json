@@ -8,7 +8,7 @@
   ],
   "rewrites": [
     {
-      "source": "/(about|services|projects|edge|control|careers|contact|privacy|terms|refund|founder|team|company|case-studies|pricing|select-direction|partner|partner-program|guides|cost-guide|contract-checklist|updates|changelog|system-updates|tools|analyzer|website-analyzer|audit-fix|audit-fix-request|service-request|service-portal|admin|banquet-hall-website-design|resort-website-design|hotel-website-design|gym-website-design|restaurant-website-design|business-website-design|school-website-design|clinic-website-design|interior-designer-website-design|website-design-for-hotels-delhi|interior-design-website-development|gaming-website-development-india|business-automation-lead-generation-services|website-development-delhi)",
+      "source": "/(about|services|projects|portfolio|edge|control|careers|contact|privacy|terms|refund|founder|team|company|case-studies|pricing|select-direction|partner|partner-program|guides|cost-guide|contract-checklist|updates|changelog|system-updates|tools|analyzer|website-analyzer|audit-fix|audit-fix-request|service-request|service-portal|admin|banquet-hall-website-design|resort-website-design|hotel-website-design|gym-website-design|restaurant-website-design|business-website-design|school-website-design|clinic-website-design|interior-designer-website-design|website-design-for-hotels-delhi|interior-design-website-development|gaming-website-development-india|business-automation-lead-generation-services|website-development-delhi)",
       "destination": "/index.html"
     },
     {
