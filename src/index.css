@@ -48,7 +48,6 @@
   html {
     font-size: 15.5px;
     -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
   }
 

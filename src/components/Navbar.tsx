@@ -36,7 +36,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
         { label: 'Pricing', id: 'pricing', path: '/pricing', visible: true },
         { label: 'Guides', id: 'guides', path: '/guides', visible: true },
         { label: 'Partner', id: 'partner', path: '/partner', badge: '20%', visible: true },
-        { label: 'Tools', id: 'tools', path: '/tools', badge: 'Free', visible: true },
+        { label: 'TOOLS', id: 'tools', path: '/tools', badge: 'Free', visible: true },
         { label: 'Company', id: 'company', path: '/company', visible: true },
       ]
   ).filter(item => item.visible !== false);
@@ -128,7 +128,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
     { label: 'Pricing Plans', id: 'pricing', path: '/pricing' },
     { label: "Buyer's Guides", id: 'guides', path: '/guides', badge: 'New' },
     { label: 'Partner Program', id: 'partner', path: '/partner', badge: '20% Earn' },
-    { label: 'Tools Suite', id: 'tools', path: '/tools', badge: 'Free' },
+    { label: 'TOOLS', id: 'tools', path: '/tools', badge: 'Free' },
     { label: 'About SamaXon', id: 'about', path: '/about' },
     { label: 'SamaXon Edge (48-Hr)', id: 'edge', path: '/edge' },
     { label: 'Client Control', id: 'control', path: '/control' },

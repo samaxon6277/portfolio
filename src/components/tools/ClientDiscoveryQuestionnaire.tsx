@@ -157,13 +157,13 @@ export default function ClientDiscoveryQuestionnaire() {
   const nextStep = () => {
     if (validateCurrentStep()) {
       setStep(prev => Math.min(STEPS.length, prev + 1));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
   };
 
   const prevStep = () => {
     setStep(prev => Math.max(1, prev - 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   // Submit to Server endpoint

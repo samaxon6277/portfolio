@@ -123,7 +123,7 @@ const DEFAULT_UPDATES: WebsiteUpdateLog[] = [
   {
     id: 'upd-003',
     version: 'v2.3.0',
-    title: 'Creator & Business AI Tools Suite',
+    title: 'Creator & Business Tools',
     category: 'Feature Release',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // 3 days ago
     displayDate: '05 September 2026',
@@ -139,7 +139,7 @@ const DEFAULT_UPDATES: WebsiteUpdateLog[] = [
       'Integrated Color Palette Studio with contrast ratio accessibility checker',
       'Unified /tools route with instant tab-switching'
     ],
-    affectedModules: ['AI Tools Suite', 'Image Processing', 'SEO Tools'],
+    affectedModules: ['Tools', 'Image Processing', 'SEO Tools'],
     status: 'published'
   },
   {

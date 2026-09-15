@@ -89,7 +89,7 @@ export default function ToolsControlTab() {
                 </span>
               </div>
               <h2 className="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight">
-                Digital Tools Suite Master Control
+                Digital Tools Master Control
               </h2>
             </div>
 

@@ -25,7 +25,6 @@ export default function Guides() {
   const handleTabChange = (tabKey: string) => {
     setActiveTab(tabKey);
     setSearchParams({ tab: tabKey });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

@@ -268,7 +268,6 @@ export default function ServiceRequest() {
     setSelectedServiceId(id);
     setSelectedOptions([]);
     navigate(`/service-request?service=${id}`, { replace: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const toggleOption = (optionId: string) => {

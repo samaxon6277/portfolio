@@ -14,7 +14,6 @@ export default function Services({ setCurrentPage }: ServicesProps) {
 
   const handleAction = (serviceId: string) => {
     navigate(`/service-request?service=${serviceId}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const filteredServices = selectedCategory === 'all'

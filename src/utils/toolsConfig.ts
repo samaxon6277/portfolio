@@ -2,10 +2,50 @@
 // Allows Admin to enable/disable any tool with instant real-time synchronization
 
 export interface ToolItemConfig {
-  id: 'website-seo-audit' | 'website-speed-checker' | 'website-project-brief' | 'roi-calculator' | 'qr-generator' | 'business-name-generator' | 'invoice-generator' | 'canonical-url-validator' | 'api-request-builder' | 'client-discovery-questionnaire' | 'analyzer' | 'converter' | 'calculator' | 'compressor' | 'resizer' | 'pdf-tool' | 'bg-remover' | 'upscaler' | 'vectorizer';
+  id: 
+    | 'website-launch-readiness'
+    | 'website-project-scope-builder'
+    | 'design-system-generator'
+    | 'website-accessibility-auditor'
+    | 'website-content-brief-generator'
+    | 'open-graph-preview-designer'
+    | 'internal-link-planner'
+    | 'responsive-breakpoint-tester'
+    | 'seo-competitor-gap-analyzer'
+    | 'website-privacy-policy-builder'
+    | 'website-seo-audit' 
+    | 'website-speed-checker' 
+    | 'website-project-brief' 
+    | 'roi-calculator' 
+    | 'qr-generator' 
+    | 'business-name-generator' 
+    | 'invoice-generator' 
+    | 'canonical-url-validator' 
+    | 'api-request-builder' 
+    | 'client-discovery-questionnaire' 
+    | 'pdf-tools'
+    | 'pdf-to-word-converter'
+    | 'password-generator'
+    | 'word-counter'
+    | 'age-calculator'
+    | 'json-formatter-validator'
+    | 'utm-campaign-url-builder'
+    | 'time-zone-converter'
+    | 'text-diff-checker'
+    | 'url-encoder-decoder'
+    | 'image-steganography'
+    | 'analyzer' 
+    | 'converter' 
+    | 'calculator' 
+    | 'compressor' 
+    | 'resizer' 
+    | 'pdf-tool' 
+    | 'bg-remover' 
+    | 'upscaler' 
+    | 'vectorizer';
   name: string;
   shortName: string;
-  category: 'SEO & Audit' | 'Speed & Vitals' | 'AI Planning' | 'Finance & ROI' | 'Branding & Identity' | 'Image' | 'Document' | 'Productivity' | 'AI Neural';
+  category: 'SEO & Audit' | 'Speed & Vitals' | 'AI Planning' | 'Finance & ROI' | 'Branding & Identity' | 'Image' | 'Document' | 'Productivity' | 'AI Neural' | 'Development & QA' | 'Design & UX' | 'Legal & Compliance';
   badge: string;
   description: string;
   enabled: boolean;
@@ -14,6 +54,106 @@ export interface ToolItemConfig {
 }
 
 export const DEFAULT_TOOLS_CONFIG: ToolItemConfig[] = [
+  {
+    id: 'website-launch-readiness',
+    name: 'Website Launch Readiness & Pre-Flight Gate Checker',
+    shortName: 'Launch Readiness',
+    category: 'Development & QA',
+    badge: 'Pre-Flight Engine',
+    description: 'Comprehensive 6-pillar deployment audit with automated live HTTP probing, blocker grading, launch verdicts, and client sign-off certificate export.',
+    enabled: true,
+    iconName: 'CheckSquare'
+  },
+  {
+    id: 'website-project-scope-builder',
+    name: 'Website Project Scope & Technical Estimator',
+    shortName: 'Scope Builder',
+    category: 'AI Planning',
+    badge: 'Agency Work-Matrix',
+    description: 'Interactive agency-grade scoping matrix with deliverable selections, role hour allocations, realistic sprint timelines, and Statement of Work (SOW) exports.',
+    enabled: true,
+    iconName: 'Sliders'
+  },
+  {
+    id: 'design-system-generator',
+    name: 'Design System & Style Guide Architecture Generator',
+    shortName: 'Design System',
+    category: 'Design & UX',
+    badge: 'Token Studio',
+    description: 'Create multi-brand design tokens, mathematical typography scales, WCAG AA/AAA contrast verified palettes, and export to Tailwind CSS, CSS variables, and Figma tokens.',
+    enabled: true,
+    iconName: 'Palette'
+  },
+  {
+    id: 'website-accessibility-auditor',
+    name: 'Website Accessibility Auditor & WCAG 2.1 Scanner',
+    shortName: 'Accessibility Auditor',
+    category: 'Development & QA',
+    badge: 'WCAG 2.1 AA/AAA',
+    description: 'Deep accessibility engine auditing image alt coverage, heading order hierarchy, form label bindings, color contrast, touch targets, and ARIA attributes.',
+    enabled: true,
+    iconName: 'ShieldCheck'
+  },
+  {
+    id: 'website-content-brief-generator',
+    name: 'Website Content Brief & Editorial Strategy Generator',
+    shortName: 'Content Brief',
+    category: 'AI Planning',
+    badge: 'Editorial Blueprint',
+    description: 'High-intent editorial briefs with search intent mapping, target keyword clustering, heading outlines (H1/H2/H3), conversion CTAs, and copywriter guidelines.',
+    enabled: true,
+    iconName: 'FileEdit'
+  },
+  {
+    id: 'open-graph-preview-designer',
+    name: 'Open Graph Preview Designer & Social Card Generator',
+    shortName: 'Open Graph Designer',
+    category: 'Branding & Identity',
+    badge: '1200×630 Canvas',
+    description: 'Interactive social card studio rendering live Google SERP, Facebook, Twitter, and LinkedIn previews with real-time HTML5 Canvas 1200×630 banner generation.',
+    enabled: true,
+    iconName: 'Share2'
+  },
+  {
+    id: 'internal-link-planner',
+    name: 'Internal Link Planner & Topic Cluster Architect',
+    shortName: 'Internal Link Planner',
+    category: 'SEO & Audit',
+    badge: 'Topic Cluster Graph',
+    description: 'Model topic clusters, pillar-spoke hierarchies, anchor text distribution, click-depth calculation, and export JSON-LD SiteNavigationElement schema.',
+    enabled: true,
+    iconName: 'Network'
+  },
+  {
+    id: 'responsive-breakpoint-tester',
+    name: 'Responsive Breakpoint & Multi-Device Viewport Tester',
+    shortName: 'Responsive Tester',
+    category: 'Development & QA',
+    badge: 'Multi-Device Suite',
+    description: 'Test URLs across Mobile (375px, 390px), Tablet (768px, 820px), Laptop (1024px, 1280px), and Ultra-wide (1920px) with live iframe rotation and zoom controls.',
+    enabled: true,
+    iconName: 'Smartphone'
+  },
+  {
+    id: 'seo-competitor-gap-analyzer',
+    name: 'SEO Competitor Gap Analyzer & Benchmark Engine',
+    shortName: 'Competitor Analyzer',
+    category: 'SEO & Audit',
+    badge: 'Disparity Matrix',
+    description: 'Audit your domain side-by-side against commercial rivals. Uncover content depth deficits, latency gaps, schema markup omissions, and tactical organic advantages.',
+    enabled: true,
+    iconName: 'GitCompare'
+  },
+  {
+    id: 'website-privacy-policy-builder',
+    name: 'Website Privacy Policy & Data Governance Builder',
+    shortName: 'Privacy Policy Builder',
+    category: 'Legal & Compliance',
+    badge: 'DPDPA & GDPR Compliant',
+    description: 'Construct complete, legally structured privacy policies aligned with the Digital Personal Data Protection Act (DPDPA), GDPR, and global data privacy standards.',
+    enabled: true,
+    iconName: 'Lock'
+  },
   {
     id: 'canonical-url-validator',
     name: 'Canonical URL Validator & Tag Inspector',
@@ -135,6 +275,16 @@ export const DEFAULT_TOOLS_CONFIG: ToolItemConfig[] = [
     iconName: 'RefreshCw'
   },
   {
+    id: 'image-steganography',
+    name: 'Image Steganography',
+    shortName: 'Steganography',
+    category: 'Image',
+    badge: 'AES-256 & LSB',
+    description: 'Hide encrypted messages or files inside an image and extract them later using this tool. 100% in-browser Web Crypto and lossless canvas LSB embedding.',
+    enabled: true,
+    iconName: 'Lock'
+  },
+  {
     id: 'calculator',
     name: 'Universal Multi-Calculator',
     shortName: 'Calculator Suite',
@@ -163,6 +313,106 @@ export const DEFAULT_TOOLS_CONFIG: ToolItemConfig[] = [
     description: 'Resize by pixels, cm, mm, inch or percentage with aspect-ratio locking and 300 DPI print fidelity. Includes 1-click official ID standards (Indian Passport 3.5×4.5cm, US Visa 2×2").',
     enabled: true,
     iconName: 'Crop'
+  },
+  {
+    id: 'pdf-tools',
+    name: 'PDF Tools (Merge, Split, Rotate & Extract)',
+    shortName: 'PDF Tools',
+    category: 'Document',
+    badge: '100% In-Browser',
+    description: 'Merge multiple PDFs, split by custom page ranges, rotate pages, reorder visually, and extract page subsets with complete local privacy and zero server uploads.',
+    enabled: true,
+    iconName: 'Layers'
+  },
+  {
+    id: 'pdf-to-word-converter',
+    name: 'PDF to Word Converter',
+    shortName: 'PDF to Word',
+    category: 'Document',
+    badge: 'DOCX Generator',
+    description: 'Convert text-based PDF documents into fully editable Microsoft Word (.docx) documents with structured headings, paragraphs, and 100% in-browser privacy.',
+    enabled: true,
+    iconName: 'FileCheck'
+  },
+  {
+    id: 'password-generator',
+    name: 'Password Generator (Random & Memorable Passphrase)',
+    shortName: 'Password Generator',
+    category: 'Productivity',
+    badge: 'Crypto Random',
+    description: 'Generate cryptographically secure random passwords and memorable multi-word passphrases with entropy scores and customizable symbol, number, and case rules.',
+    enabled: true,
+    iconName: 'KeyRound'
+  },
+  {
+    id: 'word-counter',
+    name: 'Word Counter & Text Analyzer',
+    shortName: 'Word Counter',
+    category: 'Productivity',
+    badge: 'Real-Time Stats',
+    description: 'Count words, characters, sentences, paragraphs, reading time, speaking time, and target keyword density with Unicode and multilingual text support.',
+    enabled: true,
+    iconName: 'FileText'
+  },
+  {
+    id: 'age-calculator',
+    name: 'Age Calculator & Chrono Milestones',
+    shortName: 'Age Calculator',
+    category: 'Productivity',
+    badge: 'Precision Chrono',
+    description: 'Calculate exact age in years, months, and days from date of birth, with total hours, leap year calculations, and upcoming birthday countdowns.',
+    enabled: true,
+    iconName: 'Calendar'
+  },
+  {
+    id: 'json-formatter-validator',
+    name: 'JSON Formatter & Validator',
+    shortName: 'JSON Formatter',
+    category: 'Development & QA',
+    badge: 'RFC 8259 Compliant',
+    description: 'Format, prettify, compact, and validate JSON payloads with visual tree navigation, line/column error diagnostics, and 100% private in-browser parsing.',
+    enabled: true,
+    iconName: 'Code2'
+  },
+  {
+    id: 'utm-campaign-url-builder',
+    name: 'UTM Campaign URL Builder',
+    shortName: 'UTM URL Builder',
+    category: 'SEO & Audit',
+    badge: 'Attribution Engine',
+    description: 'Generate standardized, error-free Google Analytics (GA4) campaign tracking links with parameter collision prevention, fragment preservation, and instant copying.',
+    enabled: true,
+    iconName: 'Link2'
+  },
+  {
+    id: 'time-zone-converter',
+    name: 'Time Zone Converter & Meeting Scheduler',
+    shortName: 'Time Zone Converter',
+    category: 'Productivity',
+    badge: 'Accurate DST',
+    description: 'Convert dates and times across global international time zones with accurate Daylight Saving Time calculations and multi-city office comparison matrix.',
+    enabled: true,
+    iconName: 'Clock'
+  },
+  {
+    id: 'text-diff-checker',
+    name: 'Text Diff Checker & Revision Inspector',
+    shortName: 'Text Diff Checker',
+    category: 'Development & QA',
+    badge: 'LCS High Fidelity',
+    description: 'Compare two text blocks, legal contracts, or code snippets side-by-side or unified with line-by-line and word-by-word diff calculation.',
+    enabled: true,
+    iconName: 'GitCompare'
+  },
+  {
+    id: 'url-encoder-decoder',
+    name: 'URL Encoder & Decoder',
+    shortName: 'URL Encoder & Decoder',
+    category: 'Development & QA',
+    badge: 'RFC 3986 Standard',
+    description: 'Convert special characters and query strings into percent-encoded RFC 3986 format or decode encoded URLs back to clean human text in your browser.',
+    enabled: true,
+    iconName: 'Code2'
   },
   {
     id: 'pdf-tool',
@@ -211,12 +461,19 @@ const SYNC_EVENT = 'samaxon_tools_status_updated';
 
 export function getToolsConfig(): ToolItemConfig[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_TOOLS_CONFIG;
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return DEFAULT_TOOLS_CONFIG;
+    const seen = new Set<string>();
+    const uniqueDefaults = DEFAULT_TOOLS_CONFIG.filter(tool => {
+      if (seen.has(tool.id)) return false;
+      seen.add(tool.id);
+      return true;
+    });
 
-    return DEFAULT_TOOLS_CONFIG.map(defaultTool => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return uniqueDefaults;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return uniqueDefaults;
+
+    return uniqueDefaults.map(defaultTool => {
       const match = parsed.find((p: any) => p && p.id === defaultTool.id);
       if (!match) return defaultTool;
       return {
@@ -226,7 +483,12 @@ export function getToolsConfig(): ToolItemConfig[] {
       };
     });
   } catch (e) {
-    return DEFAULT_TOOLS_CONFIG;
+    const seen = new Set<string>();
+    return DEFAULT_TOOLS_CONFIG.filter(tool => {
+      if (seen.has(tool.id)) return false;
+      seen.add(tool.id);
+      return true;
+    });
   }
 }
 

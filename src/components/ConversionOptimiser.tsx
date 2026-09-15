@@ -61,14 +61,12 @@ export default function ConversionOptimiser() {
   const handleBookConsultation = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate('/contact', { state: { source: 'floating-cta-consult' } });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsOpen(false);
   };
 
   const handleStartProject = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigate('/contact', { state: { source: 'floating-cta-start-project' } });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsOpen(false);
   };
 

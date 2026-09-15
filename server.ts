@@ -424,7 +424,7 @@ Object.values(ALL_TOOLS_SEO).forEach(tool => {
       <nav style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
         <a href="/" style="color: #D6B46A; font-weight: bold; text-decoration: none; font-size: 1.5rem;">SamaXon Digital Solutions</a>
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <a href="/tools" style="color: #D6B46A; font-weight: bold; text-decoration: none;">Tools Suite</a>
+          <a href="/tools" style="color: #D6B46A; font-weight: bold; text-decoration: none;">Tools</a>
           <a href="/analyzer" style="color: #FFFFFF; text-decoration: none;">Website Analyzer</a>
           <a href="/contact" style="color: #FFFFFF; text-decoration: none;">Contact</a>
         </div>
@@ -3418,29 +3418,38 @@ Return ONLY a valid JSON array containing objects with these exact keys:
 
 Do not wrap in markdown quotes if possible, output pure parseable JSON.`;
 
-          const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-              temperature: 0.85,
-              responseMimeType: 'application/json'
-            }
-          });
+          const candidateModels = ['gemini-3.8-flash', 'gemini-3.1-flash-lite'];
+          for (const modelName of candidateModels) {
+            try {
+              const response = await ai.models.generateContent({
+                model: modelName,
+                contents: prompt,
+                config: {
+                  temperature: 0.85,
+                  responseMimeType: 'application/json'
+                }
+              });
 
-          const rawText = response.text || '';
-          const cleanedText = rawText.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-          const parsed = JSON.parse(cleanedText);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            namesList = parsed.map(item => ({
-              name: String(item.name || 'Brand'),
-              tagline: String(item.tagline || 'Elevating the Standard of Excellence'),
-              vibe: Array.isArray(item.vibe) ? item.vibe.slice(0, 3) : ['Luxury', 'Modern', 'Prestige'],
-              rationale: String(item.rationale || 'Engineered for clarity, distinction, and market authority.'),
-              domains: Array.isArray(item.domains) ? item.domains : ['.com', '.co', '.luxury'],
-              pronunciation: String(item.pronunciation || `/${item.name?.toLowerCase()}/`),
-              style: String(item.style || cleanStyle),
-              length: Number(item.length || item.name?.length || 8)
-            }));
+              const rawText = response.text || '';
+              const cleanedText = rawText.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+              const parsed = JSON.parse(cleanedText);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                namesList = parsed.map(item => ({
+                  name: String(item.name || 'Brand'),
+                  tagline: String(item.tagline || 'Elevating the Standard of Excellence'),
+                  vibe: Array.isArray(item.vibe) ? item.vibe.slice(0, 3) : ['Luxury', 'Modern', 'Prestige'],
+                  rationale: String(item.rationale || 'Engineered for clarity, distinction, and market authority.'),
+                  domains: Array.isArray(item.domains) ? item.domains : ['.com', '.co', '.luxury'],
+                  pronunciation: String(item.pronunciation || `/${item.name?.toLowerCase()}/`),
+                  style: String(item.style || cleanStyle),
+                  length: Number(item.length || item.name?.length || 8)
+                }));
+                break;
+              }
+            } catch (modelErr: any) {
+              const errCode = modelErr?.status || modelErr?.code || (modelErr?.message?.includes('503') ? '503_UNAVAILABLE' : 'transient');
+              console.log(`[Business Names Engine] Model ${modelName} encountered ${errCode}; evaluating next generation engine.`);
+            }
           }
         } catch (apiErr: any) {
           console.warn('Gemini API invocation note (falling back to tailored expert engine):', apiErr?.message || apiErr);

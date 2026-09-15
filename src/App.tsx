@@ -34,10 +34,17 @@ import AuditFixRequest from './pages/AuditFixRequest';
 import { analytics } from './utils/analytics';
 import ErrorBoundary from './components/ErrorBoundary';
 
+// Ensure browser automatic scroll restoration is disabled so transitions don't jump or scroll down
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+
 function ScrollToTop() {
   const { pathname, search } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [pathname, search]);
   return null;
 }
@@ -198,15 +205,23 @@ function MainAppContent() {
       {/* Professional Cookie Consent Banner */}
       <CookieConsent />
 
-      {/* Main viewport with elegant page entry transitions */}
+      {/* Main viewport with smooth premium fade-in / fade-out page transitions */}
       <main className="flex-grow">
-        <AnimatePresence mode="wait">
+        <AnimatePresence 
+          mode="wait"
+          onExitComplete={() => {
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          }}
+        >
           <motion.div
-            key={location.pathname.startsWith('/tools') ? '/tools' : location.pathname}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
+            className="w-full flex-grow flex flex-col"
           >
             <Routes location={location}>
               <Route path="/" element={<Home />} />
@@ -244,8 +259,40 @@ function MainAppContent() {
               <Route path="/changelog" element={<Updates />} />
               <Route path="/system-updates" element={<Updates />} />
               
-              {/* Creator & Business Tools Suite */}
+              {/* Creator & Business Tools */}
               <Route path="/tools" element={<Tools />} />
+              <Route path="/tools/category/:categoryId" element={<Tools />} />
+              <Route path="/tools/website-launch-readiness" element={<Tools />} />
+              <Route path="/tools/launch-readiness" element={<Tools />} />
+              <Route path="/launch-readiness" element={<Tools />} />
+              <Route path="/tools/website-project-scope-builder" element={<Tools />} />
+              <Route path="/tools/project-scope" element={<Tools />} />
+              <Route path="/project-scope" element={<Tools />} />
+              <Route path="/tools/design-system-generator" element={<Tools />} />
+              <Route path="/tools/design-system" element={<Tools />} />
+              <Route path="/design-system" element={<Tools />} />
+              <Route path="/tools/website-accessibility-auditor" element={<Tools />} />
+              <Route path="/tools/accessibility-auditor" element={<Tools />} />
+              <Route path="/accessibility-auditor" element={<Tools />} />
+              <Route path="/tools/website-content-brief-generator" element={<Tools />} />
+              <Route path="/tools/content-brief" element={<Tools />} />
+              <Route path="/content-brief" element={<Tools />} />
+              <Route path="/tools/open-graph-preview-designer" element={<Tools />} />
+              <Route path="/tools/open-graph" element={<Tools />} />
+              <Route path="/open-graph" element={<Tools />} />
+              <Route path="/tools/internal-link-planner" element={<Tools />} />
+              <Route path="/tools/internal-links" element={<Tools />} />
+              <Route path="/internal-links" element={<Tools />} />
+              <Route path="/tools/responsive-breakpoint-tester" element={<Tools />} />
+              <Route path="/tools/responsive-tester" element={<Tools />} />
+              <Route path="/responsive-tester" element={<Tools />} />
+              <Route path="/tools/seo-competitor-gap-analyzer" element={<Tools />} />
+              <Route path="/tools/competitor-analyzer" element={<Tools />} />
+              <Route path="/competitor-analyzer" element={<Tools />} />
+              <Route path="/tools/website-privacy-policy-builder" element={<Tools />} />
+              <Route path="/tools/privacy-builder" element={<Tools />} />
+              <Route path="/privacy-builder" element={<Tools />} />
+
               <Route path="/tools/canonical-url-validator" element={<Tools />} />
               <Route path="/tools/canonical-validator" element={<Tools />} />
               <Route path="/canonical-url-validator" element={<Tools />} />
@@ -255,6 +302,39 @@ function MainAppContent() {
               <Route path="/tools/client-discovery-questionnaire" element={<Tools />} />
               <Route path="/tools/client-discovery" element={<Tools />} />
               <Route path="/client-discovery" element={<Tools />} />
+
+              {/* Five Core Everyday Utilities */}
+              <Route path="/tools/pdf-tools" element={<Tools />} />
+              <Route path="/pdf-tools" element={<Tools />} />
+              <Route path="/tools/pdf-to-word-converter" element={<Tools />} />
+              <Route path="/tools/pdf-to-word" element={<Tools />} />
+              <Route path="/pdf-to-word" element={<Tools />} />
+              <Route path="/pdf-to-word-converter" element={<Tools />} />
+              <Route path="/tools/password-generator" element={<Tools />} />
+              <Route path="/tools/password" element={<Tools />} />
+              <Route path="/password-generator" element={<Tools />} />
+              <Route path="/tools/word-counter" element={<Tools />} />
+              <Route path="/tools/wordcount" element={<Tools />} />
+              <Route path="/word-counter" element={<Tools />} />
+              <Route path="/tools/age-calculator" element={<Tools />} />
+              <Route path="/tools/age" element={<Tools />} />
+              <Route path="/age-calculator" element={<Tools />} />
+              <Route path="/tools/utm-campaign-url-builder" element={<Tools />} />
+              <Route path="/tools/utm-builder" element={<Tools />} />
+              <Route path="/utm-campaign-url-builder" element={<Tools />} />
+              <Route path="/utm-builder" element={<Tools />} />
+              <Route path="/tools/json-formatter-validator" element={<Tools />} />
+              <Route path="/tools/json-formatter" element={<Tools />} />
+              <Route path="/tools/time-zone-converter" element={<Tools />} />
+              <Route path="/tools/timezone-converter" element={<Tools />} />
+              <Route path="/tools/text-diff-checker" element={<Tools />} />
+              <Route path="/tools/diff-checker" element={<Tools />} />
+              <Route path="/tools/url-encoder-decoder" element={<Tools />} />
+              <Route path="/tools/url-encoder" element={<Tools />} />
+              <Route path="/tools/image-steganography" element={<Tools />} />
+              <Route path="/tools/steganography" element={<Tools />} />
+              <Route path="/image-steganography" element={<Tools />} />
+              <Route path="/steganography" element={<Tools />} />
               <Route path="/tools/website-seo-audit" element={<Tools />} />
               <Route path="/tools/seo-audit" element={<Tools />} />
               <Route path="/tools/website-speed-checker" element={<Tools />} />
@@ -281,6 +361,7 @@ function MainAppContent() {
               <Route path="/tools/upscaler" element={<Tools />} />
               <Route path="/tools/vectorizer" element={<Tools />} />
               <Route path="/tools/pdf-tool" element={<Tools />} />
+              <Route path="/tools/:toolId" element={<Tools />} />
               <Route path="/audit-fix" element={<AuditFixRequest />} />
               <Route path="/tools/audit-fix" element={<AuditFixRequest />} />
               <Route path="/audit-fix-request" element={<AuditFixRequest />} />

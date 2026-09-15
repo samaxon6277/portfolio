@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
+import { motion } from 'motion/react';
 import { 
   Minimize2, Crop, Sparkles, LayoutGrid, ArrowLeft, 
   ShieldCheck, Zap, Lock, ChevronRight, RefreshCw, Calculator,
@@ -26,7 +27,30 @@ import InvoiceGenerator from '../components/tools/InvoiceGenerator';
 import CanonicalUrlValidator from '../components/tools/CanonicalUrlValidator';
 import ApiRequestBuilder from '../components/tools/ApiRequestBuilder';
 import ClientDiscoveryQuestionnaire from '../components/tools/ClientDiscoveryQuestionnaire';
+import PdfTools from '../components/tools/PdfTools';
+import PdfToWordConverter from '../components/tools/PdfToWordConverter';
+import PasswordGenerator from '../components/tools/PasswordGenerator';
+import WordCounter from '../components/tools/WordCounter';
+import AgeCalculator from '../components/tools/AgeCalculator';
+import JsonFormatterValidator from '../components/tools/JsonFormatterValidator';
+import UtmCampaignUrlBuilder from '../components/tools/UtmCampaignUrlBuilder';
+import TimeZoneConverter from '../components/tools/TimeZoneConverter';
+import TextDiffChecker from '../components/tools/TextDiffChecker';
+import UrlEncoderDecoder from '../components/tools/UrlEncoderDecoder';
+import ImageSteganography from '../components/tools/ImageSteganography';
+import WebsiteLaunchReadinessChecker from '../components/tools/WebsiteLaunchReadinessChecker';
+import WebsiteProjectScopeBuilder from '../components/tools/WebsiteProjectScopeBuilder';
+import DesignSystemGenerator from '../components/tools/DesignSystemGenerator';
+import WebsiteAccessibilityAuditor from '../components/tools/WebsiteAccessibilityAuditor';
+import WebsiteContentBriefGenerator from '../components/tools/WebsiteContentBriefGenerator';
+import OpenGraphPreviewDesigner from '../components/tools/OpenGraphPreviewDesigner';
+import InternalLinkPlanner from '../components/tools/InternalLinkPlanner';
+import ResponsiveBreakpointTester from '../components/tools/ResponsiveBreakpointTester';
+import SeoCompetitorGapAnalyzer from '../components/tools/SeoCompetitorGapAnalyzer';
+import WebsitePrivacyInformationBuilder from '../components/tools/WebsitePrivacyInformationBuilder';
 import ToolsOverview from '../components/tools/ToolsOverview';
+import { CategoryDetailView } from '../components/tools/CategoryDetailView';
+import { getCategoryBySlug, getCategoryForTool } from '../data/toolsCatalog';
 import { getToolsConfig, ToolItemConfig } from '../utils/toolsConfig';
 import { 
   getToolSeoMetadata, 
@@ -37,9 +61,30 @@ import {
 
 export type ToolTab = 
   | 'overview' 
+  | 'website-launch-readiness'
+  | 'website-project-scope-builder'
+  | 'design-system-generator'
+  | 'website-accessibility-auditor'
+  | 'website-content-brief-generator'
+  | 'open-graph-preview-designer'
+  | 'internal-link-planner'
+  | 'responsive-breakpoint-tester'
+  | 'seo-competitor-gap-analyzer'
+  | 'website-privacy-policy-builder'
   | 'canonical-url-validator'
   | 'api-request-builder'
   | 'client-discovery-questionnaire'
+  | 'pdf-tools'
+  | 'pdf-to-word-converter'
+  | 'password-generator'
+  | 'word-counter'
+  | 'age-calculator'
+  | 'json-formatter-validator'
+  | 'utm-campaign-url-builder'
+  | 'time-zone-converter'
+  | 'text-diff-checker'
+  | 'url-encoder-decoder'
+  | 'image-steganography'
   | 'analyzer'
   | 'website-seo-audit'
   | 'website-speed-checker'
@@ -83,11 +128,63 @@ export default function Tools() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const { toolId, categoryId } = useParams<{ toolId?: string; categoryId?: string }>();
+
+  // Determine if URL is targeting a category view
+  const categorySlug = categoryId || (
+    location.pathname.startsWith('/tools/category/')
+      ? location.pathname.replace('/tools/category/', '').split('/')[0].split('?')[0]
+      : null
+  );
+
+  const matchedCategory = categorySlug ? getCategoryBySlug(categorySlug) : null;
+
   // Determine active tab based on pathname or query
   const getTabFromPath = (): ToolTab => {
+    const validTabs: ToolTab[] = [
+      'website-launch-readiness', 'website-project-scope-builder', 'design-system-generator',
+      'website-accessibility-auditor', 'website-content-brief-generator', 'open-graph-preview-designer',
+      'internal-link-planner', 'responsive-breakpoint-tester', 'seo-competitor-gap-analyzer',
+      'website-privacy-policy-builder',
+      'canonical-url-validator', 'api-request-builder', 'client-discovery-questionnaire',
+      'pdf-tools', 'pdf-to-word-converter', 'password-generator', 'word-counter', 'age-calculator',
+      'json-formatter-validator', 'utm-campaign-url-builder', 'time-zone-converter', 'text-diff-checker', 'url-encoder-decoder',
+      'image-steganography',
+      'website-seo-audit', 'website-speed-checker', 'website-project-brief',
+      'roi-calculator', 'qr-generator', 'business-name-generator', 'invoice-generator',
+      'analyzer', 'compressor', 'resizer', 'converter', 'calculator',
+      'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool'
+    ];
+
+    if (toolId && validTabs.includes(toolId as ToolTab)) {
+      return toolId as ToolTab;
+    }
+
+    if (location.pathname.includes('/tools/website-launch-readiness') || location.pathname.includes('/tools/launch-readiness') || location.pathname === '/launch-readiness') return 'website-launch-readiness';
+    if (location.pathname.includes('/tools/website-project-scope-builder') || location.pathname.includes('/tools/project-scope') || location.pathname === '/project-scope') return 'website-project-scope-builder';
+    if (location.pathname.includes('/tools/design-system-generator') || location.pathname.includes('/tools/design-system') || location.pathname === '/design-system') return 'design-system-generator';
+    if (location.pathname.includes('/tools/website-accessibility-auditor') || location.pathname.includes('/tools/accessibility-auditor') || location.pathname === '/accessibility-auditor') return 'website-accessibility-auditor';
+    if (location.pathname.includes('/tools/website-content-brief-generator') || location.pathname.includes('/tools/content-brief') || location.pathname === '/content-brief') return 'website-content-brief-generator';
+    if (location.pathname.includes('/tools/open-graph-preview-designer') || location.pathname.includes('/tools/open-graph') || location.pathname === '/open-graph') return 'open-graph-preview-designer';
+    if (location.pathname.includes('/tools/internal-link-planner') || location.pathname.includes('/tools/internal-links') || location.pathname === '/internal-links') return 'internal-link-planner';
+    if (location.pathname.includes('/tools/responsive-breakpoint-tester') || location.pathname.includes('/tools/responsive-tester') || location.pathname === '/responsive-tester') return 'responsive-breakpoint-tester';
+    if (location.pathname.includes('/tools/seo-competitor-gap-analyzer') || location.pathname.includes('/tools/competitor-analyzer') || location.pathname === '/competitor-analyzer') return 'seo-competitor-gap-analyzer';
+    if (location.pathname.includes('/tools/website-privacy-policy-builder') || location.pathname.includes('/tools/privacy-builder') || location.pathname === '/privacy-builder') return 'website-privacy-policy-builder';
+
     if (location.pathname.includes('/tools/canonical-url-validator') || location.pathname.includes('/tools/canonical-validator') || location.pathname === '/canonical-url-validator') return 'canonical-url-validator';
     if (location.pathname.includes('/tools/api-request-builder') || location.pathname.includes('/tools/api-builder') || location.pathname === '/api-request-builder') return 'api-request-builder';
     if (location.pathname.includes('/tools/client-discovery-questionnaire') || location.pathname.includes('/tools/client-discovery') || location.pathname === '/client-discovery') return 'client-discovery-questionnaire';
+    if (location.pathname.includes('/tools/pdf-tools') || location.pathname.includes('/tools/pdf-tool') || location.pathname === '/pdf-tools' || location.pathname === '/tools/pdf-tool') return 'pdf-tools';
+    if (location.pathname.includes('/tools/pdf-to-word-converter') || location.pathname.includes('/tools/pdf-to-word') || location.pathname === '/pdf-to-word') return 'pdf-to-word-converter';
+    if (location.pathname.includes('/tools/password-generator') || location.pathname.includes('/tools/password') || location.pathname === '/password-generator') return 'password-generator';
+    if (location.pathname.includes('/tools/word-counter') || location.pathname.includes('/tools/wordcount') || location.pathname === '/word-counter') return 'word-counter';
+    if (location.pathname.includes('/tools/age-calculator') || location.pathname.includes('/tools/age') || location.pathname === '/age-calculator') return 'age-calculator';
+    if (location.pathname.includes('/tools/json-formatter-validator') || location.pathname.includes('/tools/json-formatter') || location.pathname === '/tools/json-formatter' || location.pathname === '/tools/json-validator') return 'json-formatter-validator';
+    if (location.pathname.includes('/tools/utm-campaign-url-builder') || location.pathname.includes('/tools/utm-builder') || location.pathname === '/tools/utm-builder') return 'utm-campaign-url-builder';
+    if (location.pathname.includes('/tools/time-zone-converter') || location.pathname.includes('/tools/timezone-converter') || location.pathname === '/tools/timezone-converter') return 'time-zone-converter';
+    if (location.pathname.includes('/tools/text-diff-checker') || location.pathname.includes('/tools/diff-checker') || location.pathname === '/tools/diff-checker') return 'text-diff-checker';
+    if (location.pathname.includes('/tools/url-encoder-decoder') || location.pathname.includes('/tools/url-encoder') || location.pathname.includes('/tools/url-decoder')) return 'url-encoder-decoder';
+    if (location.pathname.includes('/tools/image-steganography') || location.pathname.includes('/tools/steganography') || location.pathname === '/image-steganography' || location.pathname === '/steganography') return 'image-steganography';
     if (location.pathname.includes('/tools/website-seo-audit') || location.pathname.includes('/tools/seo-audit')) return 'website-seo-audit';
     if (location.pathname.includes('/tools/website-speed-checker') || location.pathname.includes('/tools/speed-checker')) return 'website-speed-checker';
     if (location.pathname.includes('/tools/website-project-brief') || location.pathname.includes('/tools/project-brief')) return 'website-project-brief';
@@ -107,44 +204,50 @@ export default function Tools() {
 
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') as ToolTab;
-    const validTabs: ToolTab[] = [
-      'canonical-url-validator', 'api-request-builder', 'client-discovery-questionnaire',
-      'website-seo-audit', 'website-speed-checker', 'website-project-brief',
-      'roi-calculator', 'qr-generator', 'business-name-generator', 'invoice-generator',
-      'analyzer', 'compressor', 'resizer', 'converter', 'calculator',
-      'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool'
-    ];
     if (validTabs.includes(tabParam)) {
       return tabParam;
     }
     return 'overview';
   };
 
-  const [activeTab, setActiveTab] = useState<ToolTab>(getTabFromPath());
+  const activeTab = getTabFromPath();
 
-  useEffect(() => {
-    const onPopState = () => {
-      setActiveTab(getTabFromPath());
-    };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, []);
+  // If viewing a category detail page, render CategoryDetailView
+  if (categorySlug) {
+    if (matchedCategory) {
+      return <CategoryDetailView category={matchedCategory} />;
+    }
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] pt-28 sm:pt-32 pb-24 text-left" id="samaxon-tools-category-not-found">
+        <div className="max-w-xl mx-auto px-4 text-center space-y-6 py-20">
+          <div className="w-16 h-16 rounded-2xl bg-[#111111] text-[#D6B46A] flex items-center justify-center mx-auto border border-[#D6B46A]/30">
+            <LayoutGrid className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="font-display font-bold text-2xl text-[#111111]">Category Not Found</h1>
+            <p className="text-sm text-[#554F49]">The requested tool category could not be located or may have been reorganized.</p>
+          </div>
+          <div>
+            <Link
+              to="/tools"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#111111] text-[#D6B46A] text-xs font-mono uppercase font-bold hover:bg-[#222222] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Explore All Categories
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleTabChange = (tab: ToolTab) => {
-    setActiveTab(tab);
     setSwitchMenuOpen(false);
-    const prettyTabs = [
-      'canonical-url-validator', 'api-request-builder', 'client-discovery-questionnaire',
-      'website-seo-audit', 'website-speed-checker', 'website-project-brief', 
-      'roi-calculator', 'qr-generator', 'business-name-generator', 'invoice-generator'
-    ];
-    const targetUrl = tab === 'overview' 
-      ? '/tools' 
-      : (prettyTabs.includes(tab)
-          ? `/tools/${tab}`
-          : `/tools?tab=${tab}`);
-    window.history.pushState(null, '', targetUrl);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const targetUrl = tab === 'overview' ? '/tools' : `/tools/${tab}`;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    navigate(targetUrl);
   };
 
   const currentToolConfig = toolsConfig.find(t => t.id === activeTab);
@@ -160,6 +263,8 @@ export default function Tools() {
     return 'Tools';
   };
 
+  const toolCategory = activeTab !== 'overview' ? getCategoryForTool(activeTab) : null;
+
   return (
     <div className="min-h-screen bg-[#FFFDF8] pt-28 sm:pt-32 pb-24 text-left" id="samaxon-tools-hub">
       <SEO
@@ -173,26 +278,37 @@ export default function Tools() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
         {/* Navigation Breadcrumb / Top Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#D6B46A]/20 pb-5">
-          <div className="flex items-center gap-2.5 text-sm font-mono text-[#554F49]">
-            <Link to="/" className="hover:text-[#111111] transition-colors">Home</Link>
-            <ChevronRight className="w-4 h-4 text-[#D6B46A]" />
-            <button 
-              onClick={() => handleTabChange('overview')}
-              className={`hover:text-[#111111] transition-colors cursor-pointer ${
-                activeTab === 'overview' ? 'text-[#111111] font-bold' : ''
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2.5 text-xs sm:text-sm font-mono text-[#554F49] overflow-x-auto py-1">
+            <Link to="/" className="hover:text-[#111111] transition-colors shrink-0">Home</Link>
+            <ChevronRight className="w-4 h-4 text-[#D6B46A] shrink-0" />
+            <Link 
+              to="/tools"
+              className={`hover:text-[#111111] transition-colors shrink-0 ${
+                activeTab === 'overview' ? 'text-[#111111] font-bold' : 'text-[#8A6D3B] font-bold'
               }`}
             >
-              Tools
-            </button>
+              TOOLS
+            </Link>
+            {activeTab !== 'overview' && toolCategory && (
+              <>
+                <ChevronRight className="w-4 h-4 text-[#D6B46A] shrink-0" />
+                <Link 
+                  to={`/tools/category/${toolCategory.slug}`}
+                  className="hover:text-[#111111] transition-colors shrink-0 max-w-[180px] sm:max-w-none truncate"
+                >
+                  {toolCategory.name}
+                </Link>
+              </>
+            )}
             {activeTab !== 'overview' && (
               <>
-                <ChevronRight className="w-4 h-4 text-[#D6B46A]" />
-                <span className="text-[#A68936] font-bold uppercase truncate max-w-[200px] sm:max-w-none">
+                <ChevronRight className="w-4 h-4 text-[#D6B46A] shrink-0" />
+                <span className="text-[#111111] font-bold uppercase truncate max-w-[180px] sm:max-w-none shrink-0">
                   {currentToolConfig?.shortName || getToolTitle()}
                 </span>
               </>
             )}
-          </div>
+          </nav>
 
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-2 px-3.5 py-1.5 bg-[#D6B46A]/15 border border-[#D6B46A]/35 text-[#A68936] text-xs font-mono uppercase font-bold rounded-full">
@@ -217,25 +333,43 @@ export default function Tools() {
             </h1>
 
             <p className="text-base sm:text-lg text-[#3D3731] leading-relaxed font-normal">
-              Engineered for founders, developers, creators, and applicants who demand world-class digital tools without intrusive ads, watermarks, or security leaks.
+              Explore practical tools for development, design, branding, SEO, and everyday digital work.
             </p>
           </div>
         ) : (
-          /* Active Tool Top Action Bar: Back to Tools + Switch Tool Dropdown */
+          /* Active Tool Top Action Bar: Back to Category/Tools + Switch Tool Dropdown */
           <div className="bg-white border border-[#D6B46A]/30 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => handleTabChange('overview')}
-                className="group flex items-center gap-2 px-4 py-2.5 bg-[#111111] hover:bg-[#222222] text-[#D6B46A] border border-[#D6B46A]/40 rounded-2xl text-xs font-mono uppercase font-bold cursor-pointer transition-all shadow-sm active:scale-95"
+            <div className="flex flex-wrap items-center gap-3">
+              {toolCategory ? (
+                <Link
+                  to={`/tools/category/${toolCategory.slug}`}
+                  className="group flex items-center gap-2 px-4 py-2.5 bg-[#111111] hover:bg-[#222222] text-[#D6B46A] border border-[#D6B46A]/40 rounded-2xl text-xs font-mono uppercase font-bold cursor-pointer transition-all shadow-sm active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Back to {toolCategory.name}</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/tools"
+                  className="group flex items-center gap-2 px-4 py-2.5 bg-[#111111] hover:bg-[#222222] text-[#D6B46A] border border-[#D6B46A]/40 rounded-2xl text-xs font-mono uppercase font-bold cursor-pointer transition-all shadow-sm active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>All Tools</span>
+                </Link>
+              )}
+
+              <Link
+                to="/tools"
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#FFFDF8] hover:bg-neutral-100 text-[#554F49] border border-neutral-200 rounded-2xl text-xs font-mono transition-colors"
+                title="View All Categories"
               >
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                <span>All Tools</span>
-              </button>
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">All Categories</span>
+              </Link>
 
               <div>
                 <span className="text-[10px] font-mono uppercase font-bold text-[#A68936] tracking-widest block">
-                  Studio Tool
+                  {toolCategory ? toolCategory.name : 'Studio Tool'}
                 </span>
                 <h2 className="font-display font-bold text-lg sm:text-xl text-[#111111]">
                   {getToolTitle()}
@@ -323,6 +457,46 @@ export default function Tools() {
             </div>
           ) : (
             <>
+              {activeTab === 'website-launch-readiness' && (
+                <WebsiteLaunchReadinessChecker />
+              )}
+
+              {activeTab === 'website-project-scope-builder' && (
+                <WebsiteProjectScopeBuilder />
+              )}
+
+              {activeTab === 'design-system-generator' && (
+                <DesignSystemGenerator />
+              )}
+
+              {activeTab === 'website-accessibility-auditor' && (
+                <WebsiteAccessibilityAuditor />
+              )}
+
+              {activeTab === 'website-content-brief-generator' && (
+                <WebsiteContentBriefGenerator />
+              )}
+
+              {activeTab === 'open-graph-preview-designer' && (
+                <OpenGraphPreviewDesigner />
+              )}
+
+              {activeTab === 'internal-link-planner' && (
+                <InternalLinkPlanner />
+              )}
+
+              {activeTab === 'responsive-breakpoint-tester' && (
+                <ResponsiveBreakpointTester />
+              )}
+
+              {activeTab === 'seo-competitor-gap-analyzer' && (
+                <SeoCompetitorGapAnalyzer />
+              )}
+
+              {activeTab === 'website-privacy-policy-builder' && (
+                <WebsitePrivacyInformationBuilder />
+              )}
+
               {activeTab === 'canonical-url-validator' && (
                 <CanonicalUrlValidator />
               )}
@@ -333,6 +507,50 @@ export default function Tools() {
 
               {activeTab === 'client-discovery-questionnaire' && (
                 <ClientDiscoveryQuestionnaire />
+              )}
+
+              {activeTab === 'pdf-tools' && (
+                <PdfTools />
+              )}
+
+              {activeTab === 'pdf-to-word-converter' && (
+                <PdfToWordConverter />
+              )}
+
+              {activeTab === 'password-generator' && (
+                <PasswordGenerator />
+              )}
+
+              {activeTab === 'word-counter' && (
+                <WordCounter />
+              )}
+
+              {activeTab === 'age-calculator' && (
+                <AgeCalculator />
+              )}
+
+              {activeTab === 'json-formatter-validator' && (
+                <JsonFormatterValidator />
+              )}
+
+              {activeTab === 'utm-campaign-url-builder' && (
+                <UtmCampaignUrlBuilder />
+              )}
+
+              {activeTab === 'time-zone-converter' && (
+                <TimeZoneConverter />
+              )}
+
+              {activeTab === 'text-diff-checker' && (
+                <TextDiffChecker />
+              )}
+
+              {activeTab === 'url-encoder-decoder' && (
+                <UrlEncoderDecoder />
+              )}
+
+              {activeTab === 'image-steganography' && (
+                <ImageSteganography />
               )}
 
               {activeTab === 'website-seo-audit' && (

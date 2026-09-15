@@ -645,11 +645,11 @@ const PDF_TOOL_SEO: ToolSeoDefinition = {
   ]
 };
 
-// 10. DIGITAL TOOLS SUITE OVERVIEW (ALL TOOLS HUB)
+// 10. DIGITAL TOOLS OVERVIEW (ALL TOOLS HUB)
 const TOOLS_HUB_SEO: ToolSeoDefinition = {
   id: 'overview',
   name: 'SamaXon Digital Tools & Utilities Suite',
-  shortName: 'Tools Suite',
+  shortName: 'Tools',
   urlPath: '/tools',
   alternativePaths: ['/tools'],
   pageTitle: 'Free Creator & Business Digital Tools Hub (Zero Uploads, 100% Private) | SamaXon Studio',
@@ -1217,11 +1217,436 @@ const CLIENT_DISCOVERY_QUESTIONNAIRE_SEO: ToolSeoDefinition = {
   ]
 };
 
+// 10 NEW ADVANCED TOOLS SEO CONFIGURATIONS
+const LAUNCH_READINESS_SEO: ToolSeoDefinition = {
+  id: 'website-launch-readiness',
+  name: 'Website Launch Readiness & Pre-Flight Gate Checker',
+  shortName: 'Launch Readiness',
+  urlPath: '/tools/website-launch-readiness',
+  alternativePaths: ['/tools/launch-readiness', '/launch-readiness'],
+  pageTitle: 'Free Website Launch Readiness & Pre-Flight Gate Checker | SamaXon Tools',
+  metaDescription: 'Audit website readiness before deployment. Comprehensive 6-pillar pre-flight inspection covering technical SEO, performance, security, forms, legal pages, and DNS.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All',
+  featureList: ['Live HTTP status and latency check', '6-pillar pre-flight audit checklist', 'Severity weighted launch readiness score', 'Client sign-off deployment certificate'],
+  topMetaKeywords: 'website launch checklist, pre launch audit, website deployment checklist, site go live checklist, production readiness review',
+  totalKeywordsCount: 850,
+  keywordCategories: [{ category: 'Deployment', keywords: ['website launch checklist', 'pre launch test', 'site go live review'] }],
+  faq: [{ question: 'What is the Launch Readiness Checker?', answer: 'An automated and manual inspection suite evaluating whether your website is safe and optimized to go live.' }],
+  howToSteps: [{ name: 'Enter Target URL', text: 'Input your staging or production domain.' }, { name: 'Audit Pillars', text: 'Verify technical, SEO, legal, and functional checklist items.' }, { name: 'Export Certificate', text: 'Generate a verified sign-off certificate.' }]
+};
+
+const PROJECT_SCOPE_SEO: ToolSeoDefinition = {
+  id: 'website-project-scope-builder',
+  name: 'Website Project Scope & Technical Estimator',
+  shortName: 'Scope Builder',
+  urlPath: '/tools/website-project-scope-builder',
+  alternativePaths: ['/tools/project-scope', '/project-scope'],
+  pageTitle: 'Website Project Scope & Technical Estimator | SamaXon Tools',
+  metaDescription: 'Interactive agency-grade scoping matrix with deliverable selections, role hour allocations, realistic sprint timelines, and Statement of Work (SOW) exports.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All',
+  featureList: ['Interactive deliverable matrix', 'Sprint and hour estimation', 'Budget calculation by tier', 'Statement of Work (SOW) markdown export'],
+  topMetaKeywords: 'website scope builder, website cost estimator, web project statement of work, sow generator, web development pricing calculator',
+  totalKeywordsCount: 900,
+  keywordCategories: [{ category: 'Scoping', keywords: ['website scope of work', 'sow template', 'web development estimate'] }],
+  faq: [{ question: 'How is the project scope calculated?', answer: 'By combining individual component deliverable hours multiplied by blended agency rates across standard sprints.' }],
+  howToSteps: [{ name: 'Select Tier', text: 'Choose your project complexity tier.' }, { name: 'Configure Deliverables', text: 'Toggle modules and pages.' }, { name: 'Export SOW', text: 'Download a complete Statement of Work.' }]
+};
+
+const DESIGN_SYSTEM_SEO: ToolSeoDefinition = {
+  id: 'design-system-generator',
+  name: 'Design System & Style Guide Architecture Generator',
+  shortName: 'Design System',
+  urlPath: '/tools/design-system-generator',
+  alternativePaths: ['/tools/design-system', '/design-system'],
+  pageTitle: 'Design System & Style Guide Architecture Generator | SamaXon Tools',
+  metaDescription: 'Create multi-brand design tokens, mathematical typography scales, WCAG AA/AAA contrast verified palettes, and export to Tailwind CSS and CSS variables.',
+  applicationCategory: 'DesignApplication',
+  operatingSystem: 'All',
+  featureList: ['WCAG verified color shades', 'Mathematical typography scale', 'Component design tokens', '1-click Tailwind config export'],
+  topMetaKeywords: 'design system generator, tailwind color palette generator, typography scale calculator, design token builder, wcag contrast color tool',
+  totalKeywordsCount: 920,
+  keywordCategories: [{ category: 'Design Tokens', keywords: ['design system generator', 'tailwind palette tool', 'design tokens export'] }],
+  faq: [{ question: 'What does the Design System Generator produce?', answer: 'Harmonious color palettes, typography hierarchies, and production-ready Tailwind CSS configuration.' }],
+  howToSteps: [{ name: 'Choose Brand Colors', text: 'Select primary, secondary, and neutral swatches.' }, { name: 'Review Typography', text: 'Select base font size and scale ratio.' }, { name: 'Export Tokens', text: 'Copy Tailwind or CSS variables.' }]
+};
+
+const ACCESSIBILITY_AUDITOR_SEO: ToolSeoDefinition = {
+  id: 'website-accessibility-auditor',
+  name: 'Website Accessibility Auditor & WCAG 2.1 Scanner',
+  shortName: 'Accessibility Auditor',
+  urlPath: '/tools/website-accessibility-auditor',
+  alternativePaths: ['/tools/accessibility-auditor', '/accessibility-auditor'],
+  pageTitle: 'Website Accessibility Auditor & WCAG 2.1 Scanner | SamaXon Tools',
+  metaDescription: 'Deep accessibility engine auditing image alt coverage, heading order hierarchy, form label bindings, color contrast, touch targets, and ARIA attributes.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All',
+  featureList: ['WCAG 2.1 AA/AAA compliance engine', 'DOMParser security inert parsing', 'Heading hierarchy depth validator', 'Exportable accessibility compliance dossier'],
+  topMetaKeywords: 'accessibility auditor, wcag scanner online, website accessibility checker, test aria labels, check alt tags free, ada website compliance check',
+  totalKeywordsCount: 1100,
+  keywordCategories: [{ category: 'Accessibility', keywords: ['wcag audit tool', 'website accessibility scanner', 'ada compliance checker'] }],
+  faq: [{ question: 'Does this tool run real WCAG tests?', answer: 'Yes, it fetches the actual webpage and parses its HTML DOM against WCAG 2.1 Success Criteria.' }],
+  howToSteps: [{ name: 'Enter URL or Paste HTML', text: 'Provide your webpage URL or raw markup.' }, { name: 'Run Scan', text: 'Inspect violations grouped by severity.' }, { name: 'Export Dossier', text: 'Download a full WCAG report.' }]
+};
+
+const CONTENT_BRIEF_SEO: ToolSeoDefinition = {
+  id: 'website-content-brief-generator',
+  name: 'Website Content Brief & Editorial Strategy Generator',
+  shortName: 'Content Brief',
+  urlPath: '/tools/website-content-brief-generator',
+  alternativePaths: ['/tools/content-brief', '/content-brief'],
+  pageTitle: 'Website Content Brief & Editorial Strategy Generator | SamaXon Tools',
+  metaDescription: 'High-intent editorial briefs with search intent mapping, target keyword clustering, heading outlines (H1/H2/H3), conversion CTAs, and copywriter guidelines.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All',
+  featureList: ['Search intent categorization', 'Keyword clustering & volume matrix', 'Hierarchical heading outline generator', 'Copywriter guidelines & export'],
+  topMetaKeywords: 'content brief generator, seo content outline tool, editorial brief template, article outline generator, copywriting brief builder',
+  totalKeywordsCount: 880,
+  keywordCategories: [{ category: 'Content Strategy', keywords: ['seo brief generator', 'content brief template', 'copywriting brief tool'] }],
+  faq: [{ question: 'What is included in a Content Brief?', answer: 'Target search intent, primary and secondary keywords, recommended word count, heading outlines, and tone guidelines.' }],
+  howToSteps: [{ name: 'Define Topic', text: 'Enter your focus keyword and target page.' }, { name: 'Review Outline', text: 'Customize H2 and H3 headings.' }, { name: 'Export Brief', text: 'Download Markdown or copy for your copywriters.' }]
+};
+
+const OPEN_GRAPH_SEO: ToolSeoDefinition = {
+  id: 'open-graph-preview-designer',
+  name: 'Open Graph Preview Designer & Social Card Generator',
+  shortName: 'Open Graph Designer',
+  urlPath: '/tools/open-graph-preview-designer',
+  alternativePaths: ['/tools/open-graph', '/open-graph'],
+  pageTitle: 'Open Graph Preview Designer & Social Card Generator | SamaXon Tools',
+  metaDescription: 'Interactive social card studio rendering live Google SERP, Facebook, Twitter, and LinkedIn previews with real-time HTML5 Canvas 1200×630 banner generation.',
+  applicationCategory: 'DesignApplication',
+  operatingSystem: 'All',
+  featureList: ['Live social card simulator (Facebook, Twitter, LinkedIn, Google)', 'HTML5 Canvas 1200×630 banner engine', 'Meta tag code generator', '1-click PNG card download'],
+  topMetaKeywords: 'open graph preview, og image generator, social share preview, twitter card validator, og meta tags generator, 1200x630 banner maker',
+  totalKeywordsCount: 950,
+  keywordCategories: [{ category: 'Social Meta', keywords: ['open graph preview', 'social card maker', 'og tag generator'] }],
+  faq: [{ question: 'What dimensions does the OG generator create?', answer: 'It renders standard 1200×630 pixels at high DPI for crisp sharing across all social networks.' }],
+  howToSteps: [{ name: 'Enter Meta Details', text: 'Fill in page title, description, and site name.' }, { name: 'Customize Canvas', text: 'Adjust colors and branding badge.' }, { name: 'Download Asset', text: 'Save PNG and copy HTML meta tags.' }]
+};
+
+const INTERNAL_LINK_SEO: ToolSeoDefinition = {
+  id: 'internal-link-planner',
+  name: 'Internal Link Planner & Topic Cluster Architect',
+  shortName: 'Internal Link Planner',
+  urlPath: '/tools/internal-link-planner',
+  alternativePaths: ['/tools/internal-links', '/internal-links'],
+  pageTitle: 'Internal Link Planner & Topic Cluster Architect | SamaXon Tools',
+  metaDescription: 'Model topic clusters, pillar-spoke hierarchies, anchor text distribution, click-depth calculation, and export JSON-LD SiteNavigationElement schema.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All',
+  featureList: ['Pillar-spoke cluster modeling', 'Anchor text diversity distribution', 'Click-depth calculation', 'JSON-LD Navigation schema generation'],
+  topMetaKeywords: 'internal link planner, topic cluster architect, pillar page strategy, internal linking strategy, silo structure generator',
+  totalKeywordsCount: 890,
+  keywordCategories: [{ category: 'Internal Linking', keywords: ['internal link structure', 'pillar cluster tool', 'topic cluster builder'] }],
+  faq: [{ question: 'Why is internal link planning crucial?', answer: 'Internal linking distributes PageRank authority, guides search spiders, and establishes contextual topical clusters.' }],
+  howToSteps: [{ name: 'Define Pillar Page', text: 'Set your core authority hub URL.' }, { name: 'Add Supporting Cluster Pages', text: 'Specify spoke articles and anchor texts.' }, { name: 'Export Plan', text: 'Download Markdown blueprint and JSON-LD schema.' }]
+};
+
+const RESPONSIVE_TESTER_SEO: ToolSeoDefinition = {
+  id: 'responsive-breakpoint-tester',
+  name: 'Responsive Breakpoint & Multi-Device Viewport Tester',
+  shortName: 'Responsive Tester',
+  urlPath: '/tools/responsive-breakpoint-tester',
+  alternativePaths: ['/tools/responsive-tester', '/responsive-tester'],
+  pageTitle: 'Responsive Breakpoint & Multi-Device Viewport Tester | SamaXon Tools',
+  metaDescription: 'Test URLs across Mobile (375px, 390px), Tablet (768px, 820px), Laptop (1024px, 1280px), and Ultra-wide (1920px) with live iframe rotation and zoom controls.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All',
+  featureList: ['Multi-device viewport emulation', 'Portrait & landscape orientation flip', 'Custom pixel width and height scaling', 'Sandboxed live preview container'],
+  topMetaKeywords: 'responsive design tester, viewport test online, mobile screen simulator, test website on tablet, breakpoint checker online, mobile friendly tester',
+  totalKeywordsCount: 1050,
+  keywordCategories: [{ category: 'Responsive Testing', keywords: ['responsive website tester', 'mobile viewport emulator', 'device breakpoint checker'] }],
+  faq: [{ question: 'Can I test my live website across multiple devices?', answer: 'Yes, simply enter any valid public HTTPS URL to view it rendered inside precision device viewports.' }],
+  howToSteps: [{ name: 'Enter Website URL', text: 'Type the target domain you want to test.' }, { name: 'Select Device Viewport', text: 'Choose Mobile, Tablet, Laptop, or enter custom dimensions.' }, { name: 'Inspect Layout', text: 'Test interaction, orientation, and navigation responsiveness.' }]
+};
+
+const COMPETITOR_GAP_SEO: ToolSeoDefinition = {
+  id: 'seo-competitor-gap-analyzer',
+  name: 'SEO Competitor Gap Analyzer & Benchmark Engine',
+  shortName: 'Competitor Analyzer',
+  urlPath: '/tools/seo-competitor-gap-analyzer',
+  alternativePaths: ['/tools/competitor-analyzer', '/competitor-analyzer'],
+  pageTitle: 'SEO Competitor Gap Analyzer & Benchmark Engine | SamaXon Tools',
+  metaDescription: 'Audit your domain side-by-side against commercial rivals. Uncover content depth deficits, latency gaps, schema markup omissions, and tactical organic advantages.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All',
+  featureList: ['Side-by-side multi-domain audit', 'Server latency and speed comparison', 'Content depth and word count disparity matrix', 'Actionable tactical exploitation dossier'],
+  topMetaKeywords: 'seo competitor gap analyzer, competitor seo audit, content gap analysis, keyword gap tool, domain comparison online',
+  totalKeywordsCount: 940,
+  keywordCategories: [{ category: 'Competitive Analysis', keywords: ['competitor gap analysis', 'seo comparison tool', 'content gap finder'] }],
+  faq: [{ question: 'How does the Competitor Gap Analyzer work?', answer: 'It crawls both your URL and rival domains simultaneously, evaluating comparative SEO, content depth, and latency metrics.' }],
+  howToSteps: [{ name: 'Enter Domains', text: 'Input your website and competitor URL.' }, { name: 'Execute Scan', text: 'Review side-by-side disparity metrics.' }, { name: 'Export Dossier', text: 'Download actionable strategic advantages.' }]
+};
+
+const PRIVACY_BUILDER_SEO: ToolSeoDefinition = {
+  id: 'website-privacy-policy-builder',
+  name: 'Website Privacy Policy & Data Governance Builder',
+  shortName: 'Privacy Policy Builder',
+  urlPath: '/tools/website-privacy-policy-builder',
+  alternativePaths: ['/tools/privacy-builder', '/privacy-builder'],
+  pageTitle: 'Website Privacy Policy & Data Governance Builder | SamaXon Tools',
+  metaDescription: 'Construct complete, legally structured privacy policies aligned with the Digital Personal Data Protection Act (DPDPA), GDPR, and global data privacy standards.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All',
+  featureList: ['DPDPA and GDPR regulatory alignment', 'Sub-processor and third-party disclosure registry', 'User statutory rights documentation', '1-click HTML embed and Markdown export'],
+  topMetaKeywords: 'privacy policy generator, dpdpa privacy policy template, gdpr compliant privacy policy, website privacy notice builder, terms and privacy generator',
+  totalKeywordsCount: 980,
+  keywordCategories: [{ category: 'Legal & Privacy', keywords: ['privacy policy builder', 'gdpr privacy generator', 'dpdpa compliance policy'] }],
+  faq: [{ question: 'Is the generated policy compliant with privacy laws?', answer: 'Yes, it incorporates standard legal frameworks required under DPDPA, GDPR, and CCPA.' }],
+  howToSteps: [{ name: 'Enter Entity Details', text: 'Provide company name, website URL, and contact email.' }, { name: 'Configure Data Directives', text: 'Select collected data categories and sub-processors.' }, { name: 'Export Policy', text: 'Copy clean HTML or download Markdown.' }]
+};
+
+// 18. PDF TOOLS (ORGANIZER, MERGE, SPLIT, ROTATE)
+const PDF_TOOLS_SEO: ToolSeoDefinition = {
+  id: 'pdf-tools',
+  name: 'PDF Tools — Free In-Browser PDF Merger, Splitter & Organizer',
+  shortName: 'PDF Tools',
+  urlPath: '/tools/pdf-tools',
+  alternativePaths: ['/tools/pdf-tool', '/pdf-tools', '/tools?tab=pdf-tools'],
+  pageTitle: 'Free Online PDF Tools — Merge, Split, Rotate & Reorder PDFs | SamaXon',
+  metaDescription: 'Organize PDF pages, merge multiple documents, split by page range, rotate orientations, and extract pages directly in your browser with zero server uploads and complete privacy.',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'All',
+  featureList: ['Merge multiple PDF files into one', 'Visual page reordering and deletion', '90-degree page rotation', 'Custom page range splitting', '100% browser-side processing'],
+  topMetaKeywords: 'pdf tools online, merge pdf free, split pdf pages online, rotate pdf browser, reorder pdf pages, safe private pdf editor',
+  totalKeywordsCount: 1100,
+  keywordCategories: [{ category: 'PDF Manipulation', keywords: ['merge pdf online', 'split pdf free', 'rotate pdf pages', 'reorder pdf pages'] }],
+  faq: [
+    { question: 'Are my PDF files uploaded to your servers?', answer: 'No. All PDF operations occur exclusively in your browser memory via WebAssembly and JavaScript.' },
+    { question: 'Is there a page or file size limit?', answer: 'You can upload documents up to 50MB with virtually unlimited pages.' }
+  ],
+  howToSteps: [
+    { name: 'Upload PDF Document', text: 'Select or drop your PDF document to load page thumbnails.' },
+    { name: 'Rearrange or Rotate', text: 'Drag, rotate, or delete unwanted pages.' },
+    { name: 'Download Processed PDF', text: 'Save your reorganized document instantly.' }
+  ]
+};
+
+// 19. PDF TO WORD CONVERTER
+const PDF_TO_WORD_SEO: ToolSeoDefinition = {
+  id: 'pdf-to-word-converter',
+  name: 'PDF to Word Converter — Convert PDF to Editable DOCX',
+  shortName: 'PDF to Word',
+  urlPath: '/tools/pdf-to-word-converter',
+  alternativePaths: ['/tools/pdf-to-word', '/pdf-to-word', '/tools?tab=pdf-to-word-converter'],
+  pageTitle: 'Free Online PDF to Word Converter (DOCX) — 100% Private | SamaXon',
+  metaDescription: 'Convert text-based PDF documents into fully editable Microsoft Word (.docx) documents with preserved headings, paragraphs, and page breaks without server uploads.',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'All',
+  featureList: ['Extract text and layout directly from PDF', 'Generate genuine Microsoft Word (.docx) files', 'Preserve headings and paragraph structure', 'Scanned document detection', '100% client-side privacy'],
+  topMetaKeywords: 'pdf to word converter, convert pdf to docx free, pdf to word browser, edit pdf in word, client side pdf to docx converter',
+  totalKeywordsCount: 1250,
+  keywordCategories: [{ category: 'Document Conversion', keywords: ['pdf to word', 'convert pdf to docx', 'pdf to docx converter online free'] }],
+  faq: [
+    { question: 'Can I convert scanned image PDFs to Word?', answer: 'This tool extracts text layers from digital PDFs. Scanned image-only PDFs require an OCR engine to recognize bitmap text.' },
+    { question: 'Are my documents kept confidential?', answer: 'Yes. The entire text extraction and DOCX compilation occurs in your browser without uploading to any server.' }
+  ],
+  howToSteps: [
+    { name: 'Upload PDF Document', text: 'Select or drag your text-based PDF file into the converter.' },
+    { name: 'Review Extracted Content', text: 'Inspect headings, paragraphs, and text preview.' },
+    { name: 'Download DOCX', text: 'Click Download Word Document to receive your editable .docx file.' }
+  ]
+};
+
+// 20. PASSWORD GENERATOR
+const PASSWORD_GENERATOR_SEO: ToolSeoDefinition = {
+  id: 'password-generator',
+  name: 'Password Generator — Cryptographically Secure & Memorable Passphrases',
+  shortName: 'Password Generator',
+  urlPath: '/tools/password-generator',
+  alternativePaths: ['/tools/password', '/password-generator', '/tools?tab=password-generator'],
+  pageTitle: 'Free Secure Password Generator & Passphrase Creator | SamaXon Tools',
+  metaDescription: 'Generate strong, uncrackable passwords and memorable passphrases with window.crypto randomness, customizable character sets, entropy calculation, and zero server logging.',
+  applicationCategory: 'SecurityApplication',
+  operatingSystem: 'All',
+  featureList: ['window.crypto cryptographically secure pseudo-random generation', 'Random password and memorable passphrase modes', 'Entropy bits calculation and strength indicators', 'Batch password generation', 'Zero transmission or storage'],
+  topMetaKeywords: 'password generator, strong password creator, memorable passphrase generator, secure password generator online, diceware passphrase generator',
+  totalKeywordsCount: 1400,
+  keywordCategories: [{ category: 'Cybersecurity Tools', keywords: ['password generator', 'strong password creator', 'passphrase generator online', 'secure random password'] }],
+  faq: [
+    { question: 'Are generated passwords saved or logged anywhere?', answer: 'Never. Passwords are created locally via browser window.crypto and are never saved or sent across the network.' },
+    { question: 'Why are passphrases recommended?', answer: 'Passphrases combining 4+ random words are easy for humans to remember while offering high entropy resistance against brute-force attacks.' }
+  ],
+  howToSteps: [
+    { name: 'Choose Generation Mode', text: 'Select between Random Password or Memorable Passphrase.' },
+    { name: 'Adjust Options', text: 'Set desired length, word count, symbols, and ambiguity filters.' },
+    { name: 'Copy or Download', text: 'Copy your generated password directly to your clipboard or password manager.' }
+  ]
+};
+
+// 21. WORD COUNTER
+const WORD_COUNTER_SEO: ToolSeoDefinition = {
+  id: 'word-counter',
+  name: 'Word Counter & Text Analyzer — Words, Characters, Reading Time & Density',
+  shortName: 'Word Counter',
+  urlPath: '/tools/word-counter',
+  alternativePaths: ['/tools/wordcount', '/word-counter', '/tools?tab=word-counter'],
+  pageTitle: 'Free Online Word Counter, Character Count & Reading Time Tool | SamaXon',
+  metaDescription: 'Count words, characters (with and without spaces), sentences, paragraphs, reading speed, speaking time, and keyword density in real time with multilingual Unicode support.',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'All',
+  featureList: ['Real-time word and character counting', 'Estimated reading and speaking time', 'Keyword frequency and density analysis', 'Unicode and Devanagari Hindi text support', 'Clean text export and JSON metrics'],
+  topMetaKeywords: 'word counter, character counter, online word count tool, reading time calculator, keyword density checker, text analyzer free',
+  totalKeywordsCount: 1600,
+  keywordCategories: [{ category: 'Content Analysis', keywords: ['word counter online', 'character counter with spaces', 'reading time calculator', 'keyword density tool'] }],
+  faq: [
+    { question: 'How is reading time calculated?', answer: 'Reading time is computed based on an adjustable reading speed (defaulting to 225 words per minute for average adults).' },
+    { question: 'Is my text private?', answer: 'Yes. All text processing and frequency calculations occur strictly in browser memory.' }
+  ],
+  howToSteps: [
+    { name: 'Paste or Type Text', text: 'Input your article, essay, or copy into the text editor.' },
+    { name: 'Inspect Real-Time Metrics', text: 'View word count, characters, sentences, and estimated reading time.' },
+    { name: 'Analyze Keywords', text: 'Check top frequent words or enter a target keyword for density scoring.' }
+  ]
+};
+
+// 22. AGE CALCULATOR
+const AGE_CALCULATOR_SEO: ToolSeoDefinition = {
+  id: 'age-calculator',
+  name: 'Age Calculator — Exact Years, Months, Days & Birthday Countdown',
+  shortName: 'Age Calculator',
+  urlPath: '/tools/age-calculator',
+  alternativePaths: ['/tools/age', '/age-calculator', '/tools?tab=age-calculator'],
+  pageTitle: 'Free Exact Age Calculator — Years, Months, Days & Next Birthday | SamaXon',
+  metaDescription: 'Calculate your exact age in years, months, and days from date of birth. Find total hours lived, leap year milestones, and countdown to your next birthday.',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'All',
+  featureList: ['Exact age calculation in years, months, and days', 'Total days, weeks, months, and approximate hours lived', 'Upcoming birthday countdown and weekday calculation', 'Leap year and February 29 support', '100% client-side privacy'],
+  topMetaKeywords: 'age calculator, calculate age from date of birth, how old am i, days until next birthday, exact age in months and days, leap year birthday calculator',
+  totalKeywordsCount: 1350,
+  keywordCategories: [{ category: 'Date Calculators', keywords: ['age calculator', 'calculate exact age', 'how old am i in days', 'birthday countdown calculator'] }],
+  faq: [
+    { question: 'How does the calculator handle leap years?', answer: 'The calculation accurately adjusts for leap years and allows Feb 29 birthdays to celebrate on Feb 28 or March 1 in non-leap years.' },
+    { question: 'Can I calculate age on a past or future date?', answer: 'Yes. You can select any reference date to see your exact age on that date.' }
+  ],
+  howToSteps: [
+    { name: 'Enter Date of Birth', text: 'Select your birth date from the date picker.' },
+    { name: 'Choose Reference Date', text: 'Default is today, or select any target date.' },
+    { name: 'Review Age Breakdown', text: 'View exact years, months, days, total hours, and next birthday countdown.' }
+  ]
+};
+
+// 23. UTM CAMPAIGN URL BUILDER
+const UTM_BUILDER_SEO: ToolSeoDefinition = {
+  id: 'utm-campaign-url-builder',
+  name: 'UTM Campaign URL Builder — Google Analytics 4 (GA4) Tracking Link Generator',
+  shortName: 'UTM Campaign Builder',
+  urlPath: '/tools/utm-campaign-url-builder',
+  alternativePaths: ['/tools/utm-builder', '/utm-campaign-url-builder', '/utm-builder', '/tools?tab=utm-campaign-url-builder'],
+  pageTitle: 'Free UTM Campaign URL Builder — GA4 Attribution Link Generator | SamaXon',
+  metaDescription: 'Create standardized, error-free UTM tracking URLs for Google Analytics 4 (GA4), Meta Ads, Google Ads, and newsletters with live parameter encoding and local validation.',
+  applicationCategory: 'MarketingApplication',
+  operatingSystem: 'All',
+  featureList: [
+    'Automated RFC 3986 parameter encoding and URL formatting',
+    'Supports utm_source, utm_medium, utm_campaign, utm_term, utm_content, and utm_id',
+    'Local validation for URL protocols, required parameters, and naming rules',
+    'Collision detection for pre-existing query parameters with preserve or replace options',
+    '1-click clipboard copy, preset templates, and shareable reports'
+  ],
+  topMetaKeywords: 'utm builder, utm campaign url builder, google analytics url builder, ga4 utm generator, tracking link builder, utm generator free, utm parameters generator',
+  totalKeywordsCount: 1800,
+  keywordCategories: [
+    { category: 'Campaign Tracking', keywords: ['utm builder online', 'ga4 url builder', 'campaign url generator', 'create tracking link', 'utm source medium campaign'] }
+  ],
+  faq: [
+    { question: 'What are the required UTM parameters?', answer: 'Website URL, Campaign Source (utm_source), Campaign Medium (utm_medium), and Campaign Name (utm_campaign) are the core required parameters for meaningful analytics attribution.' },
+    { question: 'Does this tool send my campaign URLs to any external server?', answer: 'No. All URL validation, parameter construction, and encoding happen strictly within your browser.' },
+    { question: 'What if my URL already contains query parameters or a hash anchor?', answer: 'Our builder safely appends UTM parameters using & without duplicate ? characters, and always preserves hash fragments (#) at the end of the final URL.' }
+  ],
+  howToSteps: [
+    { name: 'Enter Destination URL', text: 'Input your target landing page website URL.' },
+    { name: 'Provide Campaign Details', text: 'Fill in Campaign Source, Medium, and Campaign Name (plus optional term, content, and ID).' },
+    { name: 'Copy Encoded URL', text: 'Copy the generated, properly encoded tracking link or test it in a new browser tab.' }
+  ]
+};
+
+export const IMAGE_STEGANOGRAPHY_SEO: ToolSeoDefinition = {
+  id: 'image-steganography',
+  name: 'Image Steganography & Secret Message Tool',
+  shortName: 'Image Steganography',
+  urlPath: '/tools/image-steganography',
+  alternativePaths: ['/tools/steganography', '/image-steganography', '/steganography', '/tools?tab=image-steganography'],
+  pageTitle: 'Image Steganography Tool – Hide Secret Messages & Files in Images | SamaXon',
+  metaDescription: 'Hide encrypted text messages or files inside supported lossless images and extract them later with SamaXon’s privacy-focused image steganography tool.',
+  applicationCategory: 'SecurityApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'Client-side Least Significant Bit (LSB) steganography for lossless PNG and BMP images',
+    'Authenticated AES-256-GCM encryption with PBKDF2 (100,000 rounds) key derivation',
+    'Embed secret Unicode text messages, notes, emojis, and private seed phrases',
+    'Embed secret files including PDF, DOCX, ZIP, JSON, CSV, and code files',
+    'Dynamic real-time image storage capacity calculator and warning alerts',
+    'Automatic detection and verification of steganography payloads and corruption',
+    '100% in-browser processing with zero server uploads or credential logging'
+  ],
+  topMetaKeywords: 'image steganography tool, hide text in image, hide file inside image, secret message in image, steganography online, encrypted message in image, extract hidden message from image, lsb steganography online',
+  totalKeywordsCount: 2200,
+  keywordCategories: [
+    {
+      category: 'Steganography & Cryptography',
+      keywords: [
+        'image steganography tool',
+        'hide text in image',
+        'hide file inside image',
+        'secret message in image',
+        'steganography online',
+        'encrypted message in image',
+        'extract hidden message from image',
+        'lsb steganography online'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'What is image steganography?',
+      answer: 'Image steganography is the practice of concealing secret messages or files inside the pixel data of an ordinary cover image without visibly altering the image appearance.'
+    },
+    {
+      question: 'Why does SamaXon encrypt data before hiding it?',
+      answer: 'Steganography conceals the existence of the secret, while AES-256-GCM authenticated encryption guarantees confidentiality and tamper detection even if the hidden bits are inspected.'
+    },
+    {
+      question: 'Why is PNG or BMP required instead of JPEG?',
+      answer: 'Lossless formats like PNG preserve pixel values bit-for-bit. Lossy formats like JPEG apply compression that alters pixel values and permanently destroys hidden steganography data.'
+    },
+    {
+      question: 'Are my secret messages, files, or passwords uploaded to a server?',
+      answer: 'No. All key derivation (PBKDF2), encryption (AES-256-GCM), pixel embedding (LSB), and decryption execute strictly within your local browser sandbox.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Upload Cover Image', text: 'Select a lossless PNG or BMP cover image.' },
+    { name: 'Provide Secret Content & Key', text: 'Type your secret message or upload a file, and choose an encryption password.' },
+    { name: 'Download Stego Image', text: 'Generate and download the stego PNG with your encrypted secret safely hidden inside pixels.' }
+  ]
+};
+
 // MASTER REGISTRY OF ALL TOOLS
 export const ALL_TOOLS_SEO: Record<string, ToolSeoDefinition> = {
+  'image-steganography': IMAGE_STEGANOGRAPHY_SEO,
+  steganography: IMAGE_STEGANOGRAPHY_SEO,
+  'website-launch-readiness': LAUNCH_READINESS_SEO,
+  'website-project-scope-builder': PROJECT_SCOPE_SEO,
+  'design-system-generator': DESIGN_SYSTEM_SEO,
+  'website-accessibility-auditor': ACCESSIBILITY_AUDITOR_SEO,
+  'website-content-brief-generator': CONTENT_BRIEF_SEO,
+  'open-graph-preview-designer': OPEN_GRAPH_SEO,
+  'internal-link-planner': INTERNAL_LINK_SEO,
+  'responsive-breakpoint-tester': RESPONSIVE_TESTER_SEO,
+  'seo-competitor-gap-analyzer': COMPETITOR_GAP_SEO,
+  'website-privacy-policy-builder': PRIVACY_BUILDER_SEO,
   'canonical-url-validator': CANONICAL_URL_VALIDATOR_SEO,
   'api-request-builder': API_REQUEST_BUILDER_SEO,
   'client-discovery-questionnaire': CLIENT_DISCOVERY_QUESTIONNAIRE_SEO,
+  'pdf-tools': PDF_TOOLS_SEO,
+  'pdf-to-word-converter': PDF_TO_WORD_SEO,
+  'password-generator': PASSWORD_GENERATOR_SEO,
+  'word-counter': WORD_COUNTER_SEO,
+  'age-calculator': AGE_CALCULATOR_SEO,
+  'utm-campaign-url-builder': UTM_BUILDER_SEO,
   'website-seo-audit': WEBSITE_SEO_AUDIT_SEO,
   'website-speed-checker': WEBSITE_SPEED_CHECKER_SEO,
   'website-project-brief': WEBSITE_PROJECT_BRIEF_SEO,
@@ -1237,7 +1662,7 @@ export const ALL_TOOLS_SEO: Record<string, ToolSeoDefinition> = {
   'bg-remover': BG_REMOVER_SEO,
   upscaler: UPSCALER_SEO,
   vectorizer: VECTORIZER_SEO,
-  'pdf-tool': PDF_TOOL_SEO,
+  'pdf-tool': PDF_TOOLS_SEO,
   overview: TOOLS_HUB_SEO
 };
 

@@ -103,7 +103,7 @@ export const CODEBASE_RELEASES: WebsiteUpdateLog[] = [
   {
     id: 'rel-20260905-1120',
     version: 'v2.3.0',
-    title: 'Creator & Business AI Tools Suite',
+    title: 'Creator & Business Tools',
     category: 'Feature Release',
     timestamp: '2026-09-05T05:50:00.000Z',
     displayDate: '05 September 2026',
@@ -119,7 +119,7 @@ export const CODEBASE_RELEASES: WebsiteUpdateLog[] = [
       'Integrated Color Palette Studio with contrast ratio accessibility checker',
       'Unified /tools route with instant tab-switching'
     ],
-    affectedModules: ['AI Tools Suite', 'Image Processing', 'SEO Tools'],
+    affectedModules: ['Tools', 'Image Processing', 'SEO Tools'],
     status: 'published'
   },
   {

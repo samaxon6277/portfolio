@@ -1,6 +1,58 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Polyfill / Safeguard: Protect against environments where window.fetch has only a getter -->
+    <script>
+      (function() {
+        try {
+          if (typeof window !== 'undefined') {
+            var protoDesc = typeof Window !== 'undefined' && Window.prototype ? Object.getOwnPropertyDescriptor(Window.prototype, 'fetch') : null;
+            var desc = Object.getOwnPropertyDescriptor(window, 'fetch');
+            var needsSetter = (desc && desc.get && !desc.set && desc.configurable !== false) || 
+                              (!desc && protoDesc && !protoDesc.set) || 
+                              (protoDesc && protoDesc.get && !protoDesc.set);
+
+            if (needsSetter || (!desc && typeof window.fetch === 'function')) {
+              var currentFetch = window.fetch;
+              try {
+                Object.defineProperty(window, 'fetch', {
+                  get: function() {
+                    return currentFetch;
+                  },
+                  set: function(newFetch) {
+                    currentFetch = newFetch;
+                  },
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e) {}
+            }
+
+            // Intercept Object.defineProperty to ensure any future definition of 'fetch' on window has a setter
+            var originalDefineProperty = Object.defineProperty;
+            Object.defineProperty = function(obj, prop, descriptor) {
+              try {
+                if ((obj === window || (typeof Window !== 'undefined' && obj === Window.prototype)) && prop === 'fetch') {
+                  if (descriptor && descriptor.get && !descriptor.set && descriptor.configurable !== false) {
+                    var overriddenFetch = undefined;
+                    var hasOverride = false;
+                    var origGetCall = descriptor.get;
+                    descriptor.set = function(v) {
+                      hasOverride = true;
+                      overriddenFetch = v;
+                    };
+                    descriptor.get = function() {
+                      return hasOverride ? overriddenFetch : origGetCall.call(this);
+                    };
+                  }
+                }
+              } catch (e) {}
+              return originalDefineProperty.apply(this, arguments);
+            };
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SamaXon Digital Solutions | Speed-Driven Digital Studio</title>
