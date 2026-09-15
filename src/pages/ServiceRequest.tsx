@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import CustomSelect from '../components/CustomSelect';
+import { useCustomUi } from '../context/CustomUiContext';
 import { SERVICES_DATA } from '../data';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 import { supabaseService } from '../utils/supabaseService';
@@ -198,6 +199,7 @@ const SERVICE_CONFIGS: Record<string, ServiceDetailConfig> = {
 };
 
 export default function ServiceRequest() {
+  const { showAlert } = useCustomUi();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -333,7 +335,10 @@ export default function ServiceRequest() {
   const handleSubmitLead = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.whatsappNumber || !formData.businessName) {
-      alert('Please fill in your Full Name, Business Name, and WhatsApp Number.');
+      showAlert({
+        title: 'Missing Required Information',
+        message: 'Please provide your Full Name, Business Name, and WhatsApp Number to initialize your priority project sprint.'
+      });
       return;
     }
 

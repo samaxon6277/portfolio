@@ -697,8 +697,538 @@ const TOOLS_HUB_SEO: ToolSeoDefinition = {
   ]
 };
 
+// 10. WEBSITE SEO AUDIT TOOL
+const WEBSITE_SEO_AUDIT_SEO: ToolSeoDefinition = {
+  id: 'website-seo-audit',
+  name: 'Website SEO Audit Tool (Technical, Meta & On-Page Health Scanner)',
+  shortName: 'SEO Audit Tool',
+  urlPath: '/tools/website-seo-audit',
+  alternativePaths: ['/tools?tab=website-seo-audit'],
+  pageTitle: 'Free Website SEO Audit Tool | In-Depth Technical & Meta Analysis | SamaXon',
+  metaDescription: 'Audit your website SEO health in real time. Inspect meta tags, SERP preview, heading hierarchy, image alt accessibility, canonical status, OpenGraph tags, and keyword density with instant fixes.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'Live Google Desktop & Mobile SERP Snippet Previewer with pixel width calculator',
+    'Full HTML Heading Hierarchy Visualizer (H1, H2, H3 outline)',
+    'On-Page Technical SEO Audit (Canonical, Robots meta, Doctype, Charset, Viewport)',
+    'Social Share Card Inspector (OpenGraph & Twitter Cards preview)',
+    'Image Alt Tag Accessibility Scanner with preview of missing attributes',
+    'Keyword Extraction & Commercial Intent Keyword Gap Detector',
+    'Instant Copyable Code Fixes & Downloadable Printable Audit Report'
+  ],
+  topMetaKeywords: 'website seo audit tool, free seo audit online, on page seo checker, technical seo audit tool, serp preview tool, heading tag checker h1 h2, meta tag analyzer, image alt tag checker, canonical url checker, opengraph previewer, seo score checker online 2026',
+  totalKeywordsCount: 1420,
+  keywordCategories: [
+    {
+      category: 'Core SEO Audit Queries',
+      keywords: [
+        'website seo audit tool', 'free online seo checker', 'check website seo score', 'technical seo audit online',
+        'on page seo analyzer', 'best free seo audit tool 2026', 'website ranking factor audit', 'serp preview generator',
+        'meta title and description checker', 'heading tag hierarchy analyzer', 'image alt attribute checker'
+      ]
+    },
+    {
+      category: 'Technical & Social Tags',
+      keywords: [
+        'canonical tag checker', 'robots meta tag tester', 'opengraph tags debugger', 'twitter card previewer',
+        'xml sitemap validator', 'website crawlability tester', 'broken link audit tool', 'mobile seo test tool'
+      ]
+    },
+    {
+      category: 'Agency & Commercial',
+      keywords: [
+        'white label seo audit report', 'free client website audit', 'seo report pdf download', 'ecommerce seo audit',
+        'b2b website seo checker', 'hotel website seo audit', 'saas landing page seo analyzer'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'What does this Website SEO Audit Tool check?',
+      answer: 'It conducts a comprehensive on-page and technical audit: meta title & description lengths, Google SERP desktop/mobile previews, <h1>-<h3> document outline, OpenGraph social cards, image alt tags, canonical status, robots directives, and keyword density.'
+    },
+    {
+      question: 'Is this audit tool completely free to use?',
+      answer: 'Yes! You can run unlimited SEO audits on any public URL with zero sign-up, zero watermarks, and instant access to copyable fixes.'
+    },
+    {
+      question: 'How does the SERP preview help my rankings?',
+      answer: 'Google truncates titles over 60 characters and descriptions over 160 characters. Our live pixel-width simulator shows you exactly how your page appears in Google search results before Google crawls it.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Enter Your Website URL', text: 'Type or paste your domain or page URL into the search field.' },
+    { name: 'Analyze SEO Architecture', text: 'Click "Run SEO Audit" to launch real-time technical tag and content extraction.' },
+    { name: 'Implement Copyable Fixes', text: 'Review critical warnings, copy pre-formatted HTML tags, or download your PDF audit report.' }
+  ]
+};
+
+// 11. WEBSITE SPEED CHECKER
+const WEBSITE_SPEED_CHECKER_SEO: ToolSeoDefinition = {
+  id: 'website-speed-checker',
+  name: 'Website Speed Checker & Core Web Vitals Diagnostic',
+  shortName: 'Speed Checker',
+  urlPath: '/tools/website-speed-checker',
+  alternativePaths: ['/tools?tab=website-speed-checker'],
+  pageTitle: 'Free Website Speed Checker & Core Web Vitals Test | SamaXon Tools',
+  metaDescription: 'Test website load speed, Time to First Byte (TTFB), Core Web Vitals (LCP, CLS, INP), compression status, payload weight, and CSS animation jank with actionable millisecond optimization savings.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'High-Precision Server Response Time & TTFB Measurement in milliseconds',
+    'Core Web Vitals Lab Simulation (LCP, CLS, INP, FCP indicators)',
+    'Brotli & Gzip Data Compression Status and Bandwidth Savings Estimator',
+    'Render-Blocking Head Scripts & CSS Stylesheet Overhead Scanner',
+    'Image Dimensions & Cumulative Layout Shift (CLS) Risk Detector',
+    'CSS Animation & Layout Jank Diagnostic (CPU reflow vs GPU compositing)',
+    'Speed Comparison: Your Site vs Industry Average (1.8s) vs SamaXon Baseline (0.4s)'
+  ],
+  topMetaKeywords: 'website speed checker, test website speed online, free page speed test, ttfb checker online, core web vitals tester, check website load time, why is my website slow, compress html brotli check, render blocking scripts finder, cumulative layout shift test',
+  totalKeywordsCount: 1380,
+  keywordCategories: [
+    {
+      category: 'Speed & Latency Testing',
+      keywords: [
+        'website speed checker', 'page speed test online', 'test site load time', 'ttfb checker online free',
+        'server response time test', 'website latency checker', 'fastest website speed tester', 'measure web page performance'
+      ]
+    },
+    {
+      category: 'Core Web Vitals & Assets',
+      keywords: [
+        'core web vitals test tool', 'largest contentful paint lcp checker', 'cumulative layout shift cls test',
+        'interaction to next paint inp check', 'render blocking resources audit', 'gzip brotli compression test online'
+      ]
+    },
+    {
+      category: 'Optimization & Diagnostics',
+      keywords: [
+        'how to speed up my website', 'reduce server response time ttfb', 'css animation jank audit',
+        'image dimensions missing cls fix', 'web performance audit report', 'google page speed alternative'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'What is Time to First Byte (TTFB) and why is it crucial?',
+      answer: 'TTFB measures how quickly a server responds to the initial network request. Google recommends a TTFB below 200–400ms. A slow TTFB delays all subsequent asset rendering and hurts SEO rankings.'
+    },
+    {
+      question: 'How are Core Web Vitals calculated here?',
+      answer: 'Our diagnostic combines live server TTFB, render-blocking synchronous resources in <head>, uncompressed payloads, and images missing explicit width/height dimensions to simulate real-world LCP, CLS, and FCP performance.'
+    },
+    {
+      question: 'What is CSS animation layout jank?',
+      answer: 'Animating geometric properties like width, height, margin, or top triggers expensive continuous CPU browser reflows. High-performance sites use GPU-composited transforms and opacity.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Input Website URL', text: 'Enter any URL to test server responsiveness and asset weight.' },
+    { name: 'Execute Speed Test', text: 'Click "Test Performance" to measure real TTFB, payload size, and Core Web Vitals.' },
+    { name: 'Review Millisecond Savings', text: 'Inspect estimated millisecond reductions for enabling Brotli, deferring scripts, and fixing layout shifts.' }
+  ]
+};
+
+// 12. AI WEBSITE PROJECT BRIEF GENERATOR
+const WEBSITE_PROJECT_BRIEF_SEO: ToolSeoDefinition = {
+  id: 'website-project-brief',
+  name: 'AI Website Project Brief Generator (Executive Architecture & Specs)',
+  shortName: 'Project Brief Generator',
+  urlPath: '/tools/website-project-brief',
+  alternativePaths: ['/tools?tab=website-project-brief'],
+  pageTitle: 'Free AI Website Project Brief Generator | Professional Scope & Specs | SamaXon',
+  metaDescription: 'Generate an executive, SaaS-grade website project brief in seconds with AI. Outlines complete page sitemaps, technical stack, user journeys, key features, milestone schedules, and budget allocations.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'AI-Powered Executive Brief Architecture powered by Gemini models',
+    'Tailored to 15+ Specialized Industries (Hospitality, SaaS, Healthcare, E-Commerce, Corporate)',
+    'Complete Recommended Page Sitemap & Information Architecture Tree',
+    'Technical Architecture & Stack Matrix (Frontend, Backend, Database, Cloud & Security)',
+    'User Journey Mapping & High-Converting UX Flow Recommendations',
+    'Project Timeline Milestones & ROI Budget Allocation Guidance',
+    '1-Click Export to Markdown, Printable PDF, or Direct 48-Hour Demo Build'
+  ],
+  topMetaKeywords: 'ai website project brief generator, website project scope builder, free website brief template, generate website specifications ai, web design scope of work generator, website sitemap generator ai, web development project plan, client website brief creator',
+  totalKeywordsCount: 1540,
+  keywordCategories: [
+    {
+      category: 'Brief & Scope Building',
+      keywords: [
+        'ai website project brief generator', 'website project scope generator', 'free website brief builder',
+        'create web design brief online', 'ai project specification generator', 'website requirement document generator',
+        'web dev scope of work template', 'client questionnaire to website brief'
+      ]
+    },
+    {
+      category: 'Industry & Architecture',
+      keywords: [
+        'hotel website project brief', 'saas website specification brief', 'ecommerce project brief generator',
+        'healthcare clinic website scope', 'corporate website redesign brief', 'website sitemap planner ai',
+        'tech stack selector for web project'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'What is an AI Website Project Brief?',
+      answer: 'It is a structured, comprehensive specification document detailing your project objectives, target audience, recommended page hierarchy, tech stack, key functional features, and milestone timeline.'
+    },
+    {
+      question: 'Can I submit this brief directly to SamaXon for a 48-hour build?',
+      answer: 'Yes! With one click, your generated brief can be submitted directly to our lead engineering team to produce a live interactive demo within 48 hours.'
+    },
+    {
+      question: 'Can I export the brief for external developers or internal stakeholders?',
+      answer: 'Yes, you can copy the full formatted Markdown or print/save as a clean PDF ready for agency RFPs, stakeholder presentations, or developer contracts.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Select Industry & Project Goals', text: 'Choose your business type, primary conversion goal, and target audience.' },
+    { name: 'Choose Key Features & Style', text: 'Select essential features (booking, bots, payments) and your preferred design aesthetic.' },
+    { name: 'Generate & Export Brief', text: 'Generate a complete, enterprise-ready project brief with sitemap, tech specs, and milestone timeline.' }
+  ]
+};
+
+// 12. WEBSITE ROI & BUSINESS VALUE CALCULATOR
+const ROI_CALCULATOR_SEO: ToolSeoDefinition = {
+  id: 'roi-calculator',
+  name: 'Website ROI & Business Value Growth Calculator',
+  shortName: 'Website ROI Calculator',
+  urlPath: '/tools/roi-calculator',
+  alternativePaths: ['/tools/website-roi', '/tools?tab=roi-calculator'],
+  pageTitle: 'Free Website ROI Calculator | Model Revenue, Leads & Payback Period | SamaXon Tools',
+  metaDescription: 'Calculate the return on investment of a website redesign or digital modernization. Interactive 3-year revenue projections, conversion rate multiplier, lead volume forecast, and payback timeline.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'Interactive Conversion Rate & Average Order Value modeling',
+    'Monthly and Annual Net Profit Uplift forecast',
+    'Payback period calculation in months based on web development investment',
+    '3-Year Financial Scenario Projections with interactive Recharts curve visualization',
+    'Executive Summary export with instant clipboard copying'
+  ],
+  topMetaKeywords: 'website roi calculator, website redesign roi, calculate website value, conversion rate value calculator, website investment return, digital roi model',
+  totalKeywordsCount: 850,
+  keywordCategories: [
+    {
+      category: 'ROI & Revenue Queries',
+      keywords: [
+        'website roi calculator', 'website redesign roi calculator', 'calculate website return on investment',
+        'conversion rate improvement roi', 'ecommerce website roi calculator', 'b2b website roi model'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'How is Website ROI calculated?',
+      answer: 'Website ROI is calculated by comparing baseline monthly revenue (traffic × conversion rate × average transaction value) against modernized projections, minus development costs over a multi-year horizon.'
+    },
+    {
+      question: 'What is a typical payback period for a high-performance website redesign?',
+      answer: 'For businesses converting traffic into inquiries or transactions, an optimized custom website redesign typically breaks even within 1.5 to 4 months.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Enter Traffic & Revenue Metrics', text: 'Input your monthly visitors, current conversion rate, and average transaction value.' },
+    { name: 'Review Growth Modeling', text: 'Inspect projected monthly revenue uplift and payback period.' },
+    { name: 'Export Executive Brief', text: 'Copy the executive financial summary to present to business stakeholders.' }
+  ]
+};
+
+// 13. CUSTOM VECTOR QR CODE STUDIO
+const QR_GENERATOR_SEO: ToolSeoDefinition = {
+  id: 'qr-generator',
+  name: 'Custom Vector QR Code Studio (Logo & Color Customization)',
+  shortName: 'QR Code Generator',
+  urlPath: '/tools/qr-generator',
+  alternativePaths: ['/tools/qr-code', '/tools?tab=qr-generator'],
+  pageTitle: 'Free Custom Vector QR Code Generator with Logo | SVG & High-Res PNG | SamaXon Tools',
+  metaDescription: 'Create bespoke branded QR codes for URLs, WiFi networks, vCards, UPI payments, and SMS. Add embedded custom logos, gold gradients, corner styling, and export in crisp vector SVG and 1000px PNG.',
+  applicationCategory: 'DesignApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'URL, WiFi Network, Contact vCard, UPI Payment, and SMS payload generators',
+    'Center brand logo embedding with high error correction (Level H)',
+    'Custom color palette (SamaXon Champagne-Gold, Onyx Black, Obsidian & Royal Navy)',
+    'Infinite resolution SVG vector code export and high-res PNG downloads',
+    '100% Client-Side generation with zero tracking or URL redirects'
+  ],
+  topMetaKeywords: 'custom qr code generator, qr code with logo free, vector qr code svg, upi qr code generator, wifi qr code generator, luxury qr code generator',
+  totalKeywordsCount: 920,
+  keywordCategories: [
+    {
+      category: 'Branded QR Code Queries',
+      keywords: [
+        'custom qr code generator with logo', 'free vector qr code svg', 'upi payment qr code generator',
+        'wifi qr code creator online', 'vcard qr code generator free', 'high resolution qr code generator'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'Do these QR codes ever expire or require subscriptions?',
+      answer: 'No. These are static, direct-payload QR codes with zero redirects or subscription lock-in. They work permanently.'
+    },
+    {
+      question: 'Will scanning still work after embedding a company logo?',
+      answer: 'Yes. Our generator automatically applies Level H (30% redundancy) Reed-Solomon error correction, ensuring 100% reliable scanning even with center logos.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Select QR Type & Enter Content', text: 'Choose URL, WiFi, vCard, or UPI and fill in your details.' },
+    { name: 'Customize Palette & Logo', text: 'Select colors and optionally upload your company emblem.' },
+    { name: 'Download Vector Asset', text: 'Export in high-resolution PNG or infinite-scale SVG.' }
+  ]
+};
+
+// 14. AI BUSINESS & BRAND NAME GENERATOR
+const BUSINESS_NAME_GENERATOR_SEO: ToolSeoDefinition = {
+  id: 'business-name-generator',
+  name: 'AI Business & Brand Name Generator (Linguistic Architecture)',
+  shortName: 'Business Name Generator',
+  urlPath: '/tools/business-name-generator',
+  alternativePaths: ['/tools/name-generator', '/tools?tab=business-name-generator'],
+  pageTitle: 'Free AI Business & Brand Name Generator | Linguistic Roots & Domain Ideas | SamaXon Tools',
+  metaDescription: 'Generate prestigious, trademarkable brand names powered by AI and classical linguistic roots. Includes phonetic guides, brand vibe descriptors, domain suggestions, and exportable brand briefs.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'Industry-specific nomenclature models (Luxury, SaaS, Agency, Hospitality, Real Estate)',
+    'Linguistic roots synthesis: Compound words, classical Latin roots, abstract inventions',
+    'Phonetic pronunciation guide and brand psychological rationale for each candidate',
+    'Recommended domain extensions (.com, .luxury, .ai, .io)',
+    'Favorites portfolio curation persisted locally with JSON export'
+  ],
+  topMetaKeywords: 'ai business name generator, luxury brand name generator, company name generator free, brand naming tool, startup name generator ai',
+  totalKeywordsCount: 880,
+  keywordCategories: [
+    {
+      category: 'Company Naming Queries',
+      keywords: [
+        'ai business name generator', 'brand name generator luxury', 'creative startup name ideas',
+        'latin root business name generator', 'tech company name generator', 'agency naming generator'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'Are generated business names free to use commercially?',
+      answer: 'Yes. All generated names are open for you to adopt, register as trademarks, or purchase domain names for.'
+    },
+    {
+      question: 'How does the linguistic architecture work?',
+      answer: 'The system blends phonetic harmony, Latin and Greek semantic roots, and brand psychology to construct names that convey authority, memorability, and prestige.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Select Category & Concepts', text: 'Choose your industry and enter core themes or keywords.' },
+    { name: 'Pick Brand Tone & Style', text: 'Choose between minimalist, prestigious, compound, or abstract roots.' },
+    { name: 'Shortlist & Export', text: 'Save your favorites and copy full brand dossiers.' }
+  ]
+};
+
+// 15. PROFESSIONAL LUXURY INVOICE GENERATOR
+const INVOICE_GENERATOR_SEO: ToolSeoDefinition = {
+  id: 'invoice-generator',
+  name: 'Professional Luxury Commercial Invoice Generator',
+  shortName: 'Invoice Generator',
+  urlPath: '/tools/invoice-generator',
+  alternativePaths: ['/tools/invoice', '/tools?tab=invoice-generator'],
+  pageTitle: 'Free Professional Luxury Invoice Generator | Vector PDF & Print Ready | SamaXon Tools',
+  metaDescription: 'Generate clean, compliant, executive commercial invoices with automatic subtotal, tax and GST calculations. Download vector PDF, print directly, or save reusable corporate templates.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'Comprehensive multi-currency support (INR ₹, USD $, EUR €, GBP £, AED)',
+    'Automated line item totals, tax/GST percentage, discount, and balance calculation',
+    'Company logo affixing and verified digital format',
+    'Vector print-to-PDF stylesheet optimization',
+    'Local browser template saving and 1-click reload'
+  ],
+  topMetaKeywords: 'free invoice generator, luxury invoice template, online gst invoice maker, professional invoice generator pdf, create invoice online free',
+  totalKeywordsCount: 950,
+  keywordCategories: [
+    {
+      category: 'Commercial Invoicing Queries',
+      keywords: [
+        'free online invoice generator', 'gst invoice generator free online', 'professional invoice maker pdf',
+        'freelance web development invoice template', 'commercial invoice creator', 'print ready invoice maker'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'Is my financial and client data stored on external servers?',
+      answer: 'No. All calculations, logo previews, and template storage happen entirely in your local browser sandbox.'
+    },
+    {
+      question: 'Can I print or save invoices as PDF?',
+      answer: 'Yes. Click "Print / Save as PDF" to generate a clean vector PDF formatted for standard A4 and Letter paper.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Fill Company & Client Details', text: 'Input your business details, client name, and invoice date.' },
+    { name: 'Add Scope Line Items', text: 'Specify descriptions, quantities, unit prices, and tax rates.' },
+    { name: 'Print or Download PDF', text: 'Generate an instant, print-perfect invoice document.' }
+  ]
+};
+
+// 16. CANONICAL URL VALIDATOR & TAG INSPECTOR
+const CANONICAL_URL_VALIDATOR_SEO: ToolSeoDefinition = {
+  id: 'canonical-url-validator',
+  name: 'Canonical URL Validator & Tag Inspector',
+  shortName: 'Canonical Validator',
+  urlPath: '/tools/canonical-url-validator',
+  alternativePaths: ['/tools/canonical-validator', '/canonical-url-validator', '/tools?tab=canonical-url-validator'],
+  pageTitle: 'Free Canonical URL Validator & Tag Inspector | SamaXon Tools',
+  metaDescription: 'Audit canonical configurations, validate URL syntax consistency, detect tracking tag pollution, inspect HTML source tags, and generate search-engine recommended canonical directives.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'RFC 6596 canonical URL syntax and structure validation',
+    'Tracking parameter (UTM, gclid, fbclid) stripping and normalizer',
+    'HTML <link rel="canonical"> head directive parser',
+    'Self-referential vs cross-domain canonical audit',
+    'Live server HTTP Link header and status verification'
+  ],
+  topMetaKeywords: 'canonical url validator, canonical tag checker, check rel canonical, test canonical tag online, duplicate content canonical tool, fix canonical url issues',
+  totalKeywordsCount: 880,
+  keywordCategories: [
+    {
+      category: 'Canonical SEO Queries',
+      keywords: [
+        'canonical url validator', 'check canonical tag online', 'rel canonical tester',
+        'canonical url checker tool', 'how to validate canonical tag', 'canonical tag in head checker',
+        'multiple canonical tags error', 'relative vs absolute canonical url', 'utm parameters in canonical'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'What is a canonical URL tag?',
+      answer: 'A canonical tag (rel="canonical") is an HTML directive placed in the <head> element that informs search engines which URL represents the master copy of a page.'
+    },
+    {
+      question: 'Should tracking parameters be included in canonical URLs?',
+      answer: 'No. Canonical URLs must always point to clean, canonicalized URLs without tracking tags like utm_source, gclid, or session IDs.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Enter Target URL or HTML Source', text: 'Input the webpage URL to analyze or paste raw HTML markup.' },
+    { name: 'Review Normalization and Checks', text: 'Inspect protocol, subdomain, trailing slashes, and parameter hygiene.' },
+    { name: 'Copy Recommended Directive', text: 'Grab the clean, validated <link rel="canonical"> tag for your site.' }
+  ]
+};
+
+// 17. API REQUEST BUILDER & HTTP TESTER
+const API_REQUEST_BUILDER_SEO: ToolSeoDefinition = {
+  id: 'api-request-builder',
+  name: 'API Request Builder & Full-Spectrum HTTP Tester',
+  shortName: 'API Request Builder',
+  urlPath: '/tools/api-request-builder',
+  alternativePaths: ['/tools/api-builder', '/api-request-builder', '/tools?tab=api-request-builder'],
+  pageTitle: 'Free Online API Request Builder & Tester (cURL, Fetch, Proxy) | SamaXon Tools',
+  metaDescription: 'Interactive REST client for building and executing HTTP requests with custom headers, query params, auth tokens, body payloads, and multi-language code export.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    'Multi-method HTTP execution (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS)',
+    'Query parameters and custom header key-value builders',
+    'Bearer Token, Basic Auth, and API Key authentication support',
+    'JSON payload validator with beautifier and minifier',
+    'Dual-engine execution: Direct browser fetch or SamaXon CORS Proxy',
+    'Code snippet generator: cURL, JS Fetch, Axios, Python Requests'
+  ],
+  topMetaKeywords: 'api request builder, online rest client, test api online free, curl generator online, test http requests in browser, cors proxy api tester',
+  totalKeywordsCount: 920,
+  keywordCategories: [
+    {
+      category: 'API Testing Queries',
+      keywords: [
+        'api request builder online', 'free postman alternative browser', 'test rest api online',
+        'http request builder online', 'send get post put request online', 'generate curl from http request',
+        'test api with custom headers', 'bearer token api tester online', 'online api tester with cors proxy'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'Are my API keys and tokens stored on your servers?',
+      answer: 'No. All credentials, authorization headers, and request bodies are held exclusively in temporary client memory and are never persisted or logged.'
+    },
+    {
+      question: 'How does the CORS Proxy work?',
+      answer: 'When a target API does not allow cross-origin browser requests, the SamaXon Proxy securely dispatches the request from our backend server to bypass browser CORS constraints.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Select Method & Enter URL', text: 'Choose your HTTP method and specify the destination API endpoint.' },
+    { name: 'Configure Headers & Body', text: 'Add authentication tokens, content-type headers, and JSON payloads.' },
+    { name: 'Send and Inspect Response', text: 'Review HTTP status code, timing latency, headers, and formatted response body.' }
+  ]
+};
+
+// 18. CLIENT DISCOVERY QUESTIONNAIRE
+const CLIENT_DISCOVERY_QUESTIONNAIRE_SEO: ToolSeoDefinition = {
+  id: 'client-discovery-questionnaire',
+  name: 'Executive Client Discovery Questionnaire & Strategic Brief',
+  shortName: 'Client Discovery',
+  urlPath: '/tools/client-discovery-questionnaire',
+  alternativePaths: ['/tools/client-discovery', '/client-discovery', '/tools?tab=client-discovery-questionnaire'],
+  pageTitle: 'Website Client Discovery Questionnaire & Brief Generator | SamaXon Tools',
+  metaDescription: 'Comprehensive 10-stage website project discovery questionnaire for scoping sitemaps, technical integrations, design aesthetic, and asset readiness scoring.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'All (Web, Windows, macOS, Linux, iOS, Android)',
+  featureList: [
+    '10-stage comprehensive discovery workflow with progress indicator',
+    'Dynamic sitemap and page requirement architecture builder',
+    'Adaptive feature specifications (E-commerce, booking, multilingual, AI)',
+    'Real-time content and asset readiness matrix calculation',
+    'Instant export to Markdown briefing document and JSON developer schema'
+  ],
+  topMetaKeywords: 'client discovery questionnaire, website project questionnaire, web design discovery form, client intake questionnaire web design, website brief generator',
+  totalKeywordsCount: 840,
+  keywordCategories: [
+    {
+      category: 'Project Discovery Queries',
+      keywords: [
+        'website discovery questionnaire', 'client discovery questions web design', 'web design client intake form',
+        'website scope questionnaire template', 'client brief generator online', 'agency client discovery template',
+        'website requirements checklist', 'web project scoping questionnaire'
+      ]
+    }
+  ],
+  faq: [
+    {
+      question: 'Can I save my questionnaire progress and finish later?',
+      answer: 'Yes. Your responses are automatically saved locally in your browser memory so you can return at any time.'
+    },
+    {
+      question: 'What format is the discovery output provided in?',
+      answer: 'You can copy a clean Markdown summary, download a developer JSON schema, or print an executive dossier.'
+    }
+  ],
+  howToSteps: [
+    { name: 'Complete Business & Audience Steps', text: 'Fill in your business background, commercial goals, and target visitors.' },
+    { name: 'Specify Pages and Features', text: 'Select website sitemap pages and dynamic capabilities like booking or e-commerce.' },
+    { name: 'Review and Export Brief', text: 'Evaluate your asset readiness score and download your strategic project dossier.' }
+  ]
+};
+
 // MASTER REGISTRY OF ALL TOOLS
 export const ALL_TOOLS_SEO: Record<string, ToolSeoDefinition> = {
+  'canonical-url-validator': CANONICAL_URL_VALIDATOR_SEO,
+  'api-request-builder': API_REQUEST_BUILDER_SEO,
+  'client-discovery-questionnaire': CLIENT_DISCOVERY_QUESTIONNAIRE_SEO,
+  'website-seo-audit': WEBSITE_SEO_AUDIT_SEO,
+  'website-speed-checker': WEBSITE_SPEED_CHECKER_SEO,
+  'website-project-brief': WEBSITE_PROJECT_BRIEF_SEO,
+  'roi-calculator': ROI_CALCULATOR_SEO,
+  'qr-generator': QR_GENERATOR_SEO,
+  'business-name-generator': BUSINESS_NAME_GENERATOR_SEO,
+  'invoice-generator': INVOICE_GENERATOR_SEO,
   analyzer: ANALYZER_SEO,
   compressor: COMPRESSOR_SEO,
   resizer: RESIZER_SEO,

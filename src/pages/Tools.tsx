@@ -16,6 +16,16 @@ import AiBackgroundRemover from '../components/tools/AiBackgroundRemover';
 import AiImageUpscaler from '../components/tools/AiImageUpscaler';
 import VectorSvgConverter from '../components/tools/VectorSvgConverter';
 import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
+import WebsiteSeoAudit from '../components/tools/WebsiteSeoAudit';
+import WebsiteSpeedChecker from '../components/tools/WebsiteSpeedChecker';
+import AiProjectBriefGenerator from '../components/tools/AiProjectBriefGenerator';
+import WebsiteRoiCalculator from '../components/tools/WebsiteRoiCalculator';
+import QrCodeGenerator from '../components/tools/QrCodeGenerator';
+import BusinessNameGenerator from '../components/tools/BusinessNameGenerator';
+import InvoiceGenerator from '../components/tools/InvoiceGenerator';
+import CanonicalUrlValidator from '../components/tools/CanonicalUrlValidator';
+import ApiRequestBuilder from '../components/tools/ApiRequestBuilder';
+import ClientDiscoveryQuestionnaire from '../components/tools/ClientDiscoveryQuestionnaire';
 import ToolsOverview from '../components/tools/ToolsOverview';
 import { getToolsConfig, ToolItemConfig } from '../utils/toolsConfig';
 import { 
@@ -27,7 +37,17 @@ import {
 
 export type ToolTab = 
   | 'overview' 
+  | 'canonical-url-validator'
+  | 'api-request-builder'
+  | 'client-discovery-questionnaire'
   | 'analyzer'
+  | 'website-seo-audit'
+  | 'website-speed-checker'
+  | 'website-project-brief'
+  | 'roi-calculator'
+  | 'qr-generator'
+  | 'business-name-generator'
+  | 'invoice-generator'
   | 'compressor' 
   | 'resizer' 
   | 'converter' 
@@ -65,8 +85,18 @@ export default function Tools() {
 
   // Determine active tab based on pathname or query
   const getTabFromPath = (): ToolTab => {
+    if (location.pathname.includes('/tools/canonical-url-validator') || location.pathname.includes('/tools/canonical-validator') || location.pathname === '/canonical-url-validator') return 'canonical-url-validator';
+    if (location.pathname.includes('/tools/api-request-builder') || location.pathname.includes('/tools/api-builder') || location.pathname === '/api-request-builder') return 'api-request-builder';
+    if (location.pathname.includes('/tools/client-discovery-questionnaire') || location.pathname.includes('/tools/client-discovery') || location.pathname === '/client-discovery') return 'client-discovery-questionnaire';
+    if (location.pathname.includes('/tools/website-seo-audit') || location.pathname.includes('/tools/seo-audit')) return 'website-seo-audit';
+    if (location.pathname.includes('/tools/website-speed-checker') || location.pathname.includes('/tools/speed-checker')) return 'website-speed-checker';
+    if (location.pathname.includes('/tools/website-project-brief') || location.pathname.includes('/tools/project-brief')) return 'website-project-brief';
+    if (location.pathname.includes('/tools/roi-calculator') || location.pathname.includes('/tools/website-roi')) return 'roi-calculator';
+    if (location.pathname.includes('/tools/qr-generator') || location.pathname.includes('/tools/qr-code')) return 'qr-generator';
+    if (location.pathname.includes('/tools/business-name-generator') || location.pathname.includes('/tools/name-generator')) return 'business-name-generator';
+    if (location.pathname.includes('/tools/invoice-generator') || location.pathname.includes('/tools/invoice')) return 'invoice-generator';
     if (location.pathname.includes('/tools/analyzer') || location.pathname === '/analyzer' || location.pathname === '/website-analyzer') return 'analyzer';
-    if (location.pathname.includes('/tools/compressor')) return 'compressor';
+    if (location.pathname.includes('/tools/compressor') || location.pathname.includes('/tools/image-compressor')) return 'compressor';
     if (location.pathname.includes('/tools/resizer')) return 'resizer';
     if (location.pathname.includes('/tools/converter')) return 'converter';
     if (location.pathname.includes('/tools/calculator')) return 'calculator';
@@ -78,6 +108,9 @@ export default function Tools() {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') as ToolTab;
     const validTabs: ToolTab[] = [
+      'canonical-url-validator', 'api-request-builder', 'client-discovery-questionnaire',
+      'website-seo-audit', 'website-speed-checker', 'website-project-brief',
+      'roi-calculator', 'qr-generator', 'business-name-generator', 'invoice-generator',
       'analyzer', 'compressor', 'resizer', 'converter', 'calculator',
       'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool'
     ];
@@ -100,7 +133,16 @@ export default function Tools() {
   const handleTabChange = (tab: ToolTab) => {
     setActiveTab(tab);
     setSwitchMenuOpen(false);
-    const targetUrl = tab === 'overview' ? '/tools' : `/tools?tab=${tab}`;
+    const prettyTabs = [
+      'canonical-url-validator', 'api-request-builder', 'client-discovery-questionnaire',
+      'website-seo-audit', 'website-speed-checker', 'website-project-brief', 
+      'roi-calculator', 'qr-generator', 'business-name-generator', 'invoice-generator'
+    ];
+    const targetUrl = tab === 'overview' 
+      ? '/tools' 
+      : (prettyTabs.includes(tab)
+          ? `/tools/${tab}`
+          : `/tools?tab=${tab}`);
     window.history.pushState(null, '', targetUrl);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -115,7 +157,7 @@ export default function Tools() {
 
   const getToolTitle = () => {
     if (currentToolConfig) return currentToolConfig.name;
-    return 'Digital Utilities & Tools Suite';
+    return 'Tools';
   };
 
   return (
@@ -140,7 +182,7 @@ export default function Tools() {
                 activeTab === 'overview' ? 'text-[#111111] font-bold' : ''
               }`}
             >
-              Tools Suite
+              Tools
             </button>
             {activeTab !== 'overview' && (
               <>
@@ -171,7 +213,7 @@ export default function Tools() {
             </div>
 
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-[#111111] tracking-tight">
-              Digital Utilities & Tools Suite
+              TOOLS
             </h1>
 
             <p className="text-base sm:text-lg text-[#3D3731] leading-relaxed font-normal">
@@ -281,6 +323,46 @@ export default function Tools() {
             </div>
           ) : (
             <>
+              {activeTab === 'canonical-url-validator' && (
+                <CanonicalUrlValidator />
+              )}
+
+              {activeTab === 'api-request-builder' && (
+                <ApiRequestBuilder />
+              )}
+
+              {activeTab === 'client-discovery-questionnaire' && (
+                <ClientDiscoveryQuestionnaire />
+              )}
+
+              {activeTab === 'website-seo-audit' && (
+                <WebsiteSeoAudit />
+              )}
+
+              {activeTab === 'website-speed-checker' && (
+                <WebsiteSpeedChecker />
+              )}
+
+              {activeTab === 'website-project-brief' && (
+                <AiProjectBriefGenerator />
+              )}
+
+              {activeTab === 'roi-calculator' && (
+                <WebsiteRoiCalculator />
+              )}
+
+              {activeTab === 'qr-generator' && (
+                <QrCodeGenerator />
+              )}
+
+              {activeTab === 'business-name-generator' && (
+                <BusinessNameGenerator />
+              )}
+
+              {activeTab === 'invoice-generator' && (
+                <InvoiceGenerator />
+              )}
+
               {activeTab === 'analyzer' && (
                 <WebsiteAnalyzer />
               )}

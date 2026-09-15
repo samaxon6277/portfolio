@@ -6,6 +6,7 @@ import {
   PenTool, Code2, Calculator, HelpCircle, ChevronDown, Check, X
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import CustomSelect from '../components/CustomSelect';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 
 export default function Partner() {
@@ -497,15 +498,20 @@ export default function Partner() {
                       ₹{projectValue.toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <input
-                    type="range"
-                    min={50000}
-                    max={2500000}
-                    step={25000}
-                    value={projectValue}
-                    onChange={(e) => setProjectValue(Number(e.target.value))}
-                    className="w-full accent-[#D6B46A] cursor-pointer"
-                  />
+                  <div className="relative flex items-center py-1">
+                    <input
+                      type="range"
+                      min={50000}
+                      max={2500000}
+                      step={25000}
+                      value={projectValue}
+                      onChange={(e) => setProjectValue(Number(e.target.value))}
+                      className="w-full h-2 rounded-lg appearance-none cursor-pointer outline-none bg-neutral-800 accent-[#D6B46A]"
+                      style={{
+                        background: `linear-gradient(to right, #D6B46A 0%, #D6B46A ${((projectValue - 50000) / (2500000 - 50000)) * 100}%, rgba(255,255,255,0.15) ${((projectValue - 50000) / (2500000 - 50000)) * 100}%, rgba(255,255,255,0.15) 100%)`
+                      }}
+                    />
+                  </div>
                   <div className="flex justify-between text-[10px] font-mono text-[#7A7167]">
                     <span>₹50,000</span>
                     <span>₹25,00,000+</span>
@@ -735,18 +741,19 @@ export default function Partner() {
                       <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#4A433B] mb-1.5">
                         Your Background / Category
                       </label>
-                      <select
+                      <CustomSelect
                         value={partnerForm.category}
-                        onChange={(e) => setPartnerForm({ ...partnerForm, category: e.target.value })}
-                        className="w-full px-4 py-3 bg-soft-ivory border border-champagne-gold/30 rounded-xl text-sm text-matte-black focus:outline-none focus:border-champagne-gold cursor-pointer"
-                      >
-                        <option value="Freelancer">Freelancer / Independent Developer</option>
-                        <option value="Agency">Digital Marketing / Creative Agency</option>
-                        <option value="Consultant">Business Consultant / Advisor</option>
-                        <option value="Hosting">Hosting / Domain Provider</option>
-                        <option value="Creator">Content Creator / Blogger</option>
-                        <option value="Other">Other Enterprise Professional</option>
-                      </select>
+                        onChange={(val) => setPartnerForm({ ...partnerForm, category: val })}
+                        options={[
+                          { value: 'Freelancer', label: 'Freelancer / Independent Developer' },
+                          { value: 'Agency', label: 'Digital Marketing / Creative Agency' },
+                          { value: 'Consultant', label: 'Business Consultant / Advisor' },
+                          { value: 'Hosting', label: 'Hosting / Domain Provider' },
+                          { value: 'Creator', label: 'Content Creator / Blogger' },
+                          { value: 'Other', label: 'Other Enterprise Professional' }
+                        ]}
+                        placeholder="Select Your Background"
+                      />
                     </div>
 
                     <div>

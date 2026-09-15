@@ -7,12 +7,15 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { WebsiteAuditLead } from '../../types';
 import { supabaseService } from '../../utils/supabaseService';
+import { useCustomUi } from '../../context/CustomUiContext';
+import CustomSelect from '../CustomSelect';
 
 interface AuditLeadsTabProps {
   onLeadCountChange?: (count: number) => void;
 }
 
 export default function AuditLeadsTab({ onLeadCountChange }: AuditLeadsTabProps) {
+  const { showConfirm } = useCustomUi();
   const [leads, setLeads] = useState<WebsiteAuditLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -118,19 +121,26 @@ export default function AuditLeadsTab({ onLeadCountChange }: AuditLeadsTabProps)
     }
   };
 
-  const handleDelete = async (leadId: string) => {
-    if (!window.confirm('Are you sure you want to delete this website audit ticket?')) return;
-    try {
-      await supabaseService.deleteWebsiteAuditLead(leadId);
-      try {
-        await fetch(`/api/admin/audit-leads/${leadId}`, { method: 'DELETE' });
-      } catch {}
-      setLeads(prev => prev.filter(l => l.id !== leadId));
-      if (selectedLead?.id === leadId) setSelectedLead(null);
-      showToast('Ticket removed.');
-    } catch (err) {
-      console.error('Failed to delete lead:', err);
-    }
+  const handleDelete = (leadId: string) => {
+    showConfirm({
+      title: 'Delete Audit Ticket',
+      message: 'Are you sure you want to delete this website audit ticket? This action cannot be undone.',
+      confirmText: 'Delete Ticket',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        try {
+          await supabaseService.deleteWebsiteAuditLead(leadId);
+          try {
+            await fetch(`/api/admin/audit-leads/${leadId}`, { method: 'DELETE' });
+          } catch {}
+          setLeads(prev => prev.filter(l => l.id !== leadId));
+          if (selectedLead?.id === leadId) setSelectedLead(null);
+          showToast('Ticket removed.');
+        } catch (err) {
+          console.error('Failed to delete lead:', err);
+        }
+      }
+    });
   };
 
   const filteredLeads = leads.filter(lead => {
@@ -240,29 +250,35 @@ export default function AuditLeadsTab({ onLeadCountChange }: AuditLeadsTabProps)
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as any)}
-            className="px-3 py-2 bg-[#F4EFE6]/40 border border-[#D6B46A]/30 rounded-xl text-xs font-mono text-[#111111] focus:outline-none"
-          >
-            <option value="all">All Statuses</option>
-            <option value="new">New (Unread)</option>
-            <option value="contacted">Contacted</option>
-            <option value="in_progress">In Progress</option>
-            <option value="fixed">Fixed</option>
-          </select>
+          <div className="w-40">
+            <CustomSelect
+              value={statusFilter}
+              onChange={val => setStatusFilter(val as any)}
+              options={[
+                { value: 'all', label: 'All Statuses' },
+                { value: 'new', label: 'New (Unread)' },
+                { value: 'contacted', label: 'Contacted' },
+                { value: 'in_progress', label: 'In Progress' },
+                { value: 'fixed', label: 'Fixed' }
+              ]}
+              placeholder="Status"
+            />
+          </div>
 
           {/* Priority Filter */}
-          <select
-            value={priorityFilter}
-            onChange={e => setPriorityFilter(e.target.value as any)}
-            className="px-3 py-2 bg-[#F4EFE6]/40 border border-[#D6B46A]/30 rounded-xl text-xs font-mono text-[#111111] focus:outline-none"
-          >
-            <option value="all">All Priorities</option>
-            <option value="urgent_48h">🚀 Urgent 48h SLA</option>
-            <option value="high">⚡ High Priority</option>
-            <option value="standard">🛠️ Standard</option>
-          </select>
+          <div className="w-44">
+            <CustomSelect
+              value={priorityFilter}
+              onChange={val => setPriorityFilter(val as any)}
+              options={[
+                { value: 'all', label: 'All Priorities' },
+                { value: 'urgent_48h', label: '🚀 Urgent 48h SLA' },
+                { value: 'high', label: '⚡ High Priority' },
+                { value: 'standard', label: '🛠️ Standard' }
+              ]}
+              placeholder="Priority"
+            />
+          </div>
         </div>
       </div>
 

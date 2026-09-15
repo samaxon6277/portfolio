@@ -4,6 +4,8 @@ import {
   ArrowRight, ShieldCheck, Zap, Sparkles, Layers, Sliders, AlertCircle 
 } from 'lucide-react';
 import JSZip from 'jszip';
+import CustomSlider from '../ui/CustomSlider';
+import CustomSelect from '../CustomSelect';
 
 export type OutputFormat = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/x-icon' | 'image/bmp';
 
@@ -423,32 +425,21 @@ export default function ImageConverter() {
 
             {/* Quality Slider */}
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-mono uppercase font-bold text-[#554F49]">
-                  Export Quality: {Math.round(globalQuality * 100)}%
-                </label>
-                <span className="text-[10px] font-mono text-[#8A8178]">
-                  {globalQuality >= 0.9 ? 'Maximum / Print' : globalQuality >= 0.75 ? 'Balanced Web' : 'Small File'}
-                </span>
-              </div>
-              <input 
-                type="range" 
-                min="0.1" 
-                max="1.0" 
-                step="0.05" 
-                value={globalQuality}
-                onChange={(e) => {
-                  const q = parseFloat(e.target.value);
+              <CustomSlider
+                min={10}
+                max={100}
+                step={5}
+                value={Math.round(globalQuality * 100)}
+                onChange={(val) => {
+                  const q = val / 100;
                   setGlobalQuality(q);
                   setImages(prev => prev.map(p => ({ ...p, targetQuality: q, status: 'idle' })));
                 }}
-                className="w-full accent-[#D6B46A] cursor-pointer"
+                label="Export Quality"
+                unit="%"
+                minLabel="Compact (10%)"
+                maxLabel="Pristine (100%)"
               />
-              <div className="flex justify-between text-[10px] font-mono text-[#8A8178]">
-                <span>Compact (10%)</span>
-                <span>Balanced (80%)</span>
-                <span>Pristine (100%)</span>
-              </div>
             </div>
 
             {/* Actions: Convert All & Download ZIP */}
@@ -523,20 +514,17 @@ export default function ImageConverter() {
 
                   {/* Middle: Conversion Target Controls */}
                   <div className="flex items-center gap-3 flex-wrap">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 min-w-[140px]">
                       <span className="text-xs font-mono text-[#554F49]">Format:</span>
-                      <select
-                        value={item.targetFormat}
-                        onChange={(e) => {
-                          const fmt = e.target.value as OutputFormat;
-                          setImages(prev => prev.map(p => p.id === item.id ? { ...p, targetFormat: fmt, status: 'idle' } : p));
-                        }}
-                        className="px-2.5 py-1.5 bg-[#FFFDF8] border border-[#D6B46A]/30 rounded-lg text-xs font-mono font-bold text-[#111111]"
-                      >
-                        {SUPPORTED_FORMATS.map(f => (
-                          <option key={f.value} value={f.value}>{f.label}</option>
-                        ))}
-                      </select>
+                      <div className="w-28">
+                        <CustomSelect<OutputFormat>
+                          value={item.targetFormat}
+                          onChange={(fmt) => {
+                            setImages(prev => prev.map(p => p.id === item.id ? { ...p, targetFormat: fmt, status: 'idle' } : p));
+                          }}
+                          options={SUPPORTED_FORMATS.map(f => ({ value: f.value, label: f.label }))}
+                        />
+                      </div>
                     </div>
 
                     {/* Result Stats Badge */}

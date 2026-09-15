@@ -57,7 +57,7 @@ export default function ContentSettingsTab({
   services, portfolioProjects, testimonials, pageSections, blogs, legalPages,
   onUpdateServices, onUpdatePortfolio, onUpdateTestimonials, onUpdatePageSections, onUpdateBlogs, onUpdateLegalPages
 }: ContentSettingsTabProps) {
-  const { showToast, showConfirm } = useCustomUi();
+  const { showToast, showConfirm, showPrompt } = useCustomUi();
   const [subTab, setSubTab] = useState<'services' | 'portfolio' | 'testimonials' | 'pages' | 'blog' | 'legal' | 'pricing'>(initialSubTab);
 
   useEffect(() => {
@@ -277,10 +277,17 @@ export default function ContentSettingsTab({
   };
 
   const handleThumbnailUrlSubmit = () => {
-    const url = prompt('Enter thumbnail image URL:');
-    if (url && editingProject) {
-      setEditingProject({ ...editingProject, thumbnailUrl: url });
-    }
+    showPrompt({
+      title: 'Thumbnail Image URL',
+      message: 'Enter thumbnail image URL (HTTPS):',
+      placeholder: 'https://images.unsplash.com/...',
+      confirmText: 'Set Thumbnail',
+      onConfirm: (url) => {
+        if (url.trim() && editingProject) {
+          setEditingProject({ ...editingProject, thumbnailUrl: url.trim() });
+        }
+      }
+    });
   };
 
   return (
@@ -677,13 +684,19 @@ export default function ContentSettingsTab({
                 </div>
                 <button 
                   onClick={() => {
-                    const nextContent = prompt('Edit Privacy Policy body text:', legalPages.privacy?.content);
-                    if (nextContent !== null) {
-                      onUpdateLegalPages({
-                        ...legalPages,
-                        privacy: { ...legalPages.privacy, content: nextContent, lastUpdated: 'May 2026' }
-                      });
-                    }
+                    showPrompt({
+                      title: 'Edit Privacy Policy',
+                      message: 'Update Privacy Policy body text:',
+                      defaultValue: legalPages.privacy?.content,
+                      confirmText: 'Save Policy',
+                      onConfirm: (nextContent) => {
+                        onUpdateLegalPages({
+                          ...legalPages,
+                          privacy: { ...legalPages.privacy, content: nextContent, lastUpdated: 'May 2026' }
+                        });
+                        showToast('Privacy Policy updated.', 'success');
+                      }
+                    });
                   }}
                   className="w-full text-center py-2 border border-[#D6B46A]/20 hover:border-[#D6B46A] text-[9px] font-mono font-bold uppercase tracking-widest text-[#BFA15A] hover:text-[#111111] bg-white rounded-lg transition-colors cursor-pointer"
                 >
@@ -700,13 +713,19 @@ export default function ContentSettingsTab({
                 </div>
                 <button 
                   onClick={() => {
-                    const nextContent = prompt('Edit Terms and Conditions body text:', legalPages.terms?.content);
-                    if (nextContent !== null) {
-                      onUpdateLegalPages({
-                        ...legalPages,
-                        terms: { ...legalPages.terms, content: nextContent, lastUpdated: 'May 2026' }
-                      });
-                    }
+                    showPrompt({
+                      title: 'Edit Terms & Conditions',
+                      message: 'Update Terms and Conditions body text:',
+                      defaultValue: legalPages.terms?.content,
+                      confirmText: 'Save Terms',
+                      onConfirm: (nextContent) => {
+                        onUpdateLegalPages({
+                          ...legalPages,
+                          terms: { ...legalPages.terms, content: nextContent, lastUpdated: 'May 2026' }
+                        });
+                        showToast('Terms & Conditions updated.', 'success');
+                      }
+                    });
                   }}
                   className="w-full text-center py-2 border border-[#D6B46A]/20 hover:border-[#D6B46A] text-[9px] font-mono font-bold uppercase tracking-widest text-[#BFA15A] hover:text-[#111111] bg-white rounded-lg transition-colors cursor-pointer"
                 >
@@ -723,13 +742,19 @@ export default function ContentSettingsTab({
                 </div>
                 <button 
                   onClick={() => {
-                    const nextContent = prompt('Edit Refund Policy body text:', legalPages.refund?.content);
-                    if (nextContent !== null) {
-                      onUpdateLegalPages({
-                        ...legalPages,
-                        refund: { ...legalPages.refund, content: nextContent, lastUpdated: 'May 2026' }
-                      });
-                    }
+                    showPrompt({
+                      title: 'Edit Refund Policy',
+                      message: 'Update Refund Policy body text:',
+                      defaultValue: legalPages.refund?.content,
+                      confirmText: 'Save Policy',
+                      onConfirm: (nextContent) => {
+                        onUpdateLegalPages({
+                          ...legalPages,
+                          refund: { ...legalPages.refund, content: nextContent, lastUpdated: 'May 2026' }
+                        });
+                        showToast('Refund Policy updated.', 'success');
+                      }
+                    });
                   }}
                   className="w-full text-center py-2 border border-[#D6B46A]/20 hover:border-[#D6B46A] text-[9px] font-mono font-bold uppercase tracking-widest text-[#BFA15A] hover:text-[#111111] bg-white rounded-lg transition-colors cursor-pointer"
                 >

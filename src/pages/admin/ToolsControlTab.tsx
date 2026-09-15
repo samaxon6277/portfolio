@@ -19,7 +19,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 export default function ToolsControlTab() {
-  const { showToast } = useCustomUi();
+  const { showToast, showConfirm } = useCustomUi();
   const [tools, setTools] = useState<ToolItemConfig[]>(getToolsConfig());
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'All' | 'Image' | 'Document' | 'Productivity' | 'AI Neural'>('All');
@@ -49,11 +49,17 @@ export default function ToolsControlTab() {
   };
 
   const handleResetAll = () => {
-    if (window.confirm('Reset all tool statuses to factory default (All Tools Active)?')) {
-      const reset = resetToolsConfig();
-      setTools(reset);
-      showToast('All tools have been reset to Online status.', 'success');
-    }
+    showConfirm({
+      title: 'Reset All Tool Statuses',
+      message: 'Reset all tool statuses to factory default (All Tools Active)?',
+      confirmText: 'Reset to Default',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        const reset = resetToolsConfig();
+        setTools(reset);
+        showToast('All tools have been reset to Online status.', 'success');
+      }
+    });
   };
 
   const filteredTools = tools.filter(tool => {

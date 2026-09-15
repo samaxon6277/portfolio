@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, AlertTriangle, XCircle, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, Info, X, MessageSquare } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -26,10 +26,22 @@ interface AlertOptions {
   buttonText?: string;
 }
 
+interface PromptOptions {
+  title?: string;
+  message: string;
+  defaultValue?: string;
+  placeholder?: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm: (value: string) => void;
+  onCancel?: () => void;
+}
+
 interface CustomUiContextType {
   showToast: (message: string, type?: ToastType) => void;
   showConfirm: (opt: ConfirmOptions) => void;
   showAlert: (opt: AlertOptions) => void;
+  showPrompt: (opt: PromptOptions) => void;
 }
 
 const CustomUiContext = createContext<CustomUiContextType | undefined>(undefined);
@@ -38,6 +50,9 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [confirmModal, setConfirmModal] = useState<ConfirmOptions | null>(null);
   const [alertModal, setAlertModal] = useState<AlertOptions | null>(null);
+  const [promptModal, setPromptModal] = useState<PromptOptions | null>(null);
+  const [promptValue, setPromptValue] = useState('');
+  const promptInputRef = useRef<HTMLInputElement>(null);
 
   const showToast = (message: string, type: ToastType = 'success') => {
     const id = `${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -57,6 +72,14 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
     setAlertModal(opt);
   };
 
+  const showPrompt = (opt: PromptOptions) => {
+    setPromptValue(opt.defaultValue || '');
+    setPromptModal(opt);
+    setTimeout(() => {
+      promptInputRef.current?.focus();
+    }, 50);
+  };
+
   const closeConfirm = (confirmed: boolean) => {
     if (confirmModal) {
       if (confirmed) {
@@ -68,8 +91,19 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
     setConfirmModal(null);
   };
 
+  const closePrompt = (confirmed: boolean) => {
+    if (promptModal) {
+      if (confirmed) {
+        promptModal.onConfirm(promptValue);
+      } else if (promptModal.onCancel) {
+        promptModal.onCancel();
+      }
+    }
+    setPromptModal(null);
+  };
+
   return (
-    <CustomUiContext.Provider value={{ showToast, showConfirm, showAlert }}>
+    <CustomUiContext.Provider value={{ showToast, showConfirm, showAlert, showPrompt }}>
       {children}
 
       {/* --- PREMIUM TOAST CONTAINER --- */}
@@ -122,7 +156,6 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
       <AnimatePresence>
         {confirmModal && (
           <div className="fixed inset-0 z-[99998] flex items-center justify-center p-4">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.65 }}
@@ -130,8 +163,6 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
               onClick={() => closeConfirm(false)}
               className="absolute inset-0 bg-[#000000]"
             />
-
-            {/* Modal Body */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -175,7 +206,6 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
       <AnimatePresence>
         {alertModal && (
           <div className="fixed inset-0 z-[99998] flex items-center justify-center p-4">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.65 }}
@@ -183,8 +213,6 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
               onClick={() => setAlertModal(null)}
               className="absolute inset-0 bg-[#000000]"
             />
-
-            {/* Modal Body */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -219,6 +247,74 @@ export function CustomUiProvider({ children }: { children: ReactNode }) {
                   className="px-5 py-2.5 bg-[#111111] text-[#D6B46A] hover:text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-200 cursor-pointer min-w-[100px] text-center"
                 >
                   {alertModal.buttonText || 'Understood'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* --- PREMIUM PROMPT MODAL (NO WINDOW.PROMPT) --- */}
+      <AnimatePresence>
+        {promptModal && (
+          <div className="fixed inset-0 z-[99998] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.65 }}
+              exit={{ opacity: 0 }}
+              onClick={() => closePrompt(false)}
+              className="absolute inset-0 bg-[#000000]"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative w-full max-w-md bg-[#FFFDF8] border-2 border-[#D6B46A]/35 rounded-2xl shadow-2xl overflow-hidden p-6 text-left space-y-5"
+            >
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-[#D6B46A] shrink-0" />
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#BFA15A] font-bold">
+                    User Input Directive
+                  </span>
+                </div>
+                <h3 className="font-display text-base font-black text-[#111111] uppercase tracking-wider">
+                  {promptModal.title || 'Enter Value'}
+                </h3>
+                <p className="text-xs text-[#8A8178] leading-relaxed font-semibold">
+                  {promptModal.message}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <input
+                  ref={promptInputRef}
+                  type="text"
+                  value={promptValue}
+                  onChange={(e) => setPromptValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') closePrompt(true);
+                    if (e.key === 'Escape') closePrompt(false);
+                  }}
+                  placeholder={promptModal.placeholder || 'Enter input...'}
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[#D6B46A]/35 bg-[#FFFDF8] text-[#111111] outline-none focus:border-[#D6B46A] focus:shadow-[0_0_0_3.5px_rgba(214,180,106,0.18)]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => closePrompt(false)}
+                  className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-200 cursor-pointer min-w-[90px] text-center"
+                >
+                  {promptModal.cancelText || 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => closePrompt(true)}
+                  className="px-5 py-2 bg-[#111111] text-[#D6B46A] hover:text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-200 cursor-pointer min-w-[90px] text-center"
+                >
+                  {promptModal.confirmText || 'Save'}
                 </button>
               </div>
             </motion.div>

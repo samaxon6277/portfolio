@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import JSZip from 'jszip';
 import CustomSelect from '../CustomSelect';
+import CustomSlider from '../ui/CustomSlider';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 interface CompressedImageItem {
   id: string;
@@ -25,6 +27,7 @@ interface CompressedImageItem {
 }
 
 export default function PhotoCompressor() {
+  const { showToast, showConfirm } = useCustomUi();
   const [images, setImages] = useState<CompressedImageItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   
@@ -488,26 +491,17 @@ export default function PhotoCompressor() {
             {/* MODE A: Quality Slider */}
             {mode === 'quality' ? (
               <div className="space-y-3 bg-[#FFFDF8] border border-[#D6B46A]/15 p-4 rounded-2xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#111111]">Image Quality Level</span>
-                  <span className="px-2.5 py-0.5 bg-[#111111] text-[#D6B46A] font-mono font-bold text-xs rounded-md">
-                    {quality}%
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  step="1"
+                <CustomSlider
+                  min={5}
+                  max={100}
+                  step={1}
                   value={quality}
-                  onChange={(e) => setQuality(Number(e.target.value))}
-                  className="w-full accent-[#D6B46A] cursor-pointer"
+                  onChange={setQuality}
+                  label="Image Quality Level"
+                  unit="%"
+                  minLabel="5% (Max Reduction)"
+                  maxLabel="100% (Lossless)"
                 />
-                <div className="flex justify-between text-[10px] font-mono text-[#8A8178]">
-                  <span>5% (Max Reduction)</span>
-                  <span>75% (Recommended)</span>
-                  <span>100% (Lossless)</span>
-                </div>
               </div>
             ) : (
               /* MODE B: Exact Target Size in KB */

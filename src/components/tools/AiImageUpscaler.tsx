@@ -4,8 +4,10 @@ import {
   ShieldCheck, RefreshCw, ZoomIn, Layers, Zap, Image as ImageIcon
 } from 'lucide-react';
 import SleekLuxurySlider from './SleekLuxurySlider';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 export default function AiImageUpscaler() {
+  const { showAlert } = useCustomUi();
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [upscaledUrl, setUpscaledUrl] = useState<string | null>(null);
@@ -33,7 +35,10 @@ export default function AiImageUpscaler() {
   // Handle Image Upload
   const handleUpload = (uploadedFile: File) => {
     if (!uploadedFile.type.startsWith('image/')) {
-      alert('Please upload a valid image (PNG, JPG, WEBP).');
+      showAlert({
+        title: 'Unsupported Image File',
+        message: 'Please upload a valid image file (PNG, JPG, or WEBP).'
+      });
       return;
     }
 

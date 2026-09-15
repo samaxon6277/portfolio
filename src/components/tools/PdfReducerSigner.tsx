@@ -8,6 +8,7 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import SleekLuxurySlider from './SleekLuxurySlider';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 // Configure pdfjs worker using local Vite bundled URL (eliminating cross-origin CDN errors)
 if (typeof window !== 'undefined') {
@@ -35,6 +36,7 @@ function sanitizeForPdfWinAnsi(text: string): string {
 }
 
 export default function PdfReducerSigner() {
+  const { showAlert, showToast } = useCustomUi();
   const [file, setFile] = useState<File | null>(null);
   const [pdfDoc, setPdfDoc] = useState<PDFDocument | null>(null);
   const [pageCount, setPageCount] = useState<number>(0);
@@ -151,7 +153,10 @@ export default function PdfReducerSigner() {
   // Handle PDF file selection (unlimited MB in-memory)
   const handlePdfUpload = async (uploadedFile: File) => {
     if (uploadedFile.type !== 'application/pdf' && !uploadedFile.name.toLowerCase().endsWith('.pdf')) {
-      alert('Please select a valid PDF file.');
+      showAlert({
+        title: 'Invalid File Format',
+        message: 'Please select a valid PDF file (.pdf).'
+      });
       return;
     }
 
@@ -184,9 +189,13 @@ export default function PdfReducerSigner() {
       }
 
       setStatusMessage('');
+      showToast(`Loaded "${uploadedFile.name}" (${count} pages)`);
     } catch (err) {
       console.error('Error loading PDF:', err);
-      alert('Failed to parse this PDF. Please ensure the document is not password-protected.');
+      showAlert({
+        title: 'PDF Parsing Failed',
+        message: 'Failed to parse this PDF. Please ensure the document is not encrypted with an owner password.'
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -383,7 +392,10 @@ export default function PdfReducerSigner() {
       setStatusMessage('Optimization completed successfully!');
     } catch (err) {
       console.error('Compression failed:', err);
-      alert('Error compressing PDF. File might be protected or malformed.');
+      showAlert({
+        title: 'Compression Error',
+        message: 'Could not compress this PDF. The file might be corrupted or protected.'
+      });
     } finally {
       setIsCompressing(false);
     }
@@ -404,7 +416,10 @@ export default function PdfReducerSigner() {
   // Apply Digital Signature and Stamp onto PDF
   const applySignatureAndDownload = async () => {
     if (!file || !signatureDataUrl) {
-      alert('Please create or upload a signature first.');
+      showAlert({
+        title: 'Signature Required',
+        message: 'Please draw, type, or upload a signature before applying it to the PDF.'
+      });
       return;
     }
 
@@ -418,7 +433,10 @@ export default function PdfReducerSigner() {
       const targetPage = pages[currentPage - 1];
 
       if (!targetPage) {
-        alert('Invalid page selected.');
+        showAlert({
+          title: 'Invalid Page',
+          message: 'The selected page could not be located in the document.'
+        });
         return;
       }
 

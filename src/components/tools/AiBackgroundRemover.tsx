@@ -5,8 +5,10 @@ import {
   Sun, Palette, RefreshCw
 } from 'lucide-react';
 import SleekLuxurySlider from './SleekLuxurySlider';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 export default function AiBackgroundRemover() {
+  const { showAlert } = useCustomUi();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
@@ -44,7 +46,10 @@ export default function AiBackgroundRemover() {
   // Load Image
   const handleImageUpload = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Please upload a valid image file (PNG, JPG, WEBP).');
+      showAlert({
+        title: 'Unsupported File Format',
+        message: 'Please upload a valid image file (PNG, JPG, or WEBP).'
+      });
       return;
     }
 

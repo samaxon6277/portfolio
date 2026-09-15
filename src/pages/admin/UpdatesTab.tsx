@@ -12,6 +12,7 @@ import {
   parseTimestampBreakdown, SITE_UPDATES_EVENT 
 } from '../../utils/siteUpdatesManager';
 import { useCustomUi } from '../../context/CustomUiContext';
+import CustomSelect from '../../components/CustomSelect';
 
 interface UpdatesTabProps {
   currentUser?: {
@@ -23,7 +24,7 @@ interface UpdatesTabProps {
 }
 
 export default function UpdatesTab({ currentUser }: UpdatesTabProps) {
-  const { showToast } = useCustomUi();
+  const { showToast, showConfirm } = useCustomUi();
   const [updates, setUpdates] = useState<WebsiteUpdateLog[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -222,10 +223,16 @@ export default function UpdatesTab({ currentUser }: UpdatesTabProps) {
 
   // Delete update handler
   const handleDelete = (id: string, version: string) => {
-    if (window.confirm(`Are you sure you want to delete update log "${version}"?`)) {
-      deleteSiteUpdate(id);
-      showToast(`Update log "${version}" deleted.`, 'info');
-    }
+    showConfirm({
+      title: 'Delete Update Log',
+      message: `Are you sure you want to delete update log "${version}"?`,
+      confirmText: 'Delete Log',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        deleteSiteUpdate(id);
+        showToast(`Update log "${version}" deleted.`, 'info');
+      }
+    });
   };
 
   // Filtered updates
@@ -638,18 +645,19 @@ export default function UpdatesTab({ currentUser }: UpdatesTabProps) {
                     <label className="text-[10px] font-mono uppercase tracking-wider text-neutral-600 font-bold">
                       Upgrade Category *
                     </label>
-                    <select
+                    <CustomSelect
                       value={formCategory}
-                      onChange={(e) => setFormCategory(e.target.value as any)}
-                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-300 rounded-xl text-xs font-semibold text-neutral-900 outline-none focus:border-[#D6B46A]"
-                    >
-                      <option value="Feature Release">Feature Release</option>
-                      <option value="UI/UX Upgrade">UI/UX Upgrade</option>
-                      <option value="Core Architecture">Core Architecture</option>
-                      <option value="Performance & Speed">Performance & Speed</option>
-                      <option value="Security Patch">Security Patch</option>
-                      <option value="Bug Fix">Bug Fix</option>
-                    </select>
+                      onChange={(val) => setFormCategory(val as any)}
+                      options={[
+                        'Feature Release',
+                        'UI/UX Upgrade',
+                        'Core Architecture',
+                        'Performance & Speed',
+                        'Security Patch',
+                        'Bug Fix'
+                      ]}
+                      placeholder="Select Category"
+                    />
                   </div>
                 </div>
 

@@ -5,8 +5,10 @@ import {
   Code2
 } from 'lucide-react';
 import SleekLuxurySlider from './SleekLuxurySlider';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 export default function VectorSvgConverter() {
+  const { showAlert } = useCustomUi();
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [svgOutput, setSvgOutput] = useState<string | null>(null);
@@ -29,7 +31,10 @@ export default function VectorSvgConverter() {
   // Load Image File
   const handleUpload = (uploadedFile: File) => {
     if (!uploadedFile.type.startsWith('image/')) {
-      alert('Please select an image file (PNG, JPG, WEBP).');
+      showAlert({
+        title: 'Unsupported Image Format',
+        message: 'Please select a valid image file (PNG, JPG, or WEBP).'
+      });
       return;
     }
 

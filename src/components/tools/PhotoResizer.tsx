@@ -6,6 +6,7 @@ import {
   Maximize2, Eye
 } from 'lucide-react';
 import CustomSelect from '../CustomSelect';
+import CustomSlider from '../ui/CustomSlider';
 
 interface PresetItem {
   name: string;
@@ -548,20 +549,16 @@ export default function PhotoResizer() {
             {/* PERCENTAGE RESIZE */}
             {resizeMode === 'percentage' && (
               <div className="space-y-3 bg-[#FFFDF8] border border-[#D6B46A]/15 p-4 rounded-2xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#111111]">Scale Ratio</span>
-                  <span className="px-2.5 py-0.5 bg-[#111111] text-[#D6B46A] font-mono font-bold text-xs rounded-md">
-                    {percentage}%
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="250"
-                  step="5"
+                <CustomSlider
+                  min={10}
+                  max={250}
+                  step={5}
                   value={percentage}
-                  onChange={(e) => handlePercentageChange(Number(e.target.value))}
-                  className="w-full accent-[#D6B46A] cursor-pointer"
+                  onChange={(val) => handlePercentageChange(val)}
+                  label="Scale Ratio"
+                  unit="%"
+                  minLabel="10%"
+                  maxLabel="250%"
                 />
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {[25, 50, 75, 100, 150, 200].map((p) => (

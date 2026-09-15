@@ -221,7 +221,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
               to="/tools" 
               className="text-left text-sm text-[#D6B46A] hover:text-white hover:translate-x-1 duration-200 uppercase tracking-wider flex items-center justify-between font-bold"
             >
-              <span>Tools Suite</span>
+              <span>Tools</span>
               <span className="px-2 py-0.5 bg-[#D6B46A]/20 text-[#D6B46A] text-[10px] font-mono rounded font-bold">Free</span>
             </Link>
             <Link 

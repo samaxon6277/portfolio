@@ -2,27 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { 
   Minimize2, Crop, Sparkles, Wand2, FileText, Image as ImageIcon, 
   ArrowRight, ShieldCheck, Zap, Lock, HeartHandshake, CheckCircle2, 
-  RefreshCw, Calculator, AlertTriangle, SearchCode
+  RefreshCw, Calculator, AlertTriangle, SearchCode, Search, Gauge,
+  TrendingUp, QrCode, Terminal
 } from 'lucide-react';
 import { getToolsConfig, ToolItemConfig } from '../../utils/toolsConfig';
+import { useCustomUi } from '../../context/CustomUiContext';
 
 interface ToolsOverviewProps {
-  onSelectTool: (toolId: 'analyzer' | 'compressor' | 'resizer' | 'converter' | 'calculator' | 'bg-remover' | 'upscaler' | 'vectorizer' | 'pdf-tool') => void;
+  onSelectTool: (toolId: any) => void;
 }
 
 const ICON_MAP: Record<string, React.ElementType> = {
+  Search,
   SearchCode,
+  Zap,
+  Gauge,
+  Sparkles,
+  TrendingUp,
+  QrCode,
   RefreshCw,
   Calculator,
   Minimize2,
   Crop,
   FileText,
   Wand2,
-  Sparkles,
-  ImageIcon
+  ImageIcon,
+  Terminal
 };
 
 export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
+  const { showAlert } = useCustomUi();
   const [tools, setTools] = useState<ToolItemConfig[]>(getToolsConfig());
 
   useEffect(() => {
@@ -34,6 +43,16 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
   }, []);
 
   const toolFeaturePills: Record<string, string[]> = {
+    'canonical-url-validator': ['RFC 6596 Syntax Audit', 'HTML Tag & Header Probe', 'Normalizer & UTM Stripper'],
+    'api-request-builder': ['Multi-Method REST Client', 'CORS Proxy Gateway', 'cURL, Fetch & Python Export'],
+    'client-discovery-questionnaire': ['10-Stage Strategic Blueprint', 'Interactive Page Sitemap', 'Asset Readiness Scoring'],
+    'website-seo-audit': ['SERP Preview Simulator', 'Missing Alt & Headings Map', 'Instant Copyable Code Fixes'],
+    'website-speed-checker': ['Time to First Byte (TTFB)', 'Core Web Vitals Simulation', 'CSS Animation Jank Analyzer'],
+    'website-project-brief': ['Gemini AI Strategic Architecture', 'Sitemap & Milestone Roadmap', '1-Click Markdown & PDF Export'],
+    'roi-calculator': ['Conversion & Lead Model', '3-Year Financial Forecast', 'Interactive Recharts Visualization'],
+    'qr-generator': ['URL, WiFi, vCard, UPI & SMS', 'Embedded Brand Logo', 'Crisp SVG & Vector PNG Export'],
+    'business-name-generator': ['AI Linguistic Synthesis', 'Latin Roots & Phonetics', 'Domain Availability & Dossier'],
+    'invoice-generator': ['GST & Tax Calculation Engine', 'Compliant Print-to-PDF Format', 'Local Storage Template Saver'],
     analyzer: ['SSL & Security Vulnerabilities', 'Code Bugs & Missing Alt Tags', 'Missing SEO Keywords Engine'],
     converter: ['WEBP · PNG · JPG · ICO', 'Batch ZIP Export', 'Alpha Transparency'],
     calculator: ['Basic & Scientific Pro', 'Loan EMI & GST Solver', 'SIP Wealth & Unit Matrix'],
@@ -46,6 +65,16 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
   };
 
   const toolFooterBadges: Record<string, string> = {
+    'canonical-url-validator': 'RFC 6596 Standard Engine · 100% Free',
+    'api-request-builder': 'Zero Secret Logging · Multi-Method Client',
+    'client-discovery-questionnaire': 'Executive Strategic Blueprint · Instant Export',
+    'website-seo-audit': 'Deep On-Page & SERP Crawler · 100% Free',
+    'website-speed-checker': 'Millisecond Network Diagnostics · 100% Free',
+    'website-project-brief': 'AI Strategic Architect · Free Forever',
+    'roi-calculator': 'Executive Financial Model · Real-Time Chart',
+    'qr-generator': 'Custom Vector Studio · Zero Data Logging',
+    'business-name-generator': 'Linguistic AI Generator · Trademark Ready',
+    'invoice-generator': 'Official Commercial Standard · Print Ready',
     analyzer: 'Deep Diagnostic Scan · 100% Free',
     converter: '100% Client-Side · Unlimited',
     calculator: 'Tactile Audio · Keyboard Ready',
@@ -59,7 +88,7 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
 
   return (
     <div className="space-y-16 text-left" id="tools-overview-catalog">
-      {/* All 8 Tools in Unified, First-Class Luxury Grid */}
+      {/* All Tools in Unified, First-Class Luxury Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
         {tools.map((tool) => {
           const Icon = ICON_MAP[tool.iconName] || RefreshCw;
@@ -73,7 +102,10 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
                 if (tool.enabled) {
                   onSelectTool(tool.id);
                 } else {
-                  alert(tool.maintenanceNotice || `${tool.name} is currently undergoing scheduled maintenance. Please check back shortly.`);
+                  showAlert({
+                    title: 'Tool Under Maintenance',
+                    message: tool.maintenanceNotice || `${tool.name} is currently undergoing scheduled maintenance. Please check back shortly.`
+                  });
                 }
               }}
               className={`group bg-white border rounded-[32px] p-8 sm:p-10 shadow-sm transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden ${

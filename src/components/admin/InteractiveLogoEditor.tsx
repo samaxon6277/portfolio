@@ -547,7 +547,7 @@ export default function InteractiveLogoEditor({
                   setScale(next);
                   emitChanges({ logoScale: next });
                 }}
-                className="flex-1 accent-[#D6B46A] cursor-pointer"
+                className="flex-1 h-2 rounded-lg appearance-none cursor-pointer outline-none bg-[#EAE4D7] accent-[#D6B46A]"
               />
               <button
                 type="button"
@@ -583,7 +583,7 @@ export default function InteractiveLogoEditor({
                 setOffsetX(next);
                 emitChanges({ logoOffsetX: next });
               }}
-              className="w-full accent-[#D6B46A] cursor-pointer"
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer outline-none bg-[#EAE4D7] accent-[#D6B46A]"
             />
           </div>
 
@@ -607,7 +607,7 @@ export default function InteractiveLogoEditor({
                 setOffsetY(next);
                 emitChanges({ logoOffsetY: next });
               }}
-              className="w-full accent-[#D6B46A] cursor-pointer"
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer outline-none bg-[#EAE4D7] accent-[#D6B46A]"
             />
           </div>
 
@@ -632,7 +632,7 @@ export default function InteractiveLogoEditor({
                   setRotation(next);
                   emitChanges({ logoRotation: next });
                 }}
-                className="flex-1 accent-[#D6B46A] cursor-pointer"
+                className="flex-1 h-2 rounded-lg appearance-none cursor-pointer outline-none bg-[#EAE4D7] accent-[#D6B46A]"
               />
               <button
                 type="button"
@@ -665,7 +665,7 @@ export default function InteractiveLogoEditor({
                   setBorderRadius(next);
                   emitChanges({ logoBorderRadius: next });
                 }}
-                className="w-full accent-[#D6B46A] cursor-pointer"
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer outline-none bg-[#EAE4D7] accent-[#D6B46A]"
               />
             </div>
 
@@ -685,7 +685,7 @@ export default function InteractiveLogoEditor({
                   setPadding(next);
                   emitChanges({ logoPadding: next });
                 }}
-                className="w-full accent-[#D6B46A] cursor-pointer"
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer outline-none bg-[#EAE4D7] accent-[#D6B46A]"
               />
             </div>
           </div>

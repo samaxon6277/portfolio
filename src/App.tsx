@@ -246,13 +246,37 @@ function MainAppContent() {
               
               {/* Creator & Business Tools Suite */}
               <Route path="/tools" element={<Tools />} />
+              <Route path="/tools/canonical-url-validator" element={<Tools />} />
+              <Route path="/tools/canonical-validator" element={<Tools />} />
+              <Route path="/canonical-url-validator" element={<Tools />} />
+              <Route path="/tools/api-request-builder" element={<Tools />} />
+              <Route path="/tools/api-builder" element={<Tools />} />
+              <Route path="/api-request-builder" element={<Tools />} />
+              <Route path="/tools/client-discovery-questionnaire" element={<Tools />} />
+              <Route path="/tools/client-discovery" element={<Tools />} />
+              <Route path="/client-discovery" element={<Tools />} />
+              <Route path="/tools/website-seo-audit" element={<Tools />} />
+              <Route path="/tools/seo-audit" element={<Tools />} />
+              <Route path="/tools/website-speed-checker" element={<Tools />} />
+              <Route path="/tools/speed-checker" element={<Tools />} />
+              <Route path="/tools/website-project-brief" element={<Tools />} />
+              <Route path="/tools/project-brief" element={<Tools />} />
               <Route path="/tools/analyzer" element={<Tools />} />
               <Route path="/analyzer" element={<Tools />} />
               <Route path="/website-analyzer" element={<Tools />} />
               <Route path="/tools/compressor" element={<Tools />} />
+              <Route path="/tools/image-compressor" element={<Tools />} />
               <Route path="/tools/resizer" element={<Tools />} />
               <Route path="/tools/converter" element={<Tools />} />
               <Route path="/tools/calculator" element={<Tools />} />
+              <Route path="/tools/roi-calculator" element={<Tools />} />
+              <Route path="/tools/website-roi" element={<Tools />} />
+              <Route path="/tools/qr-generator" element={<Tools />} />
+              <Route path="/tools/qr-code" element={<Tools />} />
+              <Route path="/tools/business-name-generator" element={<Tools />} />
+              <Route path="/tools/name-generator" element={<Tools />} />
+              <Route path="/tools/invoice-generator" element={<Tools />} />
+              <Route path="/tools/invoice" element={<Tools />} />
               <Route path="/tools/bg-remover" element={<Tools />} />
               <Route path="/tools/upscaler" element={<Tools />} />
               <Route path="/tools/vectorizer" element={<Tools />} />

@@ -16,6 +16,18 @@
       "destination": "/index.html"
     },
     {
+      "source": "/api/tools/seo-audit",
+      "destination": "/api/tools-seo-audit"
+    },
+    {
+      "source": "/api/tools/speed-check",
+      "destination": "/api/tools-speed-check"
+    },
+    {
+      "source": "/api/tools/generate-brief",
+      "destination": "/api/tools-generate-brief"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/api/404"
     }
