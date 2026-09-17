@@ -45,6 +45,7 @@ import { ToolCategory, CatalogTool, getAllCategories, getToolsForCategory } from
 import { ToolItemConfig, getToolsConfig } from '../../utils/toolsConfig';
 import SEO from '../SEO';
 import { generateCategoryBreadcrumbSchema, generateCategoryCollectionSchema } from '../../data/toolsCatalog';
+import { ToolCard } from './common/ToolCard';
 
 // Map icon strings to Lucide components
 const TOOL_ICON_MAP: Record<string, LucideIcon> = {
@@ -197,85 +198,12 @@ export const CategoryDetailView: React.FC<CategoryDetailViewProps> = ({ category
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tools.map((tool) => {
-              const runtimeConfig = configMap.get(tool.id);
-              const isEnabled = runtimeConfig ? runtimeConfig.enabled : true;
-              const IconComp = TOOL_ICON_MAP[tool.iconName] || Wrench;
-
-              return (
-                <article
-                  key={tool.id}
-                  id={`tool-card-${tool.id}`}
-                  className="group relative flex flex-col justify-between p-6 bg-[#FFFDF8] rounded-2xl border border-[#D6B46A]/25 hover:border-[#D6B46A] shadow-[0_2px_12px_rgba(17,17,17,0.02)] hover:shadow-[0_8px_24px_rgba(214,180,106,0.16)] transition-all duration-300 overflow-hidden"
-                >
-                  <div className="space-y-4">
-                    {/* Top Row: Icon & Status */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-[#111111] text-[#D6B46A] flex items-center justify-center border border-[#D6B46A]/30 group-hover:scale-105 transition-transform shrink-0">
-                        <IconComp className="w-5 h-5" />
-                      </div>
-
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {isEnabled ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-mono font-bold text-emerald-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Live
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-mono font-bold text-amber-700">
-                            <AlertTriangle className="w-3 h-3" />
-                            Maintenance
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Tool Name & Badge */}
-                    <div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#8A6D3B] font-bold">
-                        {tool.badge}
-                      </span>
-                      <h3 className="text-lg font-bold font-display text-[#111111] group-hover:text-[#8A6D3B] transition-colors leading-snug mt-0.5">
-                        {tool.name}
-                      </h3>
-                    </div>
-
-                    {/* Tool Practical Description */}
-                    <p className="text-xs sm:text-sm text-[#554F49] leading-relaxed line-clamp-2">
-                      {tool.description}
-                    </p>
-
-                    {/* Feature Pills */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {tool.featurePills.map((pill, pIdx) => (
-                        <span 
-                          key={pIdx} 
-                          className="inline-flex items-center text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded bg-neutral-100 text-[#443E38] border border-neutral-200/60"
-                        >
-                          {pill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Link Button */}
-                  <div className="pt-6 mt-4 border-t border-[#D6B46A]/15 flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-[#8A8178]">
-                      {tool.footerBadge}
-                    </span>
-
-                    <Link
-                      to={tool.route}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#111111] hover:bg-[#222222] text-[#D6B46A] text-xs font-mono font-bold transition-all shadow-sm group-hover:shadow hover:scale-[1.02] cursor-pointer"
-                      aria-label={`Open ${tool.name}`}
-                    >
-                      <span>Open Tool</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
+            {tools.map((tool) => (
+              <ToolCard
+                key={tool.id}
+                tool={tool}
+              />
+            ))}
           </div>
         </section>
 

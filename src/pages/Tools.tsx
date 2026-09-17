@@ -368,25 +368,8 @@ export default function Tools() {
           </div>
         </div>
 
-        {/* View Header: Overview vs Active Tool */}
-        {activeTab === 'overview' ? (
-          <div className="max-w-3xl space-y-3.5">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="px-3 py-1 bg-[#111111] text-[#D6B46A] text-xs font-mono uppercase tracking-wider font-bold rounded-md">
-                SMR CREATOR & BUSINESS LABS
-              </span>
-              <span className="text-sm font-mono text-[#554F49]">· Zero Uploads · Free Forever</span>
-            </div>
-
-            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-[#111111] tracking-tight">
-              TOOLS
-            </h1>
-
-            <p className="text-base sm:text-lg text-[#3D3731] leading-relaxed font-normal">
-              Explore practical tools for development, design, branding, SEO, and everyday digital work.
-            </p>
-          </div>
-        ) : (
+        {/* View Header: Active Tool Top Bar */}
+        {activeTab !== 'overview' && (
           /* Active Tool Top Action Bar: Back to Category/Tools + Switch Tool Dropdown */
           <div className="bg-white border border-[#D6B46A]/30 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3">
@@ -507,9 +490,16 @@ export default function Tools() {
             </div>
           ) : (
             <React.Suspense fallback={<ToolLoadingSkeleton />}>
-              {activeTab === 'website-launch-readiness' && (
-                <WebsiteLaunchReadinessChecker />
-              )}
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full"
+              >
+                {activeTab === 'website-launch-readiness' && (
+                  <WebsiteLaunchReadinessChecker />
+                )}
 
               {activeTab === 'website-project-scope-builder' && (
                 <WebsiteProjectScopeBuilder />
@@ -706,6 +696,7 @@ export default function Tools() {
               {activeTab === 'color-contrast-checker' && (
                 <ColorContrastChecker />
               )}
+              </motion.div>
             </React.Suspense>
           )}
         </div>
