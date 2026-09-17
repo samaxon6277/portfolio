@@ -8,46 +8,6 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import SEO from '../components/SEO';
-import PhotoCompressor from '../components/tools/PhotoCompressor';
-import PhotoResizer from '../components/tools/PhotoResizer';
-import ImageConverter from '../components/tools/ImageConverter';
-import UniversalCalculator from '../components/tools/UniversalCalculator';
-import PdfReducerSigner from '../components/tools/PdfReducerSigner';
-import AiBackgroundRemover from '../components/tools/AiBackgroundRemover';
-import AiImageUpscaler from '../components/tools/AiImageUpscaler';
-import VectorSvgConverter from '../components/tools/VectorSvgConverter';
-import WebsiteAnalyzer from '../components/tools/WebsiteAnalyzer';
-import WebsiteSeoAudit from '../components/tools/WebsiteSeoAudit';
-import WebsiteSpeedChecker from '../components/tools/WebsiteSpeedChecker';
-import AiProjectBriefGenerator from '../components/tools/AiProjectBriefGenerator';
-import WebsiteRoiCalculator from '../components/tools/WebsiteRoiCalculator';
-import QrCodeGenerator from '../components/tools/QrCodeGenerator';
-import BusinessNameGenerator from '../components/tools/BusinessNameGenerator';
-import InvoiceGenerator from '../components/tools/InvoiceGenerator';
-import CanonicalUrlValidator from '../components/tools/CanonicalUrlValidator';
-import ApiRequestBuilder from '../components/tools/ApiRequestBuilder';
-import ClientDiscoveryQuestionnaire from '../components/tools/ClientDiscoveryQuestionnaire';
-import PdfTools from '../components/tools/PdfTools';
-import PdfToWordConverter from '../components/tools/PdfToWordConverter';
-import PasswordGenerator from '../components/tools/PasswordGenerator';
-import WordCounter from '../components/tools/WordCounter';
-import AgeCalculator from '../components/tools/AgeCalculator';
-import JsonFormatterValidator from '../components/tools/JsonFormatterValidator';
-import UtmCampaignUrlBuilder from '../components/tools/UtmCampaignUrlBuilder';
-import TimeZoneConverter from '../components/tools/TimeZoneConverter';
-import TextDiffChecker from '../components/tools/TextDiffChecker';
-import UrlEncoderDecoder from '../components/tools/UrlEncoderDecoder';
-import ImageSteganography from '../components/tools/ImageSteganography';
-import WebsiteLaunchReadinessChecker from '../components/tools/WebsiteLaunchReadinessChecker';
-import WebsiteProjectScopeBuilder from '../components/tools/WebsiteProjectScopeBuilder';
-import DesignSystemGenerator from '../components/tools/DesignSystemGenerator';
-import WebsiteAccessibilityAuditor from '../components/tools/WebsiteAccessibilityAuditor';
-import WebsiteContentBriefGenerator from '../components/tools/WebsiteContentBriefGenerator';
-import OpenGraphPreviewDesigner from '../components/tools/OpenGraphPreviewDesigner';
-import InternalLinkPlanner from '../components/tools/InternalLinkPlanner';
-import ResponsiveBreakpointTester from '../components/tools/ResponsiveBreakpointTester';
-import SeoCompetitorGapAnalyzer from '../components/tools/SeoCompetitorGapAnalyzer';
-import WebsitePrivacyInformationBuilder from '../components/tools/WebsitePrivacyInformationBuilder';
 import ToolsOverview from '../components/tools/ToolsOverview';
 import { CategoryDetailView } from '../components/tools/CategoryDetailView';
 import { getCategoryBySlug, getCategoryForTool } from '../data/toolsCatalog';
@@ -58,6 +18,72 @@ import {
   generateToolFaqSchema, 
   generateToolHowToSchema 
 } from '../data/toolsSeoKeywords';
+
+// Code-split all heavy tool engines so they only load on demand
+const PhotoCompressor = React.lazy(() => import('../components/tools/PhotoCompressor'));
+const PhotoResizer = React.lazy(() => import('../components/tools/PhotoResizer'));
+const ImageConverter = React.lazy(() => import('../components/tools/ImageConverter'));
+const UniversalCalculator = React.lazy(() => import('../components/tools/UniversalCalculator'));
+const PdfReducerSigner = React.lazy(() => import('../components/tools/PdfReducerSigner'));
+const AiBackgroundRemover = React.lazy(() => import('../components/tools/AiBackgroundRemover'));
+const AiImageUpscaler = React.lazy(() => import('../components/tools/AiImageUpscaler'));
+const VectorSvgConverter = React.lazy(() => import('../components/tools/VectorSvgConverter'));
+const WebsiteAnalyzer = React.lazy(() => import('../components/tools/WebsiteAnalyzer'));
+const WebsiteSeoAudit = React.lazy(() => import('../components/tools/WebsiteSeoAudit'));
+const WebsiteSpeedChecker = React.lazy(() => import('../components/tools/WebsiteSpeedChecker'));
+const AiProjectBriefGenerator = React.lazy(() => import('../components/tools/AiProjectBriefGenerator'));
+const WebsiteRoiCalculator = React.lazy(() => import('../components/tools/WebsiteRoiCalculator'));
+const QrCodeGenerator = React.lazy(() => import('../components/tools/QrCodeGenerator'));
+const BusinessNameGenerator = React.lazy(() => import('../components/tools/BusinessNameGenerator'));
+const InvoiceGenerator = React.lazy(() => import('../components/tools/InvoiceGenerator'));
+const CanonicalUrlValidator = React.lazy(() => import('../components/tools/CanonicalUrlValidator'));
+const ApiRequestBuilder = React.lazy(() => import('../components/tools/ApiRequestBuilder'));
+const ClientDiscoveryQuestionnaire = React.lazy(() => import('../components/tools/ClientDiscoveryQuestionnaire'));
+const PdfTools = React.lazy(() => import('../components/tools/PdfTools'));
+const PdfToWordConverter = React.lazy(() => import('../components/tools/PdfToWordConverter'));
+const PasswordGenerator = React.lazy(() => import('../components/tools/PasswordGenerator'));
+const WordCounter = React.lazy(() => import('../components/tools/WordCounter'));
+const AgeCalculator = React.lazy(() => import('../components/tools/AgeCalculator'));
+const JsonFormatterValidator = React.lazy(() => import('../components/tools/JsonFormatterValidator'));
+const UtmCampaignUrlBuilder = React.lazy(() => import('../components/tools/UtmCampaignUrlBuilder'));
+const TimeZoneConverter = React.lazy(() => import('../components/tools/TimeZoneConverter'));
+const TextDiffChecker = React.lazy(() => import('../components/tools/TextDiffChecker'));
+const UrlEncoderDecoder = React.lazy(() => import('../components/tools/UrlEncoderDecoder'));
+const ImageSteganography = React.lazy(() => import('../components/tools/ImageSteganography'));
+const WebsiteLaunchReadinessChecker = React.lazy(() => import('../components/tools/WebsiteLaunchReadinessChecker'));
+const WebsiteProjectScopeBuilder = React.lazy(() => import('../components/tools/WebsiteProjectScopeBuilder'));
+const DesignSystemGenerator = React.lazy(() => import('../components/tools/DesignSystemGenerator'));
+const WebsiteAccessibilityAuditor = React.lazy(() => import('../components/tools/WebsiteAccessibilityAuditor'));
+const WebsiteContentBriefGenerator = React.lazy(() => import('../components/tools/WebsiteContentBriefGenerator'));
+const OpenGraphPreviewDesigner = React.lazy(() => import('../components/tools/OpenGraphPreviewDesigner'));
+const InternalLinkPlanner = React.lazy(() => import('../components/tools/InternalLinkPlanner'));
+const ResponsiveBreakpointTester = React.lazy(() => import('../components/tools/ResponsiveBreakpointTester'));
+const SeoCompetitorGapAnalyzer = React.lazy(() => import('../components/tools/SeoCompetitorGapAnalyzer'));
+const WebsitePrivacyInformationBuilder = React.lazy(() => import('../components/tools/WebsitePrivacyInformationBuilder'));
+
+// 10 Production-Ready SamaXon Suite Tools
+const GlassmorphismNeumorphismGenerator = React.lazy(() => import('../components/tools/GlassmorphismNeumorphismGenerator'));
+const SvgOptimizer = React.lazy(() => import('../components/tools/SvgOptimizer'));
+const CronGenerator = React.lazy(() => import('../components/tools/CronGenerator'));
+const RegexTester = React.lazy(() => import('../components/tools/RegexTester'));
+const MarkdownToHtml = React.lazy(() => import('../components/tools/MarkdownToHtml'));
+const JwtDebugger = React.lazy(() => import('../components/tools/JwtDebugger'));
+const FaviconGenerator = React.lazy(() => import('../components/tools/FaviconGenerator'));
+const WhatsAppLinkGenerator = React.lazy(() => import('../components/tools/WhatsAppLinkGenerator'));
+const CssAnimationBuilder = React.lazy(() => import('../components/tools/CssAnimationBuilder'));
+const ColorContrastChecker = React.lazy(() => import('../components/tools/ColorContrastChecker'));
+
+function ToolLoadingSkeleton() {
+  return (
+    <div className="bg-white/80 backdrop-blur-sm border border-[#D6B46A]/20 rounded-[32px] p-8 sm:p-12 text-center space-y-4 max-w-xl mx-auto shadow-sm animate-pulse">
+      <div className="w-12 h-12 rounded-2xl bg-[#D6B46A]/15 mx-auto flex items-center justify-center">
+        <Sparkles className="w-6 h-6 text-[#D6B46A]/60 animate-spin" />
+      </div>
+      <div className="h-5 bg-neutral-200 rounded-full w-48 mx-auto" />
+      <div className="h-3 bg-neutral-100 rounded-full w-64 mx-auto" />
+    </div>
+  );
+}
 
 export type ToolTab = 
   | 'overview' 
@@ -100,7 +126,17 @@ export type ToolTab =
   | 'bg-remover'
   | 'upscaler'
   | 'vectorizer'
-  | 'pdf-tool';
+  | 'pdf-tool'
+  | 'glassmorphism-neumorphism-generator'
+  | 'svg-optimizer'
+  | 'cron-generator'
+  | 'regex-tester'
+  | 'markdown-to-html'
+  | 'jwt-debugger'
+  | 'favicon-generator'
+  | 'whatsapp-link-generator'
+  | 'css-animation-builder'
+  | 'color-contrast-checker';
 
 export default function Tools() {
   const location = useLocation();
@@ -153,12 +189,26 @@ export default function Tools() {
       'website-seo-audit', 'website-speed-checker', 'website-project-brief',
       'roi-calculator', 'qr-generator', 'business-name-generator', 'invoice-generator',
       'analyzer', 'compressor', 'resizer', 'converter', 'calculator',
-      'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool'
+      'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool',
+      'glassmorphism-neumorphism-generator', 'svg-optimizer', 'cron-generator', 'regex-tester',
+      'markdown-to-html', 'jwt-debugger', 'favicon-generator', 'whatsapp-link-generator',
+      'css-animation-builder', 'color-contrast-checker'
     ];
 
     if (toolId && validTabs.includes(toolId as ToolTab)) {
       return toolId as ToolTab;
     }
+
+    if (location.pathname.includes('/tools/glassmorphism-neumorphism-generator') || location.pathname.includes('/tools/glassmorphism') || location.pathname.includes('/tools/neumorphism')) return 'glassmorphism-neumorphism-generator';
+    if (location.pathname.includes('/tools/svg-optimizer') || location.pathname.includes('/tools/svg-minifier')) return 'svg-optimizer';
+    if (location.pathname.includes('/tools/cron-generator') || location.pathname.includes('/tools/cron-explainer')) return 'cron-generator';
+    if (location.pathname.includes('/tools/regex-tester') || location.pathname.includes('/tools/regex')) return 'regex-tester';
+    if (location.pathname.includes('/tools/markdown-to-html') || location.pathname.includes('/tools/markdown')) return 'markdown-to-html';
+    if (location.pathname.includes('/tools/jwt-debugger') || location.pathname.includes('/tools/jwt-decoder') || location.pathname.includes('/tools/jwt')) return 'jwt-debugger';
+    if (location.pathname.includes('/tools/favicon-generator') || location.pathname.includes('/tools/favicon') || location.pathname.includes('/tools/app-icon-generator')) return 'favicon-generator';
+    if (location.pathname.includes('/tools/whatsapp-link-generator') || location.pathname.includes('/tools/whatsapp-link') || location.pathname.includes('/tools/whatsapp-qr')) return 'whatsapp-link-generator';
+    if (location.pathname.includes('/tools/css-animation-builder') || location.pathname.includes('/tools/css-animation') || location.pathname.includes('/tools/keyframe-generator')) return 'css-animation-builder';
+    if (location.pathname.includes('/tools/color-contrast-checker') || location.pathname.includes('/tools/contrast-checker') || location.pathname.includes('/tools/wcag-contrast')) return 'color-contrast-checker';
 
     if (location.pathname.includes('/tools/website-launch-readiness') || location.pathname.includes('/tools/launch-readiness') || location.pathname === '/launch-readiness') return 'website-launch-readiness';
     if (location.pathname.includes('/tools/website-project-scope-builder') || location.pathname.includes('/tools/project-scope') || location.pathname === '/project-scope') return 'website-project-scope-builder';
@@ -456,7 +506,7 @@ export default function Tools() {
               </div>
             </div>
           ) : (
-            <>
+            <React.Suspense fallback={<ToolLoadingSkeleton />}>
               {activeTab === 'website-launch-readiness' && (
                 <WebsiteLaunchReadinessChecker />
               )}
@@ -616,7 +666,47 @@ export default function Tools() {
               {activeTab === 'resizer' && (
                 <PhotoResizer />
               )}
-            </>
+
+              {activeTab === 'glassmorphism-neumorphism-generator' && (
+                <GlassmorphismNeumorphismGenerator />
+              )}
+
+              {activeTab === 'svg-optimizer' && (
+                <SvgOptimizer />
+              )}
+
+              {activeTab === 'cron-generator' && (
+                <CronGenerator />
+              )}
+
+              {activeTab === 'regex-tester' && (
+                <RegexTester />
+              )}
+
+              {activeTab === 'markdown-to-html' && (
+                <MarkdownToHtml />
+              )}
+
+              {activeTab === 'jwt-debugger' && (
+                <JwtDebugger />
+              )}
+
+              {activeTab === 'favicon-generator' && (
+                <FaviconGenerator />
+              )}
+
+              {activeTab === 'whatsapp-link-generator' && (
+                <WhatsAppLinkGenerator />
+              )}
+
+              {activeTab === 'css-animation-builder' && (
+                <CssAnimationBuilder />
+              )}
+
+              {activeTab === 'color-contrast-checker' && (
+                <ColorContrastChecker />
+              )}
+            </React.Suspense>
           )}
         </div>
       </div>

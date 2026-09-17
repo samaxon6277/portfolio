@@ -48,6 +48,10 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <img 
                   src={settings.logoUrl} 
                   alt={settings.brandName || "Logo"} 
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-contain p-1" 
                 />
               ) : (

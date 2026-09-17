@@ -1,38 +1,51 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wrench, RefreshCw } from 'lucide-react';
+import { Wrench, RefreshCw, Sparkles } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ConversionOptimiser from './components/ConversionOptimiser';
 import CookieConsent from './components/CookieConsent';
 import Home from './pages/Home';
-import NotFound from './pages/NotFound';
-import About from './pages/About';
-import Services from './pages/Services';
-import Portfolio from './pages/Portfolio';
-import SamaXonEdge from './pages/SamaXonEdge';
-import ClientControl from './pages/ClientControl';
-import Careers from './pages/Careers';
-import Contact from './pages/Contact';
-import LegalPages from './pages/LegalPages';
-import AdminPanel from './pages/AdminPanel';
-import SEOPage from './pages/SEOPage';
-import Founder from './pages/Founder';
-import Team from './pages/Team';
-import Company from './pages/Company';
-import CaseStudies from './pages/CaseStudies';
-import CaseStudyDetail from './pages/CaseStudyDetail';
-import Pricing from './pages/Pricing';
-import SelectDirection from './pages/SelectDirection';
-import Tools from './pages/Tools';
-import ServiceRequest from './pages/ServiceRequest';
-import Partner from './pages/Partner';
-import Guides from './pages/Guides';
-import Updates from './pages/Updates';
-import AuditFixRequest from './pages/AuditFixRequest';
 import { analytics } from './utils/analytics';
 import ErrorBoundary from './components/ErrorBoundary';
+
+// Code-split all secondary routes to keep the initial main bundle tiny for mobile devices
+const About = lazy(() => import('./pages/About'));
+const Services = lazy(() => import('./pages/Services'));
+const Portfolio = lazy(() => import('./pages/Portfolio'));
+const SamaXonEdge = lazy(() => import('./pages/SamaXonEdge'));
+const ClientControl = lazy(() => import('./pages/ClientControl'));
+const Careers = lazy(() => import('./pages/Careers'));
+const Contact = lazy(() => import('./pages/Contact'));
+const LegalPages = lazy(() => import('./pages/LegalPages'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const SEOPage = lazy(() => import('./pages/SEOPage'));
+const Founder = lazy(() => import('./pages/Founder'));
+const Team = lazy(() => import('./pages/Team'));
+const Company = lazy(() => import('./pages/Company'));
+const CaseStudies = lazy(() => import('./pages/CaseStudies'));
+const CaseStudyDetail = lazy(() => import('./pages/CaseStudyDetail'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const SelectDirection = lazy(() => import('./pages/SelectDirection'));
+const Tools = lazy(() => import('./pages/Tools'));
+const ServiceRequest = lazy(() => import('./pages/ServiceRequest'));
+const Partner = lazy(() => import('./pages/Partner'));
+const Guides = lazy(() => import('./pages/Guides'));
+const Updates = lazy(() => import('./pages/Updates'));
+const AuditFixRequest = lazy(() => import('./pages/AuditFixRequest'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+function PageLoadingFallback() {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center bg-[#F8F4EE] px-4">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="w-10 h-10 rounded-full border-2 border-[#D6B46A]/20 border-t-[#D6B46A] animate-spin" />
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#8A8178]">Loading Engine...</span>
+      </div>
+    </div>
+  );
+}
 
 // Ensure browser automatic scroll restoration is disabled so transitions don't jump or scroll down
 if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
@@ -88,9 +101,19 @@ function MainAppContent() {
     return false;
   });
 
-  // Track page views in real-time on pathname change
+  // Track page views in real-time on pathname change (deferred to prevent network contention on load)
   useEffect(() => {
-    analytics.trackPageView(location.pathname);
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const id = (window as any).requestIdleCallback(() => {
+        analytics.trackPageView(location.pathname);
+      });
+      return () => (window as any).cancelIdleCallback(id);
+    } else {
+      const timer = setTimeout(() => {
+        analytics.trackPageView(location.pathname);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
   }, [location.pathname]);
 
   // Synchronise Maintenance Mode state on navigate or storage update
@@ -217,13 +240,14 @@ function MainAppContent() {
         >
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: 'easeInOut' }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
             className="w-full flex-grow flex flex-col"
           >
-            <Routes location={location}>
+            <Suspense fallback={<PageLoadingFallback />}>
+              <Routes location={location}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/services" element={<Services />} />
@@ -394,7 +418,8 @@ function MainAppContent() {
               {/* Branded 404 Route for Unmatched URLs */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </motion.div>
+          </Suspense>
+        </motion.div>
         </AnimatePresence>
       </main>
 

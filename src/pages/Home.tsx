@@ -180,89 +180,165 @@ function InteractiveStatsGrid({ stats }: { stats: any }) {
   };
 
   useEffect(() => {
-    let animationFrameId: number;
-    
-    // Smooth update loop (LERP with direct DOM styling bypasses React re-render lags)
+    // Check if user prefers reduced motion
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      if (glowElementRef.current) {
+        glowElementRef.current.style.background = 'radial-gradient(circle 420px at 50% 50%, rgba(214, 180, 106, 0.25) 0%, rgba(214, 180, 106, 0.08) 40%, transparent 70%)';
+      }
+      return;
+    }
+
+    let animationFrameId: number | null = null;
+    let isRunning = false;
+    let isVisible = false;
+    let cachedRect: DOMRect | null = null;
+
+    const updateCachedRect = () => {
+      if (containerRef.current) {
+        cachedRect = containerRef.current.getBoundingClientRect();
+      }
+    };
+
+    // Smooth update loop - only ticks when movement is occurring and container is in viewport
     const updatePosition = () => {
-      // Luxurious slow interpolation for heavy liquid look (0.057)
-      currentX.current += (targetX.current - currentX.current) * 0.057;
-      currentY.current += (targetY.current - currentY.current) * 0.057;
+      if (!isVisible || document.hidden) {
+        isRunning = false;
+        animationFrameId = null;
+        return;
+      }
+
+      const dx = targetX.current - currentX.current;
+      const dy = targetY.current - currentY.current;
+
+      currentX.current += dx * 0.057;
+      currentY.current += dy * 0.057;
       
       if (glowElementRef.current) {
         glowElementRef.current.style.background = `radial-gradient(circle 420px at ${currentX.current}% ${currentY.current}%, rgba(214, 180, 106, 0.35) 0%, rgba(214, 180, 106, 0.12) 40%, rgba(191, 161, 90, 0.02) 70%, transparent 100%)`;
       }
       
+      // Stop animation once settled to save 100% CPU on mobile
+      if (Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+        isRunning = false;
+        animationFrameId = null;
+        return;
+      }
+
       animationFrameId = requestAnimationFrame(updatePosition);
     };
-    
-    animationFrameId = requestAnimationFrame(updatePosition);
 
-    // Mouse handler
+    const wakeAnimation = () => {
+      if (!isRunning && isVisible && !document.hidden) {
+        isRunning = true;
+        animationFrameId = requestAnimationFrame(updatePosition);
+      }
+    };
+
+    // IntersectionObserver to sleep the loop when scrolled away
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          updateCachedRect();
+          wakeAnimation();
+        } else if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          isRunning = false;
+          animationFrameId = null;
+        }
+      },
+      { threshold: 0.05 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        isRunning = false;
+        animationFrameId = null;
+      } else if (!document.hidden && isVisible) {
+        wakeAnimation();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Mouse handler using cachedRect to avoid forced reflows during movement
     const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      if (!cachedRect) updateCachedRect();
+      if (!cachedRect || cachedRect.width === 0 || cachedRect.height === 0) return;
+      const x = ((e.clientX - cachedRect.left) / cachedRect.width) * 100;
+      const y = ((e.clientY - cachedRect.top) / cachedRect.height) * 100;
       targetX.current = Math.max(0, Math.min(100, x));
       targetY.current = Math.max(0, Math.min(100, y));
+      wakeAnimation();
     };
 
-    // Touch handler - supports seamless drag triggers on touch devices
+    // Touch handler using cachedRect without forced reflow
     const handleTouchMove = (e: TouchEvent) => {
-      if (!containerRef.current || e.touches.length === 0) return;
-      const rect = containerRef.current.getBoundingClientRect();
+      if (e.touches.length === 0) return;
+      if (!cachedRect) updateCachedRect();
+      if (!cachedRect || cachedRect.width === 0 || cachedRect.height === 0) return;
       const touch = e.touches[0];
-      const x = ((touch.clientX - rect.left) / rect.width) * 100;
-      const y = ((touch.clientY - rect.top) / rect.height) * 100;
+      const x = ((touch.clientX - cachedRect.left) / cachedRect.width) * 100;
+      const y = ((touch.clientY - cachedRect.top) / cachedRect.height) * 100;
       targetX.current = Math.max(0, Math.min(100, x));
       targetY.current = Math.max(0, Math.min(100, y));
+      wakeAnimation();
     };
 
-    // Auto-calibrating variables for starting angle baselines
     let initialBeta: number | null = null;
     let initialGamma: number | null = null;
 
-    // Gyroscope handler with strong low-pass filter to eliminate raw hardware micro-jitter/shaking
     const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (!isVisible || document.hidden) return;
       const beta = e.beta; 
       const gamma = e.gamma; 
 
       if (beta !== null && gamma !== null) {
-        // Calibrate baseline dynamically on the first event
         if (initialBeta === null) initialBeta = beta;
         if (initialGamma === null) initialGamma = gamma;
 
-        // Delta relative to initial holding posture (clamp comfortable active range to 30deg)
         const deltaBeta = Math.max(-30, Math.min(30, beta - initialBeta));
         const deltaGamma = Math.max(-30, Math.min(30, gamma - initialGamma));
 
-        // Soft, non-jittery mapping from hardware delta to responsive fluid coordinate system
         const targetXRaw = 50 + (deltaGamma / 30) * 45;
         const targetYRaw = 50 + (deltaBeta / 30) * 45;
 
-        // Apply progressive dampening filter on inputs before target assignment
         targetX.current = targetX.current * 0.85 + Math.max(5, Math.min(95, targetXRaw)) * 0.15;
         targetY.current = targetY.current * 0.85 + Math.max(5, Math.min(95, targetYRaw)) * 0.15;
+        wakeAnimation();
       }
     };
 
     const container = containerRef.current;
     if (container) {
-      container.addEventListener('mousemove', handleMouseMove);
+      container.addEventListener('mouseenter', updateCachedRect, { passive: true });
+      container.addEventListener('mousemove', handleMouseMove, { passive: true });
       container.addEventListener('touchmove', handleTouchMove, { passive: true });
-      container.addEventListener('touchstart', handleTouchMove, { passive: true });
+      container.addEventListener('touchstart', () => { updateCachedRect(); }, { passive: true });
     }
     
-    window.addEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('resize', updateCachedRect, { passive: true });
+    window.addEventListener('deviceorientation', handleOrientation, { passive: true });
 
     return () => {
       if (container) {
+        container.removeEventListener('mouseenter', updateCachedRect);
         container.removeEventListener('mousemove', handleMouseMove);
         container.removeEventListener('touchmove', handleTouchMove);
-        container.removeEventListener('touchstart', handleTouchMove);
+        container.removeEventListener('touchstart', () => {});
       }
+      window.removeEventListener('resize', updateCachedRect);
       window.removeEventListener('deviceorientation', handleOrientation);
-      cancelAnimationFrame(animationFrameId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      observer.disconnect();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
   }, []);
 
@@ -536,25 +612,19 @@ export default function Home({ setCurrentPage }: HomeProps) {
               </span>
             </motion.div>
 
-            <motion.h1 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+            <h1 
               className="font-display text-4xl sm:text-5xl lg:text-[68px] lg:leading-[1.0] font-black tracking-tighter text-[#111111]"
             >
               Global Web Design <br className="hidden sm:inline" />
               <span className="text-[#D6B46A]">&amp; Development Agency</span>, <br />
               Built for Modern Business.
-            </motion.h1>
+            </h1>
 
-            <motion.p 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
+            <p 
               className="text-lg sm:text-xl text-[#3D3731] font-normal leading-relaxed max-w-[620px]"
             >
               SamaXon is a full-service web development company engineering custom website design, web application development, and business automation solutions. We build high-performance websites and digital architectures for enterprises worldwide.
-            </motion.p>
+            </p>
 
             {/* Elite B2B Studio Trust Note */}
             <motion.div 

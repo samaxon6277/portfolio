@@ -42,7 +42,17 @@ export interface ToolItemConfig {
     | 'pdf-tool' 
     | 'bg-remover' 
     | 'upscaler' 
-    | 'vectorizer';
+    | 'vectorizer'
+    | 'glassmorphism-neumorphism-generator'
+    | 'svg-optimizer'
+    | 'cron-generator'
+    | 'regex-tester'
+    | 'markdown-to-html'
+    | 'jwt-debugger'
+    | 'favicon-generator'
+    | 'whatsapp-link-generator'
+    | 'css-animation-builder'
+    | 'color-contrast-checker';
   name: string;
   shortName: string;
   category: 'SEO & Audit' | 'Speed & Vitals' | 'AI Planning' | 'Finance & ROI' | 'Branding & Identity' | 'Image' | 'Document' | 'Productivity' | 'AI Neural' | 'Development & QA' | 'Design & UX' | 'Legal & Compliance';
@@ -453,6 +463,106 @@ export const DEFAULT_TOOLS_CONFIG: ToolItemConfig[] = [
     description: 'Convert raster logos, icons, and artwork into infinitely scalable SVG paths with custom quantization and real-time bezier smoothing.',
     enabled: true,
     iconName: 'ImageIcon'
+  },
+  {
+    id: 'glassmorphism-neumorphism-generator',
+    name: 'CSS Glassmorphism & Neumorphism Generator',
+    shortName: 'Glass & Soft-UI',
+    category: 'Design & UX',
+    badge: 'Dual Paradigm',
+    description: 'Design frosted glass and tactile soft-UI components with real-time blur, saturation, dual shadow offsets, and instant CSS / Tailwind export.',
+    enabled: true,
+    iconName: 'Sparkles'
+  },
+  {
+    id: 'svg-optimizer',
+    name: 'SVG Optimizer & Clean Minifier',
+    shortName: 'SVG Optimizer',
+    category: 'Development & QA',
+    badge: 'Lossless Vector',
+    description: 'Safely minify and clean vector SVGs, strip metadata, editor comments, empty nodes, round numeric path precision, and copy clean inline SVG.',
+    enabled: true,
+    iconName: 'Code2'
+  },
+  {
+    id: 'cron-generator',
+    name: 'Cron Expression & Crontab Explainer',
+    shortName: 'Cron Explainer',
+    category: 'Development & QA',
+    badge: 'POSIX Standard',
+    description: 'Construct, decode, and validate 5-part POSIX crontab schedules with human-readable English descriptions, interactive dials, and next execution calculations.',
+    enabled: true,
+    iconName: 'Clock'
+  },
+  {
+    id: 'regex-tester',
+    name: 'Regex Tester, Match Inspector & Visualizer',
+    shortName: 'Regex Tester',
+    category: 'Development & QA',
+    badge: 'Real-Time Matcher',
+    description: 'Test JavaScript Regular Expressions in real-time with syntax error trapping, color-coded capture group matches, substitution sandbox, and pre-built pattern libraries.',
+    enabled: true,
+    iconName: 'SearchCode'
+  },
+  {
+    id: 'markdown-to-html',
+    name: 'Markdown to HTML Converter & Live Previewer',
+    shortName: 'Markdown Studio',
+    category: 'Productivity',
+    badge: 'GFM Compliant',
+    description: 'Write GFM Markdown with real-time HTML compilation, syntax highlighting, word/reading-time statistics, and clean HTML / .md file export.',
+    enabled: true,
+    iconName: 'FileText'
+  },
+  {
+    id: 'jwt-debugger',
+    name: 'JWT Debugger, Decoder & Expiry Inspector',
+    shortName: 'JWT Debugger',
+    category: 'Development & QA',
+    badge: '100% Local Security',
+    description: 'Decode and inspect JSON Web Tokens locally in your browser. Analyze header algorithms, payload claims, Unix timestamps, and HMAC-SHA256 signature verification.',
+    enabled: true,
+    iconName: 'Lock'
+  },
+  {
+    id: 'favicon-generator',
+    name: 'Favicon & App Icon Suite Generator',
+    shortName: 'Favicon Suite',
+    category: 'Branding & Identity',
+    badge: 'Complete Package',
+    description: 'Upload any logo or image and generate a complete multi-platform icon package: 16x16, 32x32, 48x48, Apple Touch Icon (180x180), Android Chrome (192/512), manifest.json, and HTML header tags.',
+    enabled: true,
+    iconName: 'Sparkles'
+  },
+  {
+    id: 'whatsapp-link-generator',
+    name: 'Direct WhatsApp Link & QR Generator',
+    shortName: 'WhatsApp Link & QR',
+    category: 'Branding & Identity',
+    badge: 'Official wa.me',
+    description: 'Create official WhatsApp click-to-chat links (wa.me) with pre-filled messages, scannable high-resolution QR codes, and embeddable CTA buttons.',
+    enabled: true,
+    iconName: 'Sparkles'
+  },
+  {
+    id: 'css-animation-builder',
+    name: 'CSS Keyframe Animation & Cubic-Bezier Builder',
+    shortName: 'CSS Animation Builder',
+    category: 'Design & UX',
+    badge: 'Hardware Accelerated',
+    description: 'Design fluid CSS keyframe sequences and cubic-bezier easing curves with interactive timeline editing and live multi-shape canvas simulation.',
+    enabled: true,
+    iconName: 'Sliders'
+  },
+  {
+    id: 'color-contrast-checker',
+    name: 'Color Contrast Checker & Palette Harmony',
+    shortName: 'Color Contrast',
+    category: 'Design & UX',
+    badge: 'WCAG 2.1 Compliant',
+    description: 'Verify WCAG 2.1 contrast ratios for text and UI components, simulate real-world layout contexts, and generate harmonized color palettes.',
+    enabled: true,
+    iconName: 'Palette'
   }
 ];
 

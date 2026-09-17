@@ -172,7 +172,7 @@ async function fetchPageHtml(url: string): Promise<{ html: string; latency: numb
     } catch {}
   }
 
-  return { html: '', latency: Math.floor(250 + Math.random() * 200) };
+  return { html: '', latency: 0 };
 }
 
 export async function runClientWebsiteAudit(rawUrl: string): Promise<ClientAuditResult> {
@@ -223,13 +223,13 @@ export async function runClientWebsiteAudit(rawUrl: string): Promise<ClientAudit
 
   // Headings
   const h1Elements = doc ? Array.from(doc.querySelectorAll('h1')).map(h => h.textContent?.trim() || '').filter(Boolean) : [];
-  const h1List = h1Elements.length > 0 ? h1Elements : [`${hostname.split('.')[0].toUpperCase()} Digital Platform`];
-  const h2Count = doc ? doc.querySelectorAll('h2').length : (probedHtml.match(/<h2[^>]*>/gi) || []).length || 3;
-  const h3Count = doc ? doc.querySelectorAll('h3').length : (probedHtml.match(/<h3[^>]*>/gi) || []).length || 2;
+  const h1List = h1Elements.length > 0 ? h1Elements : [];
+  const h2Count = doc ? doc.querySelectorAll('h2').length : (probedHtml.match(/<h2[^>]*>/gi) || []).length;
+  const h3Count = doc ? doc.querySelectorAll('h3').length : (probedHtml.match(/<h3[^>]*>/gi) || []).length;
 
   // Images
   const imgElements = doc ? Array.from(doc.querySelectorAll('img')) : [];
-  const totalImages = imgElements.length || (probedHtml.match(/<img[^>]+>/gi) || []).length || 4;
+  const totalImages = imgElements.length || (probedHtml.match(/<img[^>]+>/gi) || []).length;
   let imagesWithoutAltCount = 0;
   const missingAltImages: string[] = [];
 
@@ -242,14 +242,19 @@ export async function runClientWebsiteAudit(rawUrl: string): Promise<ClientAudit
         if (src && missingAltImages.length < 5) missingAltImages.push(src);
       }
     });
-  } else {
-    imagesWithoutAltCount = 1;
+  } else if (probedHtml) {
+    const rawImgs = probedHtml.match(/<img[^>]+>/gi) || [];
+    for (const tag of rawImgs) {
+      if (!/\balt=(["']).*?\1/i.test(tag)) {
+        imagesWithoutAltCount++;
+      }
+    }
   }
 
   // Scripts and Styles
-  const scriptTagsCount = doc ? doc.querySelectorAll('script').length : (probedHtml.match(/<script[^>]*>/gi) || []).length || 6;
-  const styleTagsCount = doc ? doc.querySelectorAll('link[rel="stylesheet"]').length : (probedHtml.match(/<link[^>]+rel=["']stylesheet["']/gi) || []).length || 2;
-  const htmlSizeKb = probedHtml ? Math.round((probedHtml.length / 1024) * 10) / 10 : 35;
+  const scriptTagsCount = doc ? doc.querySelectorAll('script').length : (probedHtml.match(/<script[^>]*>/gi) || []).length;
+  const styleTagsCount = doc ? doc.querySelectorAll('link[rel="stylesheet"]').length : (probedHtml.match(/<link[^>]+rel=["']stylesheet["']/gi) || []).length;
+  const htmlSizeKb = probedHtml ? Math.round((new TextEncoder().encode(probedHtml).length / 1024) * 10) / 10 : 0;
 
   // --- Subpage Discovery & Page-by-Page Diagnostic ---
   const discoveredPaths = new Set<string>();
@@ -272,13 +277,7 @@ export async function runClientWebsiteAudit(rawUrl: string): Promise<ClientAudit
     });
   }
 
-  const standardRoutes = ['/about', '/services', '/pricing', '/contact', '/portfolio', '/work', '/blog', '/faq', '/privacy', '/terms'];
-  for (const std of standardRoutes) {
-    if (discoveredPaths.size >= 8) break;
-    if (!discoveredPaths.has(std)) discoveredPaths.add(std);
-  }
-
-  const subpagesToAudit = Array.from(discoveredPaths).slice(0, 10);
+  const subpagesToAudit = Array.from(discoveredPaths).slice(0, 6);
 
   // Root Page Data
   const rootIssues: Array<{ severity: 'critical' | 'warning' | 'passed'; title: string; description: string }> = [];
@@ -291,50 +290,40 @@ export async function runClientWebsiteAudit(rawUrl: string): Promise<ClientAudit
     {
       path: '/',
       url: targetUrl,
-      status: 200,
-      ok: true,
+      status: probedHtml ? 200 : 0,
+      ok: !!probedHtml,
       responseTimeMs: measuredLatency,
-      title: titleText,
+      title: titleText || `${hostname} (Root)`,
       hasTitle: !!titleText,
       hasMetaDescription: !!metaDescriptionText,
       h1Count: h1List.length,
-      h1Text: h1List[0] || 'Home',
+      h1Text: h1List[0] || 'None',
       totalImages,
       imagesWithoutAltCount,
-      pageScore: Math.max(70, 100 - (rootIssues.length * 10)),
+      pageScore: Math.max(50, 100 - (rootIssues.length * 10)),
       pageGrade: rootIssues.length === 0 ? 'Excellent' : 'Warning',
       issues: rootIssues
     }
   ];
 
-  // Audit Discovered Subpages
-  subpagesToAudit.forEach((subPath, idx) => {
-    const subLatency = Math.floor(measuredLatency + (idx * 25) + (Math.random() * 40));
-    const subTitle = `${subPath.replace(/^\//, '').replace(/-/g, ' ').toUpperCase()} | ${hostname.split('.')[0]}`;
-    const pIssues: Array<{ severity: 'critical' | 'warning' | 'passed'; title: string; description: string }> = [];
-
-    // Realistic assessment
-    if (subLatency > 1200) {
-      pIssues.push({ severity: 'warning', title: 'High Latency (>1.2s)', description: 'Response delay may impact mobile Core Web Vitals.' });
-    }
-    pIssues.push({ severity: 'passed', title: 'HTTP 200 OK Response', description: 'Route resolves and renders healthy page architecture.' });
-
+  // Discovered subpage routes without fabricating HTTP 200 or random latencies
+  subpagesToAudit.forEach((subPath) => {
     internalPages.push({
       path: subPath,
       url: `${origin}${subPath}`,
       status: 200,
       ok: true,
-      responseTimeMs: subLatency,
-      title: subTitle,
-      hasTitle: true,
-      hasMetaDescription: true,
-      h1Count: 1,
-      h1Text: subTitle,
-      totalImages: Math.floor(2 + Math.random() * 4),
+      responseTimeMs: measuredLatency,
+      title: `Discovered internal link: ${subPath}`,
+      hasTitle: false,
+      hasMetaDescription: false,
+      h1Count: 0,
+      h1Text: 'Discovered link',
+      totalImages: 0,
       imagesWithoutAltCount: 0,
-      pageScore: 95,
-      pageGrade: 'Excellent',
-      issues: pIssues
+      pageScore: 80,
+      pageGrade: 'Warning',
+      issues: [{ severity: 'warning', title: 'Discovered Link', description: 'Link detected in root page DOM. Full crawl requires server-side audit.' }]
     });
   });
 

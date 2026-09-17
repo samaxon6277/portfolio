@@ -185,6 +185,10 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                   <img 
                     src={settings.logoUrl} 
                     alt={settings.brandName || "Logo"} 
+                    width={40}
+                    height={40}
+                    fetchPriority="high"
+                    decoding="async"
                     className="w-full h-full object-contain p-0.5" 
                   />
                 ) : (
@@ -340,7 +344,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
                           }}
                         >
                           {settings.logoType === 'image' && settings.logoUrl && settings.logoUrl.length > 5 ? (
-                            <img src={settings.logoUrl} alt="Logo" className="w-full h-full object-contain p-0.5" />
+                            <img src={settings.logoUrl} alt="Logo" width={40} height={40} loading="lazy" decoding="async" className="w-full h-full object-contain p-0.5" />
                           ) : (
                             <span className="text-[#D6B46A] font-bold text-xs font-display select-none">
                               {settings.logoText || (settings.logoUrl && settings.logoUrl.length <= 4 ? settings.logoUrl : 'S')}

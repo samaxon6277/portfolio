@@ -53,7 +53,11 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       'responsive-breakpoint-tester',
       'website-launch-readiness',
       'website-accessibility-auditor',
-      'api-request-builder'
+      'api-request-builder',
+      'svg-optimizer',
+      'cron-generator',
+      'regex-tester',
+      'jwt-debugger'
     ],
     seoTitle: 'Development & QA Tools | JSON, Text, URL & Website Utilities | SamaXon',
     seoDescription: 'Explore practical development and QA tools for formatting JSON, comparing text revisions, encoding URLs, testing viewports, and auditing web accessibility.',
@@ -94,7 +98,10 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       'upscaler',
       'vectorizer',
       'design-system-generator',
-      'image-steganography'
+      'image-steganography',
+      'glassmorphism-neumorphism-generator',
+      'css-animation-builder',
+      'color-contrast-checker'
     ],
     seoTitle: 'Design & UX Tools | Image Compressor, Resizer, Converter & Vectorizer | SamaXon',
     seoDescription: 'Client-side design and UX utilities: compress photos to exact KB limits, resize with print fidelity, convert formats, upscale to 4K, and generate design systems.',
@@ -112,7 +119,9 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       'qr-generator',
       'business-name-generator',
       'open-graph-preview-designer',
-      'invoice-generator'
+      'invoice-generator',
+      'favicon-generator',
+      'whatsapp-link-generator'
     ],
     seoTitle: 'Branding & Identity Tools | QR Studio, Social Cards & Invoices | SamaXon',
     seoDescription: 'Craft practical brand assets: vector QR codes with embedded logos, Open Graph social share cards, AI business names, and commercial invoices.',
@@ -170,7 +179,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       'age-calculator',
       'time-zone-converter',
       'calculator',
-      'website-privacy-policy-builder'
+      'website-privacy-policy-builder',
+      'markdown-to-html'
     ],
     seoTitle: 'Text, Productivity & Utility Tools | Word Counter, Passwords & Calculators | SamaXon',
     seoDescription: 'Everyday productivity tools: real-time word counter, crypto-secure password generator, age calculator, global time zone converter, and multi-calculator.',
@@ -711,6 +721,136 @@ export const CATALOG_TOOLS: Record<string, CatalogTool> = {
     badge: 'DPDPA & GDPR Compliant',
     featurePills: ['DPDPA & GDPR Compliant', 'Sub-Processor Registry', 'HTML & Markdown Export'],
     footerBadge: 'DPDPA & GDPR Standard · Clean HTML & Markdown'
+  },
+  'glassmorphism-neumorphism-generator': {
+    id: 'glassmorphism-neumorphism-generator',
+    slug: 'glassmorphism-neumorphism-generator',
+    name: 'CSS Glassmorphism & Neumorphism Generator',
+    shortName: 'Glass & Soft-UI Studio',
+    description: 'Design frosted glass and tactile soft-UI components with real-time blur, saturation, dual shadow offsets, and instant CSS / Tailwind export.',
+    categoryId: 'design-ux',
+    iconName: 'Sparkles',
+    route: '/tools/glassmorphism-neumorphism-generator',
+    badge: 'Dual Paradigm',
+    featurePills: ['Frosted Glassmorphism', 'Soft Neumorphism Extrude/Inset', 'Tailwind & CSS Export'],
+    footerBadge: 'Hardware Accelerated · Dual Paradigm'
+  },
+  'svg-optimizer': {
+    id: 'svg-optimizer',
+    slug: 'svg-optimizer',
+    name: 'SVG Optimizer & Clean Minifier',
+    shortName: 'SVG Optimizer',
+    description: 'Safely minify and clean vector SVGs, strip metadata, editor comments, empty nodes, round numeric path precision, and copy clean inline SVG.',
+    categoryId: 'development-qa',
+    iconName: 'Code2',
+    route: '/tools/svg-optimizer',
+    badge: 'Lossless Vector',
+    featurePills: ['Editor Comment Stripper', 'Coordinate Precision Rounding', 'Data URI & PNG Converter'],
+    footerBadge: '100% In-Browser · Privacy Guaranteed'
+  },
+  'cron-generator': {
+    id: 'cron-generator',
+    slug: 'cron-generator',
+    name: 'Cron Expression & Crontab Explainer',
+    shortName: 'Cron Explainer',
+    description: 'Construct, decode, and validate 5-part POSIX crontab schedules with human-readable English descriptions, interactive dials, and next execution calculations.',
+    categoryId: 'development-qa',
+    iconName: 'Clock',
+    route: '/tools/cron-generator',
+    badge: 'POSIX Standard',
+    featurePills: ['Interactive Dials', 'Natural Language Decoding', 'Upcoming Execution Timestamps'],
+    footerBadge: 'POSIX Crontab Standard · Zero Latency'
+  },
+  'regex-tester': {
+    id: 'regex-tester',
+    slug: 'regex-tester',
+    name: 'Regex Tester, Match Inspector & Visualizer',
+    shortName: 'Regex Tester',
+    description: 'Test JavaScript Regular Expressions in real-time with syntax error trapping, color-coded capture group matches, substitution sandbox, and pre-built pattern libraries.',
+    categoryId: 'development-qa',
+    iconName: 'SearchCode',
+    route: '/tools/regex-tester',
+    badge: 'Real-Time Matcher',
+    featurePills: ['Color Group Matches', 'Replace & Substitution Sandbox', 'Common Pattern Cheatsheet'],
+    footerBadge: 'RegExp Native Engine · Zero ReDoS Risk'
+  },
+  'markdown-to-html': {
+    id: 'markdown-to-html',
+    slug: 'markdown-to-html',
+    name: 'Markdown to HTML Converter & Live Previewer',
+    shortName: 'Markdown Studio',
+    description: 'Write GFM Markdown with real-time HTML compilation, syntax highlighting, word/reading-time statistics, and clean HTML / .md file export.',
+    categoryId: 'text-productivity',
+    iconName: 'FileText',
+    route: '/tools/markdown-to-html',
+    badge: 'GFM Compliant',
+    featurePills: ['GitHub Flavored Markdown', 'Live Dual-Pane Preview', 'Clean HTML & MD Export'],
+    footerBadge: 'GFM Specification · Real-Time AST'
+  },
+  'jwt-debugger': {
+    id: 'jwt-debugger',
+    slug: 'jwt-debugger',
+    name: 'JWT Debugger, Decoder & Expiry Inspector',
+    shortName: 'JWT Debugger',
+    description: 'Decode and inspect JSON Web Tokens locally in your browser. Analyze header algorithms, payload claims, Unix timestamps, and HMAC-SHA256 signature verification.',
+    categoryId: 'development-qa',
+    iconName: 'Lock',
+    route: '/tools/jwt-debugger',
+    badge: '100% Local Security',
+    featurePills: ['Payload Claims Inspector', 'Token Expiry Countdown', 'HMAC-SHA256 Local Signer'],
+    footerBadge: 'Web Crypto API · Token Never Leaves Browser'
+  },
+  'favicon-generator': {
+    id: 'favicon-generator',
+    slug: 'favicon-generator',
+    name: 'Favicon & App Icon Suite Generator',
+    shortName: 'Favicon Suite',
+    description: 'Upload any logo or image and generate a complete multi-platform icon package: 16x16, 32x32, 48x48, Apple Touch Icon (180x180), Android Chrome (192/512), manifest.json, and HTML header tags.',
+    categoryId: 'branding-identity',
+    iconName: 'Sparkles',
+    route: '/tools/favicon-generator',
+    badge: 'Complete Package',
+    featurePills: ['Multi-Resolution Generator', 'manifest.json Included', 'Instant ZIP Package Download'],
+    footerBadge: 'Client-Side Canvas & JSZip · Production Ready'
+  },
+  'whatsapp-link-generator': {
+    id: 'whatsapp-link-generator',
+    slug: 'whatsapp-link-generator',
+    name: 'Direct WhatsApp Link & QR Generator',
+    shortName: 'WhatsApp Link & QR',
+    description: 'Create official WhatsApp click-to-chat links (wa.me) with pre-filled messages, scannable high-resolution QR codes, and embeddable CTA buttons.',
+    categoryId: 'branding-identity',
+    iconName: 'Sparkles',
+    route: '/tools/whatsapp-link-generator',
+    badge: 'Official wa.me',
+    featurePills: ['Normalized E.164 Dial Codes', 'High-Res Scannable QR Code', 'Embeddable HTML Button'],
+    footerBadge: 'Official WhatsApp URL Scheme · Instant Scan'
+  },
+  'css-animation-builder': {
+    id: 'css-animation-builder',
+    slug: 'css-animation-builder',
+    name: 'CSS Keyframe Animation & Cubic-Bezier Builder',
+    shortName: 'CSS Animation Builder',
+    description: 'Design fluid CSS keyframe sequences and cubic-bezier easing curves with interactive timeline editing and live multi-shape canvas simulation.',
+    categoryId: 'design-ux',
+    iconName: 'Sliders',
+    route: '/tools/css-animation-builder',
+    badge: 'Hardware Accelerated',
+    featurePills: ['Timeline Step Editor', 'Smooth Bezier Presets', 'Production CSS Export'],
+    footerBadge: 'Hardware Accelerated · CSS3 Standard'
+  },
+  'color-contrast-checker': {
+    id: 'color-contrast-checker',
+    slug: 'color-contrast-checker',
+    name: 'Color Contrast Checker & Palette Harmony',
+    shortName: 'Color Contrast & Harmony',
+    description: 'Verify WCAG 2.1 contrast ratios for text and UI components, simulate real-world layout contexts, and generate harmonized color palettes.',
+    categoryId: 'design-ux',
+    iconName: 'Palette',
+    route: '/tools/color-contrast-checker',
+    badge: 'WCAG 2.1 Compliant',
+    featurePills: ['WCAG AA / AAA Pass/Fail', 'Interactive Component Simulation', 'Harmonized Color Harmonies'],
+    footerBadge: 'WCAG 2.1 Mathematical Formulas · Accessible Colors'
   }
 };
 
