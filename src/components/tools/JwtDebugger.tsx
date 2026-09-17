@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   KeyRound, CheckCircle2, AlertTriangle, Copy, RotateCcw, 
-  Trash2, ShieldCheck, ShieldAlert, Clock, HelpCircle, Eye, Info
+  Trash2, ShieldCheck, ShieldAlert, Clock, HelpCircle, Eye, EyeOff, Info, Lock
 } from 'lucide-react';
 import ToolHeader from './common/ToolHeader';
 import { CopyButton, ResetButton, ClearButton } from './common/ToolActions';
@@ -39,6 +39,10 @@ interface DecodedClaim {
 
 export default function JwtDebugger() {
   const [token, setToken] = useState(SAMPLE_JWT);
+  const [secret, setSecret] = useState('');
+  const [showSecret, setShowSecret] = useState(false);
+  const [verifyStatus, setVerifyStatus] = useState<'idle' | 'verified' | 'invalid' | 'unsupported' | 'error'>('idle');
+  const [verifyMessage, setVerifyMessage] = useState('Verification not performed: Enter secret key to verify HMAC signature.');
 
   // Decode JWT Deterministically
   const decoded = useMemo(() => {
@@ -125,6 +129,62 @@ export default function JwtDebugger() {
     }
   }, [token]);
 
+  // Web Crypto API HMAC-SHA256 Signature Verification
+  useEffect(() => {
+    let isMounted = true;
+    async function runVerification() {
+      if (!decoded.valid || !decoded.header) {
+        setVerifyStatus('idle');
+        setVerifyMessage('Awaiting valid token input.');
+        return;
+      }
+      const alg = decoded.header.alg;
+      if (alg !== 'HS256') {
+        setVerifyStatus('unsupported');
+        setVerifyMessage(`Unsupported algorithm: ${alg || 'Unknown'}. Client-side verification strictly verifies HMAC-SHA256 (HS256) using Web Crypto API.`);
+        return;
+      }
+      if (!secret.trim()) {
+        setVerifyStatus('idle');
+        setVerifyMessage('Verification not performed: Enter your user-provided HS256 secret key below to verify signature.');
+        return;
+      }
+      try {
+        const key = await window.crypto.subtle.importKey(
+          'raw',
+          new TextEncoder().encode(secret),
+          { name: 'HMAC', hash: 'SHA-256' },
+          false,
+          ['verify']
+        );
+        const parts = token.trim().split('.');
+        const data = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
+        let sigBase64 = parts[2].replace(/-/g, '+').replace(/_/g, '/');
+        while (sigBase64.length % 4) sigBase64 += '=';
+        const binary = atob(sigBase64);
+        const sigBytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) sigBytes[i] = binary.charCodeAt(i);
+        const isValid = await window.crypto.subtle.verify('HMAC', key, sigBytes, data);
+        if (isMounted) {
+          if (isValid) {
+            setVerifyStatus('verified');
+            setVerifyMessage('Signature verified: Cryptographic digest matches header and payload. Authentic and untampered.');
+          } else {
+            setVerifyStatus('invalid');
+            setVerifyMessage('Signature invalid: Cryptographic digest mismatch. The secret key is incorrect or the payload was modified.');
+          }
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setVerifyStatus('error');
+          setVerifyMessage(`Verification error: ${err.message}`);
+        }
+      }
+    }
+    runVerification();
+    return () => { isMounted = false; };
+  }, [token, secret, decoded]);
+
   return (
     <div className="space-y-8 text-left" id="jwt-debugger">
       <ToolHeader
@@ -136,22 +196,45 @@ export default function JwtDebugger() {
         badgeText="100% CLIENT-SIDE · ZERO TELEMETRY"
       />
 
-      {/* Security Banner Requirement */}
-      <div className="p-4 bg-amber-50 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-900">
+      {/* Dynamic Security & Verification Banner */}
+      <div className={`p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs border ${
+        verifyStatus === 'verified'
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+          : verifyStatus === 'invalid'
+          ? 'bg-rose-50 border-rose-200 text-rose-900'
+          : verifyStatus === 'unsupported'
+          ? 'bg-purple-50 border-purple-200 text-purple-900'
+          : 'bg-amber-50 border-amber-200/80 text-amber-900'
+      }`}>
         <div className="flex items-start gap-2.5">
-          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          {verifyStatus === 'verified' ? (
+            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          ) : verifyStatus === 'invalid' ? (
+            <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          ) : (
+            <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          )}
           <div>
             <strong className="font-mono font-bold uppercase tracking-wider block">
-              SIGNATURE VERIFICATION: NOT PERFORMED (INSPECTION ONLY)
+              {verifyStatus === 'verified' && 'SIGNATURE STATUS: CRYPTOGRAPHICALLY VERIFIED (HS256)'}
+              {verifyStatus === 'invalid' && 'SIGNATURE STATUS: INVALID (TAMPERED OR WRONG SECRET)'}
+              {verifyStatus === 'unsupported' && 'SIGNATURE STATUS: UNSUPPORTED ALGORITHM (INSPECTION ONLY)'}
+              {verifyStatus === 'idle' && 'SIGNATURE STATUS: NOT PERFORMED (INSPECTION ONLY)'}
+              {verifyStatus === 'error' && 'SIGNATURE STATUS: VERIFICATION ERROR'}
             </strong>
-            <p className="mt-0.5 text-amber-800">
-              This tool decodes unencrypted Base64Url claims. It does not verify cryptographic signatures. Never trust client-provided claims without server-side validation.
+            <p className="mt-0.5 opacity-90">
+              {verifyMessage}
             </p>
           </div>
         </div>
-        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-white text-amber-900 border border-amber-300 shrink-0">
-          Client-Side Only
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-white/80 border border-current">
+            Web Crypto API
+          </span>
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-white text-neutral-900 border border-neutral-200">
+            Zero Server Leaks
+          </span>
+        </div>
       </div>
 
       {/* JWT Input Workspace */}
@@ -272,13 +355,83 @@ export default function JwtDebugger() {
             </div>
           </div>
 
-          {/* Signature Panel */}
-          <div className="lg:col-span-12 bg-white border border-neutral-200/80 rounded-3xl p-6 space-y-3 shadow-xs">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-600 block">
-              SIGNATURE: Cryptographic Digest (Base64Url)
-            </span>
-            <div className="p-3 bg-neutral-900 text-sky-400 font-mono text-xs rounded-xl break-all">
-              {decoded.signature}
+          {/* Signature & Verification Panel */}
+          <div className="lg:col-span-12 bg-white border border-neutral-200/80 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-3">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-sky-600 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-sky-600" />
+                HMAC-SHA256 Signature & Cryptographic Verification
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">
+                  Decoded (Claims Inspected)
+                </span>
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold border ${
+                  verifyStatus === 'verified'
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                    : verifyStatus === 'invalid'
+                    ? 'bg-rose-100 text-rose-800 border-rose-300'
+                    : verifyStatus === 'unsupported'
+                    ? 'bg-purple-100 text-purple-800 border-purple-300'
+                    : 'bg-amber-100 text-amber-800 border-amber-300'
+                }`}>
+                  {verifyStatus === 'verified' && '✓ Signature Verified'}
+                  {verifyStatus === 'invalid' && '✗ Signature Invalid'}
+                  {verifyStatus === 'unsupported' && '⚠ Unsupported Algorithm'}
+                  {verifyStatus === 'idle' && '○ Verification Not Performed'}
+                  {verifyStatus === 'error' && '! Verification Error'}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-mono text-neutral-500 uppercase">
+                Base64Url Signature Digest (Segment 3)
+              </span>
+              <div className="p-3 bg-neutral-900 text-sky-400 font-mono text-xs rounded-xl break-all">
+                {decoded.signature}
+              </div>
+            </div>
+
+            {/* In-Browser HMAC Secret Verification */}
+            <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-2xl space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label htmlFor="hmac-secret-input" className="text-xs font-mono font-bold text-neutral-800 flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-[#A68936]" />
+                  Verify HMAC-SHA256 with User Secret Key
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setSecret('samaxon-secret-key-2026')}
+                  className="text-[11px] font-mono text-[#A68936] hover:underline cursor-pointer"
+                >
+                  Use Sample Secret
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  id="hmac-secret-input"
+                  type={showSecret ? 'text' : 'password'}
+                  value={secret}
+                  onChange={(e) => setSecret(e.target.value)}
+                  placeholder="Enter HS256 secret key to compute local cryptographic signature..."
+                  className="w-full pl-3.5 pr-24 py-2.5 bg-white border border-neutral-200 rounded-xl text-xs font-mono text-neutral-900 focus:outline-none focus:border-[#D6B46A]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSecret(!showSecret)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 text-[11px] font-mono text-neutral-500 hover:text-neutral-800 flex items-center gap-1 cursor-pointer"
+                >
+                  {showSecret ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  {showSecret ? 'Hide' : 'Show'}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] font-mono text-neutral-500">
+                <span>Algorithm: {decoded.header?.alg || 'None'}</span>
+                <span>SubtleCrypto · In-Browser Only</span>
+              </div>
             </div>
           </div>
         </div>

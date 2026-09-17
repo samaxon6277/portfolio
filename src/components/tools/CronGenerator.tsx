@@ -129,28 +129,38 @@ function explainCron(expression: string) {
   const nextDates: Date[] = [];
   const curr = new Date();
   curr.setSeconds(0, 0);
+  curr.setMilliseconds(0);
   // Add 1 minute to start looking from future
   curr.setMinutes(curr.getMinutes() + 1);
 
   let iterations = 0;
-  // Look up to 366 days in 1-minute steps
-  while (nextDates.length < 5 && iterations < 525600) {
+  // Look up to 5 years into the future with hierarchical jumps for sub-millisecond execution
+  while (nextDates.length < 5 && iterations < 10000) {
     iterations++;
-    const m = curr.getMinutes();
-    const h = curr.getHours();
-    const d = curr.getDate();
     const mo = curr.getMonth() + 1;
-    const dw = curr.getDay();
+    if (!month.matches(mo)) {
+      curr.setMonth(curr.getMonth() + 1, 1);
+      curr.setHours(0, 0, 0, 0);
+      continue;
+    }
 
-    if (
-      minute.matches(m) &&
-      hour.matches(h) &&
-      dom.matches(d) &&
-      month.matches(mo) &&
-      dow.matches(dw)
-    ) {
+    const d = curr.getDate();
+    const dw = curr.getDay();
+    if (!dom.matches(d) || !dow.matches(dw)) {
+      curr.setDate(curr.getDate() + 1);
+      curr.setHours(0, 0, 0, 0);
+      continue;
+    }
+
+    const h = curr.getHours();
+    if (!hour.matches(h)) {
+      curr.setHours(curr.getHours() + 1, 0, 0, 0);
+      continue;
+    }
+
+    const m = curr.getMinutes();
+    if (minute.matches(m)) {
       nextDates.push(new Date(curr));
-      // jump 1 minute
       curr.setMinutes(curr.getMinutes() + 1);
     } else {
       curr.setMinutes(curr.getMinutes() + 1);

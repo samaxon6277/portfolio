@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { 
   FileCode, CheckCircle2, AlertTriangle, Copy, Download, Trash2, 
   Sparkles, RefreshCw, Eye, Code2, Sliders, ShieldCheck, HelpCircle, 
@@ -109,6 +110,25 @@ function optimizeSvgString(raw: string, opts: OptimizerOptions): { optimized: st
 
     // Tree Walker: Process elements recursively
     const processElement = (el: Element) => {
+      // Security pass: Remove scripts and dangerous executable elements
+      const tagName = el.tagName.toLowerCase();
+      if (tagName === 'script' || tagName === 'foreignobject') {
+        el.remove();
+        return;
+      }
+
+      // Security pass: Remove inline event handlers (onload, onerror, onclick, etc.) and dangerous hrefs
+      const dangerousAttrs: string[] = [];
+      for (let i = 0; i < el.attributes.length; i++) {
+        const attr = el.attributes[i];
+        const name = attr.name.toLowerCase();
+        const val = (attr.value || '').trim().toLowerCase();
+        if (name.startsWith('on') || val.startsWith('javascript:') || val.startsWith('vbscript:')) {
+          dangerousAttrs.push(attr.name);
+        }
+      }
+      dangerousAttrs.forEach(a => el.removeAttribute(a));
+
       // Clean editor attributes
       if (opts.removeEditorAttributes) {
         const attrsToRemove: string[] = [];
@@ -346,7 +366,7 @@ export default function SvgOptimizer() {
 
             <div className="space-y-3 text-xs font-mono">
               <label className="flex items-center justify-between p-2 rounded-xl hover:bg-neutral-50 cursor-pointer">
-                <span className="text-neutral-700">Strip XML Comments (<!-- -->)</span>
+                <span className="text-neutral-700">Strip XML Comments (&lt;!-- --&gt;)</span>
                 <input
                   type="checkbox"
                   checked={options.removeComments}
@@ -376,7 +396,7 @@ export default function SvgOptimizer() {
               </label>
 
               <label className="flex items-center justify-between p-2 rounded-xl hover:bg-neutral-50 cursor-pointer">
-                <span className="text-neutral-700">Prune Empty & Unstyled Groups (<g>)</span>
+                <span className="text-neutral-700">Prune Empty &amp; Unstyled Groups (&lt;g&gt;)</span>
                 <input
                   type="checkbox"
                   checked={options.collapseEmptyGroups}
@@ -466,14 +486,14 @@ export default function SvgOptimizer() {
                     <span className="text-[11px] font-mono text-neutral-500 uppercase">Original Document</span>
                     <div 
                       className="min-h-[220px] bg-neutral-50 border border-neutral-200 rounded-2xl p-4 flex items-center justify-center overflow-hidden"
-                      dangerouslySetInnerHTML={{ __html: svgInput }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(svgInput, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
                     />
                   </div>
                   <div className="space-y-2">
                     <span className="text-[11px] font-mono text-emerald-600 uppercase font-bold">Optimized Vector</span>
                     <div 
                       className="min-h-[220px] bg-neutral-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-center overflow-hidden"
-                      dangerouslySetInnerHTML={{ __html: optimized }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(optimized, { USE_PROFILES: { svg: true, svgFilters: true } }) }}
                     />
                   </div>
                 </div>

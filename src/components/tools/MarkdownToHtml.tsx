@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { 
   FileText, CheckCircle2, Copy, Download, RotateCcw, 
   Eye, Code2, Sparkles, HelpCircle, Columns, ShieldCheck
@@ -151,7 +152,13 @@ function parseMarkdownToHtml(md: string): string {
   // Group <li> into <ul>
   html = html.replace(/((?:<li[^>]*>[\s\S]*?<\/li>\s*)+)/gi, '<ul class="markdown-list">$1</ul>');
 
-  return html;
+  // Strict DOMPurify Sanitization pass to eliminate any residual vectors (XSS, event handlers, javascript: protocols)
+  return DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true },
+    ADD_ATTR: ['target', 'disabled', 'checked', 'data-lang', 'rel'],
+    FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'style'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur']
+  });
 }
 
 export default function MarkdownToHtml() {

@@ -385,6 +385,25 @@ function MainAppContent() {
               <Route path="/tools/upscaler" element={<Tools />} />
               <Route path="/tools/vectorizer" element={<Tools />} />
               <Route path="/tools/pdf-tool" element={<Tools />} />
+
+              {/* 10 Production Suite Shortcut Routes */}
+              <Route path="/glassmorphism-neumorphism-generator" element={<Tools />} />
+              <Route path="/glassmorphism" element={<Tools />} />
+              <Route path="/svg-optimizer" element={<Tools />} />
+              <Route path="/cron-generator" element={<Tools />} />
+              <Route path="/cron-explainer" element={<Tools />} />
+              <Route path="/regex-tester" element={<Tools />} />
+              <Route path="/markdown-to-html" element={<Tools />} />
+              <Route path="/jwt-debugger" element={<Tools />} />
+              <Route path="/jwt-decoder" element={<Tools />} />
+              <Route path="/favicon-generator" element={<Tools />} />
+              <Route path="/whatsapp-link-generator" element={<Tools />} />
+              <Route path="/whatsapp-link" element={<Tools />} />
+              <Route path="/css-animation-builder" element={<Tools />} />
+              <Route path="/css-animation" element={<Tools />} />
+              <Route path="/color-contrast-checker" element={<Tools />} />
+              <Route path="/color-contrast" element={<Tools />} />
+
               <Route path="/tools/:toolId" element={<Tools />} />
               <Route path="/audit-fix" element={<AuditFixRequest />} />
               <Route path="/tools/audit-fix" element={<AuditFixRequest />} />

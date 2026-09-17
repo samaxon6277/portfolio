@@ -21,7 +21,7 @@ interface KeyframeStep {
 const DEFAULT_KEYFRAMES: KeyframeStep[] = [
   { id: '1', percentage: 0, translateX: 0, translateY: 0, scale: 1, rotate: 0, opacity: 1, borderRadius: 16, bgColor: '#111111' },
   { id: '2', percentage: 50, translateX: 0, translateY: -40, scale: 1.15, rotate: 180, opacity: 0.9, borderRadius: 32, bgColor: '#D6B46A' },
-  { id: '3', percentage: 100, percentage: 100, translateX: 0, translateY: 0, scale: 1, rotate: 360, opacity: 1, borderRadius: 16, bgColor: '#111111' }
+  { id: '3', percentage: 100, translateX: 0, translateY: 0, scale: 1, rotate: 360, opacity: 1, borderRadius: 16, bgColor: '#111111' }
 ];
 
 export default function CssAnimationBuilder() {
@@ -29,7 +29,7 @@ export default function CssAnimationBuilder() {
   const [duration, setDuration] = useState(2.0);
   const [iteration, setIteration] = useState<'infinite' | '1' | '2' | '3'>('infinite');
   const [direction, setDirection] = useState<'normal' | 'alternate' | 'reverse'>('alternate');
-  const [timingPreset, setTimingPreset] = useState<'ease' | 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'custom'>('cubic-bezier(0.4, 0, 0.2, 1)');
+  const [timingPreset, setTimingPreset] = useState<string>('cubic-bezier(0.4, 0, 0.2, 1)');
   const [isPlaying, setIsPlaying] = useState(true);
   const [previewShape, setPreviewShape] = useState<'card' | 'circle' | 'button'>('card');
   const [keyframes, setKeyframes] = useState<KeyframeStep[]>(DEFAULT_KEYFRAMES);

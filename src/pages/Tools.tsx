@@ -199,16 +199,16 @@ export default function Tools() {
       return toolId as ToolTab;
     }
 
-    if (location.pathname.includes('/tools/glassmorphism-neumorphism-generator') || location.pathname.includes('/tools/glassmorphism') || location.pathname.includes('/tools/neumorphism')) return 'glassmorphism-neumorphism-generator';
-    if (location.pathname.includes('/tools/svg-optimizer') || location.pathname.includes('/tools/svg-minifier')) return 'svg-optimizer';
-    if (location.pathname.includes('/tools/cron-generator') || location.pathname.includes('/tools/cron-explainer')) return 'cron-generator';
-    if (location.pathname.includes('/tools/regex-tester') || location.pathname.includes('/tools/regex')) return 'regex-tester';
-    if (location.pathname.includes('/tools/markdown-to-html') || location.pathname.includes('/tools/markdown')) return 'markdown-to-html';
-    if (location.pathname.includes('/tools/jwt-debugger') || location.pathname.includes('/tools/jwt-decoder') || location.pathname.includes('/tools/jwt')) return 'jwt-debugger';
-    if (location.pathname.includes('/tools/favicon-generator') || location.pathname.includes('/tools/favicon') || location.pathname.includes('/tools/app-icon-generator')) return 'favicon-generator';
-    if (location.pathname.includes('/tools/whatsapp-link-generator') || location.pathname.includes('/tools/whatsapp-link') || location.pathname.includes('/tools/whatsapp-qr')) return 'whatsapp-link-generator';
-    if (location.pathname.includes('/tools/css-animation-builder') || location.pathname.includes('/tools/css-animation') || location.pathname.includes('/tools/keyframe-generator')) return 'css-animation-builder';
-    if (location.pathname.includes('/tools/color-contrast-checker') || location.pathname.includes('/tools/contrast-checker') || location.pathname.includes('/tools/wcag-contrast')) return 'color-contrast-checker';
+    if (location.pathname.includes('glassmorphism') || location.pathname.includes('neumorphism')) return 'glassmorphism-neumorphism-generator';
+    if (location.pathname.includes('svg-optimizer') || location.pathname.includes('svg-minifier')) return 'svg-optimizer';
+    if (location.pathname.includes('cron-generator') || location.pathname.includes('cron-explainer')) return 'cron-generator';
+    if (location.pathname.includes('regex-tester') || location.pathname.includes('/tools/regex')) return 'regex-tester';
+    if (location.pathname.includes('markdown-to-html') || location.pathname.includes('/tools/markdown')) return 'markdown-to-html';
+    if (location.pathname.includes('jwt-debugger') || location.pathname.includes('jwt-decoder') || location.pathname.includes('/tools/jwt')) return 'jwt-debugger';
+    if (location.pathname.includes('favicon-generator') || location.pathname.includes('/tools/favicon') || location.pathname.includes('app-icon-generator')) return 'favicon-generator';
+    if (location.pathname.includes('whatsapp-link-generator') || location.pathname.includes('whatsapp-link') || location.pathname.includes('whatsapp-qr')) return 'whatsapp-link-generator';
+    if (location.pathname.includes('css-animation-builder') || location.pathname.includes('css-animation') || location.pathname.includes('keyframe-generator')) return 'css-animation-builder';
+    if (location.pathname.includes('color-contrast-checker') || location.pathname.includes('contrast-checker') || location.pathname.includes('wcag-contrast')) return 'color-contrast-checker';
 
     if (location.pathname.includes('/tools/website-launch-readiness') || location.pathname.includes('/tools/launch-readiness') || location.pathname === '/launch-readiness') return 'website-launch-readiness';
     if (location.pathname.includes('/tools/website-project-scope-builder') || location.pathname.includes('/tools/project-scope') || location.pathname === '/project-scope') return 'website-project-scope-builder';
