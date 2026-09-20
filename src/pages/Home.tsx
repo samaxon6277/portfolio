@@ -671,6 +671,14 @@ export default function Home({ setCurrentPage }: HomeProps) {
                 <Search className="w-4 h-4 text-[#85641C] group-hover:text-[#D6B46A] transition-colors" />
                 <span>Free Website Analyzer</span>
               </button>
+              <button
+                onClick={() => navigate('/tools/seo-geo-aeo-research')}
+                id="hero-seo-geo-aeo-cta"
+                className="w-full sm:w-auto px-6 py-4 bg-[#111111] text-[#D6B46A] hover:bg-[#222222] border border-[#D6B46A]/50 font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl backdrop-blur-md shadow-[0_4px_16px_rgba(214,180,106,0.25)] hover:shadow-[0_8px_24px_rgba(214,180,106,0.4)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer duration-200 transition-all group"
+              >
+                <Sparkles className="w-4 h-4 text-[#D6B46A] group-hover:rotate-12 transition-transform" />
+                <span>SEO · GEO · AEO Research</span>
+              </button>
             </motion.div>
 
             {/* Interactive Brand Trust tags with 3D tactile feedback */}
@@ -1701,13 +1709,22 @@ export default function Home({ setCurrentPage }: HomeProps) {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => navigate('/analyzer')}
-                    className="w-full py-3 bg-white/10 hover:bg-white/15 text-white font-mono text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer font-bold border border-white/10"
-                  >
-                    <span>Open Full Analyzer Suite</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => navigate('/tools/seo-geo-aeo-research')}
+                      className="w-full py-3 bg-[#D6B46A] hover:bg-[#E5C158] text-[#111111] font-mono text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer font-bold shadow-md shadow-[#D6B46A]/20"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-[#111111]" />
+                      <span>SEO · GEO · AEO Deep Research</span>
+                    </button>
+                    <button
+                      onClick={() => navigate('/analyzer')}
+                      className="w-full py-2.5 bg-white/10 hover:bg-white/15 text-[#D8D2C6] hover:text-white font-mono text-[11px] uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer font-medium border border-white/10"
+                    >
+                      <span>Open Multi-Page Security Analyzer</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

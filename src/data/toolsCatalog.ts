@@ -136,6 +136,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     iconName: 'SearchCode',
     examples: ['Website SEO Audit Tool', 'Website Speed Checker', 'Canonical URL Validator'],
     toolIds: [
+      'seo-geo-aeo-research',
       'website-seo-audit',
       'analyzer',
       'website-speed-checker',
@@ -510,6 +511,19 @@ export const CATALOG_TOOLS: Record<string, CatalogTool> = {
   },
 
   // SEO & Audit
+  'seo-geo-aeo-research': {
+    id: 'seo-geo-aeo-research',
+    slug: 'seo-geo-aeo-research',
+    name: 'SEO, GEO & AEO Deep Research Suite',
+    shortName: 'SEO / GEO / AEO Research',
+    description: 'Deep technical research tool evaluating Google Search SEO, Generative AI Engine Optimization (ChatGPT, Perplexity, Claude), and Voice Answer Engine Optimization (FAQ schema, question parsing, direct citations).',
+    categoryId: 'seo-audit',
+    iconName: 'Sparkles',
+    route: '/tools/seo-geo-aeo-research',
+    badge: 'Deep Intelligence',
+    featurePills: ['SEO Technical Audit', 'GEO (AI Bots & Citations)', 'AEO & Voice Search Schema'],
+    footerBadge: 'AI & Search Engine Research · Live Diagnostic'
+  },
   'website-seo-audit': {
     id: 'website-seo-audit',
     slug: 'website-seo-audit',

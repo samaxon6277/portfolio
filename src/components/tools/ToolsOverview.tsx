@@ -308,7 +308,14 @@ export default function ToolsOverview({ onSelectTool }: ToolsOverviewProps) {
                 <ToolCard 
                   key={tool.id} 
                   tool={tool} 
-                  onClick={() => onSelectTool?.(tool.id)}
+                  onClick={() => {
+                    try {
+                      const scrollPos = window.scrollY || document.documentElement.scrollTop || 0;
+                      sessionStorage.setItem('samaxon_tools_scroll_pos', scrollPos.toString());
+                      sessionStorage.setItem('samaxon_last_tool_id', tool.id);
+                    } catch {}
+                    onSelectTool?.(tool.id);
+                  }}
                 />
               ))}
             </div>

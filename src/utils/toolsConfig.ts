@@ -13,6 +13,7 @@ export interface ToolItemConfig {
     | 'responsive-breakpoint-tester'
     | 'seo-competitor-gap-analyzer'
     | 'website-privacy-policy-builder'
+    | 'seo-geo-aeo-research'
     | 'website-seo-audit' 
     | 'website-speed-checker' 
     | 'website-project-brief' 
@@ -193,6 +194,16 @@ export const DEFAULT_TOOLS_CONFIG: ToolItemConfig[] = [
     description: 'Agency-grade 10-stage project intake questionnaire for scoping sitemaps, technical integrations, design aesthetics, and asset readiness scoring.',
     enabled: true,
     iconName: 'FileText'
+  },
+  {
+    id: 'seo-geo-aeo-research',
+    name: 'SEO, GEO & AEO Deep Research Suite',
+    shortName: 'SEO / GEO / AEO Research',
+    category: 'SEO & Audit',
+    badge: 'Deep Intelligence',
+    description: 'Deep technical research evaluating traditional Google Search SEO, Generative AI Engine Optimization (ChatGPT, Perplexity, Claude), and Voice Answer Engine Optimization (FAQ schema, question parsing, direct citations).',
+    enabled: true,
+    iconName: 'Sparkles'
   },
   {
     id: 'website-seo-audit',

@@ -72,6 +72,7 @@ const FaviconGenerator = React.lazy(() => import('../components/tools/FaviconGen
 const WhatsAppLinkGenerator = React.lazy(() => import('../components/tools/WhatsAppLinkGenerator'));
 const CssAnimationBuilder = React.lazy(() => import('../components/tools/CssAnimationBuilder'));
 const ColorContrastChecker = React.lazy(() => import('../components/tools/ColorContrastChecker'));
+const SeoGeoAeoResearchTool = React.lazy(() => import('../components/tools/SeoGeoAeoResearchTool'));
 
 function ToolLoadingSkeleton() {
   return (
@@ -136,7 +137,8 @@ export type ToolTab =
   | 'favicon-generator'
   | 'whatsapp-link-generator'
   | 'css-animation-builder'
-  | 'color-contrast-checker';
+  | 'color-contrast-checker'
+  | 'seo-geo-aeo-research';
 
 export default function Tools() {
   const location = useLocation();
@@ -192,12 +194,14 @@ export default function Tools() {
       'bg-remover', 'upscaler', 'vectorizer', 'pdf-tool',
       'glassmorphism-neumorphism-generator', 'svg-optimizer', 'cron-generator', 'regex-tester',
       'markdown-to-html', 'jwt-debugger', 'favicon-generator', 'whatsapp-link-generator',
-      'css-animation-builder', 'color-contrast-checker'
+      'css-animation-builder', 'color-contrast-checker', 'seo-geo-aeo-research'
     ];
 
     if (toolId && validTabs.includes(toolId as ToolTab)) {
       return toolId as ToolTab;
     }
+
+    if (location.pathname.includes('seo-geo-aeo') || location.pathname.includes('/tools/seo-geo-aeo-research')) return 'seo-geo-aeo-research';
 
     if (location.pathname.includes('glassmorphism') || location.pathname.includes('neumorphism')) return 'glassmorphism-neumorphism-generator';
     if (location.pathname.includes('svg-optimizer') || location.pathname.includes('svg-minifier')) return 'svg-optimizer';
@@ -262,6 +266,30 @@ export default function Tools() {
 
   const activeTab = getTabFromPath();
 
+  // Restore scroll position when navigating back to tools overview
+  useEffect(() => {
+    if (activeTab === 'overview') {
+      const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
+      if (savedPosStr) {
+        const top = parseInt(savedPosStr, 10);
+        if (!isNaN(top) && top > 0) {
+          const timer1 = setTimeout(() => {
+            window.scrollTo({ top, left: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = top;
+            document.body.scrollTop = top;
+          }, 30);
+          const timer2 = setTimeout(() => {
+            window.scrollTo({ top, left: 0, behavior: 'instant' });
+          }, 120);
+          return () => {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+          };
+        }
+      }
+    }
+  }, [activeTab]);
+
   // If viewing a category detail page, render CategoryDetailView
   if (categorySlug) {
     if (matchedCategory) {
@@ -294,9 +322,25 @@ export default function Tools() {
   const handleTabChange = (tab: ToolTab) => {
     setSwitchMenuOpen(false);
     const targetUrl = tab === 'overview' ? '/tools' : `/tools/${tab}`;
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    if (tab !== 'overview') {
+      const scrollPos = window.scrollY || document.documentElement.scrollTop || 0;
+      sessionStorage.setItem('samaxon_tools_scroll_pos', scrollPos.toString());
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    } else {
+      const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
+      if (savedPosStr) {
+        const top = parseInt(savedPosStr, 10);
+        if (!isNaN(top) && top > 0) {
+          setTimeout(() => {
+            window.scrollTo({ top, left: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = top;
+            document.body.scrollTop = top;
+          }, 40);
+        }
+      }
+    }
     navigate(targetUrl);
   };
 
@@ -384,6 +428,19 @@ export default function Tools() {
               ) : (
                 <Link
                   to="/tools"
+                  onClick={() => {
+                    const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
+                    if (savedPosStr) {
+                      const top = parseInt(savedPosStr, 10);
+                      if (!isNaN(top) && top > 0) {
+                        setTimeout(() => {
+                          window.scrollTo({ top, left: 0, behavior: 'instant' });
+                          document.documentElement.scrollTop = top;
+                          document.body.scrollTop = top;
+                        }, 20);
+                      }
+                    }
+                  }}
                   className="group flex items-center gap-2 px-4 py-2.5 bg-[#111111] hover:bg-[#222222] text-[#D6B46A] border border-[#D6B46A]/40 rounded-2xl text-xs font-mono uppercase font-bold cursor-pointer transition-all shadow-sm active:scale-95"
                 >
                   <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
@@ -695,6 +752,10 @@ export default function Tools() {
 
               {activeTab === 'color-contrast-checker' && (
                 <ColorContrastChecker />
+              )}
+
+              {activeTab === 'seo-geo-aeo-research' && (
+                <SeoGeoAeoResearchTool />
               )}
               </motion.div>
             </React.Suspense>

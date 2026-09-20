@@ -55,6 +55,29 @@ if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
 function ScrollToTop() {
   const { pathname, search } = useLocation();
   useEffect(() => {
+    // If returning to /tools overview and we have a saved scroll position, DO NOT force scroll to 0!
+    if (pathname === '/tools' && !search) {
+      const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
+      if (savedPosStr) {
+        const top = parseInt(savedPosStr, 10);
+        if (!isNaN(top) && top > 0) {
+          // Allow Tools page to restore the exact scroll position
+          return;
+        }
+      }
+    }
+
+    // If returning to home page and a saved home scroll position exists, do not reset
+    if (pathname === '/' && !search) {
+      const homePosStr = sessionStorage.getItem('samaxon_home_scroll_pos');
+      if (homePosStr) {
+        const top = parseInt(homePosStr, 10);
+        if (!isNaN(top) && top > 0) {
+          return;
+        }
+      }
+    }
+
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -233,6 +256,18 @@ function MainAppContent() {
         <AnimatePresence 
           mode="wait"
           onExitComplete={() => {
+            if (location.pathname === '/tools') {
+              const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
+              if (savedPosStr) {
+                const top = parseInt(savedPosStr, 10);
+                if (!isNaN(top) && top > 0) {
+                  window.scrollTo({ top, left: 0, behavior: 'instant' });
+                  document.documentElement.scrollTop = top;
+                  document.body.scrollTop = top;
+                  return;
+                }
+              }
+            }
             window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
             document.documentElement.scrollTop = 0;
             document.body.scrollTop = 0;
@@ -361,6 +396,10 @@ function MainAppContent() {
               <Route path="/steganography" element={<Tools />} />
               <Route path="/tools/website-seo-audit" element={<Tools />} />
               <Route path="/tools/seo-audit" element={<Tools />} />
+              <Route path="/tools/seo-geo-aeo-research" element={<Tools />} />
+              <Route path="/tools/aeo-geo-research" element={<Tools />} />
+              <Route path="/seo-geo-aeo-research" element={<Tools />} />
+              <Route path="/aeo-geo-research" element={<Tools />} />
               <Route path="/tools/website-speed-checker" element={<Tools />} />
               <Route path="/tools/speed-checker" element={<Tools />} />
               <Route path="/tools/website-project-brief" element={<Tools />} />

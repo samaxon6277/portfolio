@@ -104,7 +104,7 @@ export default async function handler(req: any, res: any) {
 
     for (const attemptUrl of urlsToTry) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 9500);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       try {
         const resAttempt = await fetch(attemptUrl, {
           signal: controller.signal,
@@ -170,6 +170,62 @@ export default async function handler(req: any, res: any) {
           hasViewport: true,
           isZoomLocked: false,
           hasCharset: true
+        },
+        aeoData: {
+          directAnswerReadability: 'moderate',
+          hasFaqSchema: false,
+          hasQaSchema: false,
+          hasDefinitionBlocks: false,
+          definitionBlocksCount: 0,
+          listAndTableCount: 1,
+          hasTableOrListStructure: true,
+          entityClarityScore: 50,
+          detectedEntities: [brandName],
+          voiceSearchReadiness: 'Medium',
+          checks: [
+            { name: 'FAQ / Q&A Schema Markup', category: 'AEO', status: 'warn', evidence: 'Snapshot fallback', description: 'Enables rich answers and question snippets directly inside search and LLM citation boxes.' },
+            { name: 'Direct Answer Readiness', category: 'AEO', status: 'warn', evidence: 'Snapshot fallback', description: 'Question-phrased headings with immediate concise answer paragraphs increase direct voice synthesis readiness.' }
+          ],
+          recommendations: [
+            'Add FAQPage Schema markup with top 3-5 user questions and direct concise answers.',
+            'Format key subheadings as explicit questions with immediate 40-word answers.'
+          ]
+        },
+        geoData: {
+          aiBotsStatus: {
+            gptBot: 'unrestricted',
+            claudeBot: 'unrestricted',
+            perplexityBot: 'unrestricted',
+            googleExtended: 'unrestricted',
+            applebotExtended: 'unrestricted'
+          },
+          factualCiteabilityScore: 50,
+          hasAuthorOrPublisherMeta: true,
+          hasPublicationDates: false,
+          semanticHtmlStructureRatio: 45,
+          cleanTextToHtmlRatio: 18,
+          clientRenderDependency: 'moderate',
+          aiReadinessLevel: 'Partially Optimized',
+          llmsTxtStatus: {
+            checked: true,
+            exists: false,
+            isOptional: true,
+            note: 'llms.txt not detected (Status: Optional — Not required by search engines, but provides clear markdown context for LLMs).'
+          },
+          googleExtendedAnalysis: {
+            status: 'unrestricted',
+            explanation: 'Google-Extended is unrestricted. Content is eligible for Gemini grounding datasets.',
+            affectsSearchRanking: false
+          },
+          checks: [
+            { name: 'AI Crawler Access (robots.txt)', category: 'GEO', status: 'pass', evidence: 'No blocking directives detected', description: 'Allows LLM search engines to crawl public content for real-time web citations.' },
+            { name: 'Factual & Statistical Citeability', category: 'GEO', status: 'warn', evidence: 'Standard snapshot level', description: 'LLMs prefer citing content with verified numbers, percentages, and cited references.' }
+          ],
+          aiVisibilityDisclaimer: 'Generative Engine Optimization (GEO) measures visibility across conversational AI assistants (ChatGPT, Perplexity, Claude, Google Gemini).',
+          recommendations: [
+            'Add concrete statistics, verifiable user metrics, or benchmarks to increase citation confidence by LLMs.',
+            'Deploy an optional llms.txt markdown manifest to guide AI models to your authoritative services.'
+          ]
         },
         internalPages: [
           {
@@ -931,6 +987,191 @@ export default async function handler(req: any, res: any) {
       (perfScore * 0.20)
     );
 
+    // ==========================================
+    // AEO & GEO DEEP ENGINE CALCULATION (Vercel Native)
+    // ==========================================
+    let robotsTxt = '';
+    let robotsTxtExists = false;
+    let robotsTxtAllowsCrawl = true;
+    try {
+      const robotsController = new AbortController();
+      const rTimeout = setTimeout(() => robotsController.abort(), 2000);
+      const rRes = await fetch(`${parsedUrl.origin}/robots.txt`, {
+        signal: robotsController.signal,
+        headers: { 'User-Agent': browserHeaders['User-Agent'] }
+      });
+      clearTimeout(rTimeout);
+      if (rRes.ok) {
+        robotsTxt = await rRes.text();
+        robotsTxtExists = true;
+        if (/User-agent:\s*\*\s*\n(?:[^\n]*\n)*?Disallow:\s*\/\s*(?:\n|$)/i.test(robotsTxt)) {
+          robotsTxtAllowsCrawl = false;
+        }
+      }
+    } catch {}
+
+    const checkBotInRobots = (botName: string): 'allowed' | 'disallowed' | 'unrestricted' => {
+      if (!robotsTxtExists || !robotsTxt) return 'unrestricted';
+      const regex = new RegExp(`User-agent:\\s*${botName}[\\s\\S]*?Disallow:\\s*(\\S*)`, 'i');
+      const match = robotsTxt.match(regex);
+      if (match) {
+        return match[1] === '/' || match[1] === '/*' ? 'disallowed' : 'allowed';
+      }
+      return robotsTxtAllowsCrawl ? 'unrestricted' : 'disallowed';
+    };
+
+    // AEO metrics
+    const questionHeadings = (html.match(/<h[2-4][^>]*>[^<]*\?[^<]*<\/h[2-4]>/gi) || []).length +
+      (html.match(/<h[2-4][^>]*>(?:what|how|why|when|where|who|which|can|is|are|does|should)[^<]*<\/h[2-4]>/gi) || []).length;
+    const hasFaqSchema = /"FAQPage"|"faqPage"/i.test(html);
+    const hasHowToSchema = /"HowTo"|"howTo"/i.test(html);
+    const definitionBlocksCount = (html.match(/<dfn\b|<dt\b|\b(?:is defined as|refers to|means that|in simple terms)\b/gi) || []).length;
+    const tableMatches = (html.match(/<table\b/gi) || []).length;
+    const listMatches = (html.match(/<(?:ul|ol)\b/gi) || []).length;
+
+    const directAnswerReadability: 'optimal' | 'moderate' | 'low' = 
+      (questionHeadings >= 2 && (hasFaqSchema || definitionBlocksCount >= 2)) ? 'optimal' :
+      (questionHeadings >= 1 || definitionBlocksCount >= 1 || tableMatches >= 1) ? 'moderate' : 'low';
+    const voiceSearchReadiness: 'High' | 'Medium' | 'Low' = 
+      (directAnswerReadability === 'optimal' && hasFaqSchema) ? 'High' :
+      (directAnswerReadability !== 'low') ? 'Medium' : 'Low';
+    const entityClarityScore = Math.min(100, Math.max(35, 45 + (hasFaqSchema ? 25 : 0) + Math.min(20, questionHeadings * 5) + Math.min(10, definitionBlocksCount * 3)));
+
+    const aeoData = {
+      directAnswerReadability,
+      hasFaqSchema,
+      hasQaSchema: hasFaqSchema,
+      hasDefinitionBlocks: definitionBlocksCount > 0,
+      definitionBlocksCount,
+      listAndTableCount: tableMatches + listMatches,
+      hasTableOrListStructure: (tableMatches + listMatches) > 0,
+      entityClarityScore,
+      detectedEntities: [parsedUrl.hostname.replace(/^www\./i, '').split('.')[0]],
+      voiceSearchReadiness,
+      checks: [
+        {
+          name: 'FAQ / Q&A Schema Markup',
+          category: 'AEO' as const,
+          status: hasFaqSchema ? 'pass' as const : 'warn' as const,
+          evidence: hasFaqSchema ? 'FAQPage JSON-LD schema detected in document' : 'No FAQPage schema found in HTML',
+          description: 'Enables rich snippets and direct answers in Google and AI search assistants.'
+        },
+        {
+          name: 'Direct Answer Question Phrasing',
+          category: 'AEO' as const,
+          status: directAnswerReadability === 'optimal' ? 'pass' as const : directAnswerReadability === 'moderate' ? 'warn' as const : 'fail' as const,
+          evidence: `${questionHeadings} question headings, ${definitionBlocksCount} definition blocks`,
+          description: 'Question-phrased headings with immediate concise answer paragraphs increase direct voice synthesis readiness.'
+        },
+        {
+          name: 'Structured Tables & Step Lists',
+          category: 'AEO' as const,
+          status: (tableMatches + listMatches) >= 2 ? 'pass' as const : 'warn' as const,
+          evidence: `${tableMatches} tables, ${listMatches} structured lists`,
+          description: 'Clean comparison tables and ordered steps are heavily prioritized by answer engines.'
+        }
+      ],
+      recommendations: [
+        ...(hasFaqSchema ? [] : ['Add FAQPage Schema markup with top 3-5 user questions and direct concise answers.']),
+        ...(questionHeadings < 2 ? ['Format key subheadings as explicit questions (e.g. "How does...", "What is...") with immediate 40-word answers.'] : []),
+        ...(tableMatches === 0 ? ['Include comparison or feature matrices using standard <table> tags for answer engine scraping.'] : [])
+      ]
+    };
+
+    // GEO metrics
+    const citationMatches = (html.match(/<a\b[^>]*href=["']https?:\/\/[^"']+["']/gi) || []).length;
+    const statisticalClaims = (html.match(/\b\d+(?:\.\d+)?%\b|\b\d+\s*(?:million|billion|thousand|users|clients|ms|seconds|hours)\b/gi) || []).length;
+    let citeScore = 30;
+    if (citationMatches >= 3) citeScore += 20;
+    else if (citationMatches >= 1) citeScore += 10;
+    if (statisticalClaims >= 3) citeScore += 25;
+    else if (statisticalClaims >= 1) citeScore += 15;
+    if (tableMatches > 0) citeScore += 15;
+    const factualCiteabilityScore = Math.min(100, Math.max(20, citeScore));
+
+    const strippedText = html
+      .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+      .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+      .replace(/<svg\b[\s\S]*?<\/svg>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const cleanTextToHtmlRatio = html.length > 0 ? Math.min(100, Math.max(2, Math.round((strippedText.length / html.length) * 100))) : 10;
+    const isSpaContainerOnly = /<div\s+id=["'](?:root|app|__next)["']\s*>\s*<\/div>/i.test(html) && strippedText.length < 250;
+    const clientRenderDependency: 'low' | 'moderate' | 'heavy' = 
+      isSpaContainerOnly ? 'heavy' : strippedText.length > 500 ? 'low' : 'moderate';
+
+    const aiBotsStatus = {
+      gptBot: checkBotInRobots('gptbot'),
+      claudeBot: checkBotInRobots('claudebot') === 'disallowed' ? 'disallowed' : checkBotInRobots('anthropic-ai'),
+      perplexityBot: checkBotInRobots('perplexitybot'),
+      googleExtended: checkBotInRobots('google-extended'),
+      applebotExtended: checkBotInRobots('applebot-extended')
+    };
+
+    const mentionsLlmsTxt = /llms\.txt/i.test(html);
+    const googleExtendedRule = aiBotsStatus.googleExtended;
+    const anyBotDisallowed = Object.values(aiBotsStatus).some(s => s === 'disallowed');
+    const aiReadinessLevel: 'AI-Ready' | 'Partially Optimized' | 'Blocked / Non-Semantic' =
+      anyBotDisallowed ? 'Blocked / Non-Semantic' :
+      (factualCiteabilityScore >= 60 && cleanTextToHtmlRatio >= 15 && clientRenderDependency !== 'heavy') ? 'AI-Ready' :
+      'Partially Optimized';
+
+    const geoData = {
+      aiBotsStatus,
+      factualCiteabilityScore,
+      hasAuthorOrPublisherMeta: /<meta\b[^>]*name=["'](?:author|publisher)["']/i.test(html) || /rel=["']author["']/i.test(html),
+      hasPublicationDates: /<meta\b[^>]*property=["'](?:article:published_time|article:modified_time)["']/i.test(html) || /<time\b/i.test(html) || /"datePublished"|"dateModified"/i.test(html),
+      semanticHtmlStructureRatio: Math.min(100, Math.round(((html.match(/<(?:article|section|header|nav|aside|main|figure|footer)\b/gi) || []).length / Math.max(1, (html.match(/<[a-z][a-z0-9-]*\b/gi) || []).length)) * 400)),
+      cleanTextToHtmlRatio,
+      clientRenderDependency,
+      aiReadinessLevel,
+      llmsTxtStatus: {
+        checked: true,
+        exists: mentionsLlmsTxt,
+        isOptional: true as const,
+        note: mentionsLlmsTxt 
+          ? 'llms.txt reference detected on domain.' 
+          : 'llms.txt not detected (Status: Optional — Not required by search engines, but provides clear markdown context for LLMs).'
+      },
+      googleExtendedAnalysis: {
+        status: googleExtendedRule,
+        explanation: googleExtendedRule === 'disallowed'
+          ? 'Google-Extended is disallowed in robots.txt. This restricts content usage for Gemini training, but does NOT affect standard Google Search indexing.'
+          : 'Google-Extended is allowed or unrestricted. Content is eligible for Gemini grounding datasets.',
+        affectsSearchRanking: false as const
+      },
+      checks: [
+        {
+          name: 'AI Crawler Access (GPTBot / ClaudeBot / PerplexityBot)',
+          category: 'GEO' as const,
+          status: (aiBotsStatus.gptBot === 'disallowed' || aiBotsStatus.perplexityBot === 'disallowed') ? 'fail' as const : 'pass' as const,
+          evidence: `GPTBot: ${aiBotsStatus.gptBot}, Perplexity: ${aiBotsStatus.perplexityBot}, Claude: ${aiBotsStatus.claudeBot}`,
+          description: 'Allows LLM search engines to crawl public content for real-time web citations.'
+        },
+        {
+          name: 'Factual & Statistical Citeability',
+          category: 'GEO' as const,
+          status: factualCiteabilityScore >= 60 ? 'pass' as const : 'warn' as const,
+          evidence: `${statisticalClaims} data/percentage metrics, ${citationMatches} outbound references found`,
+          description: 'LLMs prefer citing content with verified numbers, percentages, and cited references.'
+        },
+        {
+          name: 'Clean Text-to-HTML Density',
+          category: 'GEO' as const,
+          status: cleanTextToHtmlRatio >= 15 ? 'pass' as const : 'warn' as const,
+          evidence: `${cleanTextToHtmlRatio}% clean text density (extracted: ${strippedText.length} chars)`,
+          description: 'High text density ensures LLM context windows capture core concepts without token bloat.'
+        }
+      ],
+      aiVisibilityDisclaimer: 'Generative Engine Optimization (GEO) measures visibility across conversational AI assistants (ChatGPT, Perplexity, Claude, Google Gemini).',
+      recommendations: [
+        ...(aiBotsStatus.perplexityBot === 'disallowed' || aiBotsStatus.gptBot === 'disallowed' ? ['Update robots.txt to permit GPTBot and PerplexityBot to index public landing pages.'] : []),
+        ...(factualCiteabilityScore < 60 ? ['Add concrete statistics, verifiable user metrics, or benchmarks to increase citation confidence by LLMs.'] : []),
+        ...(cleanTextToHtmlRatio < 15 ? ['Improve server-side text content density so AI engines receive descriptive copy rather than empty JS shells.'] : [])
+      ]
+    };
+
     return res.status(200).json({
       success: true,
       reachable: true,
@@ -947,6 +1188,8 @@ export default async function handler(req: any, res: any) {
         code: codeScore,
         performance: perfScore
       },
+      aeoData,
+      geoData,
       meta: {
         title,
         metaDescription,
@@ -969,7 +1212,9 @@ export default async function handler(req: any, res: any) {
         hasDoctype,
         hasViewport,
         isZoomLocked,
-        hasCharset
+        hasCharset,
+        aeoData,
+        geoData
       },
       internalPages,
       animationAnalysis: {

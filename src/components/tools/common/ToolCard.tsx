@@ -91,11 +91,20 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick, featured = fa
     cardRef.current.style.setProperty('--spotlight-y', `${e.nativeEvent.offsetY}px`);
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    try {
+      const scrollPos = window.scrollY || document.documentElement.scrollTop || 0;
+      sessionStorage.setItem('samaxon_tools_scroll_pos', scrollPos.toString());
+      sessionStorage.setItem('samaxon_last_tool_id', tool.id);
+    } catch {}
+    onClick?.();
+  };
+
   return (
     <Link
       ref={cardRef}
       to={tool.route}
-      onClick={onClick}
+      onClick={handleClick}
       onMouseMove={handleMouseMove}
       className={`group relative flex flex-col justify-between rounded-2xl bg-[#FFFDF8] border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D6B46A] focus-visible:ring-offset-2 overflow-hidden cursor-pointer ${
         featured 
