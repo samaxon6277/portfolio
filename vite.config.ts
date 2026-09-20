@@ -10,10 +10,10 @@ export default defineConfig(() => {
       alias: [
         { find: /^@\//, replacement: `${path.resolve(__dirname, '.')}/` },
       ],
-      dedupe: ['react', 'react-dom'],
+      dedupe: ['react', 'react-dom', 'react-is'],
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react/jsx-runtime'],
+      include: ['react', 'react-dom', 'react/jsx-runtime', 'react-is'],
     },
     build: {
       target: 'es2020',
