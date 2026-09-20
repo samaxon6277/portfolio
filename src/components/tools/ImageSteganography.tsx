@@ -622,9 +622,9 @@ export default function ImageSteganography() {
           </span>
         </div>
 
-        <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-[#111111] tracking-tight">
+        <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-[#111111] tracking-tight">
           Image Steganography
-        </h1>
+        </h2>
 
         <p className="text-sm sm:text-base text-neutral-600 max-w-3xl leading-relaxed">
           Hide encrypted messages or files inside an image and extract them later using this tool.

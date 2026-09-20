@@ -21,6 +21,7 @@ import {
 import { validateAndNormalizeUrl, isPrivateOrLocalHost } from './urlValidator';
 import { fetchBrowserPerformance } from './browserPerformance';
 import { analyzeRobotsAndSitemaps, crawlDiscoveredInternalPages } from './sitemapCrawler';
+import { analyzeAeoAndGeo } from './aeoGeoEngine';
 
 // Common known trackers & third-party analytics
 const KNOWN_TRACKERS: { pattern: RegExp; name: string }[] = [
@@ -1196,6 +1197,15 @@ export async function executeWebsiteAudit(rawUrl: string): Promise<Comprehensive
     findings.push({ ...f, detectedAt: nowIso });
   }
 
+  // 15b. AEO (Answer Engine Optimization) & GEO (Generative Engine Optimization) Analysis
+  const { aeoData, geoData, findings: aeoGeoFindings } = analyzeAeoAndGeo({
+    rawHtml,
+    schemaItems,
+    detectedSchemaTypes,
+    robotsTxtStatus,
+    finalUrl
+  });
+
   // === SECURITY FINDINGS ===
   if (!isHttps) {
     addFinding({
@@ -1796,6 +1806,9 @@ export async function executeWebsiteAudit(rawUrl: string): Promise<Comprehensive
       });
     }
   }
+
+  // === AEO & GEO INTELLIGENCE FINDINGS ===
+  aeoGeoFindings.forEach(f => findings.push(f));
 
   // === ACCESSIBILITY FINDINGS (WCAG 2.1 AA) ===
   // Missing HTML Lang
@@ -2903,8 +2916,12 @@ export async function executeWebsiteAudit(rawUrl: string): Promise<Comprehensive
         items: schemaItems,
         detectedTypes: Array.from(detectedSchemaTypes)
       },
-      langAttribute: htmlLang
+      langAttribute: htmlLang,
+      aeoData,
+      geoData
     },
+    aeoData,
+    geoData,
     accessibilityData: {
       hasHtmlLang: !!htmlLang,
       htmlLang,

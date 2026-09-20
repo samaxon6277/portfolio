@@ -303,9 +303,9 @@ Generated via SamaXon Website ROI Calculator (https://samaxon.com/tools/website-
             </span>
           </div>
 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
             Website Return on Investment <span className="text-[#D6B46A]">(ROI)</span> Calculator
-          </h1>
+          </h2>
 
           <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
             Quantify the precise revenue impact of improving your website’s conversion architecture. Compare conservative, target, and high-performance trajectories with automated break-even modeling.

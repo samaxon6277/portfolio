@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import CustomSelect from '../components/CustomSelect';
+import { SendButton, SendButtonState } from '../components/ui/SendButton';
 import { useCustomUi } from '../context/CustomUiContext';
 import { SERVICES_DATA } from '../data';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
@@ -261,6 +262,7 @@ export default function ServiceRequest() {
     projectVision: ''
   });
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [sendButtonState, setSendButtonState] = useState<SendButtonState>('idle');
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [trackingId, setTrackingId] = useState<string>('');
 
@@ -342,6 +344,7 @@ export default function ServiceRequest() {
     }
 
     setIsSubmitting(true);
+    setSendButtonState('processing');
     const newTrackingId = `SMX-${Math.floor(100000 + Math.random() * 900000)}`;
     setTrackingId(newTrackingId);
 
@@ -382,12 +385,18 @@ export default function ServiceRequest() {
         // safe
       }
 
+      setSendButtonState('success');
       setIsSubmitting(false);
-      setSubmitSuccess(true);
+      setTimeout(() => {
+        setSubmitSuccess(true);
+      }, 900);
     } catch (err) {
       console.error('Lead submit error:', err);
+      setSendButtonState('error');
       setIsSubmitting(false);
-      setSubmitSuccess(true); // show confirmation fallback
+      setTimeout(() => {
+        setSendButtonState('idle');
+      }, 2500);
     }
   };
 
@@ -1185,23 +1194,17 @@ Please confirm 48-Hour sprint slot availability.`;
                     />
                   </div>
 
-                  <button
+                  <SendButton
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-4 bg-[#111111] text-[#D6B46A] hover:bg-black hover:text-white font-bold uppercase tracking-widest text-xs rounded-2xl border border-[#D6B46A]/40 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer font-display disabled:opacity-50"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Reserving Slot...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Submit Project Brief Online</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
+                    id="service-request-submit-btn"
+                    state={sendButtonState}
+                    idleText="Submit Project Brief Online"
+                    processingText="Reserving Sprint Slot..."
+                    successText="Brief Received · Slot Reserved"
+                    errorText="Submission Error · Click to Retry"
+                    size="lg"
+                    fullWidth
+                  />
                 </form>
               )}
             </div>

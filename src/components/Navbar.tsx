@@ -293,7 +293,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
             className="lg:hidden p-2 text-matte-black hover:text-champagne-gold transition-colors focus:outline-none cursor-pointer rounded-lg hover:bg-champagne-gold/10"
             aria-label="Toggle navigation menu"
           >
-            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isOpen ? <X className="w-[25px] h-[25px] border-0" /> : <Menu className="w-[25px] h-[25px] border-0" />}
           </button>
         </nav>
       </motion.header>

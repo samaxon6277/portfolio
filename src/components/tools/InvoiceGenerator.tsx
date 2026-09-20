@@ -265,9 +265,9 @@ export default function InvoiceGenerator() {
             </span>
           </div>
 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
             Professional Luxury <span className="text-[#D6B46A]">Invoice Generator</span>
-          </h1>
+          </h2>
 
           <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
             Generate clean, compliant, executive commercial invoices with automatic subtotal and GST/tax calculations. Download as vector PDF, print directly, or save reusable corporate templates.

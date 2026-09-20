@@ -7,6 +7,8 @@ import { SERVICES_DATA, PORTFOLIO_DATA, TESTIMONIALS_DATA } from '../data';
 import { PAGE_TO_ROUTE } from '../utils/navigation';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 import LiveUpdateSection from '../components/LiveUpdateSection';
+import { ScrollReveal } from '../components/ui/ScrollReveal';
+import { StaggerContainer, StaggerItem } from '../components/ui/StaggerContainer';
 
 function AnimatedCounter({ value }: { value: string }) {
   const [count, setCount] = useState(0);
@@ -717,6 +719,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
 
           {/* Hero Right Column: 48-Hour Live Sprint Cockpit Showcase */}
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+            <ScrollReveal direction="right" delay={0.15} className="w-full max-w-[460px]">
             <motion.div 
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -930,6 +933,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
                 </motion.button>
               </div>
             </motion.div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -957,22 +961,24 @@ export default function Home({ setCurrentPage }: HomeProps) {
       {/* --- CAPABILITIES PREVIEW GRID --- */}
       <section className="py-24 bg-soft-ivory relative" id="capabilities-grid-section">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
-              Full-Service Web Development Company &amp; Digital Studio
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
-              Web Design, Development &amp; Automation Suite
-            </h2>
-            <p className="text-sm text-warm-grey max-w-2xl leading-relaxed">
-              From bespoke business website development and high-performance web applications to brand identity and automated backend workflows, SamaXon delivers end-to-end digital solutions engineered to scale.
-            </p>
-          </div>
+          <ScrollReveal direction="up">
+            <div className="text-center flex flex-col items-center gap-4 mb-16">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
+                Full-Service Web Development Company &amp; Digital Studio
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
+                Web Design, Development &amp; Automation Suite
+              </h2>
+              <p className="text-sm text-warm-grey max-w-2xl leading-relaxed">
+                From bespoke business website development and high-performance web applications to brand identity and automated backend workflows, SamaXon delivers end-to-end digital solutions engineered to scale.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <StaggerContainer staggerDelay={0.06} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {SERVICES_DATA.slice(0, 6).map((service) => (
+              <StaggerItem key={service.id} direction="up">
               <motion.div 
-                key={service.id}
                 whileHover={{ 
                   y: -8, 
                   scale: 1.02,
@@ -1024,10 +1030,11 @@ export default function Home({ setCurrentPage }: HomeProps) {
                   <ArrowRight className="w-3.5 h-3.5 text-[#D6B46A] group-hover:translate-x-1 transition-transform" />
                 </motion.button>
               </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
 
-          <div className="flex justify-center mt-12">
+          <ScrollReveal direction="up" delay={0.2} className="flex justify-center mt-12">
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
@@ -1037,7 +1044,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
               View Full Capability Stack
               <Layers className="w-4 h-4 text-champagne-gold" />
             </motion.button>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -1471,22 +1478,24 @@ export default function Home({ setCurrentPage }: HomeProps) {
       {/* --- TESTIMONIALS & FOUNDER TRUST NOTES --- */}
       <section className="py-24 bg-soft-ivory border-t border-champagne-gold/15" id="testimonials">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-champagne-gold font-bold">
-              Founder Trust Notes
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
-              Direct Experience Reports
-            </h2>
-            <p className="text-sm text-warm-grey max-w-xl">
-              Understand why ambitious business leaders in India trust SamaXon to execute their digital launches with extreme speed.
-            </p>
-          </div>
+          <ScrollReveal direction="up">
+            <div className="text-center flex flex-col items-center gap-4 mb-16">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-champagne-gold font-bold">
+                Founder Trust Notes
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black">
+                Direct Experience Reports
+              </h2>
+              <p className="text-sm text-warm-grey max-w-xl">
+                Understand why ambitious business leaders in India trust SamaXon to execute their digital launches with extreme speed.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {TESTIMONIALS_DATA.map((testimonial) => (
+              <StaggerItem key={testimonial.id} direction="up">
               <motion.div 
-                key={testimonial.id}
                 whileHover={{ 
                   y: -6, 
                   scale: 1.02,
@@ -1527,25 +1536,28 @@ export default function Home({ setCurrentPage }: HomeProps) {
                   </span>
                 )}
               </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* --- FAQ SECTION FOR AEO & VOICE SEARCH --- */}
       <section className="py-24 bg-[#FFFDF8] border-t border-champagne-gold/15" id="home-faq-section">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center flex flex-col items-center gap-4 mb-16">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
-              Direct Clarity · Answer Engine Optimised
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black uppercase">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xs sm:text-sm text-warm-grey max-w-2xl leading-relaxed font-sans">
-              Get direct, transparent answers to our delivery cycles, client controls, and our Demo-First methodology. Fully structured for human and voice search crawlers.
-            </p>
-          </div>
+          <ScrollReveal direction="up">
+            <div className="text-center flex flex-col items-center gap-4 mb-16">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#85641C] font-bold">
+                Direct Clarity · Answer Engine Optimised
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-matte-black uppercase">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-xs sm:text-sm text-warm-grey max-w-2xl leading-relaxed font-sans">
+                Get direct, transparent answers to our delivery cycles, client controls, and our Demo-First methodology. Fully structured for human and voice search crawlers.
+              </p>
+            </div>
+          </ScrollReveal>
 
           <div className="space-y-4 max-w-3xl mx-auto">
             {faqItems.map((faq, idx) => {
@@ -1711,9 +1723,10 @@ export default function Home({ setCurrentPage }: HomeProps) {
         {/* Deep ambient circular background gradient */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-champagne-gold/10 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto px-6 text-center flex flex-col items-center gap-8 relative z-10">
-          <div className="w-12 h-12 rounded-full bg-charcoal border border-champagne-gold/40 flex items-center justify-center mb-2 animate-bounce">
-            <Zap className="w-6 h-6 text-champagne-gold fill-champagne-gold/15" />
+        <ScrollReveal direction="scale" className="w-full">
+        <div className="max-w-5xl mx-auto px-6 text-center flex flex-col items-center gap-8 relative z-10 h-[597.646px] mt-0 pt-4">
+          <div className="w-[53.25px] h-[53.25px] rounded-[50.237px] bg-charcoal border-solid border-[4.33333px] border-champagne-gold/40 flex items-center justify-center mt-[13px] mb-2 animate-bounce">
+            <Zap className="w-6 h-6 text-champagne-gold fill-champagne-gold/15 border-0 [border-style:none]" />
           </div>
 
           <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-soft-ivory max-w-3xl leading-tight">
@@ -1752,6 +1765,7 @@ export default function Home({ setCurrentPage }: HomeProps) {
             NO RANDOM TRYS · NO ENDLESS BACK-AND-FORTH · PREMIUM DIRECT LAUNCH
           </div>
         </div>
+        </ScrollReveal>
       </section>
     </div>
   );

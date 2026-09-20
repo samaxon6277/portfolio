@@ -9,6 +9,7 @@ import { motion } from 'motion/react';
 import { supabaseService } from '../utils/supabaseService';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { WebsiteAuditLead } from '../types';
+import { SendButton, SendButtonState } from '../components/ui/SendButton';
 
 export default function AuditFixRequest() {
   const location = useLocation();
@@ -82,6 +83,7 @@ export default function AuditFixRequest() {
   const [clientNotes, setClientNotes] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sendButtonState, setSendButtonState] = useState<SendButtonState>('idle');
   const [submitError, setSubmitError] = useState('');
   const [submittedTicket, setSubmittedTicket] = useState<{
     ticketNumber: string;
@@ -113,15 +115,20 @@ export default function AuditFixRequest() {
 
     if (!clientName.trim() || !email.trim() || !phone.trim() || !websiteUrl.trim()) {
       setSubmitError('Please fill in your name, email, phone/WhatsApp, and target website URL.');
+      setSendButtonState('error');
+      setTimeout(() => setSendButtonState('idle'), 3000);
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setSubmitError('Please enter a valid email address.');
+      setSendButtonState('error');
+      setTimeout(() => setSendButtonState('idle'), 3000);
       return;
     }
 
+    setSendButtonState('processing');
     setIsSubmitting(true);
 
     const issuesToFix = defaultTopIssues.filter(i => selectedIssues.includes(i.title));
@@ -172,14 +179,19 @@ export default function AuditFixRequest() {
         console.warn('Server-side lead dispatch notice:', srvErr);
       }
 
-      setSubmittedTicket({
-        ticketNumber: leadRecord.ticketNumber,
-        leadId: leadRecord.id,
-        websiteUrl: leadRecord.websiteUrl
-      });
+      setSendButtonState('success');
+      setTimeout(() => {
+        setSubmittedTicket({
+          ticketNumber: leadRecord.ticketNumber,
+          leadId: leadRecord.id,
+          websiteUrl: leadRecord.websiteUrl
+        });
+      }, 700);
     } catch (err: any) {
       console.error('Audit lead submission failed:', err);
       setSubmitError('Submission failed. Please check your connection or contact us directly via WhatsApp.');
+      setSendButtonState('error');
+      setTimeout(() => setSendButtonState('idle'), 3000);
     } finally {
       setIsSubmitting(false);
     }
@@ -472,21 +484,16 @@ export default function AuditFixRequest() {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-4 bg-[#111111] hover:bg-[#222222] text-[#FFFDF8] font-display font-black text-sm uppercase tracking-widest rounded-2xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xl disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <span>Processing Remediation Queue...</span>
-                ) : (
-                  <>
-                    <span>Submit Website for 48-Hour Engineering Fix</span>
-                    <ArrowRight className="w-4 h-4 text-[#D6B46A]" />
-                  </>
-                )}
-              </button>
+              {/* Submit Button With State Machine */}
+              <SendButton
+                state={sendButtonState}
+                idleText="Submit Website for 48-Hour Engineering Fix"
+                processingText="Processing Remediation Queue..."
+                successText="Remediation Ticket Dispatched · Staging Assigned"
+                errorText="Incomplete Details · Check Required Fields"
+                size="lg"
+                id="audit-fix-submit-button"
+              />
 
               <div className="flex items-center justify-center gap-6 text-[11px] text-[#8A8178] pt-1">
                 <span className="flex items-center gap-1.5">

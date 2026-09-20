@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS client_inquiries (
     user_budget_preference TEXT
 );
 
+-- Schema migration for existing client_inquiries tables without extended columns:
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS desired_timeline TEXT;
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS budget_range TEXT;
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS complexity TEXT;
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS selected_addons TEXT[];
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS estimated_min_price INTEGER;
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS estimated_max_price INTEGER;
+ALTER TABLE client_inquiries ADD COLUMN IF NOT EXISTS user_budget_preference TEXT;
+
 -- Enable RLS for client_inquiries
 ALTER TABLE client_inquiries ENABLE ROW LEVEL SECURITY;
 

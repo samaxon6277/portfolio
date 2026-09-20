@@ -74,6 +74,63 @@ export interface SchemaJsonLdItem {
   parseError?: string;
 }
 
+export type AuditCheckStatus = 'PASS' | 'WARNING' | 'FAIL' | 'NOT AVAILABLE';
+
+export interface AuditEvaluationCheck {
+  name: string;
+  category: 'AEO' | 'GEO' | 'SEO';
+  status: AuditCheckStatus;
+  evidence: string;
+  description: string;
+  recommendation?: string;
+}
+
+export interface AeoData {
+  directAnswerReadability: 'optimal' | 'moderate' | 'low';
+  hasFaqSchema: boolean;
+  hasQaSchema: boolean;
+  hasDefinitionBlocks: boolean;
+  definitionBlocksCount: number;
+  listAndTableCount: number;
+  hasTableOrListStructure: boolean;
+  entityClarityScore: number;
+  detectedEntities: string[];
+  voiceSearchReadiness: 'High' | 'Medium' | 'Low';
+  checks: AuditEvaluationCheck[];
+  recommendations: string[];
+}
+
+export interface GeoData {
+  aiBotsStatus: {
+    gptBot: 'allowed' | 'disallowed' | 'unrestricted';
+    claudeBot: 'allowed' | 'disallowed' | 'unrestricted';
+    perplexityBot: 'allowed' | 'disallowed' | 'unrestricted';
+    googleExtended: 'allowed' | 'disallowed' | 'unrestricted';
+    applebotExtended: 'allowed' | 'disallowed' | 'unrestricted';
+  };
+  factualCiteabilityScore: number;
+  hasAuthorOrPublisherMeta: boolean;
+  hasPublicationDates: boolean;
+  semanticHtmlStructureRatio: number;
+  cleanTextToHtmlRatio: number;
+  clientRenderDependency: 'low' | 'moderate' | 'heavy';
+  aiReadinessLevel: 'AI-Ready' | 'Partially Optimized' | 'Blocked / Non-Semantic';
+  llmsTxtStatus: {
+    checked: boolean;
+    exists: boolean;
+    isOptional: true;
+    note: string;
+  };
+  googleExtendedAnalysis: {
+    status: 'allowed' | 'disallowed' | 'unrestricted';
+    explanation: string;
+    affectsSearchRanking: false;
+  };
+  checks: AuditEvaluationCheck[];
+  aiVisibilityDisclaimer: string;
+  recommendations: string[];
+}
+
 export interface SecurityHeaderStatus {
   name: string;
   present: boolean;
@@ -352,6 +409,8 @@ export interface ComprehensiveAuditReport {
       detectedTypes: string[];
     };
     langAttribute: string | null;
+    aeoData?: AeoData;
+    geoData?: GeoData;
   };
 
   // Accessibility (WCAG 2.1 AA)
@@ -475,6 +534,9 @@ export interface ComprehensiveAuditReport {
     hasHtmlLang: boolean;
     imagesMissingDimensions: number;
   };
+
+  aeoData?: AeoData;
+  geoData?: GeoData;
 
   capabilitiesDoc?: ExecutionCapability[];
 }

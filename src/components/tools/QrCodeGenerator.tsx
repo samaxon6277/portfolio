@@ -374,9 +374,9 @@ END:VEVENT`;
             </span>
           </div>
 
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
             Custom High-Resolution <span className="text-[#D6B46A]">QR Code</span> Generator
-          </h1>
+          </h2>
 
           <p className="text-sm sm:text-base text-neutral-300 leading-relaxed font-normal">
             Create publication-grade, vector-crisp QR codes for websites, WhatsApp, Wi-Fi access, vCards, and marketing collateral. Customize brand colors, quiet margins, and center logos with real-time scan verification.

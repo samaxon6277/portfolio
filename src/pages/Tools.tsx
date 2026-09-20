@@ -404,9 +404,9 @@ export default function Tools() {
                 <span className="text-[10px] font-mono uppercase font-bold text-[#A68936] tracking-widest block">
                   {toolCategory ? toolCategory.name : 'Studio Tool'}
                 </span>
-                <h2 className="font-display font-bold text-lg sm:text-xl text-[#111111]">
+                <h1 className="font-display font-bold text-lg sm:text-xl text-[#111111]">
                   {getToolTitle()}
-                </h2>
+                </h1>
               </div>
             </div>
 

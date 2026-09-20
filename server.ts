@@ -560,6 +560,9 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Security: Prevent server framework fingerprinting
+  app.disable('x-powered-by');
+
   // JSON Body Parser with strict payload size limit (prevents memory exhaustion DoS)
   app.use(express.json({ limit: '100kb' }));
 
@@ -573,6 +576,9 @@ async function startServer() {
 
   // --- Strict Security Headers & Transport Layer Defenses ---
   app.use((req, res, next) => {
+    // Prevent server information leakage
+    res.removeHeader('X-Powered-By');
+
     // 1. Force 301 HTTPS Redirect when running in production behind reverse proxies (exclude localhost)
     const proto = req.headers['x-forwarded-proto'];
     const host = req.headers.host || '';
@@ -601,7 +607,10 @@ async function startServer() {
     // 6. Referrer Policy: Send full URL on same origin, domain-only on cross-origin HTTPS
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    // 7. Content Security Policy (CSP): Allow embedding within AI Studio and Cloud Run preview frames
+    // 7. Permissions-Policy: Restrict sensitive browser APIs
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+
+    // 8. Content Security Policy (CSP): Allow embedding within AI Studio and Cloud Run preview frames
     const isDev = process.env.NODE_ENV !== 'production';
     if (!isDev) {
       const cspDirectives = [
@@ -719,9 +728,13 @@ async function startServer() {
         email,
         city,
         serviceNeeded,
+        service,
         currentProblem,
+        problem,
         desiredTimeline,
+        timeline,
         budgetRange,
+        budget,
         message,
         complexity,
         selected_addons,
@@ -736,10 +749,10 @@ async function startServer() {
       const cleanPhone = sanitizeServerInput(phone, 25);
       const cleanEmail = sanitizeServerInput(email, 120);
       const cleanCity = sanitizeServerInput(city, 80);
-      const cleanService = sanitizeServerInput(serviceNeeded, 100) || 'Web Development';
-      const cleanProblem = sanitizeServerInput(currentProblem, 1500);
-      const cleanTimeline = sanitizeServerInput(desiredTimeline, 50) || 'Under 48 Hours';
-      const cleanBudget = sanitizeServerInput(budgetRange, 150);
+      const cleanService = sanitizeServerInput(serviceNeeded || service, 100) || 'Web Development';
+      const cleanProblem = sanitizeServerInput(currentProblem || problem || message, 1500);
+      const cleanTimeline = sanitizeServerInput(desiredTimeline || timeline, 50) || 'Under 48 Hours';
+      const cleanBudget = sanitizeServerInput(budgetRange || budget, 150);
       const cleanMessage = sanitizeServerInput(message, 3000);
 
       // Validation check
@@ -757,7 +770,18 @@ async function startServer() {
       }
 
       const leadId = `lead-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-      const newLeadRecord = {
+      
+      const metaPayload = {
+        budgetRange: cleanBudget,
+        desiredTimeline: cleanTimeline,
+        complexity: sanitizeServerInput(complexity, 50) || 'Standard',
+        selected_addons: Array.isArray(selected_addons) ? selected_addons.slice(0, 10).map(a => sanitizeServerInput(a, 60)) : [],
+        estimated_min_price: typeof estimated_min_price === 'number' ? estimated_min_price : 0,
+        estimated_max_price: typeof estimated_max_price === 'number' ? estimated_max_price : 0,
+        user_budget_preference: sanitizeServerInput(user_budget_preference, 100)
+      };
+
+      const baselineLeadRecord = {
         id: leadId,
         full_name: cleanName,
         business_name: cleanBusiness,
@@ -767,22 +791,16 @@ async function startServer() {
         city: cleanCity,
         service_required: cleanService,
         message: cleanMessage || cleanProblem,
-        desired_timeline: cleanTimeline,
-        budget_range: cleanBudget,
         status: 'new',
         priority: cleanTimeline.includes('48') ? 'high' : 'medium',
-        complexity: sanitizeServerInput(complexity, 50) || 'Standard',
-        selected_addons: Array.isArray(selected_addons) ? selected_addons.slice(0, 10).map(a => sanitizeServerInput(a, 60)) : [],
-        estimated_min_price: typeof estimated_min_price === 'number' ? estimated_min_price : 0,
-        estimated_max_price: typeof estimated_max_price === 'number' ? estimated_max_price : 0,
-        user_budget_preference: sanitizeServerInput(user_budget_preference, 100),
+        notes: `[Budget: ${cleanBudget || 'Custom'} | Timeline: ${cleanTimeline || 'Flexible'}]\n__META__:${JSON.stringify(metaPayload)}`,
         created_at: new Date().toISOString()
       };
 
-      // Parameterized Supabase Database Insert
+      // Parameterized Supabase Database Insert (guaranteed compatible with baseline & extended schemas)
       const { error: dbError } = await supabase
         .from('client_inquiries')
-        .insert(newLeadRecord);
+        .insert(baselineLeadRecord);
 
       if (dbError) {
         console.error('Supabase /api/inquire insert error:', dbError.message);
@@ -2445,6 +2463,22 @@ Do not wrap in markdown quotes if possible, output pure parseable JSON.`;
       '/gaming-website-development-india',
       '/business-automation-lead-generation-services',
       '/website-development-delhi',
+      '/glassmorphism-neumorphism-generator',
+      '/glassmorphism',
+      '/svg-optimizer',
+      '/cron-generator',
+      '/cron-explainer',
+      '/regex-tester',
+      '/markdown-to-html',
+      '/jwt-debugger',
+      '/jwt-decoder',
+      '/favicon-generator',
+      '/whatsapp-link-generator',
+      '/whatsapp-link',
+      '/css-animation-builder',
+      '/css-animation',
+      '/color-contrast-checker',
+      '/color-contrast',
       '/case-study/case-1',
       '/case-study/case-2',
       '/case-study/case-3'
@@ -2484,13 +2518,16 @@ Do not wrap in markdown quotes if possible, output pure parseable JSON.`;
         }
       }
 
-      // Ensure root div is clean (no crawler-only or duplicate hidden body content)
-      html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, '<div id="root"></div>');
-
       const routeValid = isKnownRoute(route);
-      const metadata = PRERENDER_MAP[route];
+      const cleanRoute = route.replace(/\/$/, '') || '/';
+      const metadata = PRERENDER_MAP[cleanRoute] || PRERENDER_MAP[route];
 
       if (routeValid && metadata) {
+        // Inject rich semantic pre-rendered HTML for crawlers and initial render
+        if (metadata.bodyHtml) {
+          html = html.replace(/<div id="root">([\s\S]*?)<\/div>/i, `<div id="root">${metadata.bodyHtml}</div>`);
+        }
+
         // Replace Title Tag
         html = html.replace(/<title>.*?<\/title>/i, `<title>${metadata.title}</title>`);
         

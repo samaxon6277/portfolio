@@ -46,9 +46,9 @@ export const ToolHeader: React.FC<ToolHeaderProps> = ({
           </div>
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display font-black text-xl sm:text-2xl lg:text-3xl text-neutral-900 tracking-tight">
+              <h2 className="font-display font-black text-xl sm:text-2xl lg:text-3xl text-neutral-900 tracking-tight">
                 {title}
-              </h1>
+              </h2>
               {badgeText && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase tracking-wider">
                   <ShieldCheck className="w-3 h-3 text-emerald-600" />

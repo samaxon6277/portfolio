@@ -7,6 +7,7 @@ import { analytics } from '../utils/analytics';
 import CustomSelect from '../components/CustomSelect';
 import { SITE_CONFIG, getWhatsAppInquiryUrl } from '../config/siteConfig';
 import { sanitizeString, sanitizeEmail, sanitizePhone } from '../utils/security';
+import { SendButton, SendButtonState } from '../components/ui/SendButton';
 
 // 15 Standard Premium Service Options with upfront Base Prices (₹ - INR)
 interface ServiceOption {
@@ -127,6 +128,7 @@ export default function Contact() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sendButtonState, setSendButtonState] = useState<SendButtonState>('idle');
 
   // Derive and calculate precise price quotes in real-time
   const selectedService = SERVICE_CATEGORIES.find(s => s.value === formData.serviceNeeded) || SERVICE_CATEGORIES[0];
@@ -203,8 +205,13 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      setSendButtonState('error');
+      setTimeout(() => setSendButtonState('idle'), 3000);
+      return;
+    }
 
+    setSendButtonState('processing');
     setIsSubmitting(true);
 
     const cleanName = sanitizeString(formData.name, 100);
@@ -298,9 +305,11 @@ export default function Contact() {
       console.error('Direct Supabase insert failed, but saved locally:', err);
     }
 
+    setSendButtonState('success');
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
+      setSendButtonState('idle');
 
       // Reset form variables
       setFormData({
@@ -801,24 +810,16 @@ export default function Contact() {
                     />
                   </div>
 
-                  {/* SUBMIT SPRINT TRIGGER */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-4 sm:py-5 bg-matte-black text-soft-ivory hover:text-champagne-gold hover:bg-charcoal font-bold uppercase tracking-wider text-xs sm:text-sm rounded-xl border border-champagne-gold/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-md font-mono"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin text-champagne-gold" />
-                        Logging Sprint &amp; Triggering Automations...
-                      </>
-                    ) : (
-                      <>
-                        {getSubmitButtonText()}
-                        <ArrowRight className="w-5 h-5 text-champagne-gold" />
-                      </>
-                    )}
-                  </button>
+                  {/* SUBMIT SPRINT TRIGGER WITH SEND BUTTON STATE MACHINE */}
+                  <SendButton
+                    state={sendButtonState}
+                    idleText={getSubmitButtonText()}
+                    processingText="Logging Sprint &amp; Triggering Automations..."
+                    successText="Sprint Queued · WhatsApp / Email Dispatched"
+                    errorText="Incomplete Details · Check Highlighted Fields"
+                    size="lg"
+                    id="contact-submit-button"
+                  />
                 </form>
               )}
             </div>

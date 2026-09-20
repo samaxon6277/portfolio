@@ -134,6 +134,19 @@ export const supabaseService = {
 
   // Helpers to map client inquiries to UI Leads
   mapInquiryToLead(inq: any): Lead {
+    let parsedMeta: any = {};
+    let cleanNotes = inq.notes || '';
+    
+    if (cleanNotes.includes('__META__:')) {
+      try {
+        const parts = cleanNotes.split('__META__:');
+        cleanNotes = parts[0].trim();
+        parsedMeta = JSON.parse(parts[1].trim());
+      } catch (e) {
+        // Safe JSON fallback
+      }
+    }
+
     return {
       id: inq.id,
       name: inq.full_name || '',
@@ -143,19 +156,19 @@ export const supabaseService = {
       city: inq.city || '',
       serviceNeeded: inq.service_required || 'Web Development',
       currentProblem: inq.message || '',
-      desiredTimeline: inq.desired_timeline || 'Under 48 Hours',
-      budgetRange: inq.budget_range || '₹1,00,000 - ₹2,50,000 (Elite Premium)',
+      desiredTimeline: inq.desired_timeline || parsedMeta.desiredTimeline || 'Under 48 Hours',
+      budgetRange: inq.budget_range || parsedMeta.budgetRange || '₹1,00,000 - ₹2,50,000 (Elite Premium)',
       message: inq.message || '',
       status: (inq.status || 'new').toLowerCase() as any, // mapping to 'new' | 'contacted' | 'negotiating' | 'won' | 'lost'
       createdAt: inq.created_at || new Date().toISOString(),
       priority: inq.priority || 'medium',
-      internalNotes: inq.notes || '',
+      internalNotes: cleanNotes,
       assignedTo: inq.assigned_to || '',
-      complexity: inq.complexity || 'Standard',
-      selected_addons: inq.selected_addons || [],
-      estimated_min_price: inq.estimated_min_price || 0,
-      estimated_max_price: inq.estimated_max_price || 0,
-      user_budget_preference: inq.user_budget_preference || ''
+      complexity: inq.complexity || parsedMeta.complexity || 'Standard',
+      selected_addons: inq.selected_addons || parsedMeta.selected_addons || [],
+      estimated_min_price: inq.estimated_min_price ?? parsedMeta.estimated_min_price ?? 0,
+      estimated_max_price: inq.estimated_max_price ?? parsedMeta.estimated_max_price ?? 0,
+      user_budget_preference: inq.user_budget_preference || parsedMeta.user_budget_preference || ''
     };
   },
 
@@ -211,7 +224,23 @@ export const supabaseService = {
     let success = true;
     if (checkHasKeys()) {
       try {
-        const inquiry = {
+        const metaPayload = {
+          budgetRange: lead.budgetRange || '',
+          desiredTimeline: lead.desiredTimeline || 'Under 48 Hours',
+          complexity: lead.complexity || 'Standard',
+          selected_addons: lead.selected_addons || [],
+          estimated_min_price: lead.estimated_min_price || 0,
+          estimated_max_price: lead.estimated_max_price || 0,
+          user_budget_preference: lead.user_budget_preference || ''
+        };
+
+        const existingNotes = (lead as any).internalNotes || '';
+        const metaTag = `__META__:${JSON.stringify(metaPayload)}`;
+        const combinedNotes = existingNotes 
+          ? (existingNotes.includes('__META__:') ? existingNotes.replace(/__META__:.*$/, metaTag) : `${existingNotes}\n${metaTag}`)
+          : metaTag;
+
+        const baselineInquiry = {
           id: lead.id,
           full_name: lead.name,
           business_name: lead.businessName,
@@ -223,21 +252,15 @@ export const supabaseService = {
           message: lead.message || lead.currentProblem || '',
           status: lead.status || 'new',
           priority: (lead as any).priority || 'medium',
-          notes: (lead as any).internalNotes || '',
+          notes: combinedNotes,
           assigned_to: (lead as any).assignedTo || '',
-          created_at: lead.createdAt || new Date().toISOString(),
-          desired_timeline: lead.desiredTimeline || 'Under 48 Hours',
-          budget_range: lead.budgetRange || '',
-          complexity: lead.complexity || 'Standard',
-          selected_addons: lead.selected_addons || [],
-          estimated_min_price: lead.estimated_min_price || 0,
-          estimated_max_price: lead.estimated_max_price || 0,
-          user_budget_preference: lead.user_budget_preference || ''
+          created_at: lead.createdAt || new Date().toISOString()
         };
 
         const { error } = await supabase
           .from('client_inquiries')
-          .upsert(inquiry);
+          .upsert(baselineInquiry);
+
         if (error) throw error;
       } catch (err) {
         console.error('Supabase write client_inquiries failed:', err);
