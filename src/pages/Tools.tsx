@@ -266,26 +266,51 @@ export default function Tools() {
 
   const activeTab = getTabFromPath();
 
+  // Track scroll position continuously when browsing tools overview
+  useEffect(() => {
+    if (activeTab === 'overview') {
+      const handleScroll = () => {
+        const y = window.scrollY || document.documentElement.scrollTop || 0;
+        if (y > 40) {
+          sessionStorage.setItem('samaxon_tools_scroll_pos', y.toString());
+        }
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [activeTab]);
+
   // Restore scroll position when navigating back to tools overview
   useEffect(() => {
     if (activeTab === 'overview') {
       const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
-      if (savedPosStr) {
-        const top = parseInt(savedPosStr, 10);
-        if (!isNaN(top) && top > 0) {
-          const timer1 = setTimeout(() => {
+      const lastToolId = sessionStorage.getItem('samaxon_last_tool_id');
+      const top = savedPosStr ? parseInt(savedPosStr, 10) : 0;
+
+      if (lastToolId || (!isNaN(top) && top > 0)) {
+        const performRestore = () => {
+          if (lastToolId) {
+            const cardEl = document.getElementById(`tool-card-${lastToolId}`);
+            if (cardEl) {
+              cardEl.scrollIntoView({ behavior: 'instant', block: 'center' });
+              return;
+            }
+          }
+          if (top > 0) {
             window.scrollTo({ top, left: 0, behavior: 'instant' });
             document.documentElement.scrollTop = top;
             document.body.scrollTop = top;
-          }, 30);
-          const timer2 = setTimeout(() => {
-            window.scrollTo({ top, left: 0, behavior: 'instant' });
-          }, 120);
-          return () => {
-            clearTimeout(timer1);
-            clearTimeout(timer2);
-          };
-        }
+          }
+        };
+
+        const timer1 = setTimeout(performRestore, 30);
+        const timer2 = setTimeout(performRestore, 120);
+        const timer3 = setTimeout(performRestore, 280);
+        return () => {
+          clearTimeout(timer1);
+          clearTimeout(timer2);
+          clearTimeout(timer3);
+        };
       }
     }
   }, [activeTab]);

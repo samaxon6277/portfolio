@@ -103,6 +103,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick, featured = fa
   return (
     <Link
       ref={cardRef}
+      id={`tool-card-${tool.id}`}
       to={tool.route}
       onClick={handleClick}
       onMouseMove={handleMouseMove}

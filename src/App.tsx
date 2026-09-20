@@ -53,35 +53,30 @@ if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
 }
 
 function ScrollToTop() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   useEffect(() => {
-    // If returning to /tools overview and we have a saved scroll position, DO NOT force scroll to 0!
-    if (pathname === '/tools' && !search) {
+    // If returning to /tools overview and we have a saved scroll position or last tool, DO NOT force scroll to 0!
+    if (pathname === '/tools' || pathname === '/tools/') {
       const savedPosStr = sessionStorage.getItem('samaxon_tools_scroll_pos');
-      if (savedPosStr) {
-        const top = parseInt(savedPosStr, 10);
-        if (!isNaN(top) && top > 0) {
-          // Allow Tools page to restore the exact scroll position
-          return;
-        }
+      const lastToolId = sessionStorage.getItem('samaxon_last_tool_id');
+      if (lastToolId || (savedPosStr && parseInt(savedPosStr, 10) > 0)) {
+        // Allow Tools page to restore the exact scroll position
+        return;
       }
     }
 
     // If returning to home page and a saved home scroll position exists, do not reset
-    if (pathname === '/' && !search) {
+    if (pathname === '/') {
       const homePosStr = sessionStorage.getItem('samaxon_home_scroll_pos');
-      if (homePosStr) {
-        const top = parseInt(homePosStr, 10);
-        if (!isNaN(top) && top > 0) {
-          return;
-        }
+      if (homePosStr && parseInt(homePosStr, 10) > 0) {
+        return;
       }
     }
 
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-  }, [pathname, search]);
+  }, [pathname]);
   return null;
 }
 

@@ -29,7 +29,7 @@
     },
     {
       "source": "/((?!api/).*)",
-      "destination": "/api/404"
+      "destination": "/index.html"
     }
   ],
   "headers": [

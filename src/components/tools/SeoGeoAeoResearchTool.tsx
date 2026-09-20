@@ -206,114 +206,31 @@ export default function SeoGeoAeoResearchTool() {
       clearInterval(stepInterval);
 
       if (data && data.success) {
-        // Compute SEO score
-        const seoScore = data.scores?.seo || 85;
-        
-        // Extract AEO Data
-        const extractedAeo: AeoData = data.aeoData || data.meta?.aeoData || {
-          directAnswerReadability: (data.meta?.h2Count || 0) >= 2 ? 'optimal' : 'moderate',
-          hasFaqSchema: data.deepHealth?.hasJsonLd || false,
-          hasQaSchema: data.deepHealth?.hasJsonLd || false,
-          hasDefinitionBlocks: false,
-          definitionBlocksCount: 1,
-          listAndTableCount: 3,
-          hasTableOrListStructure: true,
-          entityClarityScore: 78,
-          detectedEntities: [host.replace(/^www\./i, '').split('.')[0]],
-          voiceSearchReadiness: data.deepHealth?.hasJsonLd ? 'High' : 'Medium',
-          checks: [
-            {
-              name: 'FAQ & Q&A Schema Markup',
-              category: 'AEO',
-              status: data.deepHealth?.hasJsonLd ? 'pass' : 'warn',
-              evidence: data.deepHealth?.hasJsonLd ? 'JSON-LD schema detected' : 'No explicit FAQPage schema found',
-              description: 'Provides structured Q&A for voice engines.'
-            },
-            {
-              name: 'Direct Answer Phrasing',
-              category: 'AEO',
-              status: (data.meta?.h2Count || 0) >= 2 ? 'pass' : 'warn',
-              evidence: `${data.meta?.h2Count || 0} subheadings available for direct citation`,
-              description: 'Clear question headings facilitate voice answer synthesis.'
-            }
-          ],
-          recommendations: [
-            'Add FAQPage Schema markup with top 3-5 user questions and direct concise answers.',
-            'Format key subheadings as explicit questions with immediate 40-word answers.'
-          ]
-        };
+        setErrorMsg('');
 
-        // Extract GEO Data
-        const extractedGeo: GeoData = data.geoData || data.meta?.geoData || {
-          aiBotsStatus: {
-            gptBot: 'unrestricted',
-            claudeBot: 'unrestricted',
-            perplexityBot: 'unrestricted',
-            googleExtended: 'unrestricted',
-            applebotExtended: 'unrestricted'
-          },
-          factualCiteabilityScore: 72,
-          hasAuthorOrPublisherMeta: true,
-          hasPublicationDates: false,
-          semanticHtmlStructureRatio: 55,
-          cleanTextToHtmlRatio: 22,
-          clientRenderDependency: 'low',
-          aiReadinessLevel: 'AI-Ready',
-          llmsTxtStatus: {
-            checked: true,
-            exists: false,
-            isOptional: true,
-            note: 'llms.txt manifest not detected (Optional standard for LLMs).'
-          },
-          googleExtendedAnalysis: {
-            status: 'unrestricted',
-            explanation: 'Google-Extended is allowed or unrestricted. Content is eligible for Gemini grounding datasets.',
-            affectsSearchRanking: false
-          },
-          checks: [
-            {
-              name: 'AI Crawler Access (robots.txt)',
-              category: 'GEO',
-              status: 'pass',
-              evidence: 'No blocking directives for AI crawlers detected.',
-              description: 'Permits LLM retrieval agents to cite current public data.'
-            },
-            {
-              name: 'Factual Citeability Index',
-              category: 'GEO',
-              status: 'pass',
-              evidence: 'Verified statistical and semantic data signals detected.',
-              description: 'Generative engines favor citing verified facts and statistics.'
-            }
-          ],
-          aiVisibilityDisclaimer: 'Generative Engine Optimization (GEO) measures visibility across conversational AI assistants (ChatGPT, Perplexity, Claude, Google Gemini).',
-          recommendations: [
-            'Add concrete statistics, verifiable user metrics, or benchmarks to increase citation confidence by LLMs.',
-            'Deploy an optional llms.txt markdown manifest to guide AI models to your authoritative services.'
-          ]
-        };
-
-        // Compute scores
-        const geoScore = extractedGeo.factualCiteabilityScore || 75;
-        const aeoScore = extractedAeo.entityClarityScore || 70;
-        const overallScore = Math.round((seoScore * 0.4) + (geoScore * 0.3) + (aeoScore * 0.3));
+        // Extract real scores directly from the server response
+        const seoScore = Number(data.scores?.seo ?? (100 - ((data.issues?.critical?.length || 0) * 20)));
+        const geoScore = Number(data.scores?.geo ?? data.geoData?.factualCiteabilityScore ?? 70);
+        const aeoScore = Number(data.scores?.aeo ?? data.aeoData?.entityClarityScore ?? 70);
+        const overallScore = Number(data.scores?.overall ?? Math.round((seoScore * 0.4) + (geoScore * 0.3) + (aeoScore * 0.3)));
 
         setScores({
-          seo: seoScore,
-          geo: geoScore,
-          aeo: aeoScore,
-          overall: overallScore
+          seo: Math.max(10, Math.min(100, seoScore)),
+          geo: Math.max(10, Math.min(100, geoScore)),
+          aeo: Math.max(10, Math.min(100, aeoScore)),
+          overall: Math.max(10, Math.min(100, overallScore))
         });
 
+        // Set real SEO metadata directly from authentic website DOM response
         setSeoData({
           title: data.meta?.title || `${host} Web Asset`,
           titleLength: (data.meta?.title || '').length,
-          metaDescription: data.meta?.metaDescription || 'No meta description detected.',
+          metaDescription: data.meta?.metaDescription || 'No meta description detected in HTML document.',
           metaDescriptionLength: (data.meta?.metaDescription || '').length,
           canonicalUrl: data.meta?.canonicalUrl || clean,
-          isCanonicalMatching: true,
+          isCanonicalMatching: !data.meta?.canonicalUrl || data.meta.canonicalUrl.includes(host),
           robotsMeta: data.meta?.robotsContent || 'index, follow',
-          isIndexable: !(data.meta?.robotsContent || '').includes('noindex'),
+          isIndexable: !(data.meta?.robotsContent || '').toLowerCase().includes('noindex'),
           h1Count: data.meta?.h1List?.length || 0,
           h1List: data.meta?.h1List || [],
           h2Count: data.meta?.h2Count || 0,
@@ -326,12 +243,18 @@ export default function SeoGeoAeoResearchTool() {
           hasDoctype: data.meta?.hasDoctype ?? true
         });
 
-        setAeoData(extractedAeo);
-        setGeoData(extractedGeo);
+        if (data.aeoData) {
+          setAeoData(data.aeoData);
+        }
+        if (data.geoData) {
+          setGeoData(data.geoData);
+        }
+      } else {
+        setErrorMsg(data?.error || `Unable to inspect ${host}. The target server may be blocking automated diagnostic requests, or the request timed out.`);
       }
     } catch (err: any) {
       clearInterval(stepInterval);
-      setErrorMsg('Direct diagnostic fetch completed with client simulation mode.');
+      setErrorMsg(err?.message || `Failed to establish connection with diagnostic engine for ${clean}.`);
     } finally {
       setIsScanning(false);
     }
@@ -531,6 +454,21 @@ export default function SeoGeoAeoResearchTool() {
                 className="bg-[#D6B46A] h-full transition-all duration-300"
                 style={{ width: `${((scanStep + 1) / scanSteps.length) * 100}%` }}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Scan Status & Notice Banner */}
+        {errorMsg && (
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start gap-3 text-sm text-[#111111]">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <div className="font-bold text-amber-900 font-mono text-xs uppercase tracking-wide">
+                Live Audit Report Notice
+              </div>
+              <p className="text-xs text-[#4A443E] leading-relaxed">
+                {errorMsg}
+              </p>
             </div>
           </div>
         )}

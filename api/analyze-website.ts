@@ -104,7 +104,7 @@ export default async function handler(req: any, res: any) {
 
     for (const attemptUrl of urlsToTry) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 7500);
       try {
         const resAttempt = await fetch(attemptUrl, {
           signal: controller.signal,
@@ -125,8 +125,18 @@ export default async function handler(req: any, res: any) {
 
     const responseTimeMs = Date.now() - startTime;
 
-    // Fallback if origin blocked or timed out
+    // Return genuine error if target website cannot be fetched or timed out
     if (fetchError || !response) {
+      return res.status(502).json({
+        success: false,
+        reachable: false,
+        error: fetchError || `Could not connect to ${parsedUrl.hostname}. The origin server timed out, rejected the connection, or blocked automated diagnostic requests.`,
+        hostname: parsedUrl.hostname,
+        url: targetUrl
+      });
+    }
+
+    if (false as any) {
       const host = parsedUrl.hostname;
       const brandName = host.replace(/^www\./i, '').split('.')[0].toUpperCase();
 
@@ -409,8 +419,8 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // Crawl subpages and perform deep diagnostic on each individual page
-    const subpagesList = Array.from(discoveredPaths).slice(0, 15);
+    // Crawl a focused sample of discovered subpages (up to 3) for deep multi-page diagnostics
+    const subpagesList = Array.from(discoveredPaths).slice(0, 3);
 
     // Root homepage item
     const homeIssues: Array<{ severity: 'critical' | 'warning' | 'passed'; title: string; description: string }> = [];
@@ -446,7 +456,7 @@ export default async function handler(req: any, res: any) {
         const pageUrl = new URL(p, targetUrl).toString();
         const pStart = Date.now();
         const pCtrl = new AbortController();
-        const pTimer = setTimeout(() => pCtrl.abort(), 4000);
+        const pTimer = setTimeout(() => pCtrl.abort(), 2000);
 
         try {
           const pRes = await fetch(pageUrl, {
@@ -1185,6 +1195,8 @@ export default async function handler(req: any, res: any) {
         overall: overallScore,
         security: securityScore,
         seo: seoScore,
+        geo: factualCiteabilityScore,
+        aeo: entityClarityScore,
         code: codeScore,
         performance: perfScore
       },
